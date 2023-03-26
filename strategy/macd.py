@@ -99,7 +99,7 @@ def bottom_reverse(k_mark):
 def search(stocks=[], lit=-7):
     t1 = datetime.now()
     now_str = t1.strftime('%Y-%m-%d')
-    with open('search_date') as r:
+    with open('res/macd_search_date') as r:
         last_str = r.read(10)
         if last_str == now_str:
             print('最近一次刷新时间：{}'.format(last_str))
@@ -107,7 +107,7 @@ def search(stocks=[], lit=-7):
         r.close()
 
     sql = 'SELECT code FROM `all_realtime`'
-    if len(stocks)>0:
+    if len(stocks) > 0:
         sql = '{} WHERE code IN({})'.format(sql,','.join(stocks))
     codes = query(sql)
     print('开始时间：{},记录数:{}'.format(t1, len(codes)))
@@ -121,9 +121,9 @@ def search(stocks=[], lit=-7):
                     if datetime.strptime(i, '%Y-%m-%d') > lately:
                         print('[编码]{}，[日期]{}，[价格]{}'.format(row.code, i, row2.close))
                         s1 = pd.DataFrame({'code': [row.code], 'datetime': [i], 'close': [row2.close], 'create': [datetime.now().strftime('%H %M %S')]})
-                        s1.to_csv('macd_result_{}.csv'.format(datetime.now().strftime('%Y%m%d')),index=False, header=False, mode='a')
+                        s1.to_csv('res/macd_result_{}.csv'.format(datetime.now().strftime('%Y%m%d')),index=False, header=False, mode='a')
     t2 = datetime.now()
-    with open('storage_date', 'w') as w:
+    with open('res/macd_search_date', 'w') as w:
         w.write(now_str)
         w.close()
     print('开始时间：{}, 结束时间:{} , 一共用时：{:.2f}分钟'.format(t1, t2, (t2-t1).seconds/60))

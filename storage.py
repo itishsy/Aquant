@@ -72,7 +72,7 @@ def read(stock_code, klt=101, beg='', end='', field='*', limit=-1, order_by='dat
 def fetch_data():
     t1 = datetime.datetime.now()
     now_str = t1.strftime('%Y-%m-%d')
-    with open('storage_date') as r:
+    with open('res/storage_date') as r:
         last_str = r.read(10)
         if last_str == now_str:
             print('最近一次刷新时间：{}'.format(last_str))
@@ -80,12 +80,12 @@ def fetch_data():
         r.close()
 
     upset_all()
-    codes = query('SELECT code FROM `all_realtime` LIMIT 10')
+    codes = query('SELECT code FROM `all_realtime`')
     for idx, row in codes.iterrows():
         print('{} upset code {}'.format(idx, row.code))
         upset(row.code)
     t2 = datetime.datetime.now()
-    with open('storage_date', 'w') as w:
+    with open('res/storage_date', 'w') as w:
         w.write(now_str)
         w.close()
     print('开始时间：{}, 结束时间:{} , 一共用时：{:.2f}分钟'.format(t1, t2, (t2 - t1).seconds / 60))
