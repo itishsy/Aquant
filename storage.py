@@ -76,3 +76,4 @@ def fetch_data():
         upset(row.code)
     t2 = datetime.datetime.now()
     print('开始时间：{}, 结束时间:{} , 一共用时：{}分钟'.format(t1, t2, (t2-t1).seconds/60))
+
