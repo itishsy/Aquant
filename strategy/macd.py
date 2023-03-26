@@ -117,9 +117,10 @@ def search(stocks=[], lit=-7):
     t2 = datetime.now()
     print('开始时间：{}, 结束时间:{} , 一共用时：{}分钟'.format(t1, t2, (t2-t1).seconds/60))
 
+
+'''
 stocks=['603291','301096','300842']
 search(stocks)
-'''
 codes = query('SELECT code FROM `all_realtime`')
 for idx, row in codes.iterrows():
     print('{} query code {}'.format(idx, row.code))

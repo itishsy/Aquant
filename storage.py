@@ -32,7 +32,9 @@ def upset(stock_code):
     exits = query("SELECT COUNT(1) AS t FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = 'agu' AND `TABLE_NAME` = '{}'".format(table_name)).at[0, 't']
     beg = '19000101'
     if exits > 0:
-        beg = query("SELECT REPLACE(DATE_ADD(`datetime`, INTERVAL 1 DAY),'-','') AS d FROM `{}` ORDER BY `datetime` DESC LIMIT 1 ".format(table_name)).at[0, 'd']
+        beg_data = query("SELECT REPLACE(DATE_ADD(`datetime`, INTERVAL 1 DAY),'-','') AS d FROM `{}` ORDER BY `datetime` DESC LIMIT 1 ".format(table_name))
+        if len(beg_data) > 0:
+            beg = beg_data.at[0, 'd']
 
     for klt in [101, 102, 103, 60, 30, 15]:
         k_data = ef.stock.get_quote_history(stock_code, klt=klt,beg=beg)
