@@ -70,29 +70,29 @@ def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
             k_mark.iloc[i, k_mark.columns.get_loc('mark')] = 1
 
     #k_mark.to_csv('k_mark_{}.csv'.format(stock_code))
-
     k_mark_new = k_mark[abs(k_mark['mark']) == 3]
     return k_mark_new
 
 
 def bottom_reverse(k_mark):
     size = len(k_mark)
-    for i in range(2,size):
-        mark_2 = k_mark.iloc[i-2, k_mark.columns.get_loc('mark')]
-        mark_1 = k_mark.iloc[i-1, k_mark.columns.get_loc('mark')]
-        mark_0 = k_mark.iloc[i, k_mark.columns.get_loc('mark')]
-        bar0 = k_mark.iloc[i, k_mark.columns.get_loc('bar')]
-        if mark_2 == -3 and mark_1 == 3 and mark_0 == -3 and abs(bar0) > 0.1:
-            diff2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('diff')]
-            diff1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('diff')]
-            diff0 = k_mark.iloc[i, k_mark.columns.get_loc('diff')]
-            low2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('low')]
-            low0 = k_mark.iloc[i, k_mark.columns.get_loc('low')]
-            if diff1 < 0 and diff2 < diff0 and low2 > low0:
-                k_mark.iloc[i, k_mark.columns.get_loc('signal')] = 1
-    k_signal = k_mark[k_mark['signal'] == 1]
-
-    #k_signal.to_csv('k_signal.csv')
+    k_signal = pd.DataFrame()
+    if size > 3 and 'mark' in k_mark:
+        for i in range(2,size):
+            mark_2 = k_mark.iloc[i-2, k_mark.columns.get_loc('mark')]
+            mark_1 = k_mark.iloc[i-1, k_mark.columns.get_loc('mark')]
+            mark_0 = k_mark.iloc[i, k_mark.columns.get_loc('mark')]
+            bar0 = k_mark.iloc[i, k_mark.columns.get_loc('bar')]
+            if mark_2 == -3 and mark_1 == 3 and mark_0 == -3 and abs(bar0) > 0.1:
+                diff2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('diff')]
+                diff1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('diff')]
+                diff0 = k_mark.iloc[i, k_mark.columns.get_loc('diff')]
+                low2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('low')]
+                low0 = k_mark.iloc[i, k_mark.columns.get_loc('low')]
+                if diff1 < 0 and diff2 < diff0 and low2 > low0:
+                    k_mark.iloc[i, k_mark.columns.get_loc('signal')] = 1
+        k_signal = k_mark[k_mark['signal'] == 1]
+        #k_signal.to_csv('k_signal.csv')
     return k_signal
 
 
