@@ -112,13 +112,13 @@ def search(stocks=[], lit=-7):
                 for i, row2 in signal.iterrows():
                     if datetime.strptime(i, '%Y-%m-%d') > lately:
                         print('[编码]{}，[日期]{}，[价格]{}'.format(row.code, i, row2.close))
-                        s1 = pd.Series([row.code, i, row2.close, datetime.now().strftime('%H %M %S')], index=['code', 'datetime', 'close', 'create'])
-                        s1.to_csv('bottom_reverse_{}.csv'.format(datetime.now().strftime('%Y%m%d')),header=False,mode='a')
+                        s1 = pd.DataFrame({'code': [row.code], 'datetime': [i], 'close': [row2.close], 'create': [datetime.now().strftime('%H %M %S')]})
+                        s1.to_csv('macd_result_{}.csv'.format(datetime.now().strftime('%Y%m%d')),index=False, header=False, mode='a')
     t2 = datetime.now()
     print('开始时间：{}, 结束时间:{} , 一共用时：{}分钟'.format(t1, t2, (t2-t1).seconds/60))
 
-#stocks=['600054','000978']
-search()
+stocks=['603291','301096','300842']
+search(stocks)
 '''
 codes = query('SELECT code FROM `all_realtime`')
 for idx, row in codes.iterrows():
