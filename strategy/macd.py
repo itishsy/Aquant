@@ -97,11 +97,19 @@ def bottom_reverse(k_mark):
 
 
 def search(stocks=[], lit=-7):
+    t1 = datetime.now()
+    now_str = t1.strftime('%Y-%m-%d')
+    with open('search_date') as r:
+        last_str = r.read(10)
+        if last_str == now_str:
+            print('最近一次刷新时间：{}'.format(last_str))
+            return
+        r.close()
+
     sql = 'SELECT code FROM `all_realtime`'
     if len(stocks)>0:
         sql = '{} WHERE code IN({})'.format(sql,','.join(stocks))
     codes = query(sql)
-    t1 = datetime.now()
     print('开始时间：{},记录数:{}'.format(t1, len(codes)))
     for idx, row in codes.iterrows():
         data = mark_data(row.code)
@@ -115,17 +123,7 @@ def search(stocks=[], lit=-7):
                         s1 = pd.DataFrame({'code': [row.code], 'datetime': [i], 'close': [row2.close], 'create': [datetime.now().strftime('%H %M %S')]})
                         s1.to_csv('macd_result_{}.csv'.format(datetime.now().strftime('%Y%m%d')),index=False, header=False, mode='a')
     t2 = datetime.now()
-    print('开始时间：{}, 结束时间:{} , 一共用时：{}分钟'.format(t1, t2, (t2-t1).seconds/60))
-
-
-'''
-stocks=['603291','301096','300842']
-search(stocks)
-codes = query('SELECT code FROM `all_realtime`')
-for idx, row in codes.iterrows():
-    print('{} query code {}'.format(idx, row.code))
-    sql = 'SELECT datetime FROM `k_{}` WHERE CLOSE IS NULL '.format(row.code)
-    data = query(sql)
-    if len(data) > 0:
-        print('{} error code {}'.format(idx, row.code))
-'''
+    with open('storage_date', 'w') as w:
+        w.write(now_str)
+        w.close()
+    print('开始时间：{}, 结束时间:{} , 一共用时：{:.2f}分钟'.format(t1, t2, (t2-t1).seconds/60))
