@@ -21,6 +21,8 @@ turn：
 
 
 def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
+    if klt == 102:
+        start = datetime(2000, 1, 1),
     k_data = read(stock_code, klt=klt, beg=start, field='open,high,low,close,volume,datetime')
     if len(k_data) < 50:
         return k_data
@@ -69,7 +71,7 @@ def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
         if mark_cur == 3 and k_mark.iloc[i]['diff'] > -0.1:
             k_mark.iloc[i, k_mark.columns.get_loc('mark')] = 1
 
-    #k_mark.to_csv('k_mark_{}.csv'.format(stock_code))
+    k_mark.to_csv('res/k_mark_{}.csv'.format(stock_code))
     k_mark_new = k_mark[abs(k_mark['mark']) == 3]
     return k_mark_new
 
@@ -98,7 +100,7 @@ def bottom_reverse(k_mark):
     return k_signal
 
 
-def search(stocks=[], lit=-10):
+def search(stocks=[], klt= 101,lit=-10):
     t1 = datetime.now()
     now_str = t1.strftime('%Y-%m-%d')
     with open('res/macd_search_date') as r:
@@ -116,7 +118,7 @@ def search(stocks=[], lit=-10):
     start = pd.DataFrame(['开始【{}】'.format(t1.strftime('%Y-%m-%d %H:%M:%S'))])
     start.to_csv('res/macd_result_{}.csv'.format(t1.strftime('%Y%m')), index=False, header=False, mode='a')
     for idx, row in codes.iterrows():
-        data = mark_data(row.code)
+        data = mark_data(row.code, klt=klt)
         lately = datetime.now()+timedelta(days=lit)
         if len(data) > 0:
             signal = bottom_reverse(data)
