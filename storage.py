@@ -75,7 +75,7 @@ def fetch_data():
     with open('res/storage_date') as r:
         last_str = r.read(10)
         if last_str == now_str:
-            print('最近一次刷新时间：{}'.format(last_str))
+            print('最近一次更新数据库时间：{}'.format(last_str))
             return
         r.close()
 

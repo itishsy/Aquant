@@ -90,19 +90,21 @@ def bottom_reverse(k_mark):
                 low2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('low')]
                 low0 = k_mark.iloc[i, k_mark.columns.get_loc('low')]
                 if diff1 < 0 and diff2 < diff0 and low2 > low0:
-                    k_mark.iloc[i, k_mark.columns.get_loc('signal')] = 1
+                    high1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('high')]
+                    if ((high1-low0)/low0) > 0.1 and ((high1-low0)/high1) > 0.1:
+                        k_mark.iloc[i, k_mark.columns.get_loc('signal')] = 1
         k_signal = k_mark[k_mark['signal'] == 1]
         #k_signal.to_csv('k_signal.csv')
     return k_signal
 
 
-def search(stocks=[], lit=-7):
+def search(stocks=[], lit=-10):
     t1 = datetime.now()
     now_str = t1.strftime('%Y-%m-%d')
     with open('res/macd_search_date') as r:
         last_str = r.read(10)
         if last_str == now_str:
-            print('最近一次刷新时间：{}'.format(last_str))
+            print('最近一次检索时间：{}'.format(last_str))
             return
         r.close()
 
@@ -110,7 +112,9 @@ def search(stocks=[], lit=-7):
     if len(stocks) > 0:
         sql = '{} WHERE code IN({})'.format(sql,','.join(stocks))
     codes = query(sql)
-    print('开始时间：{},记录数:{}'.format(t1, len(codes)))
+    print('检索开始时间:{},记录数:{}'.format(t1.strftime('%Y-%m-%d %H:%M:%S'), len(codes)))
+    start = pd.DataFrame(['开始【{}】'.format(t1.strftime('%Y-%m-%d %H:%M:%S'))])
+    start.to_csv('res/macd_result_{}.csv'.format(t1.strftime('%Y%m')), index=False, header=False, mode='a')
     for idx, row in codes.iterrows():
         data = mark_data(row.code)
         lately = datetime.now()+timedelta(days=lit)
@@ -120,10 +124,12 @@ def search(stocks=[], lit=-7):
                 for i, row2 in signal.iterrows():
                     if datetime.strptime(i, '%Y-%m-%d') > lately:
                         print('[编码]{}，[日期]{}，[价格]{}'.format(row.code, i, row2.close))
-                        s1 = pd.DataFrame({'code': [row.code], 'datetime': [i], 'close': [row2.close], 'create': [datetime.now().strftime('%H %M %S')]})
-                        s1.to_csv('res/macd_result_{}.csv'.format(datetime.now().strftime('%Y%m%d')),index=False, header=False, mode='a')
+                        s1 = pd.DataFrame({'create':  ['[{}]'.format(datetime.now().strftime('%H:%M:%S'))], 'code': [row.code], 'datetime': [i], 'close': [row2.close]})
+                        s1.to_csv('res/macd_result_{}.csv'.format(t1.strftime('%Y%m')), index=False, header=False, mode='a')
     t2 = datetime.now()
+    stop = pd.DataFrame(['结束【{}】'.format(t2.strftime('%Y-%m-%d %H:%M:%S'))])
+    stop.to_csv('res/macd_result_{}.csv'.format(t2.strftime('%Y%m')), index=False, header=False, mode='a')
     with open('res/macd_search_date', 'w') as w:
         w.write(now_str)
         w.close()
-    print('开始时间：{}, 结束时间:{} , 一共用时：{:.2f}分钟'.format(t1, t2, (t2-t1).seconds/60))
+    print('检索结束时间:{},共用时:{:.2f}分钟'.format(t2.strftime('%Y-%m-%d %H:%M:%S'), (t2-t1).seconds/60))

@@ -12,7 +12,7 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     fetch_data()
-    #'300842', '002852', '301096', '002932', '002258', '300204'
-    search(stocks=[])
+    stocks = ['300842', '002852', '301096', '002932', '002258', '300204']
+    search(stocks=stocks)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
