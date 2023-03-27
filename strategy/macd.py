@@ -22,7 +22,7 @@ turn：
 
 def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
     if klt == 102:
-        start = datetime(2000, 1, 1),
+        start = datetime(1900, 1, 1),
     k_data = read(stock_code, klt=klt, beg=start, field='open,high,low,close,volume,datetime')
     if len(k_data) < 50:
         return k_data
@@ -37,6 +37,7 @@ def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
     for i in range(1, s):
         bar_pre = k_data.iloc[i - 1]['bar']
         bar_cur = k_data.iloc[i]['bar']
+        bar_nxt = k_data.iloc[i + 1]['bar']
         if bar_pre < 0 and bar_cur > 0:
             k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = -1
             k_data.iloc[i, k_data.columns.get_loc('mark')] = 1
@@ -47,6 +48,7 @@ def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
         diff_cur = k_data.iloc[i]['diff']
         diff_pre = k_data.iloc[i - 1]['diff']
         diff_nxt = k_data.iloc[i + 1]['diff']
+        ''' diff高低位 
         if bar_cur < 0 and diff_pre > diff_cur and diff_nxt > diff_cur:
             k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = -2
             k_data.iloc[i, k_data.columns.get_loc('mark')] = -3
@@ -55,6 +57,23 @@ def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
             k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = 2
             k_data.iloc[i, k_data.columns.get_loc('mark')] = 3
             k_data.iloc[i + 1, k_data.columns.get_loc('mark')] = 2
+        '''
+        if  bar_pre< 0 and bar_cur < 0 and bar_nxt < 0:
+            low_cur = k_data.iloc[i]['low']
+            low_pre = k_data.iloc[i - 1]['low']
+            low_nxt = k_data.iloc[i + 1]['low']
+            if low_pre > low_cur and low_nxt > low_cur:
+                k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = -2
+                k_data.iloc[i, k_data.columns.get_loc('mark')] = -3
+                k_data.iloc[i + 1, k_data.columns.get_loc('mark')] = -2
+        if bar_pre > 0 and bar_cur > 0 and bar_nxt > 0:
+            high_cur = k_data.iloc[i]['high']
+            high_pre = k_data.iloc[i - 1]['high']
+            high_nxt = k_data.iloc[i + 1]['high']
+            if high_pre < high_cur and high_nxt < high_cur:
+                k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = 2
+                k_data.iloc[i, k_data.columns.get_loc('mark')] = 3
+                k_data.iloc[i + 1, k_data.columns.get_loc('mark')] = 2
 
     k_mark = k_data[abs(k_data['mark']) == 3]
 
@@ -68,11 +87,11 @@ def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
             else:
                 k_mark.iloc[i - 1, k_mark.columns.get_loc('mark')] = 2
         # 震荡
-        if mark_cur == 3 and k_mark.iloc[i]['diff'] > -0.1:
-            k_mark.iloc[i, k_mark.columns.get_loc('mark')] = 1
+        #if mark_cur == 3 and k_mark.iloc[i]['diff'] > -0.1:
+        #    k_mark.iloc[i, k_mark.columns.get_loc('mark')] = 1
 
-    k_mark.to_csv('res/k_mark_{}.csv'.format(stock_code))
     k_mark_new = k_mark[abs(k_mark['mark']) == 3]
+    #k_mark_new.to_csv('res/k_mark_{}.csv'.format(stock_code))
     return k_mark_new
 
 
@@ -85,7 +104,8 @@ def bottom_reverse(k_mark):
             mark_1 = k_mark.iloc[i-1, k_mark.columns.get_loc('mark')]
             mark_0 = k_mark.iloc[i, k_mark.columns.get_loc('mark')]
             bar0 = k_mark.iloc[i, k_mark.columns.get_loc('bar')]
-            if mark_2 == -3 and mark_1 == 3 and mark_0 == -3 and abs(bar0) > 0.1:
+            #and abs(bar0) > 0.1
+            if mark_2 == -3 and mark_1 == 3 and mark_0 == -3:
                 diff2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('diff')]
                 diff1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('diff')]
                 diff0 = k_mark.iloc[i, k_mark.columns.get_loc('diff')]
@@ -110,16 +130,20 @@ def search(stocks=[], klt= 101,lit=-10):
             return
         r.close()
 
-    sql = 'SELECT code FROM `all_realtime`'
-    if len(stocks) > 0:
-        sql = '{} WHERE code IN({})'.format(sql,','.join(stocks))
-    codes = query(sql)
+    #codes = pd.DataFrame()
+    if len(stocks) < 1:
+        codes = query('SELECT code FROM `all_realtime`')
+    else:
+        codes = pd.DataFrame(stocks, columns= ['code'])
     print('检索开始时间:{},记录数:{}'.format(t1.strftime('%Y-%m-%d %H:%M:%S'), len(codes)))
     start = pd.DataFrame(['开始【{}】'.format(t1.strftime('%Y-%m-%d %H:%M:%S'))])
     start.to_csv('res/macd_result_{}.csv'.format(t1.strftime('%Y%m')), index=False, header=False, mode='a')
     for idx, row in codes.iterrows():
         data = mark_data(row.code, klt=klt)
-        lately = datetime.now()+timedelta(days=lit)
+        if klt == 102:
+            lately = datetime.now()+timedelta(weeks=lit)
+        else:
+            lately = datetime.now()+timedelta(days=lit)
         if len(data) > 0:
             signal = bottom_reverse(data)
             if len(signal) > 0:
