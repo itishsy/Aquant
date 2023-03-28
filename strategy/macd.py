@@ -35,30 +35,26 @@ def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
     k_data['signal'] = 0
     s = len(k_data) - 2
     for i in range(1, s):
-        bar_pre = k_data.iloc[i - 1]['bar']
-        bar_cur = k_data.iloc[i]['bar']
-        bar_nxt = k_data.iloc[i + 1]['bar']
-        if bar_pre < 0 and bar_cur > 0:
+        pre = k_data.iloc[i - 1]
+        cur = k_data.iloc[i]
+        nxt = k_data.iloc[i + 1]
+        if (pre['bar'] < 0) & (cur['bar'] > 0):
             k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = -1
             k_data.iloc[i, k_data.columns.get_loc('mark')] = 1
-        if bar_pre > 0 and bar_cur < 0:
+        if (pre['bar'] > 0) & (cur['bar'] < 0):
             k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = 1
             k_data.iloc[i, k_data.columns.get_loc('mark')] = -1
 
-        diff_cur = k_data.iloc[i]['diff']
-        diff_pre = k_data.iloc[i - 1]['diff']
-        diff_nxt = k_data.iloc[i + 1]['diff']
-        ''' diff高低位 
-        if bar_cur < 0 and diff_pre > diff_cur and diff_nxt > diff_cur:
+        if (cur['bar'] < 0) and (pre['diff'] > cur['diff']) and (nxt['diff'] > cur['diff']):
             k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = -2
             k_data.iloc[i, k_data.columns.get_loc('mark')] = -3
             k_data.iloc[i + 1, k_data.columns.get_loc('mark')] = -2
-        if bar_cur > 0 and diff_pre < diff_cur and diff_nxt < diff_cur:
+        if (cur['bar'] > 0) and (pre['diff'] < cur['diff']) and (nxt['diff'] < cur['diff']):
             k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = 2
             k_data.iloc[i, k_data.columns.get_loc('mark')] = 3
             k_data.iloc[i + 1, k_data.columns.get_loc('mark')] = 2
         '''
-        if  bar_pre< 0 and bar_cur < 0 and bar_nxt < 0:
+        if  bar_pre< 0 and cur.bar < 0 and bar_nxt < 0:
             low_cur = k_data.iloc[i]['low']
             low_pre = k_data.iloc[i - 1]['low']
             low_nxt = k_data.iloc[i + 1]['low']
@@ -66,7 +62,7 @@ def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
                 k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = -2
                 k_data.iloc[i, k_data.columns.get_loc('mark')] = -3
                 k_data.iloc[i + 1, k_data.columns.get_loc('mark')] = -2
-        if bar_pre > 0 and bar_cur > 0 and bar_nxt > 0:
+        if bar_pre > 0 and cur.bar > 0 and bar_nxt > 0:
             high_cur = k_data.iloc[i]['high']
             high_pre = k_data.iloc[i - 1]['high']
             high_nxt = k_data.iloc[i + 1]['high']
@@ -74,7 +70,7 @@ def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
                 k_data.iloc[i - 1, k_data.columns.get_loc('mark')] = 2
                 k_data.iloc[i, k_data.columns.get_loc('mark')] = 3
                 k_data.iloc[i + 1, k_data.columns.get_loc('mark')] = 2
-
+        '''
     k_mark = k_data[abs(k_data['mark']) == 3]
 
     s2 = len(k_mark)-1
@@ -91,7 +87,7 @@ def mark_data(stock_code, klt=101, start=datetime(2020, 1, 1)):
         #    k_mark.iloc[i, k_mark.columns.get_loc('mark')] = 1
 
     k_mark_new = k_mark[abs(k_mark['mark']) == 3]
-    #k_mark_new.to_csv('res/k_mark_{}.csv'.format(stock_code))
+    k_mark_new.to_csv('res/k_mark_{}.csv'.format(stock_code))
     return k_mark_new
 
 
