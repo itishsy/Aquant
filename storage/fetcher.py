@@ -7,9 +7,11 @@ import json
 def upset_data(stock_code):
     table_name = 'k_{}'.format(stock_code)
     begin_date = last_storage_date(stock_code)
-    print('begin_date:{}'.format(begin_date))
+    if begin_date == "-1":
+        return
     if begin_date == "":
         db.create(table_name)
+        print('create table name:{}'.format(table_name))
         begin_date = '2000-01-01'
     if begin_date < datetime.now().strftime('%Y-%m-%d'):
     #db.execute("DELETE FROM `{}` WHERE `datetime` >= '{}'".format(table_name, begin_date))
@@ -23,15 +25,42 @@ def upset_data(stock_code):
         update_storage_date(stock_code)
 
 
-def update_storage_date(code):
+def fetch_code_dict():
+    key_update = last_storage_date("key_update")
+    cur_month = datetime.now().strftime('%Y%m')
+    if cur_month != key_update:
+        df = ef.stock.get_realtime_quotes(['沪A','深A','ETF'])
+        df = df.iloc[:,0:2]
+        df.columns = ['code', 'name']
+        df = df[df['name'].str.contains('ST') == False]
+
+        for idx, row in df.iterrows():
+            c = row['code']
+            if c.startswith('00') | c.startswith('30') | c.startswith('60') | c.startswith('51'):
+                last_storage = last_storage_date(c)
+                if last_storage == "-1":
+                    update_storage_date(c, "")
+
+        update_storage_date("key_update",cur_month)
+
+    with open("code.json", 'r', encoding='utf-8') as load_f:
+        code_dict = json.load(load_f)
+        del code_dict["key_update"]
+        return code_dict
+
+
+def update_storage_date(code, val=None):
     with open("code.json", 'r', encoding='utf-8') as load_f:
         code_dict = json.load(load_f)
 
-    now = datetime.now()
-    if now.hour < 15:
-        code_dict[code] = (now + timedelta(days=-1)).strftime('%Y-%m-%d')
+    if val is None:
+        now = datetime.now()
+        if now.hour < 15:
+            code_dict[code] = (now + timedelta(days=-1)).strftime('%Y-%m-%d')
+        else:
+            code_dict[code] = now.strftime('%Y-%m-%d')
     else:
-        code_dict[code] = now.strftime('%Y-%m-%d')
+        code_dict[code] = val
 
     with open("code.json", 'w', encoding='utf-8') as f:
         json.dump(code_dict, f, ensure_ascii=False)
@@ -42,9 +71,12 @@ def last_storage_date(code):
         code_dict = json.load(load_f)
     if code in code_dict:
         return code_dict[code]
-    return ""
+    return "-1"
 
 
 if __name__ == '__main__':
-    print('==========')
-    upset_data('300035')
+    code_dict = fetch_code_dict()
+    for code in code_dict:
+        if code.startswith('0006'):
+            print(code)
+            upset_data(code)

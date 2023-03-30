@@ -1,6 +1,6 @@
 from sqlalchemy import text
 from sqlalchemy import create_engine
-from sqlalchemy.types import DATE, CHAR, VARCHAR, INT
+from sqlalchemy.types import DATE, VARCHAR, INT, DECIMAL, BIGINT
 import efinance as ef
 import pandas as pd
 import json
@@ -101,7 +101,8 @@ def get_table_name(sql):
 
 def insert(df, table_name):
     engine = get_engine(table_name)
-    df.to_sql(name=table_name, con=engine, index=False, if_exists='append')
+    dtypes = get_dtypes(table_name)
+    df.to_sql(name=table_name, con=engine, index=False, if_exists='append', dtype=dtypes)
 
 
 def execute(sql):
@@ -123,18 +124,18 @@ def query(sql):
 def create(table_name):
     if table_name.startswith('k_'):
         create_k = '''CREATE TABLE IF NOT EXISTS `{}` (
-                  `datetime` text,
-                  `open` text,
-                  `close` text,
-                  `high` text,
-                  `low` text,
-                  `volume` text,
-                  `cje` text,
-                  `zf` text,
-                  `rise` text,
-                  `zde` text,
-                  `hsl` text,
-                  `klt` bigint(20) DEFAULT NULL
+                  `datetime` varchar(20),
+                  `open` decimal(6,2),
+                  `close` decimal(6,2),
+                  `high` decimal(6,2),
+                  `low` decimal(6,2),
+                  `volume` bigint(20),
+                  `cje` bigint(20),
+                  `zf` decimal(12,4),
+                  `rise` decimal(12,4),
+                  `zde` decimal(12,4),
+                  `hsl` decimal(12,4),
+                  `klt` int(11) DEFAULT NULL
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8'''.format(table_name)
         engine = get_engine(table_name)
         conn = engine.connect()
@@ -145,7 +146,9 @@ def create(table_name):
 
 def get_dtypes(table_name):
     if table_name.startswith('k_'):
-        dtypes_k = {'datetime': CHAR(16), 'open': CHAR(4), 'col_3': VARCHAR(10)}
+        dtypes_k = {'datetime': VARCHAR(20), 'open': DECIMAL, 'close': DECIMAL, 'high': DECIMAL, 'low': DECIMAL,
+                    'volume': BIGINT, 'cje': BIGINT, 'zf': DECIMAL, 'rise': DECIMAL, 'zde': DECIMAL, 'hsl': DECIMAL,
+                    'klt': INT}
         return dtypes_k
 
 
