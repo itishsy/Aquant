@@ -14,9 +14,8 @@ def upset_data(stock_code):
         print('create table name:{}'.format(table_name))
         begin_date = '2000-01-01'
     if begin_date < datetime.now().strftime('%Y-%m-%d'):
-    #db.execute("DELETE FROM `{}` WHERE `datetime` >= '{}'".format(table_name, begin_date))
+        print('get quote history:{}'.format(stock_code))
         for klt in [101, 102, 103, 60, 30, 15]:
-            print('get history klt:{}'.format(klt))
             k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date.replace('-', ''))
             k_data.columns = ['name', 'code', 'datetime', 'open', 'close', 'high', 'low', 'volume', 'cje', 'zf', 'rise', 'zde', 'hsl']
             k_data.drop(['name', 'code'], axis=1, inplace=True)
@@ -77,6 +76,4 @@ def last_storage_date(code):
 if __name__ == '__main__':
     code_dict = fetch_code_dict()
     for code in code_dict:
-        if code.startswith('0006'):
-            print(code)
-            upset_data(code)
+        upset_data(code)
