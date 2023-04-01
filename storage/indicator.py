@@ -1,8 +1,8 @@
-from kline import read_data
-import database as db
+from storage.kline import read_data
+import storage.database as db
 
 
-def update(stock_code,klt=101,begin=''):
+def mark(stock_code, klt=101, begin=''):
     k_data = read_data(stock_code, klt=klt, begin=begin)
     if len(k_data) == 0:
         return
@@ -106,8 +106,4 @@ def mark_3(diff, bar):
         else:
             m_val = 3
 
-    #print('m_idx={},m_val={}'.format(m_idx,m_val))
     return m_idx,m_val
-
-
-update('300059', klt=102)

@@ -1,5 +1,6 @@
 from datetime import datetime,timedelta
-from kline import upset_data
+from storage.kline import upset_data
+import storage.indicator as idc
 import efinance as ef
 import json
 import os
@@ -23,14 +24,14 @@ def fetch_code_dict():
 
         update_storage_date("key_update",cur_month)
 
-    with open(os.path.abspath('..') + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
+    with open(os.path.abspath('.') + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
         code_dict = json.load(load_f)
         del code_dict["key_update"]
         return code_dict
 
 
 def update_storage_date(code, val=None):
-    with open(os.path.abspath('..') + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
+    with open(os.path.abspath('.') + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
         code_dict = json.load(load_f)
 
     if val is None:
@@ -42,24 +43,31 @@ def update_storage_date(code, val=None):
     else:
         code_dict[code] = val
 
-    with open(os.path.abspath('..') + r"//storage//code.json", 'w', encoding='utf-8') as f:
+    with open(os.path.abspath('.') + r"//storage//code.json", 'w', encoding='utf-8') as f:
         json.dump(code_dict, f, ensure_ascii=False)
 
 
 def last_storage_date(code):
-    with open(os.path.abspath('..') + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
+    with open(os.path.abspath('.') + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
         code_dict = json.load(load_f)
     if code in code_dict:
         return code_dict[code]
     return "-1"
 
 
-if __name__ == '__main__':
+def start_fetch(prefix='*', begin=''):
     code_dict = fetch_code_dict()
     for code in code_dict:
-        if code.startswith('-00008') | code.startswith('-60008') | code.startswith('300059') | code.startswith('510-'):
-            begin_date = last_storage_date(code)
-            res = upset_data(code,begin_date)
-            print("[updated] code:{}, begin:{}, result:{}".format(code,begin_date,res))
-            if res > 0:
+        if (prefix == '*') | code.startswith(prefix):
+            begin_date = begin if (begin == '') else last_storage_date(code)
+            upset_size = upset_data(code, begin_date)
+            print("[updated] code:{}, begin:{}, result:{}".format(code, begin_date, upset_size))
+            if upset_size > 0:
                 update_storage_date(code)
+            if begin is None:
+                idc.mark(code, klt=102)
+                idc.mark(code, klt=101)
+
+
+if __name__ == '__main__':
+    start_fetch()

@@ -1,5 +1,4 @@
-from storage.database import query
-import database as db
+import storage.database as db
 from datetime import datetime
 import efinance as ef
 
@@ -10,7 +9,7 @@ def upset_data(stock_code, begin_date):
 
     size = 0
     if begin_date == "":
-        db.create(stock_code)
+        db.create_table(stock_code)
         db.execute("TRUNCATE TABLE `{}`".format(stock_code))
         print('[create table] name:{}'.format(stock_code))
         begin_date = '2000-01-01'
@@ -44,5 +43,5 @@ def read_data(stock_code, klt=101, begin='', end='', field='*', limit=-1, order_
     sql = "{} ORDER BY {} ".format(sql, order_by)
     if limit > -1:
         sql = "{} LIMIT {}".format(sql,limit)
-    return query(sql)
+    return db.query(sql)
 
