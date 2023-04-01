@@ -4,4 +4,4 @@ import storage.indicator as idc
 
 if __name__ == '__main__':
     db.init_schema()
-    start_fetch(prefix='30')
+    start_fetch()
