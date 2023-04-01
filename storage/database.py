@@ -95,7 +95,7 @@ def get_dtypes(table_name):
     if table_name.startswith('00') | table_name.startswith('60') | table_name.startswith('30') | table_name.startswith('51'):
         return {'datetime': VARCHAR(20), 'open': DECIMAL, 'close': DECIMAL, 'high': DECIMAL, 'low': DECIMAL,
                     'volume': BIGINT, 'ema5': DECIMAL, 'ema12': DECIMAL, 'ema26': DECIMAL, 'dea4': DECIMAL, 'dea9': DECIMAL,
-                    'klt': INT}
+                    'mark': INT, 'klt': INT}
 
 
 if __name__ == '__main__':

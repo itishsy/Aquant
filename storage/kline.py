@@ -37,7 +37,7 @@ def upset_data(stock_code, begin_date):
 def read_data(stock_code, klt=101, begin='', end='', field='*', limit=-1, order_by='datetime'):
     sql = 'SELECT {} FROM {} WHERE klt={}'.format(field, stock_code, klt)
     if begin != '':
-        sql = "{} AND `datetime` >= '{}'".format(sql, beg)
+        sql = "{} AND `datetime` >= '{}'".format(sql, begin)
     if end != '':
         sql = "{} AND `datetime` <= '{}'".format(sql, end)
     sql = "{} ORDER BY {} ".format(sql, order_by)
