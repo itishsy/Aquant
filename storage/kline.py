@@ -6,16 +6,17 @@ import efinance as ef
 
 def upset_data(stock_code, begin_date):
     if begin_date == "-1":
-        return
+        return -1
 
+    size = 0
     if begin_date == "":
         db.create(stock_code)
         db.execute("TRUNCATE TABLE `{}`".format(stock_code))
-        print('create table name:{}'.format(stock_code))
+        print('[create table] name:{}'.format(stock_code))
         begin_date = '2000-01-01'
     if begin_date < datetime.now().strftime('%Y-%m-%d'):
         begin_date = begin_date.replace('-', '')
-        print('get quote history:{}, from:{}'.format(stock_code, begin_date))
+        print('[get history] code:{}, from:{}'.format(stock_code, begin_date))
         for klt in [101, 102, 103, 60, 30, 15]:
             k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date)
             data_size = len(k_data)
@@ -30,12 +31,12 @@ def upset_data(stock_code, begin_date):
                 k_data['dea9'] = None
                 k_data['klt'] = klt
                 db.insert(k_data, stock_code)
-            return data_size
-    return -1
+                size = size + data_size
+    return size
 
 
 def read_data(stock_code, klt=101, begin='', end='', field='*', limit=-1, order_by='datetime'):
-    sql = 'SELECT {} FROM {} WHERE klt={}'.format(field, stock_code, klt)
+    sql = 'SELECT {} FROM `{}` WHERE klt={}'.format(field, stock_code, klt)
     if begin != '':
         sql = "{} AND `datetime` >= '{}'".format(sql, begin)
     if end != '':

@@ -57,8 +57,9 @@ def last_storage_date(code):
 if __name__ == '__main__':
     code_dict = fetch_code_dict()
     for code in code_dict:
-        if code.startswith('00008') | code.startswith('60008') | code.startswith('30008') | code.startswith('51008'):
+        if code.startswith('-00008') | code.startswith('-60008') | code.startswith('300059') | code.startswith('510-'):
             begin_date = last_storage_date(code)
-            res = upset_data(code)
+            res = upset_data(code,begin_date)
+            print("[updated] code:{}, begin:{}, result:{}".format(code,begin_date,res))
             if res > 0:
                 update_storage_date(code)
