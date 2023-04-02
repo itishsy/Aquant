@@ -56,10 +56,11 @@ def last_storage_date(code):
     return "-1"
 
 
-def start_fetch(prefix='*', begin='*'):
+def start_fetch(prefix='*', begin=''):
     code_dict = fetch_code_dict()
+    print(begin)
     for code in code_dict:
-        begin_date = '' if (begin == '*') else last_storage_date(code)
+        begin_date = begin if (begin == '') else last_storage_date(code)
         try:
             if (prefix == '*') | code.startswith(prefix):
                 upset_size = upset_data(code, begin_date)

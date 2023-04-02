@@ -58,7 +58,7 @@ def get_table_name(sql):
     sps = sql.split(' ')
     le = len(sps)
     for i in range(le):
-        if (sps[i].upper() == 'FROM') | (sps[i].upper() == 'TABLE') | (sps[i].upper() == 'UPDATE'):
+        if (sps[i].upper() == 'FROM') | (sps[i].upper() == 'TABLE') | (sps[i].upper() == 'UPDATE') | (sps[i].upper() == 'INTO'):
             table_name = sps[i+1]
             table_name = table_name.replace("`", "")
             return table_name

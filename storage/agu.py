@@ -1,6 +1,5 @@
 import efinance as ef
-import database as db
-
+import storage.database as db
 
 
 def stat_all():
@@ -12,5 +11,16 @@ def stat_all():
 
 
 def fetch_error(stock_code,begin_date):
-    insert_sql = "INSERT INTO `fetch_error` (`stock_code`,`begin_date`,`create`) VALUES('{}','{}',NOW());".format(stock_code,begin_date)
+    insert_sql = "INSERT INTO `fetch_error` (" \
+                 "`stock_code`,`begin_date`,`create`) " \
+                 "VALUES('{}','{}',NOW());"\
+        .format(stock_code,begin_date)
+    db.execute(insert_sql)
+
+
+def reverse_signal(stock_code,level,type,datetime):
+    insert_sql = "INSERT INTO `reverse_signal` " \
+                 "(`stock_code`,`level`,`reverse_type`,`reverse_datetime`,`create`) " \
+                 "VALUES('{}','{}','{}','{}',NOW())"\
+        .format(stock_code,level,type,datetime)
     db.execute(insert_sql)
