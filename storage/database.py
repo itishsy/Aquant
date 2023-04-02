@@ -2,20 +2,13 @@ from sqlalchemy import text
 from sqlalchemy import create_engine
 from sqlalchemy.types import DATE, VARCHAR, INT, DECIMAL, BIGINT
 import pandas as pd
-import json
-import os
+import config as cfg
 
-
-with open(os.path.abspath('.') + r"\\storage\\config.json", 'r', encoding='utf-8') as load_f:
-    load_dict = json.load(load_f)
-    host = load_dict['host']
-    username = load_dict['username']
-    password = load_dict['password']
-engine_agu = create_engine('mysql+pymysql://{}:{}@{}/agu'.format(username, password, host))
-engine_agu_00 = create_engine('mysql+pymysql://{}:{}@{}/agu_00'.format(username, password, host))
-engine_agu_30 = create_engine('mysql+pymysql://{}:{}@{}/agu_30'.format(username, password, host))
-engine_agu_51 = create_engine('mysql+pymysql://{}:{}@{}/agu_51'.format(username, password, host))
-engine_agu_60 = create_engine('mysql+pymysql://{}:{}@{}/agu_60'.format(username, password, host))
+engine_agu = create_engine('mysql+pymysql://{}:{}@{}/agu'.format(cfg.username, cfg.password, cfg.host))
+engine_agu_00 = create_engine('mysql+pymysql://{}:{}@{}/agu_00'.format(cfg.username, cfg.password, cfg.host))
+engine_agu_30 = create_engine('mysql+pymysql://{}:{}@{}/agu_30'.format(cfg.username, cfg.password, cfg.host))
+engine_agu_51 = create_engine('mysql+pymysql://{}:{}@{}/agu_51'.format(cfg.username, cfg.password, cfg.host))
+engine_agu_60 = create_engine('mysql+pymysql://{}:{}@{}/agu_60'.format(cfg.username, cfg.password, cfg.host))
 
 
 def init_schema():

@@ -65,7 +65,7 @@ def start_fetch(prefix='*', begin=''):
             if upset_size > 0:
                 update_storage_date(code)
             if begin == '':
-                idc.mark(code, klt=102)
+                idc.mark(code, klt=102, begin='2010-01-01')
                 idc.mark(code, klt=101)
 
 

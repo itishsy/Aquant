@@ -1,18 +1,18 @@
+from datetime import datetime,timedelta
+
 from storage.kline import read_data
 import storage.database as db
 
 
-def mark(stock_code, klt=101):
-    begin = '2020-01-01'
-    if klt != 101:
-        begin = '2000-01-01'
-
+def mark(stock_code, klt=101, begin='2020-01-01'):
+    print('[update mark] code:{}, klt:{}, begin:{}'.format(stock_code, klt, begin))
     k_data = read_data(stock_code, klt=klt, begin=begin)
     if len(k_data) == 0:
         return
 
     ema5, ema12, ema26, dea4, dea9 = [], [], [], [], []
     dt, diff, bar = [], [], []
+    size = len(k_data)
     for i, row in k_data.iterrows():
         close = row['close']
         dt.append(row['datetime'])
@@ -22,8 +22,17 @@ def mark(stock_code, klt=101):
             ema_26 = close
             dea_4 = 0
             dea_9 = 0
+            if begin != '':
+                pre_data = read_data(stock_code, klt=klt, end=begin, limit=2, order_by='`datetime` DESC')
+                if len(pre_data) == 2:
+                    if pre_data.loc[1, 'ema5'] > 0.0:
+                        ema_5 = pre_data.loc[1, 'ema5'] * (4 / 6) + close * (2 / 6)
+                        ema_12 = pre_data.loc[1, 'ema12'] * (11 / 13) + close * (2 / 13)
+                        ema_26 = pre_data.loc[1, 'ema26'] * (25 / 27) + close * (2 / 27)
+                        dea_4 = pre_data.loc[1, 'dea4'] * (3 / 5) + (ema_5 - ema_12) * (2 / 5)
+                        dea_9 = pre_data.loc[1, 'dea9'] * (8 / 10) + (ema_12 - ema_26) * (2 / 10)
         else:
-            ema_5 = ema12[-1] * (4 / 6) + close * (2 / 6)
+            ema_5 = ema5[-1] * (4 / 6) + close * (2 / 6)
             ema_12 = ema12[-1] * (11 / 13) + close * (2 / 13)
             ema_26 = ema26[-1] * (25 / 27) + close * (2 / 27)
             dea_4 = dea4[-1] * (3 / 5) + (ema_5 - ema_12) * (2 / 5)
@@ -56,6 +65,7 @@ def mark(stock_code, klt=101):
                 update_sql3 = "UPDATE `{0}` SET `mark` = '{1}' WHERE `datetime` = '{2}' AND `klt` = {3} ;" \
                     .format(stock_code, m3_val, dt[m3_idx], klt)
                 db.execute(update_sql3)
+    print('[update mark done] code:{}, result:{}'.format(stock_code, size))
 
 
 # 拐点
@@ -111,3 +121,6 @@ def mark_3(diff, bar):
             m_val = 3
 
     return m_idx,m_val
+
+#mark('300059')
+#mark('300059', begin='2023-03-30')
