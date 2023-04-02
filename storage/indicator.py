@@ -2,7 +2,11 @@ from storage.kline import read_data
 import storage.database as db
 
 
-def mark(stock_code, klt=101, begin=''):
+def mark(stock_code, klt=101):
+    begin = '2020-01-01'
+    if klt != 101:
+        begin = '2000-01-01'
+
     k_data = read_data(stock_code, klt=klt, begin=begin)
     if len(k_data) == 0:
         return
