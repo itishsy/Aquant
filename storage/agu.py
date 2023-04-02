@@ -1,7 +1,6 @@
 import efinance as ef
 import database as db
-from datetime import datetime
-import json
+
 
 
 def stat_all():
@@ -12,6 +11,6 @@ def stat_all():
     rq.to_sql(name='all_realtime', con=engine, index=False, if_exists='replace')
 
 
-if __name__ == '__main__':
-    print('==========')
-    stat_all('300059')
+def fetch_error(stock_code,begin_date):
+    insert_sql = "INSERT INTO `fetch_error` (`stock_code`,`begin_date`,`create`) VALUES('{}','{}',NOW());".format(stock_code,begin_date)
+    db.execute(insert_sql)

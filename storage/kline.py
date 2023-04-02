@@ -9,7 +9,7 @@ def upset_data(stock_code, begin_date):
 
     size = 0
     if begin_date == "":
-        db.create_table(stock_code)
+        db.create_stock_table(stock_code)
         db.execute("TRUNCATE TABLE `{}`".format(stock_code))
         print('[create table] name:{}'.format(stock_code))
         begin_date = '2000-01-01'
