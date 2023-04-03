@@ -1,6 +1,6 @@
 from datetime import datetime,timedelta
 from storage.kline import upset_data
-from storage.agu import fetch_error
+import storage.database as db
 import storage.indicator as idc
 import config as cfg
 import efinance as ef
@@ -8,7 +8,10 @@ import json
 
 
 def fetch_code_dict():
-    key_update = last_storage_date("key_update")
+    with open(cfg.work_path + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
+        code_dict = json.load(load_f)
+
+    key_update = code_dict['key_update']
     cur_month = datetime.now().strftime('%Y%m')
     if cur_month != key_update:
         df = ef.stock.get_realtime_quotes(['沪A','深A','ETF'])
@@ -17,16 +20,17 @@ def fetch_code_dict():
         df = df[df['name'].str.contains('ST') == False]
 
         for idx, row in df.iterrows():
-            c = row['code']
-            if c.startswith('00') | c.startswith('30') | c.startswith('60') | c.startswith('51'):
-                last_storage = last_storage_date(c)
-                if last_storage == "-1":
-                    update_storage_date(c, "")
+            code = row['code']
+            if (code[0:2] in cfg.prefix) and (code not in code_dict):
+                update_storage_date(code, "")
 
         update_storage_date("key_update",cur_month)
 
-    with open(cfg.work_path + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
-        code_dict = json.load(load_f)
+        with open(cfg.work_path + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
+            code_dict = json.load(load_f)
+            del code_dict["key_update"]
+            return code_dict
+    else:
         del code_dict["key_update"]
         return code_dict
 
@@ -51,29 +55,37 @@ def update_storage_date(code, val=None):
 def last_storage_date(code):
     with open(cfg.work_path + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
         code_dict = json.load(load_f)
+
+    if code == 'key_update':
+        return code_dict['key_update']
+
     if code in code_dict:
-        return code_dict[code]
+        last_date = code_dict[code]
+        if last_date == '':
+            db.create_stock_table(code)
+            db.execute("TRUNCATE TABLE `{}`".format(code))
+            print('[create table] name:{}'.format(code))
+            last_date = datetime((datetime.now().year-5), 1, 1).strftime('%Y-%m-%d')
+        return last_date
+    else:
+        try:
+            db.execute("DROP TABLE `{}`".format(code))
+        except Exception as e:
+            print("[Exception] DROP TABLE `{}` Exception: {}".format(code, e))
     return "-1"
 
 
-def start_fetch(prefix='*', begin=''):
-    code_dict = fetch_code_dict()
-    print(begin)
-    for code in code_dict:
-        begin_date = begin if (begin == '') else last_storage_date(code)
-        try:
-            if (prefix == '*') | code.startswith(prefix):
-                upset_size = upset_data(code, begin_date)
-                print("[updated] code:{}, begin:{}, result:{}".format(code, begin_date, upset_size))
-                if upset_size > 0:
-                    update_storage_date(code)
-                if begin == '':
-                    idc.mark(code, klt=102, begin='2010-01-01')
-                    idc.mark(code, klt=101)
-        except:
-            fetch_error(code, begin_date)
-            print('fetch {} error'.format(code))
+def fetch_data(code):
+    begin_date = last_storage_date(code)
+    fetch_size = upset_data(code, begin_date)
+    print("[updated] code:{}, begin:{}, result:{}".format(code, begin_date, fetch_size))
+    if fetch_size > 0:
+        idc.macd_mark(code, 101, begin_date)
+        idc.macd_mark(code, 102, begin_date)
+        update_storage_date(code)
+    return begin_date
 
 
 if __name__ == '__main__':
-    start_fetch()
+    print('fetch_data(300223)')
+    fetch_data('300223')

@@ -1,9 +1,20 @@
 import storage.database as db
-from storage.fetcher import start_fetch
+from storage.fetcher import fetch_code_dict, fetch_data
 from strategy.macd_signal import signal
+from storage.agu import fetch_error
 
 if __name__ == '__main__':
     db.init_schema()
-    start_fetch(prefix='300223')
-    signal('300223', klt=102)
-    #signal('300223')
+    code_dict = fetch_code_dict()
+    for code in code_dict:
+        begin_date = '*'
+        try:
+            begin_date = fetch_data(code)
+        except Exception as e:
+            fetch_size = -1
+            fetch_error(code, begin_date, e)
+            print('fetch {} error: {}'.format(code, e))
+        else:
+            signal(code, klt=102)
+            signal(code, klt=101)
+

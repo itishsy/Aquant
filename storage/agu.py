@@ -10,15 +10,21 @@ def stat_all():
     rq.to_sql(name='all_realtime', con=engine, index=False, if_exists='replace')
 
 
-def fetch_error(stock_code,begin_date):
+def fetch_error(stock_code,begin_date,error):
     insert_sql = "INSERT INTO `fetch_error` (" \
-                 "`stock_code`,`begin_date`,`create`) " \
-                 "VALUES('{}','{}',NOW());"\
-        .format(stock_code,begin_date)
+                 "`stock_code`,`begin_date`,`create`,`error`) " \
+                 "VALUES('{}','{}',NOW(),'{}');"\
+        .format(stock_code,begin_date,error)
     db.execute(insert_sql)
 
 
 def reverse_signal(stock_code,level,type,datetime):
+    delete_sql = "DELETE FROM `reverse_signal` " \
+                 "WHERE `stock_code` = '{}' " \
+                 "AND `level` = '{}' " \
+                 "AND `reverse_datetime` = '{}'"\
+        .format(stock_code,level,datetime)
+    db.execute(delete_sql)
     insert_sql = "INSERT INTO `reverse_signal` " \
                  "(`stock_code`,`level`,`reverse_type`,`reverse_datetime`,`create`) " \
                  "VALUES('{}','{}','{}','{}',NOW())"\

@@ -1,8 +1,11 @@
 from storage.kline import read_data
 import storage.database as db
+from datetime import datetime, timedelta
 
 
-def mark(stock_code, klt=101, begin='2020-01-01'):
+def macd_mark(stock_code, klt, begin=''):
+    begin = get_begin_date(klt, begin)
+
     print('[update mark] code:{}, klt:{}, begin:{}'.format(stock_code, klt, begin))
     k_data = read_data(stock_code, klt=klt, begin=begin)
     if len(k_data) == 0:
@@ -14,6 +17,7 @@ def mark(stock_code, klt=101, begin='2020-01-01'):
     for i, row in k_data.iterrows():
         close = row['close']
         dt.append(row['datetime'])
+
         if i == 0:
             ema_5 = close
             ema_12 = close
@@ -22,19 +26,19 @@ def mark(stock_code, klt=101, begin='2020-01-01'):
             dea_9 = 0
             if begin != '':
                 pre_data = read_data(stock_code, klt=klt, end=begin, limit=2, order_by='`datetime` DESC')
-                if len(pre_data) == 2:
-                    if pre_data.loc[1, 'ema5'] > 0.0:
-                        ema_5 = pre_data.loc[1, 'ema5'] * (4 / 6) + close * (2 / 6)
-                        ema_12 = pre_data.loc[1, 'ema12'] * (11 / 13) + close * (2 / 13)
-                        ema_26 = pre_data.loc[1, 'ema26'] * (25 / 27) + close * (2 / 27)
-                        dea_4 = pre_data.loc[1, 'dea4'] * (3 / 5) + (ema_5 - ema_12) * (2 / 5)
-                        dea_9 = pre_data.loc[1, 'dea9'] * (8 / 10) + (ema_12 - ema_26) * (2 / 10)
+                if (len(pre_data) == 2) and (pre_data.loc[1, 'ema5'] is not None) and (pre_data.loc[1, 'ema5'] > 0.0):
+                    ema_5 = pre_data.loc[1, 'ema5'] * (4 / 6) + close * (2 / 6)
+                    ema_12 = pre_data.loc[1, 'ema12'] * (11 / 13) + close * (2 / 13)
+                    ema_26 = pre_data.loc[1, 'ema26'] * (25 / 27) + close * (2 / 27)
+                    dea_4 = pre_data.loc[1, 'dea4'] * (3 / 5) + (ema_5 - ema_12) * (2 / 5)
+                    dea_9 = pre_data.loc[1, 'dea9'] * (8 / 10) + (ema_12 - ema_26) * (2 / 10)
         else:
             ema_5 = ema5[-1] * (4 / 6) + close * (2 / 6)
             ema_12 = ema12[-1] * (11 / 13) + close * (2 / 13)
             ema_26 = ema26[-1] * (25 / 27) + close * (2 / 27)
             dea_4 = dea4[-1] * (3 / 5) + (ema_5 - ema_12) * (2 / 5)
             dea_9 = dea9[-1] * (8 / 10) + (ema_12 - ema_26) * (2 / 10)
+
         ema5.append(ema_5)
         ema12.append(ema_12)
         ema26.append(ema_26)
@@ -57,13 +61,33 @@ def mark(stock_code, klt=101, begin='2020-01-01'):
                 .format(stock_code, mark2, dt[i-1], klt)
             db.execute(update_sql2)
 
-        if ((bar[i] > 0) & (bar[i-1] < 0) | (bar[i] < 0) & (bar[i-1] > 0)):
+        if ((bar[i] > 0) and (bar[i-1] < 0) or (bar[i] < 0) and (bar[i-1] > 0)):
             m3_idx, m3_val = mark_3(diff[:i], bar[:i])
             if m3_idx > 0:
                 update_sql3 = "UPDATE `{0}` SET `mark` = '{1}' WHERE `datetime` = '{2}' AND `klt` = {3} ;" \
                     .format(stock_code, m3_val, dt[m3_idx], klt)
                 db.execute(update_sql3)
     print('[update mark done] code:{}, result:{}'.format(stock_code, size))
+
+
+def get_begin_date(klt, begin):
+    y = datetime.now().year
+    m = datetime.now().month
+    d = datetime.now().day
+    begin_date = datetime.strptime(begin, '%Y-%m-%d')
+    if klt == 102:
+        earliest = datetime((y-5), m, d)
+    elif klt == 101:
+        earliest = datetime((y-2), m, d)
+    elif klt == 60:
+        earliest = datetime.now() - timedelta(days=15)
+    else:
+        earliest = datetime.now() - timedelta(days=5)
+
+    if begin == '' or begin_date < earliest:
+        return earliest.strftime('%Y-%m-%d')
+    else:
+        return begin_date.strftime('%Y-%m-%d')
 
 
 # 拐点
@@ -73,11 +97,11 @@ def mark_2(diff, bar):
     if s > 2:
         bar_1, bar_2, bar_3 = bar[s-3], bar[s-2], bar[s-1]
         diff_1, diff_2, diff_3 = diff[s-3], diff[s-2], diff[s-1]
-        if (bar_1 < 0.0) & (bar_2 < 0.0) & (bar_3 < 0.0):
-            if (diff_1 > diff_2) & (diff_2 < diff_3):
+        if (bar_1 < 0.0) and (bar_2 < 0.0) and (bar_3 < 0.0):
+            if (diff_1 > diff_2) and (diff_2 < diff_3):
                 m = -2
-        if (bar_1 > 0.0) & (bar_2 > 0.0) & (bar_3 > 0.0):
-            if (diff_1 < diff_2) & (diff_2 > diff_3):
+        if (bar_1 > 0.0) and (bar_2 > 0.0) and (bar_3 > 0.0):
+            if (diff_1 < diff_2) and (diff_2 > diff_3):
                 m = 2
     return m
 

@@ -4,15 +4,7 @@ import efinance as ef
 
 
 def upset_data(stock_code, begin_date):
-    if begin_date == "-1":
-        return -1
-
     size = 0
-    if begin_date == "":
-        db.create_stock_table(stock_code)
-        db.execute("TRUNCATE TABLE `{}`".format(stock_code))
-        print('[create table] name:{}'.format(stock_code))
-        begin_date = '2000-01-01'
     if begin_date < datetime.now().strftime('%Y-%m-%d'):
         begin_date = begin_date.replace('-', '')
         print('[get history] code:{}, from:{}'.format(stock_code, begin_date))

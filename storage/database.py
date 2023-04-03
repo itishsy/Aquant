@@ -24,6 +24,7 @@ def init_schema():
                         "`stock_code` varchar(20) DEFAULT NULL," \
                         "`begin_date` varchar(20) DEFAULT NULL," \
                         "`create` datetime DEFAULT NULL," \
+                        "`error` text," \
                         "PRIMARY KEY (`id`)" \
                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
     execute(table_fetch_error)
@@ -90,7 +91,7 @@ def query(sql):
 
 
 def create_stock_table(table_name):
-    if table_name.startswith('00') | table_name.startswith('30') | table_name.startswith('60') | table_name.startswith('51'):
+    if table_name[0:2] in cfg.prefix:
         table_stock = "CREATE TABLE IF NOT EXISTS `{}` (`datetime` varchar(20)," \
                       "`open` decimal(10,2),`close` decimal(10,2),`high` decimal(10,2),`low` decimal(10,2)," \
                       "`volume` bigint(20), `hsl` decimal(12,4)," \
@@ -108,7 +109,7 @@ def create_stock_table(table_name):
 
 
 def get_dtypes(table_name):
-    if table_name.startswith('00') | table_name.startswith('60') | table_name.startswith('30') | table_name.startswith('51'):
+    if table_name[0:2] in cfg.prefix:
         return {'datetime': VARCHAR(20), 'open': DECIMAL, 'close': DECIMAL, 'high': DECIMAL, 'low': DECIMAL,
                     'volume': BIGINT, 'ema5': DECIMAL, 'ema12': DECIMAL, 'ema26': DECIMAL, 'dea4': DECIMAL, 'dea9': DECIMAL,
                     'mark': INT, 'klt': INT}

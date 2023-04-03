@@ -1,5 +1,5 @@
 import datetime
-
+import config as cfg
 import pandas as pd
 from sqlalchemy import text
 from sqlalchemy import create_engine
@@ -23,7 +23,7 @@ def query(sql):
 def upset_all():
     rq = ef.stock.get_realtime_quotes()
     rq.columns = ['code', 'name', 'zdf','price', 'high', 'low','open','zde','hsl','lb','pe','val','cje', 'zrsp','total', 'ltsz', 'hqid', 'market', 'upd','jyr']
-    rq = rq[(rq['name'].str.contains('ST') == False) & (rq['code'].str.startswith('00') | rq['code'].str.startswith('51') |rq['code'].str.startswith('60') | rq['code'].str.startswith('30'))]
+    rq = rq[(rq['name'].str.contains('ST') == False) & (rq['code'].str in cfg.prefix)]
     rq.to_sql(name='all_realtime', con=engine, index=False, if_exists='replace')
 
 
