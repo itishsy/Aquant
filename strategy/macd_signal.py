@@ -21,3 +21,23 @@ def signal(stock_code, klt=101, begin=''):
                     if ((high1-low2)/low2) > 0.1 and ((high1-low0)/high1) > 0.1:
                         dt = k_mark.iloc[i, k_mark.columns.get_loc('datetime')]
                         reverse_signal(stock_code, klt, mark_0, dt)
+
+
+def find_lowest(k_mark, index, low):
+    flag = True
+    d = 1
+    lowest = low
+    while flag:
+        i = index - d
+        j = index + d
+        low_i = k_mark.iloc[i, k_mark.columns.get_loc('low')]
+        low_j = k_mark.iloc[j, k_mark.columns.get_loc('low')]
+        if low_i < lowest:
+            lowest = low_i
+        if low_j < lowest:
+            lowest = low_j
+        if d > 3:
+            flag = False
+        d = d + 1
+    return lowest
+
