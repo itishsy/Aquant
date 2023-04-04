@@ -8,20 +8,6 @@ import json
 
 
 def init_code_dict():
-    if cur_month != key_update:
-        df = ef.stock.get_realtime_quotes(['沪A','深A','ETF'])
-        df = df.iloc[:,0:2]
-        df.columns = ['code', 'name']
-        df = df[df['name'].str.contains('ST') == False]
-
-        for idx, row in df.iterrows():
-            code = row['code']
-            if (code[0:2] in cfg.prefix) and (code not in code_dict):
-                update_storage_date(code, "")
-
-
-
-def fetch_code_dict():
     with open(cfg.work_path + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
         code_dict = json.load(load_f)
 
@@ -38,11 +24,10 @@ def fetch_code_dict():
             if (code[0:2] in cfg.prefix) and (code not in code_dict):
                 update_storage_date(code, "")
 
-        with open(cfg.work_path + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
-            code_dict = json.load(load_f)
-            del code_dict["key_update"]
-            return code_dict
-    else:
+
+def fetch_code_dict():
+    with open(cfg.work_path + r"//storage//code.json", 'r', encoding='utf-8') as load_f:
+        code_dict = json.load(load_f)
         del code_dict["key_update"]
         return code_dict
 
@@ -86,13 +71,15 @@ def last_storage_date(code):
 
 def fetch_data(code):
     begin_date = last_storage_date(code)
-    if begin_date != '-1':
+    if (begin_date != '-1') and (begin_date < datetime.now().strftime('%Y-%m-%d')):
         fetch_size = upset_data(code, begin_date)
         print("[updated] code:{}, begin:{}, result:{}".format(code, begin_date, fetch_size))
         if fetch_size > 0:
             idc.macd_mark(code, 101, begin_date)
             idc.macd_mark(code, 102, begin_date)
             update_storage_date(code)
+    else:
+        print("code:{} is up to date".format(code))
     return begin_date
 
 
