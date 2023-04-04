@@ -81,6 +81,14 @@ def execute(sql):
     conn.commit()
 
 
+def drop_table(table_name):
+    engine = get_engine(table_name)
+    sql = 'DROP TABLE IF EXISTS `{}`'.format(table_name)
+    conn = engine.connect()
+    conn.execute(text(sql))
+    conn.commit()
+
+
 def query(sql):
     engine = get_engine(get_table_name(sql))
     conn = engine.connect()

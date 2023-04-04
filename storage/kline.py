@@ -8,7 +8,7 @@ def upset_data(stock_code, begin_date):
     if begin_date < datetime.now().strftime('%Y-%m-%d'):
         begin_date = begin_date.replace('-', '')
         print('[get history] code:{}, from:{}'.format(stock_code, begin_date))
-        for klt in [101, 102, 103, 60, 30, 15]:
+        for klt in [101, 102, 103]:
             k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date)
             data_size = len(k_data)
             if data_size > 0:
