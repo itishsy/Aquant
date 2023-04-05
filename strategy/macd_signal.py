@@ -20,8 +20,12 @@ def signal(stock_code, klt=101, begin=''):
                     i, k_mark.columns.get_loc('ema26')]
                 dt2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('datetime')]
                 low2 = find_lowest(stock_code, klt, dt2, k_mark.iloc[i - 2, k_mark.columns.get_loc('low')])
+                if low2 < 0:
+                    continue
                 dt0 = k_mark.iloc[i, k_mark.columns.get_loc('datetime')]
                 low0 = find_lowest(stock_code, klt, dt0, k_mark.iloc[i, k_mark.columns.get_loc('low')])
+                if low0 < 0:
+                    continue
                 if diff1 < 0 and diff2 < diff0 and low2 > low0:
                     high1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('high')]
                     if ((high1 - low2) / low2) > 0.1 and ((high1 - low0) / high1) > 0.1:
@@ -30,6 +34,7 @@ def signal(stock_code, klt=101, begin=''):
 
 def find_lowest(stock_code, klt, dt, low):
     lowest = low
+    mark_size = 0
     sql_pre = "SELECT low,mark FROM `{}` WHERE klt={} AND `datetime` < '{}' ORDER BY `datetime` DESC LIMIT 10".format(
         stock_code, klt, dt)
     df_pre = db.query(sql_pre)
@@ -37,6 +42,7 @@ def find_lowest(stock_code, klt, dt, low):
         if row['mark'] > 0:
             break
         else:
+            mark_size = mark_size +1
             if row['low'] < lowest:
                 lowest = row['low']
     sql_nex = "SELECT low,mark FROM `{}` WHERE klt={} AND `datetime` > '{}' ORDER BY `datetime` LIMIT 10".format(
@@ -46,6 +52,10 @@ def find_lowest(stock_code, klt, dt, low):
         if row['mark'] > 0:
             break
         else:
+            mark_size = mark_size +1
             if row['low'] < lowest:
                 lowest = row['low']
-    return lowest
+    if mark_size < 4:
+        return -1
+    else:
+        return lowest
