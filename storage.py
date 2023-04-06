@@ -36,7 +36,8 @@ def upset(stock_code):
         if len(beg_data) > 0:
             beg = beg_data.at[0, 'd']
 
-    for klt in [101, 102, 103, 60, 30, 15]:
+    # 60, 30, 15
+    for klt in [101, 102, 103]:
         k_data = ef.stock.get_quote_history(stock_code, klt=klt,beg=beg)
         k_data.columns = ['name', 'code', 'datetime', 'open', 'close', 'high', 'low', 'volume', 'cje', 'zf', 'rise', 'zde', 'hsl']
         k_data.drop(['name','code'], axis=1, inplace=True)
