@@ -29,4 +29,5 @@ def reverse_signal(stock_code,level,type,datetime):
                  "(`stock_code`,`level`,`reverse_type`,`reverse_datetime`,`create`) " \
                  "VALUES('{}','{}','{}','{}',NOW())"\
         .format(stock_code,level,type,datetime)
+    print(insert_sql)
     db.execute(insert_sql)

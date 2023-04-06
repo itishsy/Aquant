@@ -22,6 +22,7 @@ def init_schema():
     table_code_dict = "CREATE TABLE IF NOT EXISTS `code_dict` (" \
                       "`id` int(11) NOT NULL AUTO_INCREMENT," \
                       "`code` varchar(20) NOT NULL," \
+                      "`latest` int(11) DEFAULT '1'," \
                       "`created` datetime DEFAULT NULL," \
                       "`updated` datetime DEFAULT NULL," \
                       "PRIMARY KEY (`id`)" \
@@ -85,6 +86,7 @@ def insert(df, table_name, replace=False):
 def execute(sql):
     engine = get_engine(get_table_name(sql))
     conn = engine.connect()
+    print(sql)
     conn.execute(text(sql))
     conn.commit()
 

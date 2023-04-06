@@ -22,7 +22,7 @@ def init_code_dict():
 
 
 def fetch_code_dict():
-    df = db.query("SELECT `code` FROM `code_dict` WHERE `updated` < '{}'".format(datetime.now().strftime('%Y-%m-%d')))
+    df = db.query("SELECT `code` FROM `code_dict` WHERE `latest` = 0")
     return df
 
 
@@ -32,17 +32,20 @@ def update_storage_date(code, val=None):
 
 def last_storage_date(code):
     df = db.query("SELECT `updated` FROM `code_dict` WHERE `code` = '{}'".format(code))
-    updated = df.iloc[0, df.columns.get_loc('updated')]
 
     if len(df) == 0:
         db.drop_table(code)
         return "-1"
 
+    updated = df.iloc[0, df.columns.get_loc('updated')]
+
     if updated is None:
+        print('-----------------------')
+        print(updated)
         db.drop_table(code)
         db.create_stock_table(code)
         print('[create table] name:{}'.format(code))
-        last_date = datetime((datetime.now().year-3), 1, 1).strftime('%Y-%m-%d')
+        last_date = datetime((datetime.now().year-3), 1, 1)
         return last_date
     else:
         return updated
@@ -50,7 +53,9 @@ def last_storage_date(code):
 
 def fetch_data(code):
     begin_date = last_storage_date(code)
-    if (begin_date != '-1') and (begin_date < datetime.now().strftime('%Y-%m-%d')):
+    print('========================')
+    print(begin_date)
+    if (begin_date != '-1') and (begin_date.strftime('%Y-%m-%d') < datetime.now().strftime('%Y-%m-%d')):
         fetch_size = upset_data(code, begin_date)
         print("[updated] code:{}, begin:{}, result:{}".format(code, begin_date, fetch_size))
         if fetch_size > 0:
