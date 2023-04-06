@@ -76,9 +76,9 @@ def get_begin_date(klt, begin):
     d = datetime.now().day
     begin_date = datetime.strptime(begin, '%Y-%m-%d')
     if klt == 102:
-        earliest = datetime((y-5), m, d)
+        earliest = datetime((y-3), m, d)
     elif klt == 101:
-        earliest = datetime((y-2), m, d)
+        earliest = datetime((y-1), m, d)
     elif klt == 60:
         earliest = datetime.now() - timedelta(days=15)
     else:

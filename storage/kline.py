@@ -39,7 +39,8 @@ def read_data(stock_code, klt=101, begin='', end='', field='*', limit=-1, order_
 
 
 def read_mark(stock_code, klt=101, begin='', mark='-3,3'):
-    sql = 'SELECT * FROM `{}` WHERE klt={} AND mark IN ({})'.format(stock_code, klt, mark)
+    sql = 'SELECT `datetime`,`open`,`close`,`high`,`low`, (`ema12`-`ema26`) AS diff, (`ema12`-`ema26`-`dea9`) AS bar,`mark`' \
+          ' FROM `{}` WHERE klt={} AND mark IN ({})'.format(stock_code, klt, mark)
     if begin != '':
         sql = "{} AND `datetime` >= '{}'".format(sql, begin)
     sql = "{} ORDER BY `datetime` ".format(sql)

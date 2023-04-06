@@ -18,4 +18,5 @@ if __name__ == '__main__':
             print('fetch {} error: {}'.format(code, e))
         else:
             signal(code, klt=102)
+
             # signal(code, klt=101)
