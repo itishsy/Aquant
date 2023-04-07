@@ -86,7 +86,6 @@ def insert(df, table_name, replace=False):
 def execute(sql):
     engine = get_engine(get_table_name(sql))
     conn = engine.connect()
-    print(sql)
     conn.execute(text(sql))
     conn.commit()
 

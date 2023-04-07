@@ -3,9 +3,8 @@ import storage.database as db
 from datetime import datetime, timedelta
 
 
-def macd_mark(stock_code, klt, begin=''):
+def macd_mark(stock_code, klt, begin):
     begin = get_begin_date(klt, begin)
-
     print('[update mark] code:{}, klt:{}, begin:{}'.format(stock_code, klt, begin))
     k_data = read_data(stock_code, klt=klt, begin=begin)
     if len(k_data) == 0:
@@ -70,11 +69,11 @@ def macd_mark(stock_code, klt, begin=''):
     print('[update mark done] code:{}, result:{}'.format(stock_code, size))
 
 
-def get_begin_date(klt, begin):
+def get_begin_date(klt, begin_date):
     y = datetime.now().year
     m = datetime.now().month
     d = datetime.now().day
-    begin_date = datetime.strptime(begin, '%Y-%m-%d')
+    #begin_date = datetime.strptime(begin, '%Y-%m-%d')
     if klt == 102:
         earliest = datetime((y-3), m, d)
     elif klt == 101:
@@ -84,7 +83,7 @@ def get_begin_date(klt, begin):
     else:
         earliest = datetime.now() - timedelta(days=5)
 
-    if begin == '' or begin_date < earliest:
+    if (begin_date is None) or (begin_date < earliest):
         return earliest.strftime('%Y-%m-%d')
     else:
         return begin_date.strftime('%Y-%m-%d')

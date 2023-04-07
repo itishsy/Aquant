@@ -7,7 +7,7 @@ if __name__ == '__main__':
     db.init_schema()
     init_code_dict()
     code_dict = fetch_code_dict()
-    for i,row in code_dict.iterrows():
+    for i, row in code_dict.iterrows():
         code = row['code']
         begin_date = ''
         try:

@@ -38,14 +38,11 @@ def last_storage_date(code):
         return "-1"
 
     updated = df.iloc[0, df.columns.get_loc('updated')]
-
     if updated is None:
-        print('-----------------------')
-        print(updated)
         db.drop_table(code)
         db.create_stock_table(code)
+        last_date = datetime((datetime.now().year - 3), 1, 1)
         print('[create table] name:{}'.format(code))
-        last_date = datetime((datetime.now().year-3), 1, 1)
         return last_date
     else:
         return updated
@@ -53,8 +50,7 @@ def last_storage_date(code):
 
 def fetch_data(code):
     begin_date = last_storage_date(code)
-    print('========================')
-    print(begin_date)
+    print(code, begin_date)
     if (begin_date != '-1') and (begin_date.strftime('%Y-%m-%d') < datetime.now().strftime('%Y-%m-%d')):
         fetch_size = upset_data(code, begin_date)
         print("[updated] code:{}, begin:{}, result:{}".format(code, begin_date, fetch_size))
