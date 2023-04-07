@@ -13,12 +13,21 @@ engine_agu_60 = create_engine('mysql+pymysql://{}:{}@{}/agu_60'.format(cfg.usern
 
 def init_schema():
     dbs = query('SELECT `SCHEMA_NAME` AS name FROM `information_schema`.`SCHEMATA`')
-    all_dbs = ['agu', 'agu_30', 'agu_00', 'agu_51', 'agu_60']
+    all_dbs = ['agu_30', 'agu_00', 'agu_51', 'agu_60']
     for name in all_dbs:
         df = dbs[dbs['name'] == name]
         if len(df) < 1:
             create_db_sql = 'CREATE DATABASE IF NOT EXISTS {} DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;'.format(name)
             execute(create_db_sql)
+    table_code_dict = "CREATE TABLE IF NOT EXISTS `code_dict` (" \
+                      "`id` int(11) NOT NULL AUTO_INCREMENT," \
+                      "`code` varchar(20) NOT NULL," \
+                      "`latest` int(11) DEFAULT '1'," \
+                      "`created` datetime DEFAULT NULL," \
+                      "`updated` datetime DEFAULT NULL," \
+                      "PRIMARY KEY (`id`)" \
+                      ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
+    execute(table_code_dict)
     table_fetch_error = "CREATE TABLE IF NOT EXISTS `fetch_error` (" \
                         "`id` bigint(20) NOT NULL AUTO_INCREMENT," \
                         "`stock_code` varchar(20) DEFAULT NULL," \
@@ -77,6 +86,7 @@ def insert(df, table_name, replace=False):
 def execute(sql):
     engine = get_engine(get_table_name(sql))
     conn = engine.connect()
+    print(sql)
     conn.execute(text(sql))
     conn.commit()
 
