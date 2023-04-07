@@ -2,7 +2,6 @@ import storage.database as db
 from storage.fetcher import init_code_dict, fetch_code_dict, fetch_data, update_storage_date
 from strategy.macd_signal import signal
 from storage.agu import fetch_error
-from datetime import datetime
 
 if __name__ == '__main__':
     db.init_schema()
