@@ -9,12 +9,11 @@ if __name__ == '__main__':
     code_dict = fetch_code_dict()
     for i, row in code_dict.iterrows():
         code = row['code']
-        begin_date = ''
         try:
-            begin_date = fetch_data(code)
+            fetch_data(code)
         except Exception as e:
             fetch_size = -1
-            fetch_error(code, begin_date, e)
+            #fetch_error(code, begin_date, e)
             print('{} fetch {} error: {}'.format(i, code, e))
         else:
             signal(code, klt=102)

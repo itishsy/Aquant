@@ -60,7 +60,6 @@ def fetch_data(code):
             update_storage_date(code)
     else:
         print("code:{} is up to date".format(code))
-    return begin_date
 
 
 if __name__ == '__main__':
