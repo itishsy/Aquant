@@ -34,10 +34,10 @@ def signal(stock_code, klt, begin_date):
                         if low0 < 0:
                             continue
                         low2 = find_lowest(stock_code, klt, dt2, k_mark.iloc[i - 2, k_mark.columns.get_loc('low')])
-                        if (diff1 < 0) and (diff2 < diff0) and (low2 > low0) and ((high1 - low2) / low2) > 0.1 and (
-                                (high1 - low0) / high1) > 0.1:
+                        if (diff1 < 0) and (diff2 < diff0) and (low2 > low0) \
+                                and (klt not in [101,102] or (((high1 - low2) / low2) > 0.1 and ((high1 - low0) / high1) > 0.1)):
                             reverse_signal(stock_code, klt, mark_0, dt0)
-                            print('[signal] code:{}, klt:{}, signal:{}, datetime:{}'.format(mark_0, klt, size, dt0))
+                            print('[signal] code:{}, klt:{}, signal:{}, datetime:{}'.format(stock_code, klt, mark_0, dt0))
 
 
 def find_lowest(stock_code, klt, dt, low):
