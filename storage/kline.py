@@ -8,6 +8,37 @@ def upset_data(stock_code, begin_date):
     if begin_date.strftime('%Y-%m-%d') < datetime.now().strftime('%Y-%m-%d'):
         begin_date = begin_date.strftime('%Y%m%d')
         print('[get history] code:{}, from:{}'.format(stock_code, begin_date))
+        for klt in [101, 102]:
+            k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date)
+            data_size = len(k_data)
+            if data_size > 0:
+                k_data = k_data.iloc[:, 0:8]
+                k_data.columns = ['name', 'code', 'datetime', 'open', 'close', 'high', 'low', 'volume']
+                #k_data.drop(['name', 'code'], axis=1, inplace=True)
+                s_sql = db.get_sql('insert_kline.sql').format(stock_code, klt)
+                i_list = []
+                for i, row in k_data.iterrows():
+                    i_list.append((row['datetime'],
+                                   row['open'],
+                                   row['close'],
+                                   row['high'],
+                                   row['low'],
+                                   row['volume'],
+                                   row['datetime']))
+                    if len(i_list) > 100:
+                        db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
+                        i_list.clear()
+                if len(i_list) > 0:
+                   db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
+                size = size + data_size
+    return size
+
+
+def upset_data2(stock_code, begin_date):
+    size = 0
+    if begin_date.strftime('%Y-%m-%d') < datetime.now().strftime('%Y-%m-%d'):
+        begin_date = begin_date.strftime('%Y%m%d')
+        print('[get history] code:{}, from:{}'.format(stock_code, begin_date))
         for klt in [101, 102, 103]:
             k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date)
             data_size = len(k_data)
@@ -45,3 +76,15 @@ def read_mark(stock_code, klt=101, begin='', mark='-3,3'):
         sql = "{} AND `datetime` >= '{}'".format(sql, begin)
     sql = "{} ORDER BY `datetime` ".format(sql)
     return db.query(sql)
+
+
+if __name__ == '__main__':
+    sql = """INSERT INTO `301080`(`datetime`, `open`, `close`, `high`, `low`, `volume`, `klt`)
+    SELECT '2023-04-07', 110.96, 109.99, 112.89, 105.81, 28381, 102
+    FROM DUAL WHERE NOT EXISTS(
+        SELECT 1
+        FROM `301080`
+        WHERE `datetime` = %s AND `klt` = 102
+        );"""
+    db.execute(db.get_connect('301080'),sql,many=True,lis=[('2023-04-07'),('2023-04-06')])
+

@@ -1,10 +1,11 @@
 from datetime import datetime,timedelta
-from storage.kline import upset_data
+import storage.kline as kl
 import storage.database as db
-import storage.indicator as idc
+import storage.indicator as ic
+from strategy.macd_signal import signal
 import config as cfg
 import efinance as ef
-import json
+import logging
 
 
 def init_code_dict():
@@ -27,14 +28,17 @@ def fetch_code_dict():
 
 
 def update_storage_date(code, val=None):
-    db.execute("UPDATE `code_dict` SET `updated` = NOW() WHERE `code` = '{}'".format(code))
+    db.execute(db.get_connect(), "UPDATE `code_dict` SET `updated` = NOW() WHERE `code` = '{}'".format(code))
+
+def update_storage_date2(code, val=None):
+    db.execute2("UPDATE `code_dict` SET `updated` = NOW() WHERE `code` = '{}'".format(code))
+
 
 
 def last_storage_date(code):
     df = db.query("SELECT `updated` FROM `code_dict` WHERE `code` = '{}'".format(code))
 
     if len(df) == 0:
-        db.drop_table(code)
         return "-1"
 
     updated = df.iloc[0, df.columns.get_loc('updated')]
@@ -42,7 +46,7 @@ def last_storage_date(code):
         db.drop_table(code)
         db.create_stock_table(code)
         last_date = datetime((datetime.now().year - 3), 1, 1)
-        print('[create table] name:{}'.format(code))
+        logging.info('[create table] name:{}'.format(code))
         return last_date
     else:
         return updated
@@ -50,19 +54,60 @@ def last_storage_date(code):
 
 def fetch_data(code):
     begin_date = last_storage_date(code)
-    print(code, begin_date)
     if (begin_date != '-1') and (begin_date.strftime('%Y-%m-%d') < datetime.now().strftime('%Y-%m-%d')):
-        fetch_size = upset_data(code, begin_date)
-        print("[updated] code:{}, begin:{}, result:{}".format(code, begin_date, fetch_size))
+        fetch_size = kl.upset_data(code, begin_date)
+        logging.info("[updated] code:{}, begin:{}, result:{}".format(code, begin_date, fetch_size))
         if fetch_size > 0:
-            idc.macd_mark(code, 101, begin_date)
-            idc.macd_mark(code, 102, begin_date)
-            update_storage_date(code)
+            ic.macd_mark(code, 101, begin_date)
+            ic.macd_mark(code, 102, begin_date)
     else:
-        print("code:{} is up to date".format(code))
+        logging.info("code:{} is up to date".format(code))
+
+
+def fetch_data2(code):
+    begin_date = last_storage_date(code)
+    if (begin_date != '-1') and (begin_date.strftime('%Y-%m-%d') < datetime.now().strftime('%Y-%m-%d')):
+        fetch_size = kl.upset_data2(code, begin_date)
+        logging.info("[updated] code:{}, begin:{}, result:{}".format(code, begin_date, fetch_size))
+        if fetch_size > 0:
+            ic.macd_mark2(code, 101, begin_date)
+            ic.macd_mark2(code, 102, begin_date)
+    else:
+        logging.info("code:{} is up to date".format(code))
 
 
 if __name__ == '__main__':
-    init_code_dict()
+    #init_code_dict()
     #print('fetch_data(300223)')
-    #fetch_data('300223')
+    fetch_data('300059')
+
+
+def fetch_all():
+    code_dict = db.query("SELECT `code`,`updated` FROM `code_dict` WHERE `latest` = 0")
+    for i, row in code_dict.iterrows():
+        code = row['code']
+        begin_date = row['updated']
+        up_to_date = False
+        try:
+            if begin_date is None:
+                db.create_stock_table(code)
+                begin_date = datetime((datetime.now().year - 3), 1, 1)
+            if begin_date < datetime.now():
+                res = kl.upset_data(code, begin_date)
+                if res > 0:
+                    mark_size = ic.mark(code, 102, begin_date)
+                    mark_size = mark_size + ic.mark(code, 101, begin_date)
+                    if mark_size > 0:
+                        signal(code, 102)
+                        up_to_date = True
+        except Exception as e:
+            logging.error('{} fetch {} error: {}'.format(i, code, e))
+
+        if up_to_date:
+            now = datetime.now()
+            updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            if now.hour > 15:
+                updated = datetime.now().strftime('%Y-%m-%d 23:59:59')
+
+            db.execute(db.get_connect(), "UPDATE `code_dict` SET `updated` = '{}' WHERE `code` = '{}'".format(updated, code))
+

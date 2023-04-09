@@ -1,21 +1,14 @@
+from datetime import datetime
 import storage.database as db
-from storage.fetcher import init_code_dict, fetch_code_dict, fetch_data, update_storage_date
-from strategy.macd_signal import signal
-from storage.agu import fetch_error
+from storage.fetcher import fetch_all
+import logging
+import config
+
+logging.basicConfig(format='%(asctime)s %(message)s', filename='{}/aquant.log'.format(config.work_path))
+logging.getLogger().setLevel(logging.INFO)
 
 if __name__ == '__main__':
     db.init_schema()
-    init_code_dict()
-    code_dict = fetch_code_dict()
-    for i, row in code_dict.iterrows():
-        code = row['code']
-        try:
-            fetch_data(code)
-        except Exception as e:
-            fetch_size = -1
-            #fetch_error(code, begin_date, e)
-            print('{} fetch {} error: {}'.format(i, code, e))
-        else:
-            signal(code, klt=102)
-
-            # signal(code, klt=101)
+    start_time = datetime.now()
+    fetch_all()
+    print("==============用時：{}=================".format(datetime.now() - start_time))

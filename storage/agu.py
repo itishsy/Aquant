@@ -10,13 +10,6 @@ def stat_all():
     rq.to_sql(name='all_realtime', con=engine, index=False, if_exists='replace')
 
 
-def fetch_error(stock_code,begin_date,error):
-    insert_sql = "INSERT INTO `fetch_error` (" \
-                 "`stock_code`,`begin_date`,`create`,`error`) " \
-                 "VALUES('{}','{}',NOW(),'{}');"\
-        .format(stock_code,begin_date,error)
-    db.execute(insert_sql)
-
 
 def reverse_signal(stock_code,level,type,datetime):
     delete_sql = "DELETE FROM `reverse_signal` " \
@@ -24,10 +17,23 @@ def reverse_signal(stock_code,level,type,datetime):
                  "AND `level` = '{}' " \
                  "AND `reverse_datetime` = '{}'"\
         .format(stock_code,level,datetime)
-    db.execute(delete_sql)
+    db.execute(db.get_connect(), delete_sql)
     insert_sql = "INSERT INTO `reverse_signal` " \
                  "(`stock_code`,`level`,`reverse_type`,`reverse_datetime`,`create`) " \
                  "VALUES('{}','{}','{}','{}',NOW())"\
         .format(stock_code,level,type,datetime)
-    print(insert_sql)
-    db.execute(insert_sql)
+    db.execute(db.get_connect(),insert_sql)
+
+
+def reverse_signal2(stock_code,level,type,datetime):
+    delete_sql = "DELETE FROM `reverse_signal` " \
+                 "WHERE `stock_code` = '{}' " \
+                 "AND `level` = '{}' " \
+                 "AND `reverse_datetime` = '{}'"\
+        .format(stock_code,level,datetime)
+    db.execute2(delete_sql)
+    insert_sql = "INSERT INTO `reverse_signal` " \
+                 "(`stock_code`,`level`,`reverse_type`,`reverse_datetime`,`create`) " \
+                 "VALUES('{}','{}','{}','{}',NOW())"\
+        .format(stock_code,level,type,datetime)
+    db.execute2(insert_sql)
