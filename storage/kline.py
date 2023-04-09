@@ -3,34 +3,33 @@ from datetime import datetime
 import efinance as ef
 
 
-def upset_data(stock_code, begin_date):
+def upset_data(stock_code,klt, begin_date):
     size = 0
     if begin_date.strftime('%Y-%m-%d') < datetime.now().strftime('%Y-%m-%d'):
         begin_date = begin_date.strftime('%Y%m%d')
-        print('[get history] code:{}, from:{}'.format(stock_code, begin_date))
-        for klt in [101, 102]:
-            k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date)
-            data_size = len(k_data)
-            if data_size > 0:
-                k_data = k_data.iloc[:, 0:8]
-                k_data.columns = ['name', 'code', 'datetime', 'open', 'close', 'high', 'low', 'volume']
-                #k_data.drop(['name', 'code'], axis=1, inplace=True)
-                s_sql = db.get_sql('insert_kline.sql').format(stock_code, klt)
-                i_list = []
-                for i, row in k_data.iterrows():
-                    i_list.append((row['datetime'],
-                                   row['open'],
-                                   row['close'],
-                                   row['high'],
-                                   row['low'],
-                                   row['volume'],
-                                   row['datetime']))
-                    if len(i_list) > 100:
-                        db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
-                        i_list.clear()
-                if len(i_list) > 0:
-                   db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
-                size = size + data_size
+        print('[get history] code:{}, klt:{}, from:{}'.format(stock_code, klt, begin_date))
+        k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date)
+        data_size = len(k_data)
+        if data_size > 0:
+            k_data = k_data.iloc[:, 0:8]
+            k_data.columns = ['name', 'code', 'datetime', 'open', 'close', 'high', 'low', 'volume']
+            #k_data.drop(['name', 'code'], axis=1, inplace=True)
+            s_sql = db.get_sql('insert_kline.sql').format(stock_code, klt)
+            i_list = []
+            for i, row in k_data.iterrows():
+                i_list.append((row['datetime'],
+                               row['open'],
+                               row['close'],
+                               row['high'],
+                               row['low'],
+                               row['volume'],
+                               row['datetime']))
+                if len(i_list) > 100:
+                    db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
+                    i_list.clear()
+            if len(i_list) > 0:
+               db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
+            size = size + data_size
     return size
 
 
