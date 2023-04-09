@@ -1,23 +1,13 @@
 import datetime
 
+import config
 from storage.kline import read_mark
 from storage.agu import reverse_signal, reverse_signal2
 import storage.database as db
 from datetime import datetime, timedelta
 
 
-def signal(stock_code, klt):
-    y = datetime.now().year - 1
-    begin_date = datetime(y, datetime.now().month, datetime.now().day)
-    if klt == 101:
-        begin_date = datetime.now() - timedelta(days=150)
-    elif klt == 60:
-        begin_date = datetime.now() - timedelta(days=35)
-    elif klt == 30:
-        begin_date = datetime.now() - timedelta(days=20)
-    elif klt == 15:
-        begin_date = datetime.now() - timedelta(days=10)
-
+def signal(stock_code, klt, begin_date):
     begin = begin_date.strftime('%Y-%m-%d')
     k_mark = read_mark(stock_code, klt=klt, begin=begin)
     size = len(k_mark)

@@ -1,4 +1,6 @@
 from datetime import datetime,timedelta
+
+import config
 import storage.kline as kl
 import storage.database as db
 import storage.indicator as ic
@@ -84,30 +86,26 @@ if __name__ == '__main__':
 
 def fetch_all():
     code_dict = db.query("SELECT `code`,`updated` FROM `code_dict` WHERE `latest` = 0")
-    for i, row in code_dict.iterrows():
-        code = row['code']
-        begin_date = row['updated']
-        up_to_date = False
-        try:
-            if begin_date is None:
-                db.create_stock_table(code)
-                begin_date = datetime((datetime.now().year - 3), 1, 1)
-            if begin_date < datetime.now():
-                res = kl.upset_data(code, begin_date)
-                if res > 0:
-                    mark_size = ic.mark(code, 102, begin_date)
-                    mark_size = mark_size + ic.mark(code, 101, begin_date)
-                    if mark_size > 0:
-                        signal(code, 102)
-                        up_to_date = True
-        except Exception as e:
-            logging.error('{} fetch {} error: {}'.format(i, code, e))
-
-        if up_to_date:
-            now = datetime.now()
-            updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            if now.hour > 15:
-                updated = datetime.now().strftime('%Y-%m-%d 23:59:59')
-
-            db.execute(db.get_connect(), "UPDATE `code_dict` SET `updated` = '{}' WHERE `code` = '{}'".format(updated, code))
+    for klt in config.klt:
+        for i, row in code_dict.iterrows():
+            code = row['code']
+            begin_date = row['updated']
+            try:
+                if begin_date is None:
+                    db.create_stock_table(code)
+                    begin_date = config.get_latest(klt)
+                if begin_date < datetime.now():
+                    res = kl.upset_data(code, begin_date)
+                    if res > 0:
+                        mark_size = ic.mark(code, klt, begin_date)
+                        if mark_size > 0:
+                            signal(code, klt, begin_date)
+            except Exception as e:
+                logging.error('{} fetch {} error: {}'.format(i, code, e))
+            else:
+                now = datetime.now()
+                updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                if now.hour > 15:
+                    updated = datetime.now().strftime('%Y-%m-%d 23:59:59')
+                db.execute(db.get_connect(), "UPDATE `code_dict` SET `updated` = '{}' WHERE `code` = '{}'".format(updated, code))
 
