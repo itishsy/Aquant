@@ -10,12 +10,14 @@ from datetime import datetime, timedelta
 def signal(stock_code, klt, begin_date):
     begin = begin_date.strftime('%Y-%m-%d')
     k_mark = read_mark(stock_code, klt=klt, begin=begin)
+    zf = get_zf(klt)
     size = len(k_mark)
     if size > 2:
         for i in range(2, size):
-            bar0 = k_mark.iloc[i, k_mark.columns.get_loc('bar')]
-            if abs(bar0) < 1:
-                continue
+            if klt > 100:
+                bar0 = k_mark.iloc[i, k_mark.columns.get_loc('bar')]
+                if abs(bar0) < 1:
+                    continue
             mark_2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('mark')]
             mark_1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('mark')]
             mark_0 = k_mark.iloc[i, k_mark.columns.get_loc('mark')]
@@ -26,19 +28,46 @@ def signal(stock_code, klt, begin_date):
                 low2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('low')]
                 low0 = k_mark.iloc[i, k_mark.columns.get_loc('low')]
                 if (diff1 < 0) and (diff2 < diff0) and (low2 > low0):
+                    print('===========================',k_mark.iloc[i, k_mark.columns.get_loc('datetime')])
                     high1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('high')]
-                    if ((high1 - low2) / low2) > 0.1 and ((high1 - low0) / high1) > 0.1:
+                    if ((high1 - low2) / low2) > zf and ((high1 - low0) / high1) > zf:
                         dt2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('datetime')]
                         dt0 = k_mark.iloc[i, k_mark.columns.get_loc('datetime')]
                         low0 = find_lowest(stock_code, klt, dt0, k_mark.iloc[i, k_mark.columns.get_loc('low')])
                         if low0 < 0:
                             continue
                         low2 = find_lowest(stock_code, klt, dt2, k_mark.iloc[i - 2, k_mark.columns.get_loc('low')])
-                        if (diff1 < 0) and (diff2 < diff0) and (low2 > low0) \
-                                and (klt not in [101,102] or (((high1 - low2) / low2) > 0.1 and ((high1 - low0) / high1) > 0.1)):
+                        if (diff1 < 0) and (diff2 < diff0) and (low2 > low0) and ((high1 - low2) / low2) > zf and ((high1 - low0) / high1) > zf:
                             reverse_signal(stock_code, klt, mark_0, dt0)
                             print('[signal] code:{}, klt:{}, signal:{}, datetime:{}'.format(stock_code, klt, mark_0, dt0))
 
+            if (mark_2 == 3) and (mark_1 == -3) and (mark_0 == 3):
+                diff2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('diff')]
+                diff1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('diff')]
+                diff0 = k_mark.iloc[i, k_mark.columns.get_loc('diff')]
+                low2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('low')]
+                low0 = k_mark.iloc[i, k_mark.columns.get_loc('low')]
+                if (diff1 > 0) and (diff2 > diff0) and (low2 < low0):
+                    print('===========================', k_mark.iloc[i, k_mark.columns.get_loc('datetime')])
+                    high1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('high')]
+                    if ((high1 - low2) / low2) > zf and ((high1 - low0) / high1) > zf:
+                        dt2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('datetime')]
+                        dt0 = k_mark.iloc[i, k_mark.columns.get_loc('datetime')]
+                        low0 = find_lowest(stock_code, klt, dt0, k_mark.iloc[i, k_mark.columns.get_loc('low')])
+                        if low0 < 0:
+                            continue
+                        low2 = find_lowest(stock_code, klt, dt2, k_mark.iloc[i - 2, k_mark.columns.get_loc('low')])
+                        if (diff1 < 0) and (diff2 < diff0) and (low2 > low0) and ((high1 - low2) / low2) > zf and (
+                                (high1 - low0) / high1) > zf:
+                            reverse_signal(stock_code, klt, mark_0, dt0)
+                            print(
+                                '[signal] code:{}, klt:{}, signal:{}, datetime:{}'.format(stock_code, klt, mark_0, dt0))
+
+def get_zf(klt):
+    if klt > 100:
+        return 0.1
+    else:
+        return 0.01
 
 def find_lowest(stock_code, klt, dt, low):
     lowest = low
@@ -68,6 +97,7 @@ def find_lowest(stock_code, klt, dt, low):
     else:
         return lowest
 
+signal('301050',30, config.get_latest(30))
 
 def signal2(stock_code, klt=101, begin=''):
     if begin == '':
