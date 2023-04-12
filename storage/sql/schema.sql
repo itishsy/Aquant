@@ -8,9 +8,9 @@ USE agu;
 CREATE TABLE IF NOT EXISTS `code_dict` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(20) NOT NULL,
-  `latest` int(11) DEFAULT '0',
+  `status` int(11) DEFAULT '0',
   `created` datetime DEFAULT NULL,
-  `updated` datetime DEFAULT NULL,
+  `updated` datetime NOT NULL DEFAULT '1900-01-01 00:00:00',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

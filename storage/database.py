@@ -1,5 +1,4 @@
 import logging
-
 import sqlalchemy.pool
 from sqlalchemy import text
 from sqlalchemy import create_engine
@@ -40,7 +39,7 @@ def get_engine(code=''):
 
 def get_connect(code=''):
     dbname = 'agu'
-    if code[0:2] in cfg.prefix:
+    if code != '' and code[0:2] in cfg.prefix:
         dbname = 'agu_{}'.format(code[0:2])
     return pymysql.connect(
         host=cfg.host,
@@ -55,8 +54,9 @@ def get_table_name(sql):
     sps = sql.split(' ')
     le = len(sps)
     for i in range(le):
-        if (sps[i].upper() == 'FROM') | (sps[i].upper() == 'TABLE') | (sps[i].upper() == 'UPDATE') | (sps[i].upper() == 'INTO'):
-            table_name = sps[i+1]
+        if (sps[i].upper() == 'FROM') | (sps[i].upper() == 'TABLE') | (sps[i].upper() == 'UPDATE') | (
+                sps[i].upper() == 'INTO'):
+            table_name = sps[i + 1]
             table_name = table_name.replace("`", "")
             return table_name
 
@@ -89,16 +89,16 @@ def execute(db, sql, *args, many=False, lis=None):
 
                     # sql语句添加分号结尾
                     sql_item = x + ';'
-                    #logging.info(sql_item)
+                    # logging.info(sql_item)
                     for i in range(args_size):
                         a = "{" + str(i) + "}"
                         sql_item = sql_item.replace(a, str(args[i]))
-                    #print(sql_item)
+                    # print(sql_item)
                     if many:
                         cursor.executemany(sql_item, lis)
                     else:
                         cursor.execute(sql_item)
-                    #logging.info("执行成功sql: %s" % sql_item)
+                    # logging.info("执行成功sql: %s" % sql_item)
         else:
             if many:
                 cursor.executemany(sql, lis)
@@ -113,21 +113,22 @@ def execute(db, sql, *args, many=False, lis=None):
         db.commit()
         db.close()
 
-def execute2(sql):
-    engine = get_engine(get_table_name(sql))
-    with engine.connect() as conn:
-        conn.execute(text(sql))
-        conn.commit()
-    engine.dispose()
+
+# def execute2(sql):
+#     engine = get_engine(get_table_name(sql))
+#     with engine.connect() as conn:
+#         conn.execute(text(sql))
+#         conn.commit()
+#     engine.dispose()
 
 
-def drop_table(table_name):
-    engine = get_engine(table_name)
-    sql = 'DROP TABLE IF EXISTS `{}`'.format(table_name)
-    conn = engine.connect()
-    conn.execute(text(sql))
-    conn.commit()
-    engine.dispose()
+# def drop_table(table_name):
+#     engine = get_engine(table_name)
+#     sql = 'DROP TABLE IF EXISTS `{}`'.format(table_name)
+#     conn = engine.connect()
+#     conn.execute(text(sql))
+#     conn.commit()
+#     engine.dispose()
 
 
 def query(sql):
@@ -150,20 +151,9 @@ def create_stock_table(code):
 def get_dtypes(table_name):
     if table_name[0:2] in cfg.prefix:
         return {'datetime': VARCHAR(20), 'open': DECIMAL, 'close': DECIMAL, 'high': DECIMAL, 'low': DECIMAL,
-                    'volume': BIGINT, 'ema5': DECIMAL, 'ema12': DECIMAL, 'ema26': DECIMAL, 'dea4': DECIMAL, 'dea9': DECIMAL,
-                    'mark': INT, 'klt': INT}
-
-
-def aaa(s, args=[]):
-    print(args)
-    for i in range(len(args)):
-        a = "{" + str(i) + "}"
-        s = s.replace(a,args[i])
-        print(s)
-    print(s)
+                'volume': BIGINT, 'ema5': DECIMAL, 'ema12': DECIMAL, 'ema26': DECIMAL, 'dea4': DECIMAL, 'dea9': DECIMAL,
+                'mark': INT, 'klt': INT}
 
 
 if __name__ == '__main__':
-    #aaa('{0},{1},{2}','a','b','c')
     init_schema()
-    create_stock_table('300059')
