@@ -115,7 +115,7 @@ def find_highest(stock_code, klt, dt, high):
         stock_code, klt, dt)
     df_pre = db.query(sql_pre)
     for i, row in df_pre.iterrows():
-        if row['mark'] > 0:
+        if row['mark'] < 0:
             break
         else:
             mark_size = mark_size + 1
@@ -125,7 +125,7 @@ def find_highest(stock_code, klt, dt, high):
         stock_code, klt, dt)
     df_nex = db.query(sql_nex)
     for i, row in df_nex.iterrows():
-        if row['mark'] > 0:
+        if row['mark'] < 0:
             break
         else:
             mark_size = mark_size + 1
