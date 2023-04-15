@@ -20,3 +20,16 @@ def watch_all():
                 logging.error('{} fetch {} error: {}'.format(i, code, e))
             else:
                 ind.save_signal(code, klt)
+
+def read_send_data():
+    send_data = db.query("SELECT `code`, `klt`, `last_reverse_bottom`, `last_reverse_top`, `last_macd_balance`, `last_bottom`, `last_top` FROM `watcher` WHERE `status` = 1 AND `to_send` = 1")
+    msg = ''
+    if len(send_data) > 0:
+        for i, row in send_data.iterrows():
+            msg = '{}; index: {}, code: {}, klt: {}, reverse_bottom: {}'.format(msg, i, row['code'], row['klt'], row['last_reverse_bottom'])
+    return msg
+
+
+def update_send_status():
+    up_sql = 'UPDATE `watcher` SET `to_send` = 0'
+    db.execute(db.get_connect(),up_sql)

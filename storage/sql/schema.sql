@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `watcher` (
   `last_bottom` datetime DEFAULT NULL,
   `last_top` datetime DEFAULT NULL,
   `status` int(11) DEFAULT NULL,
+  `to_send` int(11) NOT NULL DEFAULT '0',
   `updated` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
