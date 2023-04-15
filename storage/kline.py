@@ -1,9 +1,10 @@
 import storage.database as db
 from datetime import datetime
 import efinance as ef
+import config as cfg
 
 
-def upset_data(stock_code,klt, begin_date):
+def upset_data(stock_code, klt, begin_date):
     size = 0
     if begin_date.strftime('%Y-%m-%d') < datetime.now().strftime('%Y-%m-%d'):
         begin_date = begin_date.strftime('%Y%m%d')
@@ -13,7 +14,7 @@ def upset_data(stock_code,klt, begin_date):
         if data_size > 0:
             k_data = k_data.iloc[:, 0:8]
             k_data.columns = ['name', 'code', 'datetime', 'open', 'close', 'high', 'low', 'volume']
-            #k_data.drop(['name', 'code'], axis=1, inplace=True)
+            # k_data.drop(['name', 'code'], axis=1, inplace=True)
             s_sql = db.get_sql('insert_kline.sql').format(stock_code, klt)
             i_list = []
             for i, row in k_data.iterrows():
@@ -28,7 +29,7 @@ def upset_data(stock_code,klt, begin_date):
                     db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
                     i_list.clear()
             if len(i_list) > 0:
-               db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
+                db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
             size = size + data_size
     return size
 
@@ -56,6 +57,7 @@ def upset_data2(stock_code, begin_date):
     return size
 
 
+
 def read_data(stock_code, klt=101, begin='', end='', field='*', limit=-1, order_by='datetime'):
     sql = 'SELECT {} FROM `{}` WHERE klt={}'.format(field, stock_code, klt)
     if begin != '':
@@ -64,7 +66,7 @@ def read_data(stock_code, klt=101, begin='', end='', field='*', limit=-1, order_
         sql = "{} AND `datetime` <= '{}'".format(sql, end)
     sql = "{} ORDER BY {} ".format(sql, order_by)
     if limit > -1:
-        sql = "{} LIMIT {}".format(sql,limit)
+        sql = "{} LIMIT {}".format(sql, limit)
     return db.query(sql)
 
 
@@ -85,5 +87,4 @@ if __name__ == '__main__':
         FROM `301080`
         WHERE `datetime` = %s AND `klt` = 102
         );"""
-    db.execute(db.get_connect('301080'),sql,many=True,lis=[('2023-04-07'),('2023-04-06')])
-
+    db.execute(db.get_connect('301080'), sql, many=True, lis=[('2023-04-07'), ('2023-04-06')])

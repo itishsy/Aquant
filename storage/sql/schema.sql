@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS `reverse_signal` (
   `level` int(11) DEFAULT NULL,
   `reverse_type` varchar(20) DEFAULT NULL,
   `reverse_datetime` varchar(20) DEFAULT NULL,
-  `create` datetime DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -35,5 +36,7 @@ CREATE TABLE IF NOT EXISTS `watcher` (
   `last_macd_balance` datetime DEFAULT NULL,
   `last_bottom` datetime DEFAULT NULL,
   `last_top` datetime DEFAULT NULL,
+  `status` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

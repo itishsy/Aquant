@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.types import DATE, VARCHAR, INT, DECIMAL, BIGINT
 import pandas as pd
 import config as cfg
+from datetime import datetime, timedelta
 import pymysql
 
 
@@ -155,5 +156,77 @@ def get_dtypes(table_name):
                 'mark': INT, 'klt': INT}
 
 
+def read_kline_data(stock_code, klt=101, begin='', end='', field='*', limit=-1, order_by='datetime'):
+    sql = 'SELECT {} FROM `{}` WHERE klt={}'.format(field, stock_code, klt)
+    if begin != '':
+        sql = "{} AND `datetime` >= '{}'".format(sql, begin)
+    if end != '':
+        sql = "{} AND `datetime` <= '{}'".format(sql, end)
+    sql = "{} ORDER BY {} ".format(sql, order_by)
+    if limit > -1:
+        sql = "{} LIMIT {}".format(sql, limit)
+    return query(sql)
+
+
+def save_signal(stock_code, level, typ, dtime):
+    select_sql = "SELECT 1 FROM `reverse_signal` " \
+                 "WHERE `stock_code` = '{}' " \
+                 "AND `level` = '{}' " \
+                 "AND `reverse_type` = '{}'" \
+                 "AND `reverse_datetime` = '{}'" \
+        .format(stock_code, level, typ, dtime)
+    df = query(select_sql)
+    sql = "INSERT INTO `reverse_signal` " \
+          "(`stock_code`,`level`,`reverse_type`,`reverse_datetime`,`created`) " \
+          "VALUES('{}','{}','{}','{}',NOW())" \
+        .format(stock_code, level, typ, dtime)
+    if len(df) > 0:
+        sql = "UPDATE `reverse_signal` SET `updated` = NOW() " \
+              "WHERE `stock_code` = '{}' " \
+              "AND `level` = '{}' " \
+              "AND `reverse_type` = '{}'" \
+              "AND `reverse_datetime` = '{}'".format(stock_code, level, typ, dtime)
+
+    execute(get_connect(), sql)
+
+
+def get_begin_datetime(stock_code, klt, mark=False):
+    sql = "SELECT max(`datetime`) AS dt FROM `{}` WHERE `klt`={}".format(stock_code, klt)
+    if mark:
+        sql = "{} AND `mark` IS NOT NULL".format(sql)
+    df = query(sql)
+    dt = df.loc[0, 'dt']
+
+    if dt is None:
+        dtime = cfg.get_latest(klt)
+        return dtime.strftime('%Y-%m-%d')
+    else:
+        if klt in [101, 102]:
+            dtime = datetime.strptime(dt, '%Y-%m-%d') + timedelta(days=1)
+            now = datetime.now()
+            if (dtime.year == now.year) and (dtime.month == now.month) and (dtime.day == now.day) and (
+                    now.hour > 8) and (now.hour < 16):
+                return datetime.now().strftime('%Y-%m-%d')
+            else:
+                return dtime.strftime('%Y-%m-%d')
+        else:
+            dtime = datetime.strptime(dt, '%Y-%m-%d %H:%M')
+            return dtime.strftime('%Y-%m-%d')
+
+
+def read_mark_data(stock_code, klt=101, begin=None, mark='*', limit=100):
+    sql = 'SELECT `datetime`,`open`,`close`,`high`,`low`, (`ema12`-`ema26`) AS diff, (`ema12`-`ema26`-`dea9`) AS bar,`mark`' \
+          ' FROM `{}` WHERE klt={}'.format(stock_code, klt)
+    if mark == '*':
+        sql = '{} AND `mark` IS NOT NULL'.format(sql)
+    else:
+        sql = '{} AND `mark` IN ({})'.format(sql, mark)
+    if begin is not None:
+        sql = "{} AND `datetime` >= '{}'".format(sql, begin)
+    sql = "{} ORDER BY `datetime` LIMIT {}".format(sql, limit)
+    return query(sql)
+
+
 if __name__ == '__main__':
-    init_schema()
+    print(get_begin_datetime('000547', 101))
+    # init_schema()

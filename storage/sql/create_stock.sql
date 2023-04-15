@@ -13,6 +13,6 @@ CREATE TABLE `{0}`
     `ema26` decimal(12,6),
     `dea4` decimal(12,6),
     `dea9` decimal(12,6),
-    `mark` int(11) DEFAULT 0,
+    `mark` int(11) DEFAULT NULL,
     `klt` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
