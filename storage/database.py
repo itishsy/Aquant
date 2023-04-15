@@ -186,8 +186,23 @@ def save_signal(stock_code, level, typ, dtime):
               "AND `level` = '{}' " \
               "AND `reverse_type` = '{}'" \
               "AND `reverse_datetime` = '{}'".format(stock_code, level, typ, dtime)
-
     execute(get_connect(), sql)
+
+
+def add_watch(stock_code, klt, typ, dtime):
+    select_sql = "SELECT 1 FROM `watcher_detail` " \
+                 "WHERE `code` = '{}' " \
+                 "AND `klt` = '{}' " \
+                 "AND `event_type` = '{}'" \
+                 "AND `event_datetime` = '{}'" \
+        .format(stock_code, klt, typ, dtime)
+    df = query(select_sql)
+    if len(df) == 0:
+        sql = "INSERT INTO `watcher_detail` " \
+              "(`code`,`klt`,`event_type`,`event_datetime`,`created`) " \
+              "VALUES('{}','{}','{}','{}',NOW())" \
+            .format(stock_code, klt, typ, dtime)
+        execute(get_connect(), sql)
 
 
 def get_begin_datetime(stock_code, klt, mark=False):

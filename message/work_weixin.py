@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
 import logging
 from datetime import datetime
-from strategy.watcher import read_send_data, update_send_status
+from strategy.watcher import read_send_data, update_notify
 
 options = webdriver.ChromeOptions()
 # options.add_argument('--headless')
@@ -58,7 +58,7 @@ while True:
         traceback.print_exc()
         logging.error('send wechat message failed')
     else:
-        update_send_status()
+        update_notify()
     finally:
         time.sleep(30)
         driver.get("https://work.weixin.qq.com/wework_admin/frame#index")

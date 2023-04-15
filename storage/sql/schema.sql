@@ -30,14 +30,24 @@ USE agu;
 CREATE TABLE IF NOT EXISTS `watcher` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `code` varchar(20) DEFAULT NULL,
-  `klt` int(11) DEFAULT NULL,
-  `last_reverse_bottom` datetime DEFAULT NULL,
-  `last_reverse_top` datetime DEFAULT NULL,
-  `last_macd_balance` datetime DEFAULT NULL,
-  `last_bottom` datetime DEFAULT NULL,
-  `last_top` datetime DEFAULT NULL,
+  `watch_klt` varchar(100) DEFAULT NULL,
   `status` int(11) DEFAULT NULL,
-  `to_send` int(11) NOT NULL DEFAULT '0',
+  `created` datetime DEFAULT NULL,
   `updated` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+USE agu;
+CREATE TABLE `watcher_detail` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `watcher_id` int(11) NOT NULL,
+  `code` varchar(20) DEFAULT NULL,
+  `klt` int(11) DEFAULT NULL,
+  `event_type` varchar(100) DEFAULT NULL,
+  `event_datetime` varchar(100) DEFAULT NULL,
+  `notify` int(11) DEFAULT '0',
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+

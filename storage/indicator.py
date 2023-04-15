@@ -80,7 +80,7 @@ def update_mark(code, klt):
     return size
 
 
-def save_signal(stock_code, klt):
+def save_signal(stock_code, klt, watch=False):
     k_mark = db.read_mark_data(stock_code, klt=klt, mark='-3,3')
     zf = get_zf(klt)
     size = len(k_mark)
@@ -116,9 +116,12 @@ def save_signal(stock_code, klt):
                         low2 = find_lowest(stock_code, klt, dt2, k_mark.iloc[i - 2, k_mark.columns.get_loc('low')])
                         if (diff1 < 0) and (diff2 < diff0) and (low2 > low0) and ((high1 - low2) / low2) > zf and (
                                 (high1 - low0) / high1) > zf:
-                            db.save_signal(stock_code, klt, mark_0, dt0)
-                            print(
-                                '[save signal] code:{}, klt:{}, signal:{}, datetime:{}'.format(stock_code, klt, mark_0, dt0))
+                            if watch:
+                                db.add_watch(stock_code, klt, mark_0, dt0)
+                                print('[add watcher] code:{}, klt:{}, signal:{}, datetime:{}'.format(stock_code, klt, mark_0, dt0))
+                            else:
+                                db.save_signal(stock_code, klt, mark_0, dt0)
+                                print('[save signal] code:{}, klt:{}, signal:{}, datetime:{}'.format(stock_code, klt, mark_0, dt0))
 
             if (mark_2 == 3) and (mark_1 == -3) and (mark_0 == 3):
                 diff2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('diff')]
@@ -137,9 +140,12 @@ def save_signal(stock_code, klt):
                         high2 = find_highest(stock_code, klt, dt2, k_mark.iloc[i - 2, k_mark.columns.get_loc('high')])
                         if (diff0 > 0) and (diff1 > 0) and (diff2 > diff0) and (high2 < high0) and (
                                 (high2 - low1) / high2) > zf and ((high0 - low1) / high0) > zf:
-                            db.save_signal(stock_code, klt, mark_0, dt0)
-                            print(
-                                '[save signal] code:{}, klt:{}, signal:{}, datetime:{}'.format(stock_code, klt, mark_0, dt0))
+                            if watch:
+                                db.add_watch(stock_code,klt,mark_0, dt0)
+                                print('[add watcher] code:{}, klt:{}, signal:{}, datetime:{}'.format(stock_code, klt, mark_0, dt0))
+                            else:
+                                db.save_signal(stock_code, klt, mark_0, dt0)
+                                print('[save signal] code:{}, klt:{}, signal:{}, datetime:{}'.format(stock_code, klt, mark_0, dt0))
 
 
 # def macd_mark(stock_code, klt, begin):
