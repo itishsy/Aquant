@@ -1,10 +1,8 @@
 import storage.database as db
 import storage.fetcher as fet
 import storage.indicator as ind
-from datetime import datetime
 import logging
 import traceback
-import config as cfg
 
 
 def watch_all():
