@@ -145,9 +145,9 @@ def up_all_story_status():
         up_story_status(story_key)
 
 
-# up_all_epic()
+up_all_epic()
 # up_all_story_status()
 #up_story_status('RPA-1385')
-up_all_story_version()
+# up_all_story_version()
 # up_epic('RPA-1727')
 # up_version('RPA-938',version)

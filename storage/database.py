@@ -243,5 +243,5 @@ def read_mark_data(stock_code, klt=101, begin=None, mark='*', limit=100):
 
 
 if __name__ == '__main__':
-    print(get_begin_datetime('000547', 101))
-    # init_schema()
+    # print(get_begin_datetime('000547', 101))
+    init_schema()

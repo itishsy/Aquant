@@ -72,8 +72,5 @@ def fetch_all():
 
 
 if __name__ == '__main__':
-    # dd = ef.stock.get_quote_history('000547', klt=120, beg='20230414')
-    # print(dd)
-    # fetch_kline_data('000547', 101)
-    # ind.update_mark('000547', 101)
-    fetch_all()
+    df = fetch_code_dict()
+    print(df)
