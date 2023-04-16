@@ -1,6 +1,7 @@
 import storage.database as db
 import storage.fetcher as fet
 import storage.indicator as ind
+from datetime import datetime, timedelta
 import logging
 import traceback
 
@@ -23,8 +24,10 @@ def watch_all():
 
 
 def read_send_data():
+    dtime = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     send_data = db.query(
-        "SELECT `code`, `klt`, `event_type`, `event_datetime` FROM `watcher_detail` WHERE `notify` = 0")
+        "SELECT `code`, `klt`, `event_type`, `event_datetime` FROM `watcher_detail` WHERE `notify` = 0 AND `event_datetime` > '{}'".format(
+            dtime))
     msg = ''
     if len(send_data) > 0:
         for i, row in send_data.iterrows():
