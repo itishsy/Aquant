@@ -4,6 +4,7 @@ import storage.indicator as ind
 from datetime import datetime, timedelta
 import logging
 import traceback
+import time
 
 
 def watch_all():
@@ -24,7 +25,7 @@ def watch_all():
 
 
 def read_send_data():
-    dtime = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    dtime = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
     send_data = db.query(
         "SELECT `code`, `klt`, `event_type`, `event_datetime` FROM `watcher_detail` WHERE `notify` = 0 AND `event_datetime` > '{}'".format(
             dtime))
@@ -42,4 +43,15 @@ def update_notify():
 
 
 if __name__ == '__main__':
-    watch_all()
+    while True:
+        try:
+            watch_all()
+        except:
+            pass
+        finally:
+            while True:
+                if (datetime.now().hour > 15) or (datetime.now().hour < 9):
+                    time.sleep(1800)
+                else:
+                    break
+            time.sleep(600)
