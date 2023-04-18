@@ -34,7 +34,7 @@ def update_code_date(code):
 def fetch_kline_data(stock_code, klt):
     begin_date = db.get_begin_datetime(stock_code, klt)
     k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date.replace('-', ''))
-    print('[get history] code:{}, klt:{}, from:{}, size:{}'.format(stock_code, klt, begin_date, len(k_data)))
+    print('{} [get history] code:{}, klt:{}, from:{}, size:{}'.format(datetime.now().strftime('%Y-%m-%d %H:%M'), stock_code, klt, begin_date, len(k_data)))
     if len(k_data) > 0:
         k_data = k_data.iloc[:, 0:8]
         k_data.columns = ['name', 'code', 'datetime', 'open', 'close', 'high', 'low', 'volume']

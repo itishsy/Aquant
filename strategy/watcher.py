@@ -45,13 +45,15 @@ def update_notify():
 if __name__ == '__main__':
     while True:
         try:
-            watch_all()
+            now = datetime.now()
+            wd = now.weekday() + 1
+            hm = now.hour * 100 + now.minute
+            print("{} {} {} watching".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
+            if (wd in [1, 2, 3, 4, 5]) and (
+                    hm in [946, 1001, 1016, 1031, 1046, 1101, 1116, 1131, 1316, 1331, 1346, 1401, 1416, 1431, 1446,
+                           1501]):
+                watch_all()
         except:
             pass
         finally:
-            while True:
-                if (datetime.now().hour > 15) or (datetime.now().hour < 9):
-                    time.sleep(1800)
-                else:
-                    break
-            time.sleep(600)
+            time.sleep(60)

@@ -8,7 +8,7 @@ def upset_data(stock_code, klt, begin_date):
     size = 0
     if begin_date.strftime('%Y-%m-%d') < datetime.now().strftime('%Y-%m-%d'):
         begin_date = begin_date.strftime('%Y%m%d')
-        print('[get history] code:{}, klt:{}, from:{}'.format(stock_code, klt, begin_date))
+        print('{} [get history] code:{}, klt:{}, from:{}'.format(datetime.now().strftime('%Y-%m-%d %H:%M'), stock_code, klt, begin_date))
         k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date)
         data_size = len(k_data)
         if data_size > 0:
@@ -38,7 +38,7 @@ def upset_data2(stock_code, begin_date):
     size = 0
     if begin_date.strftime('%Y-%m-%d') < datetime.now().strftime('%Y-%m-%d'):
         begin_date = begin_date.strftime('%Y%m%d')
-        print('[get history] code:{}, from:{}'.format(stock_code, begin_date))
+        print('{} [get history] code:{}, from:{}'.format(datetime.now().strftime('%Y-%m-%d %H:%M'),stock_code, begin_date))
         for klt in [101, 102, 103]:
             k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date)
             data_size = len(k_data)
