@@ -168,40 +168,39 @@ def read_kline_data(stock_code, klt=101, begin='', end='', field='*', limit=-1, 
     return query(sql)
 
 
-def save_signal(stock_code, level, typ, dtime):
-    select_sql = "SELECT 1 FROM `reverse_signal` " \
-                 "WHERE `stock_code` = '{}' " \
-                 "AND `level` = '{}' " \
-                 "AND `reverse_type` = '{}'" \
-                 "AND `reverse_datetime` = '{}'" \
-        .format(stock_code, level, typ, dtime)
-    df = query(select_sql)
-    sql = "INSERT INTO `reverse_signal` " \
-          "(`stock_code`,`level`,`reverse_type`,`reverse_datetime`,`created`) " \
-          "VALUES('{}','{}','{}','{}',NOW())" \
-        .format(stock_code, level, typ, dtime)
-    if len(df) > 0:
-        sql = "UPDATE `reverse_signal` SET `updated` = NOW() " \
-              "WHERE `stock_code` = '{}' " \
-              "AND `level` = '{}' " \
-              "AND `reverse_type` = '{}'" \
-              "AND `reverse_datetime` = '{}'".format(stock_code, level, typ, dtime)
-    execute(get_connect(), sql)
-
-
-def add_watch(stock_code, klt, typ, dtime):
-    select_sql = "SELECT 1 FROM `watcher_detail` " \
-                 "WHERE `code` = '{}' " \
-                 "AND `klt` = '{}' " \
-                 "AND `event_type` = '{}'" \
-                 "AND `event_datetime` = '{}'" \
-        .format(stock_code, klt, typ, dtime)
-    df = query(select_sql)
-    if len(df) == 0:
-        sql = "INSERT INTO `watcher_detail` " \
-              "(`code`,`klt`,`event_type`,`event_datetime`,`created`) " \
+def save_signal(stock_code, klt, typ, dtime, tip=False):
+    if tip:
+        select_sql = "SELECT 1 FROM `watcher_detail` " \
+                     "WHERE `code` = '{}' " \
+                     "AND `klt` = '{}' " \
+                     "AND `event_type` = '{}'" \
+                     "AND `event_datetime` = '{}'" \
+            .format(stock_code, klt, typ, dtime)
+        df = query(select_sql)
+        if len(df) == 0:
+            sql = "INSERT INTO `watcher_detail` " \
+                  "(`code`,`klt`,`event_type`,`event_datetime`,`created`) " \
+                  "VALUES('{}','{}','{}','{}',NOW())" \
+                .format(stock_code, klt, typ, dtime)
+            execute(get_connect(), sql)
+    else:
+        select_sql = "SELECT 1 FROM `reverse_signal` " \
+                     "WHERE `stock_code` = '{}' " \
+                     "AND `level` = '{}' " \
+                     "AND `reverse_type` = '{}'" \
+                     "AND `reverse_datetime` = '{}'" \
+            .format(stock_code, klt, typ, dtime)
+        df = query(select_sql)
+        sql = "INSERT INTO `reverse_signal` " \
+              "(`stock_code`,`level`,`reverse_type`,`reverse_datetime`,`created`) " \
               "VALUES('{}','{}','{}','{}',NOW())" \
             .format(stock_code, klt, typ, dtime)
+        if len(df) > 0:
+            sql = "UPDATE `reverse_signal` SET `updated` = NOW() " \
+                  "WHERE `stock_code` = '{}' " \
+                  "AND `level` = '{}' " \
+                  "AND `reverse_type` = '{}'" \
+                  "AND `reverse_datetime` = '{}'".format(stock_code, klt, typ, dtime)
         execute(get_connect(), sql)
 
 

@@ -1,11 +1,10 @@
 from datetime import datetime
 import traceback
 import storage.database as db
-import storage.indicator as ind
+from storage.indicator import update_macd_and_mark
 import config as cfg
 import efinance as ef
 import logging
-import time
 
 
 def fetch_code_dict():
@@ -32,10 +31,11 @@ def update_code_date(code):
     db.execute(db.get_connect(), "UPDATE `code_dict` SET `updated` = '{}' WHERE `code` = '{}'".format(updated, code))
 
 
-def fetch_kline_data(stock_code, klt):
+def update_kline_data(stock_code, klt):
     begin_date = db.get_begin_datetime(stock_code, klt)
     k_data = ef.stock.get_quote_history(stock_code, klt=klt, beg=begin_date.replace('-', ''))
-    print('{} [get history] code:{}, klt:{}, from:{}, size:{}'.format(datetime.now().strftime('%Y-%m-%d %H:%M'), stock_code, klt, begin_date, len(k_data)))
+    print('{} [get history] code:{}, klt:{}, from:{}, size:{}'.format(datetime.now().strftime('%Y-%m-%d %H:%M'),
+                                                                      stock_code, klt, begin_date, len(k_data)))
     if len(k_data) > 0:
         k_data = k_data.iloc[:, 0:8]
         k_data.columns = ['name', 'code', 'datetime', 'open', 'close', 'high', 'low', 'volume']
@@ -61,28 +61,19 @@ def fetch_all():
     for i, row in code_dict.iterrows():
         code = row['code']
         for klt in [101, 102]:
-            try:
-                fetch_kline_data(code, klt)
-                ind.update_mark(code, klt)
-                ind.save_signal(code, klt)
-            except Exception as e:
-                traceback.print_exc()
-                logging.error('{} fetch {} error: {}'.format(i, code, e))
-            else:
-                update_code_date(code)
+            fetch_and_mark(code, klt)
+
+
+def fetch_and_mark(code, klt):
+    try:
+        update_kline_data(code, klt)
+        update_macd_and_mark(code, klt)
+    except Exception as e:
+        traceback.print_exc()
+        logging.error('{} fetch and mark error: {}'.format(code, e))
+    else:
+        update_code_date(code)
 
 
 if __name__ == '__main__':
-    while True:
-        try:
-            now = datetime.now()
-            wd = now.weekday() + 1
-            hm = now.hour * 100 + now.minute
-            print("{} {} {} watching".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
-            if (wd in [1, 2, 3, 4, 5]) and (
-                    hm in [1601, 1602, 1901,1902]):
-                fetch_all()
-        except:
-            pass
-        finally:
-            time.sleep(60)
+    fetch_all()

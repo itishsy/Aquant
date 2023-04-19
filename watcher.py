@@ -1,6 +1,6 @@
 import storage.database as db
 import storage.fetcher as fet
-import storage.indicator as ind
+import strategy.rebound as reb
 from datetime import datetime, timedelta
 import logging
 import traceback
@@ -15,16 +15,15 @@ def watch_all():
         for klt in wkl:
             klt = int(klt)
             try:
-                fet.fetch_kline_data(code, klt)
-                ind.update_mark(code, klt)
+                fet.fetch_and_mark(code, klt)
             except Exception as e:
                 traceback.print_exc()
                 logging.error('{} fetch {} error: {}'.format(i, code, e))
             else:
-                ind.save_signal(code, klt, watch=True)
+                reb.search_signal(code, klt, tip=True)
 
 
-def read_send_data():
+def get_send_data():
     dtime = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
     send_data = db.query(
         "SELECT `code`, `klt`, `event_type`, `event_datetime` FROM `watcher_detail` WHERE `notify` = 0 AND `event_datetime` > '{}'".format(
@@ -48,11 +47,16 @@ if __name__ == '__main__':
             now = datetime.now()
             wd = now.weekday() + 1
             hm = now.hour * 100 + now.minute
-            print("{} {} {} watching".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
-            if (wd in [1, 2, 3, 4, 5]) and (
-                    hm in [946, 1001, 1016, 1031, 1046, 1101, 1116, 1131, 1316, 1331, 1346, 1401, 1416, 1431, 1446,
-                           1501]):
-                watch_all()
+            if wd in [1, 2, 3, 4, 5]:
+                if hm in [946, 1001, 1016, 1031, 1046, 1101, 1116, 1131,
+                          1316, 1331, 1346, 1401, 1416, 1431, 1446, 1501,2226]:
+                    print("start watching. {} {} {}".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
+                    watch_all()
+                    print('watch all done!')
+                elif hm in [1601, 1602, 2001, 2002]:
+                    print("start fetching. {} {} {}".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
+                    fet.fetch_all()
+                    print('fetch all done!')
         except:
             pass
         finally:
