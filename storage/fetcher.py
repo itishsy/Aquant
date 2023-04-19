@@ -5,6 +5,7 @@ import storage.indicator as ind
 import config as cfg
 import efinance as ef
 import logging
+import time
 
 
 def fetch_code_dict():
@@ -72,5 +73,16 @@ def fetch_all():
 
 
 if __name__ == '__main__':
-    df = fetch_code_dict()
-    print(df)
+    while True:
+        try:
+            now = datetime.now()
+            wd = now.weekday() + 1
+            hm = now.hour * 100 + now.minute
+            print("{} {} {} watching".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
+            if (wd in [1, 2, 3, 4, 5]) and (
+                    hm in [1601, 1602, 1901,1902]):
+                fetch_all()
+        except:
+            pass
+        finally:
+            time.sleep(60)
