@@ -56,11 +56,11 @@ def update_kline_data(stock_code, klt):
             db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
 
 
-def fetch_all():
+def fetch_all(kls = [101, 102]):
     code_dict = fetch_code_dict()
     for i, row in code_dict.iterrows():
         code = row['code']
-        for klt in [101, 102]:
+        for klt in kls:
             fetch_and_mark(code, klt)
 
 
@@ -76,4 +76,6 @@ def fetch_and_mark(code, klt):
 
 
 if __name__ == '__main__':
-    fetch_all()
+    # df = ef.stock.get_quote_history('300223', klt=101, beg='20000101')
+    # print(df)
+    fetch_all(kls=[60, 101, 102])

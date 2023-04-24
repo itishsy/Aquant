@@ -229,7 +229,7 @@ def get_begin_datetime(stock_code, klt, mark=False):
 
 
 def read_mark_data(stock_code, klt=101, begin=None, mark='*', limit=100):
-    sql = 'SELECT `datetime`,`open`,`close`,`high`,`low`, (`ema12`-`ema26`) AS diff, (`ema12`-`ema26`-`dea9`) AS bar,`mark`' \
+    sql = 'SELECT `datetime`,`open`,`close`,`high`,`low`, (`ema12`-`ema26`) AS diff, (`ema12`-`ema26`-`dea9`) AS bar,`dea9`,`mark`' \
           ' FROM `{}` WHERE klt={}'.format(stock_code, klt)
     if mark == '*':
         sql = '{} AND `mark` IS NOT NULL'.format(sql)

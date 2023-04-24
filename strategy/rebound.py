@@ -1,7 +1,21 @@
 import storage.database as db
 from datetime import datetime
+from storage.fetcher import fetch_and_mark
 
 
+
+# cross：
+# (down) bar.pre > 0 & bar.nxt <0  T(bar.pre)=1,T(bar.nxt)=-1
+# (up)   bar.pre < 0 & bar.nxt >0  T(bar.pre)=-1,T(bar.nxt)=1
+# turn：
+# (bottom) diff.pre > diff.mid & diff.nxt > diff.mid T(diff.pre)=-2,T(diff.mid)=-3,T(diff.nxt)=-2
+# (top) diff.pre < diff.mid & diff.nxt < diff.mid T(diff.pre)=2,T(diff.mid)=3,T(diff.nxt)=2
+#
+# (bottom reverse)
+# 1. diff < 0 & dea < 0
+# 2. point sequence: -3,-3
+# 3. point(-3)[0].diff < point(-3)[1].diff
+# 4. point(-3)[0].low > point(-3)[1].low
 def search_signal(stock_code, klt, tip=False):
     k_mark = db.read_mark_data(stock_code, klt=klt, mark='-3,3')
     zf = get_zf(klt)
@@ -38,14 +52,9 @@ def search_signal(stock_code, klt, tip=False):
                         low2 = find_lowest(stock_code, klt, dt2, k_mark.iloc[i - 2, k_mark.columns.get_loc('low')])
                         if (diff1 < 0) and (diff2 < diff0) and (low2 > low0) and ((high1 - low2) / low2) > zf and (
                                 (high1 - low0) / high1) > zf:
-                            if watch:
-                                db.add_watch(stock_code, klt, mark_0, dt0)
-                                print('{} [add watcher] code:{}, klt:{}, signal:{}, datetime:{}'.format(
-                                    datetime.now().strftime('%Y-%m-%d %H:%M'), stock_code, klt, mark_0, dt0))
-                            else:
-                                db.save_signal(stock_code, klt, mark_0, dt0)
-                                print('{} [save signal] code:{}, klt:{}, signal:{}, datetime:{}'.format(
-                                    datetime.now().strftime('%Y-%m-%d %H:%M'), stock_code, klt, mark_0, dt0))
+                            db.save_signal(stock_code, klt, mark_0, dt0, tip=tip)
+                            print('{} [save signal({})] code:{}, klt:{}, signal:{}, datetime:{}'.format(
+                                datetime.now().strftime('%Y-%m-%d %H:%M'), tip, stock_code, klt, mark_0, dt0))
 
             if (mark_2 == 3) and (mark_1 == -3) and (mark_0 == 3):
                 diff2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('diff')]
@@ -65,7 +74,7 @@ def search_signal(stock_code, klt, tip=False):
                         if (diff0 > 0) and (diff1 > 0) and (diff2 > diff0) and (high2 < high0) and (
                                 (high2 - low1) / high2) > zf and ((high0 - low1) / high0) > zf:
                             db.save_signal(stock_code, klt, mark_0, dt0, tip)
-                            print('{} [save signal {}] code:{}, klt:{}, signal:{}, datetime:{}'.format(
+                            print('{} [save signal ({})] code:{}, klt:{}, signal:{}, datetime:{}'.format(
                                     datetime.now().strftime('%Y-%m-%d %H:%M'), tip, stock_code, klt, mark_0, dt0))
 
 
@@ -140,5 +149,6 @@ if __name__ == '__main__':
     code_dict = db.query("SELECT `code`, `status` FROM `code_dict`")
     for i, row in code_dict.iterrows():
         code = row['code']
-        for klt in [101, 102]:
+        for klt in [101, 60]:
+            fetch_and_mark(code, klt)
             search_signal(code, klt)
