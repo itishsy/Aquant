@@ -1,17 +1,23 @@
 from dataclasses import dataclass
-from datetime import datetime
-from enums import Freq
 
 
 @dataclass
 class Candle:
-    id: int  # id 必须是升序
     symbol: str
-    dt: datetime
-    freq: Freq
+    dt: str
+    klt: int
     open: float
     close: float
     high: float
     low: float
     vol: float
-    amount: float = None
+    ema12: float
+    ema26: float
+    dea9: float
+    mark: int = 0
+
+    def diff(self):
+        return self.ema12 - self.ema26
+
+    def bar(self):
+        return self.diff() - self.dea9
