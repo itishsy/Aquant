@@ -1,8 +1,7 @@
 import datetime
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker, mapper, registry
+from dataclasses import dataclass, field
 import config as cfg
-
 from sqlalchemy import (
     create_engine,
     MetaData,
@@ -15,68 +14,20 @@ from sqlalchemy import (
     DateTime,
     Boolean,
     UniqueConstraint,
-    Index
+    Index,
+    select
 )
 
 
-from sqlalchemy.orm import declarative_base
-
-# 基础类
-Base = declarative_base()
-
-def create_candle(engine, table_name):
-    meta = MetaData()
-    Table(
-        table_name, meta,
-        Column('id', Integer, primary_key=True),
-        Column('name', String(50))
-    )
-    meta.create_all(engine)
-
-
-class ccc(Table):
-    def __init__(name, metadata, *args, _no_init=False, **kw):
-        super.__init__(name, metadata, id, name)
-
-    id = Column(Integer, primary_key=True, autoincrement=True, comment="主键")
-    name = Column(String(32), index=True, nullable=False, comment="姓名")
-
-
-#
-# class UserInfo(Base):
-#
-#     def __init__(self, name):
-#         self.__tablename__ = name
-#
-#     """ 必须继承Base """
-#     # 数据库中存储的表名
-#     __tablename__ = ''
-#     # 对于必须插入的字段，采用nullable=False进行约束，它相当于NOT NULL
-#     id = Column(Integer, primary_key=True, autoincrement=True, comment="主键")
-#     name = Column(String(32), index=True, nullable=False, comment="姓名")
-#     age = Column(Integer, nullable=False, comment="年龄")
-#     phone = Column(DECIMAL(6), nullable=False, unique=True, comment="手机号")
-#     address = Column(String(64), nullable=False, comment="地址")
-#     # 对于非必须插入的字段，不用采取nullable=False进行约束
-#     gender = Column(Enum("male", "female"), default="male", comment="性别")
-#     create_time = Column(
-#         DateTime, default=datetime.datetime.now, comment="创建时间")
-#     last_update_time = Column(
-#         DateTime, onupdate=datetime.datetime.now, comment="最后更新时间")
-#     delete_status = Column(Boolean(), default=False,
-#                            comment="是否删除")
-#
-#     __table__args__ = (
-#         UniqueConstraint("name", "age", "phone"),  # 联合唯一约束
-#         Index("name", "addr", unique=True),  # 联合唯一索引
-#     )
-#
-#     def __str__(self):
-#         return f"object : <id:{self.id} name:{self.name}>"
+@dataclass
+class Person:
+    id: int = None
+    name: str = field(default_factory=str)
 
 
 if __name__ == "__main__":
-    meta = MetaData()
+    table_name = '000001'
+
     # 创建引擎
     engine = create_engine(
         "mysql+pymysql://{0}:{1}@{2}:{3}/{4}".format(
@@ -96,17 +47,23 @@ if __name__ == "__main__":
         # 查看原生语句（未格式化）
         echo=True
     )
-    ccc('abc', meta)
 
+    meta = MetaData()
 
-    # create_candle(engine, table_name)
-# 绑定引擎
-# Session = sessionmaker(bind=engine)
-# 创建数据库链接池，直接使用session即可为当前线程拿出一个链接对象conn
-# 内部会采用threading.local进行隔离
-# session = scoped_session(Session)
-# UserInfo('abc')
-# 删除表
-# Base.metadata.drop_all(engine)
-# 创建表
-# Base.metadata.create_all(engine)
+    table = Table(
+        table_name, meta,
+        Column('id', Integer, primary_key=True),
+        Column('name', String(50))
+    )
+    registry().map_imperatively(Person, table)
+    meta.create_all(engine)
+
+    session = sessionmaker(bind=engine)()
+
+    person = Person(name='bot')
+    session.add(person)
+    session.commit()
+
+    result = session.execute(select(Person))
+    for r in result.scalars():
+        print(r.name)
