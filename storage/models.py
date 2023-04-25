@@ -2,6 +2,7 @@ import datetime
 from sqlalchemy.orm import sessionmaker, mapper, registry
 from dataclasses import dataclass, field
 import config as cfg
+from typing import List, Callable
 from sqlalchemy import (
     create_engine,
     MetaData,
@@ -23,6 +24,11 @@ from sqlalchemy import (
 class Person:
     id: int = None
     name: str = field(default_factory=str)
+
+
+def ppp(persons: List[Person]):
+    for p in persons:
+        print(p.name)
 
 
 if __name__ == "__main__":
@@ -65,5 +71,7 @@ if __name__ == "__main__":
     session.commit()
 
     result = session.execute(select(Person))
-    for r in result.scalars():
-        print(r.name)
+    # noinspection PyTypeChecker
+    ppp(result.scalars())
+    # for r in result.scalars():
+    #     print(r.name)
