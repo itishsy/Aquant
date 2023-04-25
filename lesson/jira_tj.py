@@ -208,8 +208,10 @@ def find_un_close_story(version=""):
 
 
 if __name__ == '__main__':
-    r_version = 'RPA20230421'
-    s_version = 'SaaS20230421'
+    up_all_epic()
+
+    # r_version = 'RPA20230421'
+    # s_version = 'SaaS20230421'
 
     # find_story_no_task(r_version)
     # find_story_no_task(s_version)
@@ -217,8 +219,8 @@ if __name__ == '__main__':
     # find_story_no_test(r_version)
     # find_story_no_test(s_version)
 
-    up_all_story_version(r_version)
-    up_all_story_version(s_version)
+    # up_all_story_version(r_version)
+    # up_all_story_version(s_version)
     # find_story_no_test()
     # up_all_story_status()
     # up_story_status('RPA-1385')
