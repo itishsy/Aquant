@@ -11,6 +11,9 @@ class Candle:
     high: float
     low: float
     vol: float
+    ma5: float
+    ma10: float
+    ma20: float
     ema12: float
     ema26: float
     dea9: float
@@ -21,3 +24,7 @@ class Candle:
 
     def bar(self):
         return self.diff() - self.dea9
+
+    def __init__(self, series=None):
+        for key in series.keys():
+            setattr(self, key, series[key])
