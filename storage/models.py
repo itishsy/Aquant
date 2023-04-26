@@ -66,8 +66,14 @@ if __name__ == "__main__":
 
     session = sessionmaker(bind=engine)()
 
-    person = Person(name='bot')
-    session.add(person)
+    persons = []
+    person1 = Person(name='bot1')
+    person2 = Person(name='bot2')
+    persons.append(person1)
+    persons.append(person2)
+
+    # session.add(person)
+    session.add_all(persons)
     session.commit()
 
     result = session.execute(select(Person))
