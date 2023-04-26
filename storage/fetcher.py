@@ -56,7 +56,7 @@ def update_kline_data(stock_code, klt):
             db.execute(db.get_connect(stock_code), s_sql, many=True, lis=i_list)
 
 
-def fetch_all(kls = [101, 102]):
+def fetch_all(kls=[101, 102]):
     code_dict = fetch_code_dict()
     for i, row in code_dict.iterrows():
         code = row['code']
