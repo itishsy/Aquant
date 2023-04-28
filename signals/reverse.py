@@ -30,16 +30,15 @@ def search_signal(stock_code, klt, start_date, tip=False):
                 print(k_mark.iloc[i, k_mark.columns.get_loc('datetime')])
 
 
-def check_signal(candles: List[Candle]) -> List[Signal]:
-    sis = []
-    for i in range(1, len(candles)-1):
+def check_signal(cds: List[Candle]) -> List[Signal]:
+    sns = []
+    for i in range(1, len(cds)-1):
+
         pass
+    return sns
 
 
-
-
-# search_signal('300223', 102, '2022-10-28')
-# print('============')
-# search_signal('002852', 101, '2023-03-17')
-# print('============')
-search_signal('300769', 101, '2023-01-04')
+if __name__ == '__main__':
+    candles = db.read_mark_candle(stock_code='300769', klt=101, begin='2023-01-04', mark='3,-3')
+    signals = check_signal(candles)
+    print(signals)

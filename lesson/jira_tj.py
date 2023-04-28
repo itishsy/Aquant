@@ -123,6 +123,8 @@ def up_story_status(story_key):
 def up_all_epic():
     epic_arr = jira.search_issues('project = "RPA" AND issuetype="Epic"', maxResults=1000)
     for epic_key in epic_arr:
+        epic = jira.issue(id=epic_key)
+        # epic.update(fields={'components': [{'name': "盒子上线地区", "id": "10552"}]})
         up_epic(epic_key)
 
 

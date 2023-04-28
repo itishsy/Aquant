@@ -6,6 +6,7 @@ from sqlalchemy.types import DATE, VARCHAR, INT, DECIMAL, BIGINT
 import pandas as pd
 import config as cfg
 from datetime import datetime, timedelta
+from objects import Candle
 import pymysql
 
 
@@ -239,6 +240,23 @@ def read_mark_data(stock_code, klt=101, begin=None, mark='*', limit=100):
         sql = "{} AND `datetime` >= '{}'".format(sql, begin)
     sql = "{} ORDER BY `datetime` LIMIT {}".format(sql, limit)
     return query(sql)
+
+
+def read_mark_candle(stock_code, klt=101, begin=None, mark='*', limit=100):
+    sql = 'SELECT `datetime`,`open`,`close`,`high`,`low`, (`ema12`-`ema26`) AS diff, (`ema12`-`ema26`-`dea9`) AS bar,`dea9`,`mark`' \
+          ' FROM `{}` WHERE klt={}'.format(stock_code, klt)
+    if mark == '*':
+        sql = '{} AND `mark` IS NOT NULL'.format(sql)
+    else:
+        sql = '{} AND `mark` IN ({})'.format(sql, mark)
+    if begin is not None:
+        sql = "{} AND `datetime` >= '{}'".format(sql, begin)
+    sql = "{} ORDER BY `datetime` LIMIT {}".format(sql, limit)
+    m_data = query(sql)
+    candles = []
+    for i, row in m_data.iterrows():
+        candles.append(Candle(row))
+    return candles
 
 
 if __name__ == '__main__':

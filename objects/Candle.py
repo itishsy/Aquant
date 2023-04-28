@@ -3,6 +3,11 @@ from dataclasses import dataclass
 
 @dataclass
 class Candle:
+
+    def __init__(self, series=None):
+        for key in series.keys():
+            setattr(self, key, series[key])
+
     symbol: str
     dt: str
     klt: int
@@ -24,7 +29,3 @@ class Candle:
 
     def bar(self):
         return self.diff() - self.dea9
-
-    def __init__(self, series=None):
-        for key in series.keys():
-            setattr(self, key, series[key])
