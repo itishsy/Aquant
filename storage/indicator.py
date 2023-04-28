@@ -1,15 +1,18 @@
 import storage.database as db
 from datetime import datetime
+import talib as ta
 
 
 def update_macd_and_mark(code, klt):
     begin_date = db.get_begin_datetime(code, klt, mark=True)
     k_data = db.read_kline_data(code, klt=klt, begin=begin_date)
     size = len(k_data)
-    print('{} [update mark] code:{}, klt:{}, begin:{}, size:{}'.format(datetime.now().strftime('%Y-%m-%d %H:%M'), code, klt, begin_date, size))
+    print('{} [update mark] code:{}, klt:{}, begin:{}, size:{}'.format(datetime.now().strftime('%Y-%m-%d %H:%M'), code,
+                                                                       klt, begin_date, size))
     if size == 0:
         return
 
+    ma5, ma10, ma20 = [], [], []
     ema5, ema12, ema26, dea4, dea9 = [], [], [], [], []
     dt, diff, bar = [], [], []
     u_sql = db.get_sql('update_indicator.sql').format(code, klt)
@@ -21,6 +24,9 @@ def update_macd_and_mark(code, klt):
         dt.append(row['datetime'])
 
         if i == 0:
+            ma_5 = close
+            ma_10 = close
+            ma_20 = close
             ema_5 = close
             ema_12 = close
             ema_26 = close
@@ -131,7 +137,6 @@ def mark_3(diff, bar):
             m_val = 3
 
     return m_idx, m_val
-
 
 
 if __name__ == '__main__':
