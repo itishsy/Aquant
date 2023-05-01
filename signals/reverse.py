@@ -1,44 +1,87 @@
-import storage.database as db
-from objects import Candle, Signal
-from typing import List, Callable
+from entities.candle import Candle
+from entities.signal import Signal
+from typing import List
+from storage.fetcher import find_candles
 
 
-# rebound之后的13~21根bar出现的拐点
-# abs(bar)
-
-def search_signal(stock_code, klt, start_date, tip=False):
-    k_mark = db.read_mark_data(stock_code, klt=klt, begin=start_date)
-    size = len(k_mark)
-    if size > 2:
-        for i in range(10, size):
-            bar2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('bar')]
-            bar1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('bar')]
-            bar0 = k_mark.iloc[i, k_mark.columns.get_loc('bar')]
-
-            mark_2 = k_mark.iloc[i - 2, k_mark.columns.get_loc('mark')]
-            mark_1 = k_mark.iloc[i - 1, k_mark.columns.get_loc('mark')]
-            mark_0 = k_mark.iloc[i, k_mark.columns.get_loc('mark')]
-
-            if mark_2 > 0 and mark_1 > 0 and mark_0 > 0:
-                if bar0 > bar1 and bar2 > bar1:
-                    print(k_mark.iloc[i, k_mark.columns.get_loc('datetime')])
-
-            if mark_2 < 0 and mark_1 < 0 and mark_0 > 0:
-                print(k_mark.iloc[i, k_mark.columns.get_loc('datetime')])
-
-            if mark_2 > 0 and mark_1 < 0 and mark_0 > 0:
-                print(k_mark.iloc[i, k_mark.columns.get_loc('datetime')])
+def search_signal(code, klt):
+    all_candles = find_candles(code, klt)
+    mark_candles = []
+    for cd in all_candles:
+        if abs(cd.macd_mark) == 3:
+            mark_candles.append(cd)
+    size = len(mark_candles)
+    signals = []
+    for i in range(2, size):
+        c_2 = mark_candles[i - 2]
+        c_1 = mark_candles[i - 1]
+        c_0 = mark_candles[i]
+        if c_2.macd_mark == -3 and c_1.macd_mark == 3 and c_0.macd_mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
+            low2 = find_lowest(all_candles, c_2.id)
+            low0 = find_lowest(all_candles, c_0.id)
+            if c_2.diff() < c_0.diff() and low2 > low0:
+                signals.append(Signal(code=code, dt=c_0.dt, klt=klt, type=c_0.macd_mark))
+        if c_2.macd_mark == 3 and c_1.macd_mark == -3 and c_0.macd_mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
+            high2 = find_highest(all_candles, c_2.id)
+            high0 = find_highest(all_candles, c_0.id)
+            if c_2.diff() > c_0.diff() and high2 < high0:
+                signals.append(Signal(code=code, dt=c_0.dt, klt=klt, type=c_0.macd_mark))
+    print(signals)
 
 
-def check_signal(cds: List[Candle]) -> List[Signal]:
-    sns = []
-    for i in range(1, len(cds)-1):
+def find_lowest(candles: List[Candle], id):
+    i = 0
+    s = len(candles)
+    lowest = 0
+    while i < s:
+        if candles[i].id == id:
+            lowest = candles[i].low
+            j = i - 1
+            k = i + 1
+            while j > 0:
+                if candles[j].macd_mark > 0:
+                    break
+                if candles[j].low < lowest:
+                    lowest = candles[j].low
+                j = j - 1
+            while k < s:
+                if candles[k].macd_mark > 0:
+                    break
+                if candles[k].low < lowest:
+                    lowest = candles[k].low
+                k = k + 1
+            break
+        else:
+            i = i + 1
+    return lowest
 
-        pass
-    return sns
+
+def find_highest(candles: List[Candle], id):
+    i = 0
+    s = len(candles)
+    highest = 0
+    while i < s:
+        if candles[i].id == id:
+            highest = candles[i].high
+            j = i - 1
+            k = i + 1
+            while j > 0:
+                if candles[j].macd_mark < 0:
+                    break
+                if candles[j].high > highest:
+                    highest = candles[j].high
+                j = j - 1
+            while k < s:
+                if candles[k].macd_mark < 0:
+                    break
+                if candles[k].high > highest:
+                    highest = candles[k].high
+                k = k + 1
+            break
+        else:
+            i = i + 1
+    return highest
 
 
 if __name__ == '__main__':
-    candles = db.read_mark_candle(stock_code='300769', klt=101, begin='2023-01-04', mark='3,-3')
-    signals = check_signal(candles)
-    print(signals)
+    search_signal('300223', 101)
