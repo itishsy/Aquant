@@ -76,6 +76,8 @@ def fetch_and_mark(code, klt):
 
 
 if __name__ == '__main__':
-    # df = ef.stock.get_quote_history('300223', klt=101, beg='20000101')
-    # print(df)
-    fetch_all(kls=[60, 101, 102])
+    df = ef.stock.get_quote_history('300223', klt=101, beg='20230401')
+    df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount','zf','zdf','zde','turnover']
+
+    print(df.iloc[2])
+    # fetch_all(kls=[60, 101, 102])

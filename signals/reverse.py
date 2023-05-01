@@ -1,7 +1,7 @@
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from storage.fetcher import find_candles
+from storage.fetch import find_candles
 
 
 def search_signal(code, klt):
