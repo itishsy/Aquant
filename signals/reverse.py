@@ -1,10 +1,13 @@
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from storage.fetch import find_candles
+from storage.fetch import find_candles, save_entities
+from enums.entity import Entity
+from storage.db import db
 
 
 def search_signal(code, klt):
+    session = db.get_session(Entity.Single)
     all_candles = find_candles(code, klt)
     mark_candles = []
     for cd in all_candles:
@@ -20,13 +23,15 @@ def search_signal(code, klt):
             low2 = find_lowest(all_candles, c_2.id)
             low0 = find_lowest(all_candles, c_0.id)
             if c_2.diff() < c_0.diff() and low2 > low0:
-                signals.append(Signal(code=code, dt=c_0.dt, klt=klt, type=c_0.macd_mark))
+                signals.append(Signal(code=code, dt=c_0.dt, klt=klt, type='reverse', value=c_0.macd_mark))
         if c_2.macd_mark == 3 and c_1.macd_mark == -3 and c_0.macd_mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
             high2 = find_highest(all_candles, c_2.id)
             high0 = find_highest(all_candles, c_0.id)
             if c_2.diff() > c_0.diff() and high2 < high0:
-                signals.append(Signal(code=code, dt=c_0.dt, klt=klt, type=c_0.macd_mark))
-    print(signals)
+                signals.append(Signal(code=code, dt=c_0.dt, klt=klt, type='reverse', value=c_0.macd_mark))
+    if len(signals) > 0:
+        session.add_all(signals)
+        session.commit()
 
 
 def find_lowest(candles: List[Candle], id):

@@ -6,4 +6,5 @@ class Signal:
     code: str
     dt: str
     klt: int
-    type: int
+    type: str
+    value: int

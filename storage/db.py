@@ -1,6 +1,9 @@
 from sqlalchemy.orm import sessionmaker, registry
 import config as cfg
 from entities.candle import Candle
+from entities.signal import Signal
+from enums.entity import Entity
+from storage.mapping import mapping
 from sqlalchemy import (
     create_engine,
     MetaData,
@@ -38,11 +41,16 @@ class DB:
             echo=True)
         return engine
 
-    def get_session(self, code=''):
-        engine = self.get_engine(code)
-        if self.meta.tables.get(code) is None:
-            candle_mapping(self.meta, code)
-            self.meta.tables.get(code).create(engine, checkfirst=True)
+    def get_session(self, table_name=''):
+        engine = self.get_engine(table_name)
+        mapping(engine, self.meta, table_name)
+        # if self.meta.tables.get(table_name) is None:
+        #     if table_name[0:2] in cfg.prefix:
+        #         candle_mapping(self.meta, table_name)
+        #     else:
+        #         print('----------', table_name)
+        #         common_mapping(self.meta, table_name)
+        #     self.meta.tables.get(table_name).create(engine, checkfirst=True)
         return sessionmaker(bind=engine)()
 
 
@@ -70,3 +78,16 @@ def candle_mapping(meta, code):
         Column('ma_mark', Integer),
         Column('macd_mark', Integer)
     ))
+
+
+def common_mapping(meta, table_name):
+    print('----', (table_name == Entity.Single))
+    if table_name == Entity.Single:
+        registry().map_imperatively(Signal, Table(
+            table_name, meta,
+            Column('id', Integer, autoincrement=True, primary_key=True),
+            Column('code', String(50)),
+            Column('dt', String(50)),
+            Column('klt', Integer),
+            Column('type', String(50))
+        ))

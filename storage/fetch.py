@@ -1,6 +1,7 @@
 import efinance as ef
 from datetime import datetime, timedelta
 from entities.candle import Candle
+from entities.signal import Signal
 from decimal import Decimal
 from storage.mark import do_macd_mark
 from storage.db import db
@@ -50,6 +51,13 @@ def find_candles(code, klt, begin='20100101') -> List[Candle]:
         select(Candle).where(and_(Candle.klt == klt, Candle.dt >= begin))
     ).scalars().fetchall()
     return cds
+
+
+def save_entities(table_name, objects):
+    print('===========', type(table_name))
+    session = db.get_session(table_name)
+    session.add_all(objects)
+    session.commit()
 
 
 if __name__ == '__main__':
