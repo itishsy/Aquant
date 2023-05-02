@@ -54,4 +54,4 @@ def find_candles(code, klt, begin='20100101') -> List[Candle]:
 
 
 if __name__ == '__main__':
-    fetch_data('300223', 102)
+    fetch_data('300223', 101)

@@ -18,13 +18,11 @@ class Candle:
     low: Decimal
     volume: Decimal = None
     turnover: Decimal = None
-    ma5: Decimal = None
-    ma10: Decimal = None
-    ma20: Decimal = None
+    ema5: Decimal = None
     ema12: Decimal = None
     ema26: Decimal = None
     dea9: Decimal = None
-    ma_mark: int = 0
+    czsc_mark: int = 0
     macd_mark: int = 0
 
     def diff(self):
