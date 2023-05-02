@@ -1,7 +1,7 @@
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from storage.fetch import find_candles, save_entities
+from storage.fetch import find_candles
 from enums.entity import Entity
 from storage.db import db
 

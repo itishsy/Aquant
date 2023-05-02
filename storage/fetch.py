@@ -53,12 +53,5 @@ def find_candles(code, klt, begin='20100101') -> List[Candle]:
     return cds
 
 
-def save_entities(table_name, objects):
-    print('===========', type(table_name))
-    session = db.get_session(table_name)
-    session.add_all(objects)
-    session.commit()
-
-
 if __name__ == '__main__':
     fetch_data('300223', 102)
