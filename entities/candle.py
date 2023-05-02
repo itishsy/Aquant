@@ -21,6 +21,7 @@ class Candle:
     ema5: Decimal = None
     ema12: Decimal = None
     ema26: Decimal = None
+    dea4: Decimal = None
     dea9: Decimal = None
     czsc_mark: int = 0
     macd_mark: int = 0
