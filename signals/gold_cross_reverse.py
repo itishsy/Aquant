@@ -29,6 +29,7 @@ def search_signal(code, klt=101):
             cross_index = cross_index + 1
         if reverse_sdt is not None:
             r_candles = find_candles(code, 30, begin=reverse_sdt, limit=100)
+            reverse_sdt = None
             if len(r_candles) > 60:
                 reverse_signals = do_reverse_search(r_candles)
                 for rs in reverse_signals:
