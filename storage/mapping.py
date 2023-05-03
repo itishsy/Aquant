@@ -1,6 +1,7 @@
 from sqlalchemy.orm import registry
 from entities.candle import Candle
 from entities.signal import Signal
+from entities.symbol import Symbol
 from enums.entity import Entity
 import config as cfg
 from sqlalchemy import (
@@ -32,6 +33,16 @@ class Mapper:
             Column('dea9', DECIMAL(12, 4), default=None),
             Column('czsc_mark', Integer),
             Column('macd_mark', Integer)
+        ))
+
+    def symbol_table(self, meta):
+        registry().map_imperatively(Symbol, Table(
+            Entity.Symbol, meta,
+            Column('id', Integer, autoincrement=True, primary_key=True),
+            Column('code', String(50)),
+            Column('name', String(50)),
+            Column('status', Integer),
+            Column('comment', String(500))
         ))
 
     def single_table(self, meta):

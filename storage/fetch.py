@@ -1,11 +1,13 @@
 import efinance as ef
 from datetime import datetime, timedelta
 from entities.candle import Candle
+from entities.symbol import Symbol
 from decimal import Decimal
 from storage.mark import do_macd_mark
 from storage.db import db
 from sqlalchemy import select, desc, and_, text
 from typing import List
+from enums.entity import Entity
 
 
 def fetch_data(code, klt, begin='20100101'):
@@ -14,7 +16,11 @@ def fetch_data(code, klt, begin='20100101'):
         select(Candle).where(Candle.klt == klt).order_by(desc('id')).limit(1)
     ).scalar()
     if l_candle is not None:
-        dtime = datetime.strptime(l_candle.dt, '%Y-%m-%d') + timedelta(days=1)
+        dtime = None
+        if l_candle.dt.find(':') > 0:
+            dtime = datetime.strptime(l_candle.dt, '%Y-%m-%d %H:%M') + timedelta(days=1)
+        else:
+            dtime = datetime.strptime(l_candle.dt, '%Y-%m-%d') + timedelta(days=1)
         begin = dtime.strftime('%Y%m%d')
 
     df = ef.stock.get_quote_history(code, klt=klt, beg=begin)
@@ -50,18 +56,53 @@ def fetch_data(code, klt, begin='20100101'):
     session.commit()
 
 
+def fetch_symbols():
+    session = db.get_session(Entity.Symbol)
+    df = ef.stock.get_realtime_quotes(['沪A', '深A', 'ETF'])
+    df = df.iloc[:, 0:2]
+    df.columns = ['code', 'name']
+    df = df[df['name'].str.contains('ST') == False]
+    symbols = []
+    for i, row in df.iterrows():
+        s = Symbol(row)
+        s.status = 1
+        symbols.append(s)
+    session.add_all(symbols)
+    session.commit()
+
+
+def fetch_all():
+    sbs = find_active_symbols()
+    for sb in sbs:
+        fetch_data(sb.code, 102)
+        fetch_data(sb.code, 101)
+        fetch_data(sb.code, 60)
+        fetch_data(sb.code, 30)
+
+
+def find_active_symbols() -> List[Symbol]:
+    session = db.get_session(Entity.Symbol)
+    sbs = session.execute(
+        select(Symbol).where(and_(Symbol.status == 1))
+    ).scalars().fetchall()
+    return sbs
+
+
 def find_candles(code, klt, begin='2010-01-01', end=None, limit=10000) -> List[Candle]:
     session = db.get_session(code)
     clauses = and_(Candle.klt == klt, Candle.dt >= begin)
     if end is not None:
         clauses = clauses.__and__(Candle.dt < end)
     cds = session.execute(
-        select(Candle).where(clauses).limit(limit)
+        select(Candle).where(clauses).order_by(desc(Candle.dt)).limit(limit)
     ).scalars().fetchall()
-    return cds
+    return list(reversed(cds))
 
 
 if __name__ == '__main__':
-    fetch_data('300223', 30)
-    candles = find_candles('300223', 30, begin='2023-01-01', limit=100)
-    print(len(candles))
+    # fetch_symbols()
+    # fetch_data('300223', 30)
+    candles = find_candles('300223', 101, begin='2023-01-01', limit=100)
+    for c in candles:
+        print(c)
+    # fetch_all()
