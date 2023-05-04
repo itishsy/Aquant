@@ -1,15 +1,13 @@
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from storage.fetch import find_candles, find_active_symbols
 from enums.entity import Entity
-from storage.db import db
+from storage.db import db,find_candles, find_active_symbols
 
 
 def search_signal(code, klt, limit=200):
-    session = db.get_session(Entity.Single)
+    session = db.get_session(Entity.Signal)
     all_candles = find_candles(code, klt, limit=limit)
-    print('========all_candles',all_candles)
     signals = do_reverse_search(all_candles)
     if len(signals) > 0:
         for sgn in signals:

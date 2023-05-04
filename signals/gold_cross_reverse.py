@@ -1,13 +1,12 @@
-from storage.fetch import find_candles
 from enums.entity import Entity
-from storage.db import db
+from storage.db import db, find_candles
 from entities.candle import Candle
 from entities.signal import Signal
 from signals.reverse import do_reverse_search
 
 
 def search_signal(code, klt=101):
-    session = db.get_session(Entity.Single)
+    session = db.get_session(Entity.Signal)
     candles = find_candles(code, klt)
     size = len(candles)
     signals = []

@@ -45,19 +45,20 @@ class Mapper:
             Column('comment', String(500))
         ))
 
-    def single_table(self, meta):
+    def signal_table(self, meta):
         registry().map_imperatively(Signal, Table(
-            Entity.Single, meta,
+            Entity.Signal, meta,
             Column('id', Integer, autoincrement=True, primary_key=True),
             Column('code', String(50)),
             Column('dt', String(50)),
             Column('klt', Integer),
             Column('type', String(50)),
-            Column('value', String(50))
+            Column('value', String(50)),
+            Column('notify', Integer)
         ))
 
 
-def mapping(engine, meta, table_name):
+def do_mapping(engine, meta, table_name):
     if meta.tables.get(table_name) is None:
         mapper = Mapper()
         if table_name[0:2] in cfg.prefix:

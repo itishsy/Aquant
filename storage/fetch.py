@@ -3,9 +3,8 @@ from datetime import datetime, timedelta
 from entities.candle import Candle
 from entities.symbol import Symbol
 from decimal import Decimal
-from storage.mark import do_macd_mark
 from storage.db import db
-from sqlalchemy import select, desc, and_, text
+from sqlalchemy import select, desc, and_
 from typing import List
 from enums.entity import Entity
 
@@ -80,29 +79,78 @@ def fetch_all():
         fetch_data(sb.code, 30)
 
 
-def find_active_symbols() -> List[Symbol]:
-    session = db.get_session(Entity.Symbol)
-    sbs = session.execute(
-        select(Symbol).where(and_(Symbol.status == 1))
-    ).scalars().fetchall()
-    return sbs
-
-
-def find_candles(code, klt, begin='2010-01-01', end=None, limit=10000) -> List[Candle]:
+def mark(code, klt):
     session = db.get_session(code)
-    clauses = and_(Candle.klt == klt, Candle.dt >= begin)
-    if end is not None:
-        clauses = clauses.__and__(Candle.dt < end)
-    cds = session.execute(
-        select(Candle).where(clauses).order_by(desc(Candle.dt)).limit(limit)
+    unmark_candles = session.execute(
+        select(Candle).where(Candle.klt == klt, Candle.macd_mark == None)
     ).scalars().fetchall()
-    return list(reversed(cds))
+    mark_candles = do_macd_mark(unmark_candles)
+    mappings = []
+    for cand in mark_candles:
+        dic = {'id': cand.id, 'macd_mark': cand.macd_mark}
+        mappings.append(dic)
+    session.bulk_update_mappings(Candle, mappings)
+    session.flush()
+    session.commit()
+
+
+def do_macd_mark(candles: List[Candle]) -> List[Candle]:
+    size = len(candles)
+
+    for c in candles:
+        c.macd_mark = 1 if c.bar() > 0 else -1
+
+    for i in range(2, size):
+        c_2 = candles[i - 2]
+        c_1 = candles[i - 1]
+        c_0 = candles[i]
+        if c_2.macd_mark == c_1.macd_mark == c_0.macd_mark == -1:
+            if c_2.diff() > c_1.diff() < c_0.diff():
+                c_1.macd_mark = -3
+        if c_2.macd_mark == c_1.macd_mark == c_0.macd_mark == 1:
+            if c_2.diff() < c_1.diff() > c_0.diff():
+                c_1.macd_mark = 3
+
+    i = 2
+    while i < size:
+        if abs(candles[i].macd_mark) < 3:
+            i = i + 1
+            continue
+
+        if candles[i].macd_mark == -3:
+            min_diff = candles[i].diff()
+            j = i + 1
+            while j < size:
+                if candles[j].macd_mark > 0:
+                    break
+                if candles[j].macd_mark == -3:
+                    if min_diff > candles[j].diff():
+                        candles[i].macd_mark = -2
+                        min_diff = candles[j].diff()
+                    else:
+                        candles[j].macd_mark = -2
+                j = j + 1
+            i = j
+
+        if candles[i].macd_mark == 3:
+            max_diff = candles[i].diff()
+            j = i + 1
+            while j < size:
+                if candles[j].macd_mark < 0:
+                    break
+                if candles[j].macd_mark == 3:
+                    if max_diff < candles[j].diff():
+                        candles[i].macd_mark = 2
+                        max_diff = candles[j].diff()
+                    else:
+                        candles[j].macd_mark = 2
+                j = j + 1
+            i = j
+    return candles
 
 
 if __name__ == '__main__':
     # fetch_symbols()
+    # mark('300223', 101)
     # fetch_data('300223', 30)
-    candles = find_candles('300223', 101, begin='2023-01-01', limit=100)
-    for c in candles:
-        print(c)
-    # fetch_all()
+    fetch_all()

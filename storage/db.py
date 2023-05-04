@@ -1,17 +1,15 @@
 from sqlalchemy.orm import sessionmaker, registry
 import config as cfg
+from storage.mapping import do_mapping
 from entities.candle import Candle
 from entities.signal import Signal
+from entities.symbol import Symbol
+from sqlalchemy import select, desc, and_
+from typing import List
 from enums.entity import Entity
-from storage.mapping import mapping
 from sqlalchemy import (
     create_engine,
-    MetaData,
-    Table,
-    Column,
-    Integer,
-    String,
-    DECIMAL
+    MetaData
 )
 
 
@@ -43,8 +41,56 @@ class DB:
 
     def get_session(self, table_name=''):
         engine = self.get_engine(table_name)
-        mapping(engine, self.meta, table_name)
+        do_mapping(engine, self.meta, table_name)
         return sessionmaker(bind=engine)()
 
 
 db = DB()
+
+
+def find_active_symbols() -> List[Symbol]:
+    session = db.get_session(Entity.Symbol)
+    sbs = session.execute(
+        select(Symbol).where(and_(Symbol.status == 1))
+    ).scalars().fetchall()
+    return sbs
+
+
+def find_candles(code, klt, begin='2010-01-01', end=None, limit=10000) -> List[Candle]:
+    session = db.get_session(code)
+    clauses = and_(Candle.klt == klt, Candle.dt >= begin)
+    if end is not None:
+        clauses = clauses.__and__(Candle.dt < end)
+    cds = session.execute(
+        select(Candle).where(clauses).order_by(desc(Candle.dt)).limit(limit)
+    ).scalars().fetchall()
+    return list(reversed(cds))
+
+
+def find_signals(notify=0) -> List[Signal]:
+    session = db.get_session(Entity.Signal)
+    sgs = session.execute(
+        select(Signal).where(and_(Signal.notify == notify))
+    ).scalars().fetchall()
+    return sgs
+
+
+def update_signal_notify(signals: List[Signal]):
+    session = db.get_session(Entity.Signal)
+    mappings = []
+    for s in signals:
+        dic = {'id': s.id, 'notify': 1}
+        mappings.append(dic)
+    session.bulk_update_mappings(Signal, mappings)
+    session.flush()
+    session.commit()
+
+
+if __name__ == '__main__':
+    # fetch_symbols()
+    # mark('300223', 101)
+    # fetch_data('300223', 30)
+    candles = find_candles('300223', 101, begin='2023-01-01', limit=100)
+    for c in candles:
+        print(c)
+    # fetch_all()

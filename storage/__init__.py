@@ -1,1 +1,1 @@
-__all__ = ['fetcher', 'database']
+__all__ = ['db', 'fetch']
