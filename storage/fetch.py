@@ -72,15 +72,6 @@ def fetch_symbols():
         session.commit()
 
 
-def fetch_all():
-    sbs = find_active_symbols()
-    for sb in sbs:
-        fetch_data(sb.code, 102)
-        fetch_data(sb.code, 101)
-        fetch_data(sb.code, 60)
-        fetch_data(sb.code, 30)
-
-
 def mark(code, klt):
     session = db.get_session(code)
     unmark_candles = session.execute(
