@@ -41,6 +41,11 @@ class DB:
 
     def get_session(self, table_name=''):
         engine = self.get_engine(table_name)
+        for key in self.meta.tables.keys():
+            if key[0:2] in cfg.prefix:
+                if key != table_name:
+                    self.meta.remove(self.meta.tables.get(key))
+                    break
         do_mapping(engine, self.meta, table_name)
         return sessionmaker(bind=engine)()
 
@@ -90,7 +95,9 @@ if __name__ == '__main__':
     # fetch_symbols()
     # mark('300223', 101)
     # fetch_data('300223', 30)
-    candles = find_candles('300223', 101, begin='2023-01-01', limit=100)
-    for c in candles:
-        print(c)
-    # fetch_all()
+    # candles = find_candles('300223', 101, begin='2023-01-01', limit=100)
+    # for c in candles:
+    #     print(c)
+    sbs = find_active_symbols()
+    for sb in sbs:
+        print(sb.code)

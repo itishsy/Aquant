@@ -2,6 +2,7 @@ from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
 from enums.entity import Entity
+from enums.strategy import Strategy
 from storage.db import db,find_candles, find_active_symbols
 
 
@@ -40,12 +41,12 @@ def do_reverse_search(candles: List[Candle]) -> List[Signal]:
             low2 = find_lowest(candles, c_2.id)
             low0 = find_lowest(candles, c_0.id)
             if c_2.diff() < c_0.diff() and low2 > low0:
-                signals.append(Signal(code='', klt=101, dt=c_0.dt, type='reverse', value=c_0.macd_mark))
+                signals.append(Signal(dt=c_0.dt, type=Strategy.reverse.value, value=c_0.macd_mark))
         if c_2.macd_mark == 3 and c_1.macd_mark == -3 and c_0.macd_mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
             high2 = find_highest(candles, c_2.id)
             high0 = find_highest(candles, c_0.id)
             if c_2.diff() > c_0.diff() and high2 < high0:
-                signals.append(Signal(code='', klt=101, dt=c_0.dt, type='reverse', value=c_0.macd_mark))
+                signals.append(Signal(dt=c_0.dt, type=Strategy.reverse.value, value=c_0.macd_mark))
     return signals
 
 

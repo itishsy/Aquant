@@ -1,5 +1,6 @@
 from datetime import datetime
-from storage.fetch import fetch_data, find_active_symbols
+from storage.fetch import fetch_data
+from storage.db import find_active_symbols
 from signals.reverse import search_signal
 import logging
 import config

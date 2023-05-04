@@ -14,8 +14,12 @@ from sqlalchemy import (
 
 
 class Mapper:
+    reg = registry()
+
     def candle_table(self, meta, code):
-        registry().map_imperatively(Candle, Table(
+        print('====registry', meta.tables, code)
+        self.reg.dispose()
+        self.reg.map_imperatively(Candle, Table(
             code, meta,
             Column('id', Integer, autoincrement=True, primary_key=True),
             Column('dt', String(50)),

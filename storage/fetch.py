@@ -57,17 +57,19 @@ def fetch_data(code, klt, begin='20100101'):
 
 def fetch_symbols():
     session = db.get_session(Entity.Symbol)
-    df = ef.stock.get_realtime_quotes(['沪A', '深A', 'ETF'])
-    df = df.iloc[:, 0:2]
-    df.columns = ['code', 'name']
-    df = df[df['name'].str.contains('ST') == False]
-    symbols = []
-    for i, row in df.iterrows():
-        s = Symbol(row)
-        s.status = 1
-        symbols.append(s)
-    session.add_all(symbols)
-    session.commit()
+    sbs = session.query(Symbol).all()
+    if len(sbs) == 0:
+        df = ef.stock.get_realtime_quotes(['沪A', '深A', 'ETF'])
+        df = df.iloc[:, 0:2]
+        df.columns = ['code', 'name']
+        df = df[df['name'].str.contains('ST') == False]
+        symbols = []
+        for i, row in df.iterrows():
+            s = Symbol(row)
+            s.status = 1
+            symbols.append(s)
+        session.add_all(symbols)
+        session.commit()
 
 
 def fetch_all():
@@ -132,7 +134,7 @@ def do_macd_mark(candles: List[Candle]) -> List[Candle]:
                 j = j + 1
             i = j
 
-        if candles[i].macd_mark == 3:
+        if i < size and candles[i].macd_mark == 3:
             max_diff = candles[i].diff()
             j = i + 1
             while j < size:
@@ -150,7 +152,7 @@ def do_macd_mark(candles: List[Candle]) -> List[Candle]:
 
 
 if __name__ == '__main__':
-    # fetch_symbols()
+    fetch_symbols()
     # mark('300223', 101)
     # fetch_data('300223', 30)
-    fetch_all()
+    # fetch_all()
