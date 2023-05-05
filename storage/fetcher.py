@@ -61,7 +61,7 @@ def fetch_symbols():
         df = ef.stock.get_realtime_quotes(['沪A', '深A', 'ETF'])
         df = df.iloc[:, 0:2]
         df.columns = ['code', 'name']
-        df = df[df['name'].str.contains('ST') == False]
+        df = df[df['name'].str.contains('ST') is False]
         symbols = []
         for i, row in df.iterrows():
             s = Symbol(row)
