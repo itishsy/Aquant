@@ -17,7 +17,6 @@ class Mapper:
     reg = registry()
 
     def candle_table(self, meta, code):
-        print('====registry', meta.tables, code)
         self.reg.dispose()
         self.reg.map_imperatively(Candle, Table(
             code, meta,
@@ -35,7 +34,6 @@ class Mapper:
             Column('ema26', DECIMAL(12, 4), default=None),
             Column('dea4', DECIMAL(12, 4), default=None),
             Column('dea9', DECIMAL(12, 4), default=None),
-            Column('czsc_mark', Integer),
             Column('mark', Integer)
         ))
 
