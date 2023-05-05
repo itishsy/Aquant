@@ -72,3 +72,4 @@ def remark(code, klt):
     session.bulk_update_mappings(Candle, mappings)
     session.flush()
     session.commit()
+
