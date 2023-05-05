@@ -1,11 +1,10 @@
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from enums.strategy import Strategy
-from signals.search import SignalSearch
+from signals.strategy import Strategy
 
 
-class Reverse(SignalSearch):
+class Reverse(Strategy):
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
         mark_candles = []
         for cd in candles:
@@ -21,12 +20,12 @@ class Reverse(SignalSearch):
                 low2 = self.find_lowest(candles, c_2.id)
                 low0 = self.find_lowest(candles, c_0.id)
                 if c_2.diff() < c_0.diff() and low2 > low0:
-                    signals.append(Signal(dt=c_0.dt, type=Strategy.reverse.value, value=c_0.mark))
+                    signals.append(Signal(dt=c_0.dt, type=Strategy.reverse, value=c_0.mark))
             if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
                 high2 = self.find_highest(candles, c_2.id)
                 high0 = self.find_highest(candles, c_0.id)
                 if c_2.diff() > c_0.diff() and high2 < high0:
-                    signals.append(Signal(dt=c_0.dt, type=Strategy.reverse.value, value=c_0.mark))
+                    signals.append(Signal(dt=c_0.dt, type=Strategy.reverse, value=c_0.mark))
         return signals
 
     @staticmethod

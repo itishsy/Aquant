@@ -1,5 +1,5 @@
 from enums.entity import Entity
-from enums.strategy import Strategy
+from signals.strategy import Strategy
 from storage.db import db , find_candles
 from entities.candle import Candle
 from entities.signal import Signal
