@@ -1,5 +1,5 @@
 from datetime import datetime
-from storage.fetch import fetch_data
+from storage.fetcher import fetch_data
 from storage.db import find_active_symbols
 from signals.reverse import search_signal
 import logging
@@ -13,13 +13,16 @@ logging.getLogger().setLevel(logging.INFO)
 def fetch_signals():
     sbs = find_active_symbols()
     for sb in sbs:
-        fetch_data(sb.code, 102)
-        search_signal(sb.code, 102)
-        fetch_data(sb.code, 101)
-        search_signal(sb.code, 101)
-        fetch_data(sb.code, 60)
-        search_signal(sb.code, 60)
-        fetch_data(sb.code, 30)
+        try:
+            fetch_data(sb.code, 102)
+            search_signal(sb.code, 102)
+            fetch_data(sb.code, 101)
+            search_signal(sb.code, 101)
+            fetch_data(sb.code, 60)
+            search_signal(sb.code, 60)
+            fetch_data(sb.code, 30)
+        except:
+            logging.error('{} error'.format(sb.code))
 
 
 def watch_start():
@@ -30,7 +33,7 @@ def watch_start():
             hm = now.hour * 100 + now.minute
             if wd in [1, 2, 3, 4, 5]:
                 if hm in [946, 1001, 1016, 1031, 1046, 1101, 1116, 1131,
-                          1316, 1331, 1346, 1401, 1416, 1431, 1446, 1501,2226]:
+                          1316, 1331, 1346, 1401, 1416, 1431, 1446, 1501, 2226]:
                     print("start watching. {} {} {}".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
                     fetch_signals()
                     print('watch all done!')

@@ -36,7 +36,7 @@ class Mapper:
             Column('dea4', DECIMAL(12, 4), default=None),
             Column('dea9', DECIMAL(12, 4), default=None),
             Column('czsc_mark', Integer),
-            Column('macd_mark', Integer)
+            Column('mark', Integer)
         ))
 
     def symbol_table(self, meta):

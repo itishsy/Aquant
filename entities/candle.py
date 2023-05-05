@@ -23,8 +23,7 @@ class Candle:
     ema26: Decimal = None
     dea4: Decimal = None
     dea9: Decimal = None
-    czsc_mark: int = 0
-    macd_mark: int = 0
+    mark: int = 0
 
     def diff(self):
         return self.ema12 - self.ema26

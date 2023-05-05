@@ -20,7 +20,7 @@ def search_signal(code, klt=101):
         c_1 = candles[i - 1]
         if is_gold_cross(c_1, c_0):
             if cross_index > 1:
-                signals.append(Signal(code=code, dt=c_0.dt, klt=klt, type=Strategy.gold_cross, value=c_0.macd_mark))
+                signals.append(Signal(code=code, dt=c_0.dt, klt=klt, type=Strategy.gold_cross, value=c_0.mark))
             cross_index = cross_index + 1
 
     if len(signals) > 0:

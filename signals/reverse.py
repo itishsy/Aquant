@@ -29,7 +29,7 @@ def signal_all():
 def do_reverse_search(candles: List[Candle]) -> List[Signal]:
     mark_candles = []
     for cd in candles:
-        if abs(cd.macd_mark) == 3:
+        if abs(cd.mark) == 3:
             mark_candles.append(cd)
     size = len(mark_candles)
     signals = []
@@ -37,16 +37,16 @@ def do_reverse_search(candles: List[Candle]) -> List[Signal]:
         c_2 = mark_candles[i - 2]
         c_1 = mark_candles[i - 1]
         c_0 = mark_candles[i]
-        if c_2.macd_mark == -3 and c_1.macd_mark == 3 and c_0.macd_mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
+        if c_2.mark == -3 and c_1.mark == 3 and c_0.mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
             low2 = find_lowest(candles, c_2.id)
             low0 = find_lowest(candles, c_0.id)
             if c_2.diff() < c_0.diff() and low2 > low0:
-                signals.append(Signal(dt=c_0.dt, type=Strategy.reverse.value, value=c_0.macd_mark))
-        if c_2.macd_mark == 3 and c_1.macd_mark == -3 and c_0.macd_mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
+                signals.append(Signal(dt=c_0.dt, type=Strategy.reverse.value, value=c_0.mark))
+        if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
             high2 = find_highest(candles, c_2.id)
             high0 = find_highest(candles, c_0.id)
             if c_2.diff() > c_0.diff() and high2 < high0:
-                signals.append(Signal(dt=c_0.dt, type=Strategy.reverse.value, value=c_0.macd_mark))
+                signals.append(Signal(dt=c_0.dt, type=Strategy.reverse.value, value=c_0.mark))
     return signals
 
 
@@ -60,13 +60,13 @@ def find_lowest(candles: List[Candle], id):
             j = i - 1
             k = i + 1
             while j > 0:
-                if candles[j].macd_mark > 0:
+                if candles[j].mark > 0:
                     break
                 if candles[j].low < lowest:
                     lowest = candles[j].low
                 j = j - 1
             while k < s:
-                if candles[k].macd_mark > 0:
+                if candles[k].mark > 0:
                     break
                 if candles[k].low < lowest:
                     lowest = candles[k].low
@@ -87,13 +87,13 @@ def find_highest(candles: List[Candle], id):
             j = i - 1
             k = i + 1
             while j > 0:
-                if candles[j].macd_mark < 0:
+                if candles[j].mark < 0:
                     break
                 if candles[j].high > highest:
                     highest = candles[j].high
                 j = j - 1
             while k < s:
-                if candles[k].macd_mark < 0:
+                if candles[k].mark < 0:
                     break
                 if candles[k].high > highest:
                     highest = candles[k].high
