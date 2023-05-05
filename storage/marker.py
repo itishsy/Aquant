@@ -14,13 +14,12 @@ def mark(candles: List[Candle]) -> List[Candle]:
         c_2 = candles[i - 2]
         c_1 = candles[i - 1]
         c_0 = candles[i]
-        if c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
-            if c_2.mark == c_0.mark == -1 and c_1.mark == 1:
-                if c_2.diff() > c_1.diff() < c_0.diff():
-                    c_1.mark = -3
-            if c_2.mark == c_0.mark == 1 and c_1.mark == -1:
-                if c_2.diff() < c_1.diff() > c_0.diff():
-                    c_1.mark = 3
+        if c_2.mark == c_0.mark == c_1.mark == -1:
+            if c_2.diff() > c_1.diff() < c_0.diff():
+                c_1.mark = -3
+        if c_2.mark == c_0.mark == c_1.mark == 1:
+            if c_2.diff() < c_1.diff() > c_0.diff():
+                c_1.mark = 3
 
     i = 2
     while i < size:
