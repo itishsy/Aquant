@@ -5,9 +5,9 @@ from entities.signal import Signal
 from signals.reverse import do_reverse_search
 
 
-def search_signal(code, klt=101):
+def search_signal(code, klt, limit=200):
     session = db.get_session(Entity.Signal)
-    candles = find_candles(code, klt)
+    candles = find_candles(code, klt, limit=limit)
     size = len(candles)
     signals = []
     cross_index = 0
