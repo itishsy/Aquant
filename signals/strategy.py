@@ -25,7 +25,9 @@ class Strategy(ABC):
     reverse_to_gold_cross = "（次级别）反转形成金叉",
     gold_cross_from_reverse = "反转后的金叉"
 
-    def __int__(self, klt):
+    klt = 101
+
+    def set_klt(self, klt):
         self.klt = klt
 
     def search_all(self):
@@ -48,4 +50,3 @@ class Strategy(ABC):
     @abstractmethod
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
         pass
-
