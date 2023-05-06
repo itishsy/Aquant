@@ -1,5 +1,5 @@
 from typing import List
-from storage.db import db
+from storage.db import db, find_active_symbols
 from entities.candle import Candle
 from sqlalchemy import select
 
@@ -61,10 +61,10 @@ def mark(candles: List[Candle]) -> List[Candle]:
 
 def remark(code, klt):
     session = db.get_session(code)
-    unmark_candles = session.execute(
-        select(Candle).where(Candle.klt == klt, Candle.mark == None)
+    candles = session.execute(
+        select(Candle).where(Candle.klt == klt)
     ).scalars().fetchall()
-    mark_candles = mark(unmark_candles)
+    mark_candles = mark(candles)
     mappings = []
     for cad in mark_candles:
         dic = {'id': cad.id, 'mark': cad.mark}
@@ -72,3 +72,14 @@ def remark(code, klt):
     session.bulk_update_mappings(Candle, mappings)
     session.flush()
     session.commit()
+
+
+if __name__ == '__main__':
+    symbols = find_active_symbols()
+    for sbl in symbols:
+        try:
+            remark(sbl.code, 102)
+            remark(sbl.code, 101)
+            remark(sbl.code, 60)
+        except:
+            print('{} mark error'.format(sbl.code))

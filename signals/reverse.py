@@ -1,9 +1,10 @@
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from signals.strategy import Strategy
+from signals.strategy import register_strategy, Strategy
 
 
+@register_strategy
 class Reverse(Strategy):
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
         mark_candles = []

@@ -6,6 +6,17 @@ from entities.symbol import Symbol
 from enums.entity import Entity
 from typing import List
 
+factory = {}
+
+
+def register_strategy(cls):
+    cls_name = cls.__name__
+
+    def register(clz):
+        factory[cls_name] = clz
+
+    return register(cls)
+
 
 class Strategy(ABC):
     reverse = "反转",
@@ -35,13 +46,3 @@ class Strategy(ABC):
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
         pass
 
-
-strategy_dict = {'reverse': '反转', 'gold_cross': '零轴上方金叉'}
-
-
-class StrategyFactory:
-    @staticmethod
-    def search_all_signal():
-        for key in strategy_dict.keys():
-            strategy = eval(key)()
-            strategy.search_all()

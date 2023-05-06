@@ -7,6 +7,8 @@ from storage.db import db
 from sqlalchemy import select, desc
 from storage.marker import mark
 from enums.entity import Entity
+from storage.db import find_active_symbols
+import logging
 
 
 def fetch_data(code, klt, begin='20100101'):
@@ -69,6 +71,18 @@ def fetch_symbols():
             symbols.append(s)
         session.add_all(symbols)
         session.commit()
+
+
+def fetch_all(kls=None):
+    if kls is None:
+        kls = [102, 101, 60]
+    sbs = find_active_symbols()
+    for sb in sbs:
+        try:
+            for klt in kls:
+                fetch_data(sb.code, klt)
+        except:
+            logging.error('{} error'.format(sb.code))
 
 
 if __name__ == '__main__':
