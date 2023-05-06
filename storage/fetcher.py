@@ -103,7 +103,7 @@ def fetch_daily():
 
 
 if __name__ == '__main__':
-    fetch_daily()
+    # fetch_daily()
     # fetch_symbols()
     # fetch_data('300223', 30)
-    # fetch_all()
+    fetch_all()
