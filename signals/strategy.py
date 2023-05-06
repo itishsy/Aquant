@@ -25,10 +25,10 @@ class Strategy(ABC):
     reverse_to_gold_cross = "（次级别）反转形成金叉",
     gold_cross_from_reverse = "反转后的金叉"
 
-    klt = 101
+    __klt = 101
 
-    def set_klt(self, klt):
-        self.klt = klt
+    def klt(self, klt):
+        self.__klt = klt
 
     def search_all(self):
         symbols = find_active_symbols()
@@ -37,11 +37,11 @@ class Strategy(ABC):
         session = db.get_session(Entity.Signal)
         signals = []
         for sb in symbols:
-            sgs = self.search_signal(find_candles(sb.code, self.klt, limit=100))
+            sgs = self.search_signal(find_candles(sb.code, self.__klt, limit=100))
             if len(sgs) > 0:
                 for sgn in sgs:
                     sgn.code = sb.code
-                    sgn.klt = self.klt
+                    sgn.klt = self.__klt
                     signals.append(sgn)
         if len(signals) > 0:
             session.add_all(signals)

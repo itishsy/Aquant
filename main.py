@@ -35,7 +35,8 @@ if __name__ == '__main__':
     start_time = datetime.now()
     fetch_all()
     for name in strategy.factory:
-        strategy = strategy.factory[name](101)
+        strategy = strategy.factory[name]()
+        strategy.klt(101)
         strategy.search_all()
     end_time = datetime.now()
     print("==============用時：{}=================".format(end_time - start_time))
