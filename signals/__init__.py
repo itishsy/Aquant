@@ -1,1 +1,1 @@
-__all__ = ['strategy', 'reverse']
+__all__ = ['strategy', 'rising']
