@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass
@@ -15,3 +16,4 @@ class Signal:
     type: str
     value: int
     notify: int = 0
+    created: datetime = datetime.now()

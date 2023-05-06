@@ -9,7 +9,8 @@ from sqlalchemy import (
     Column,
     Integer,
     String,
-    DECIMAL
+    DECIMAL,
+    DateTime
 )
 
 
@@ -56,7 +57,8 @@ class Mapper:
             Column('klt', Integer),
             Column('type', String(50)),
             Column('value', String(50)),
-            Column('notify', Integer)
+            Column('notify', Integer),
+            Column('created', DateTime)
         ))
 
 
