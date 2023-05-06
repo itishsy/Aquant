@@ -16,6 +16,7 @@ class Rising(Strategy):
                 if candles[i].close < candles[i].ema26:
                     f_26 = False
                     break
+                i = i + 1
             j = size - 12
             if f_26:
                 signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.rising, value=26))
@@ -24,6 +25,7 @@ class Rising(Strategy):
                 if candles[j].close < candles[j].ema12:
                     f_12 = False
                     break
+                j = j + 1
             if f_12:
                 signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.rising, value=12))
         return signals
