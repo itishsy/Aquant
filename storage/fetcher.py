@@ -9,6 +9,7 @@ from storage.marker import mark
 from enums.entity import Entity
 from storage.db import find_active_symbols
 import logging
+import time
 
 
 def fetch_data(code, klt, begin='20100101'):
@@ -85,8 +86,24 @@ def fetch_all(kls=None):
             logging.error('{} error'.format(sb.code))
 
 
+def fetch_daily():
+    while True:
+        try:
+            now = datetime.now()
+            wd = now.weekday() + 1
+            hm = now.hour * 100 + now.minute
+            if wd in [1, 2, 3, 4, 5] and hm in [1601, 1602]:
+                print("start fetching. {} {} {}".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
+                fetch_all()
+                print('fetch all done!')
+        except:
+            pass
+        finally:
+            time.sleep(60)
+
+
 if __name__ == '__main__':
-    fetch_symbols()
-    # mark('300223', 101)
+    fetch_daily()
+    # fetch_symbols()
     # fetch_data('300223', 30)
     # fetch_all()
