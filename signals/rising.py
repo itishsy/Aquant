@@ -11,11 +11,19 @@ class Rising(Strategy):
         signals = []
         if size > 26:
             i = size - 26
-            flag = True
+            f_26 = True
             while i < size:
                 if candles[i].close < candles[i].ema26:
-                    flag = False
+                    f_26 = False
                     break
-            if flag:
-                signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.reverse, value=candles[size - 1].mark))
+            j = size - 12
+            if f_26:
+                signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.rising, value=26))
+            f_12 = True
+            while j < size:
+                if candles[j].close < candles[j].ema12:
+                    f_12 = False
+                    break
+            if f_12:
+                signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.rising, value=12))
         return signals
