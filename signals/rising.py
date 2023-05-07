@@ -9,35 +9,34 @@ class Rising(Strategy):
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
         size = len(candles)
         signals = []
-        if size > 26:
-            i = size - 26
-            j = size - 12
+        if size > 20:
+            i = size - 20
+            j = size - 10
             k = size - 5
-            ema_26 = True
-            ema_12 = True
-            ema_5 = True
+            flag_ma20 = True
+            flag_ma10 = True
+            flag_ma5 = True
             while i < size:
-                if candles[i].close < candles[i].ema26:
-                    ema_26 = False
+                if candles[i].close < candles[i].ma20:
+                    flag_ma20 = False
                     break
                 i = i + 1
-            if ema_26:
-                signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.rising, value=26))
+            if flag_ma20:
+                signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.rising, value=i))
             else:
                 while j < size:
-                    if candles[j].close < candles[j].ema12:
-                        ema_12 = False
+                    if candles[j].close < candles[j].ma10:
+                        flag_ma10 = False
                         break
                     j = j + 1
-                if ema_12:
-                    signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.rising, value=12))
+                if flag_ma10:
+                    signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.rising, value=j))
                 else:
                     while k < size:
-                        if candles[k].close < candles[k].ema5:
-                            ema_5 = False
+                        if candles[k].close < candles[k].ma5:
+                            flag_ma5 = False
                             break
                         k = k + 1
-                    if ema_5:
-                        signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.rising, value=5))
-
+                    if flag_ma5:
+                        signals.append(Signal(dt=candles[size - 1].dt, type=Strategy.rising, value=k))
         return signals
