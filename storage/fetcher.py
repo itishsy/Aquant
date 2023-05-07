@@ -9,6 +9,7 @@ from storage.marker import mark
 from enums.entity import Entity
 from storage.db import find_active_symbols
 from typing import List
+import traceback
 import logging
 import time
 
@@ -44,9 +45,11 @@ def fetch_data(code, klt, begin='20100101'):
                 c.ema26 = Decimal(c.close)
                 c.dea9 = Decimal(0)
         else:
-            c.ma5 = __get_ma(candles, i, 5)
-            c.ma10 = __get_ma(candles, i, 10)
-            c.ma20 = __get_ma(candles, i, 20)
+            if klt == 101:
+                c.ma5 = get_ma(candles, 5, c.close)
+                c.ma10 = get_ma(candles, 10, c.close)
+                c.ma20 = get_ma(candles, 20, c.close)
+                c.mav5 = get_ma(candles, 5, c.volume, att='volume')
             c.ema12 = candles[i - 1].ema12 * Decimal(11 / 13) + Decimal(c.close) * Decimal(2 / 13)
             c.ema26 = candles[i - 1].ema26 * Decimal(25 / 27) + Decimal(c.close) * Decimal(2 / 27)
             c.dea9 = candles[i - 1].dea9 * Decimal(8 / 10) + Decimal(c.ema12 - c.ema26) * Decimal(2 / 10)
@@ -55,16 +58,23 @@ def fetch_data(code, klt, begin='20100101'):
     session.commit()
 
 
-def __get_ma(candles: List[Candle], fri, seq):
-    if fri > seq:
-        ii = 0
-        ss = 0
-        while ii < seq:
-            ss = ss + candles[fri - ii].close
-            ii = ii + 1
-        return ss
+def get_ma(candles: List[Candle], seq, val=None, att='close'):
+    res = val
+    ss = 0
+    siz = len(candles)
+    if val is None:
+        res = 0.0
+        sta = siz - seq
     else:
-        return candles[fri].close
+        ss = val
+        sta = siz - seq - 1
+    if siz > seq:
+        cds = candles[sta:]
+        for cd in cds:
+            ss = ss + eval('cd.' + att)
+        res = Decimal(ss / seq)
+    return res
+
 
 def fetch_symbols():
     session = db.get_session(Entity.Symbol)
@@ -99,14 +109,12 @@ def fetch_daily():
     while True:
         try:
             now = datetime.now()
-            wd = now.weekday() + 1
-            hm = now.hour * 100 + now.minute
-            if wd in [1, 2, 3, 4, 5] and hm in [1601, 1602]:
-                print("start fetching. {} {} {}".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
+            if now.weekday() < 5 and now.hour == 16 and now.minute < 3:
+                print("start fetching.", now)
                 fetch_all()
                 print('fetch all done!')
-        except:
-            pass
+        except Exception as e:
+            print(e)
         finally:
             time.sleep(60)
 

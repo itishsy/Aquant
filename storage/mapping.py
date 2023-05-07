@@ -30,10 +30,12 @@ class Mapper:
             Column('low', DECIMAL(8, 2)),
             Column('volume', DECIMAL(12, 4), default=None),
             Column('turnover', DECIMAL(12, 4), default=None),
-            Column('ema5', DECIMAL(12, 4), default=None),
+            Column('ma5', DECIMAL(12, 4), default=None),
+            Column('ma10', DECIMAL(12, 4), default=None),
+            Column('ma20', DECIMAL(12, 4), default=None),
+            Column('mav5', DECIMAL(12, 4), default=None),
             Column('ema12', DECIMAL(12, 4), default=None),
             Column('ema26', DECIMAL(12, 4), default=None),
-            Column('dea4', DECIMAL(12, 4), default=None),
             Column('dea9', DECIMAL(12, 4), default=None),
             Column('mark', Integer)
         ))
