@@ -14,7 +14,7 @@ import logging
 import time
 
 
-def fetch_data(code, klt, begin='20100101'):
+def save_data(code, klt, begin='20100101'):
     session = db.get_session(code)
     l_candle = session.execute(
         select(Candle).where(Candle.klt == klt).order_by(desc('id')).limit(1)
@@ -25,7 +25,12 @@ def fetch_data(code, klt, begin='20100101'):
         else:
             sdt = datetime.strptime(l_candle.dt, '%Y-%m-%d') + timedelta(days=1)
         begin = sdt.strftime('%Y%m%d')
+    candles = fetch_data(code, klt, begin, l_candle=l_candle)
+    session.add_all(mark(candles))
+    session.commit()
 
+
+def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
     df = ef.stock.get_quote_history(code, klt=klt, beg=begin)
     df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount', 'zf', 'zdf', 'zde',
                   'turnover']
@@ -54,8 +59,7 @@ def fetch_data(code, klt, begin='20100101'):
             c.ema26 = candles[i - 1].ema26 * Decimal(25 / 27) + Decimal(c.close) * Decimal(2 / 27)
             c.dea9 = candles[i - 1].dea9 * Decimal(8 / 10) + Decimal(c.ema12 - c.ema26) * Decimal(2 / 10)
         candles.append(c)
-    session.add_all(mark(candles))
-    session.commit()
+    return mark(candles)
 
 
 def get_ma(candles: List[Candle], seq, val=None, att='close'):

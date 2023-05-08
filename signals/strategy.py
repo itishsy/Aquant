@@ -1,4 +1,5 @@
 from storage.db import db, find_candles, find_active_symbols
+from storage.fetcher import fetch_data
 from abc import ABC, abstractmethod
 from entities.candle import Candle
 from entities.signal import Signal
@@ -26,9 +27,13 @@ class Strategy(ABC):
     gold_cross_from_reverse = "反转后的金叉"
 
     __klt = 101
+    __code = None
+    __begin = None
 
-    def klt(self, klt):
+    def klt(self, klt, code=None, begin=None):
         self.__klt = klt
+        self.__code = code
+        self.__begin = begin
 
     def search_all(self):
         symbols = find_active_symbols()
@@ -36,13 +41,21 @@ class Strategy(ABC):
             return
         session = db.get_session(Entity.Signal)
         signals = []
-        for sb in symbols:
-            sgs = self.search_signal(find_candles(sb.code, self.__klt, limit=100))
+        if self.__code is not None:
+            sgs = self.search_signal(fetch_data(self.__code, self.__klt, self.__begin))
             if len(sgs) > 0:
                 for sgn in sgs:
-                    sgn.code = sb.code
+                    sgn.code = self.__code
                     sgn.klt = self.__klt
                     signals.append(sgn)
+        else:
+            for sb in symbols:
+                sgs = self.search_signal(find_candles(sb.code, self.__klt, limit=100))
+                if len(sgs) > 0:
+                    for sgn in sgs:
+                        sgn.code = sb.code
+                        sgn.klt = self.__klt
+                        signals.append(sgn)
         if len(signals) > 0:
             session.add_all(signals)
             session.commit()
