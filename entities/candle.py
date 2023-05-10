@@ -21,6 +21,7 @@ class Candle:
     ma5: Decimal = None
     ma10: Decimal = None
     ma20: Decimal = None
+    ma30: Decimal = None
     mav5: Decimal = None
     ema12: Decimal = None
     ema26: Decimal = None

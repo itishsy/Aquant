@@ -14,7 +14,7 @@ import logging
 import time
 
 
-def save_data(code, klt, begin='20100101'):
+def fetch_and_save(code, klt, begin='20100101'):
     session = db.get_session(code)
     l_candle = session.execute(
         select(Candle).where(Candle.klt == klt).order_by(desc('id')).limit(1)
@@ -54,6 +54,7 @@ def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
                 c.ma5 = get_ma(candles, 5, c.close)
                 c.ma10 = get_ma(candles, 10, c.close)
                 c.ma20 = get_ma(candles, 20, c.close)
+                c.ma30 = get_ma(candles, 30, c.close)
                 c.mav5 = get_ma(candles, 5, c.volume, att='volume')
             c.ema12 = candles[i - 1].ema12 * Decimal(11 / 13) + Decimal(c.close) * Decimal(2 / 13)
             c.ema26 = candles[i - 1].ema26 * Decimal(25 / 27) + Decimal(c.close) * Decimal(2 / 27)
@@ -104,7 +105,7 @@ def fetch_all(kls=None):
     for sb in sbs:
         try:
             for klt in kls:
-                fetch_data(sb.code, klt)
+                fetch_and_save(sb.code, klt)
         except:
             logging.error('{} error'.format(sb.code))
 
@@ -126,5 +127,5 @@ def fetch_daily():
 if __name__ == '__main__':
     # fetch_daily()
     # fetch_symbols()
-    save_data('300031', 101)
+    fetch_and_save('300031', 101)
     # fetch_all()
