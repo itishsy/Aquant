@@ -1,3 +1,5 @@
+import datetime
+
 from storage.db import db, find_candles, find_active_symbols
 from storage.fetcher import fetch_data
 from abc import ABC, abstractmethod
@@ -40,24 +42,27 @@ class Strategy(ABC):
         session = db.get_session(Entity.Signal)
         signals = []
         if self.code is not None:
-            sgs = self.search_signal(fetch_data(self.code, self.__klt, self.__begin))
-            if len(sgs) > 0:
-                for sgn in sgs:
-                    sgn.code = self.code
-                    sgn.klt = self.__klt
-                    signals.append(sgn)
+            sis = self.search_signal(fetch_data(self.code, self.__klt, self.__begin))
+            self.append_signals(signals,sis)
         else:
             for sb in symbols:
                 self.code = sb.code
-                sgs = self.search_signal(find_candles(sb.code, self.__klt, limit=100))
-                if len(sgs) > 0:
-                    for sgn in sgs:
-                        sgn.code = sb.code
-                        sgn.klt = self.__klt
-                        signals.append(sgn)
+                sis = self.search_signal(find_candles(sb.code, self.__klt, limit=100))
+                self.append_signals(signals,sis)
+
         if len(signals) > 0:
             session.add_all(signals)
             session.commit()
+
+    def append_signals(self, signals: List[Signal], sis: List[Signal]):
+        if len(sis) > 0:
+            for si in sis:
+                si.code = self.code
+                if si.klt is None:
+                    si.klt = self.__klt
+                si.notify = 0
+                si.created = datetime.datetime.now()
+                signals.append(si)
 
     @abstractmethod
     def search_signal(self, candles: List[Candle]) -> List[Signal]:

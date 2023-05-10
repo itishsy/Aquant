@@ -1,3 +1,5 @@
+import datetime
+
 from signals.strategy import register_strategy, Strategy
 from entities.candle import Candle
 from entities.signal import Signal
@@ -7,7 +9,7 @@ from signals.reverse import search_reverse
 
 
 @register_strategy
-class GoldCross(Strategy):
+class SecondGoldCross(Strategy):
 
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
         # 0轴上方的macd调整出现的买点
@@ -28,8 +30,13 @@ class GoldCross(Strategy):
             if c_3.mark == -3 and c_2.mark == 3 and c_1.mark == -3:
                 if is_above(c_2) and is_above(c_1):
                     if (c_2.high - c_1.low) / (c_2.high - c_3.low) > 0.5:
-                        sub_candles = fetch_data(self.code, 60, c_3.dt.replace('-',''))
-                        signals = search_reverse(sub_candles)
+                        for klt in [15, 30, 60]:
+                            sub_candles = fetch_data(self.code, klt, c_3.dt.replace('-', ''))
+                            sis = search_reverse(sub_candles)
+                            for si in sis:
+                                si.klt = klt
+                                si.type = 'second_gold_cross'
+                                signals.append(si)
             i = i + 1
         return signals
 

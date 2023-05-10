@@ -33,7 +33,7 @@ def watch_start():
 
 if __name__ == '__main__':
     start_time = datetime.now()
-    # fetch_all()
+    fetch_all()
     for name in strategy.factory:
         print('============',name)
         strategy = strategy.factory[name]()
