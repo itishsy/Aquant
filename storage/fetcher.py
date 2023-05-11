@@ -7,7 +7,7 @@ from storage.db import db
 from sqlalchemy import select, desc, delete, and_
 from storage.marker import mark
 from enums.entity import Entity
-from storage.db import find_active_symbols
+from storage.db import find_active_symbols, find_candles
 from typing import List
 import logging
 import time
@@ -53,6 +53,13 @@ def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
                 c.ema12 = l_candle.ema12 * Decimal(11 / 13) + Decimal(c.close) * Decimal(2 / 13)
                 c.ema26 = l_candle.ema26 * Decimal(25 / 27) + Decimal(c.close) * Decimal(2 / 27)
                 c.dea9 = l_candle.dea9 * Decimal(8 / 10) + Decimal(c.ema12 - c.ema26) * Decimal(2 / 10)
+                if klt == 101:
+                    cs = find_candles(code,klt,limit=30)
+                    c.ma5 = get_ma(cs, 5, c.close)
+                    c.ma10 = get_ma(cs, 10, c.close)
+                    c.ma20 = get_ma(cs, 20, c.close)
+                    c.ma30 = get_ma(cs, 30, c.close)
+                    c.mav5 = get_ma(cs, 5, c.volume, att='volume')
             else:
                 c.ema12 = Decimal(c.close)
                 c.ema26 = Decimal(c.close)
@@ -80,7 +87,7 @@ def get_ma(candles: List[Candle], seq, val=None, att='close'):
         sta = siz - seq
     else:
         ss = val
-        sta = siz - seq - 1
+        sta = siz - seq + 1
     if siz > seq:
         cds = candles[sta:]
         for cd in cds:
@@ -138,5 +145,5 @@ if __name__ == '__main__':
     # df = ef.stock.get_quote_history('300133', klt=15, beg='20230511')
     # print('===============df')
     # print(df)
-    fetch_and_save('300133', 15, begin='2023-05-11')
-    # fetch_all()
+    # fetch_and_save('60', 15, begin='2023-05-11')
+    fetch_all()
