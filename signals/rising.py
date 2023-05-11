@@ -25,13 +25,13 @@ class Rising(Strategy):
             flag_20 = True
             flag_30 = True
             while i < size:
-                if candles[i].high < candles[i].ma20:
+                if candles[i].ma20 is not None and candles[i].high < candles[i].ma20:
                     flag_20 = False
                     break
                 i = i + 1
             if flag_20 is False:
                 while j < size:
-                    if candles[j].high < candles[j].ma30:
+                    if candles[j].ma30 is not None and candles[j].high < candles[j].ma30:
                         flag_30 = False
                         break
                     j = j + 1
