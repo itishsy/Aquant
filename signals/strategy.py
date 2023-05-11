@@ -22,18 +22,9 @@ def register_strategy(cls):
 
 
 class Strategy(ABC):
-    reverse = "反转",
-    rising = "持续上涨"
-    gold_cross = "零轴上方金叉",
-    reverse_to_gold_cross = "（次级别）反转形成金叉",
-    gold_cross_from_reverse = "反转后的金叉"
     code = None
-
-    __klt = 101
-    __begin = None
-
-    def klt(self, klt):
-        self.__klt = klt
+    begin = None
+    klt = 101
 
     def search_all(self):
         symbols = find_active_symbols()
@@ -42,12 +33,12 @@ class Strategy(ABC):
         session = db.get_session(Entity.Signal)
         signals = []
         if self.code is not None:
-            sis = self.search_signal(fetch_data(self.code, self.__klt, self.__begin))
+            sis = self.search_signal(fetch_data(self.code, self.klt, self.begin))
             self.append_signals(signals,sis)
         else:
             for sb in symbols:
                 self.code = sb.code
-                sis = self.search_signal(find_candles(sb.code, self.__klt, limit=100))
+                sis = self.search_signal(find_candles(sb.code, self.klt, limit=100))
                 self.append_signals(signals,sis)
 
         if len(signals) > 0:
@@ -59,7 +50,7 @@ class Strategy(ABC):
             for si in sis:
                 si.code = self.code
                 if si.klt is None:
-                    si.klt = self.__klt
+                    si.klt = self.klt
                 si.notify = 0
                 si.created = datetime.datetime.now()
                 signals.append(si)

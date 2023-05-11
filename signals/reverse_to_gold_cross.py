@@ -2,7 +2,6 @@ from enums.entity import Entity
 from storage.db import db, find_candles
 from entities.candle import Candle
 from entities.signal import Signal
-from signals.reverse import do_reverse_search
 
 
 def search_signal(code, klt, limit=200):
@@ -30,7 +29,7 @@ def search_signal(code, klt, limit=200):
             r_candles = find_candles(code, 30, begin=reverse_sdt, limit=100)
             reverse_sdt = None
             if len(r_candles) > 60:
-                reverse_signals = do_reverse_search(r_candles)
+                reverse_signals = []  # do_reverse_search(r_candles)
                 for rs in reverse_signals:
                     rs.code = code
                     rs.klt = 30

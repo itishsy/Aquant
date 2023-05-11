@@ -4,7 +4,7 @@ from signals.strategy import register_strategy, Strategy
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from storage.fetcher import fetch_data
+from storage.fetcher import fetch_data, fetch_and_save
 from signals.reverse import search_reverse
 
 
@@ -31,12 +31,13 @@ class SecondGoldCross(Strategy):
                 if is_above(c_2) and is_above(c_1):
                     if (c_2.high - c_1.low) / (c_2.high - c_3.low) > 0.5:
                         for klt in [15, 30, 60]:
-                            sub_candles = fetch_data(self.code, klt, c_3.dt.replace('-', ''))
-                            sis = search_reverse(sub_candles)
+                            c_candles = fetch_data(self.code, klt, c_3.dt.replace('-', ''))
+                            sis = search_reverse(c_candles)
                             for si in sis:
-                                si.klt = klt
-                                si.type = 'second_gold_cross'
-                                signals.append(si)
+                                if c_1.dt > si.dt > c_2.dt:
+                                    si.klt = klt
+                                    si.type = 'second_gold_cross'
+                                    signals.append(si)
             i = i + 1
         return signals
 
@@ -50,5 +51,5 @@ def is_above(candle: Candle):
 
 
 if __name__ == '__main__':
-    gold = GoldCross()
-    gold.search_all()
+    sub_candles = fetch_and_save('300133', 15)
+
