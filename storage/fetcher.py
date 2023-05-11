@@ -108,7 +108,7 @@ def fetch_symbols():
 
 def fetch_all(kls=None):
     if kls is None:
-        kls = [102, 101, 60]
+        kls = [102, 101, 60, 30, 15]
     sbs = find_active_symbols()
     for sb in sbs:
         try:
