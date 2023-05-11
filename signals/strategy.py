@@ -33,7 +33,7 @@ class Strategy(ABC):
         session = db.get_session(Entity.Signal)
         signals = []
         if self.code is not None:
-            sis = self.search_signal(fetch_data(self.code, self.klt, self.begin))
+            sis = self.search_signal(find_candles(self.code, self.klt, self.begin))
             self.append_signals(signals,sis)
         else:
             for sb in symbols:

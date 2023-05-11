@@ -34,7 +34,7 @@ class SecondGoldCross(Strategy):
                             c_candles = find_candles(self.code, klt, begin=c_3.dt)
                             sis = search_reverse(c_candles)
                             for si in sis:
-                                if c_1.dt > si.dt > c_2.dt:
+                                if c_1.dt > si.dt > c_2.dt and si.value == -3:
                                     si.klt = klt
                                     si.type = 'second_gold_cross'
                                     signals.append(si)

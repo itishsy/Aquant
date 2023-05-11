@@ -52,7 +52,7 @@ class Rising(Strategy):
                             c_candles = find_candles(self.code, klt, begin=beg)
                             sis = search_reverse(c_candles)
                             for si in sis:
-                                if si.dt > beg:
+                                if si.dt > beg and si.value == -3:
                                     si.klt = klt
                                     si.type = 'rising {} reverse'.format(20 if flag_20 else 30)
                                     signals.append(si)
