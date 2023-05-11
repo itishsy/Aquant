@@ -51,4 +51,4 @@ def is_above(candle: Candle):
 
 
 if __name__ == '__main__':
-    sub_candles = fetch_and_save('300133', 15)
+    pass
