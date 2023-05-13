@@ -1,5 +1,3 @@
-import datetime
-
 work_path = "D:\\SourceCode\\PythonProject\\aquant"
 host = "127.0.0.1"
 port = 3306

@@ -4,6 +4,7 @@ from entities.signal import Signal
 from typing import List
 from storage.db import find_candles
 
+
 @register_strategy
 class GoldCrossFirst(Strategy):
 
@@ -15,6 +16,7 @@ class GoldCrossFirst(Strategy):
         :return:
         """
         pass
+
 
 def is_balance(candle: Candle):
     dc = abs(candle.diff() / candle.close)

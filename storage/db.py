@@ -61,7 +61,7 @@ def find_active_symbols() -> List[Symbol]:
     return sbs
 
 
-def find_candles(code, klt, begin='2010-01-01', end=None, limit=10000) -> List[Candle]:
+def find_candles(code, klt, begin='2015-01-01', end=None, limit=10000) -> List[Candle]:
     session = db.get_session(code)
     clauses = and_(Candle.klt == klt, Candle.dt >= begin)
     if end is not None:
@@ -98,6 +98,6 @@ if __name__ == '__main__':
     # candles = find_candles('300223', 101, begin='2023-01-01', limit=100)
     # for c in candles:
     #     print(c)
-    sbs = find_active_symbols()
-    for sb in sbs:
+    fas = find_active_symbols()
+    for sb in fas:
         print(sb.code)

@@ -6,17 +6,20 @@ from storage.db import find_candles
 
 
 @register_strategy
-class SecondGoldCross(Strategy):
+class GoldCrossSecond(Strategy):
+    """
+    """
 
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
         """ 二次金叉信号
         满足以下条件：
         1. 前一次金叉到二次金叉前，均在0轴上.
         2. 调整回落的幅度不能超过上涨幅度的黄金分割线
-        2. 调整过程中，出现次某级别的背离买点
+        3. 调整过程中，出现次某级别的背离买点
         :param candles:
         :return:
         """
+
         mark_candles = []
         for cd in candles:
             if abs(cd.mark) == 3:
@@ -38,7 +41,7 @@ class SecondGoldCross(Strategy):
                             for si in sis:
                                 if c_1.dt > si.dt > c_2.dt and si.value == -3:
                                     si.klt = klt
-                                    si.type = 'second_gold_cross'
+                                    si.type = self.__class__.__name__
                                     signals.append(si)
             i = i + 1
         return signals
