@@ -30,10 +30,10 @@ class BottomConfirm(Strategy):
                     wcs = find_candles(self.code, kl, begin=beg.strftime('%Y-%m-%d'), end=si.dt)
                     wi = len(wcs) - 1
                     while wi > 1:
-                        if wcs[wi].mark == 3 and wcs[wi].diff() < 0:
+                        if wcs[wi].mark == 3 and (wcs[wi].diff() < 0 or wcs[wi].bar() < 0):
                             a_flag = False
                             break
-                        if wcs[wi - 1].bar() > 0 > wcs[wi].bar() and wcs[wi - 1].diff() < 0:
+                        if wcs[wi - 1].bar() > 0 > wcs[wi].bar() and (wcs[wi - 1].diff() < 0 or wcs[wi - 1].bar() < 0):
                             a_flag = False
                             break
                         wi = wi - 1
