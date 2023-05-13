@@ -4,7 +4,7 @@ from storage.mapping import do_mapping
 from entities.candle import Candle
 from entities.signal import Signal
 from entities.symbol import Symbol
-from sqlalchemy import select, desc, and_
+from sqlalchemy import select, desc, and_, text
 from typing import List
 from enums.entity import Entity
 from sqlalchemy import (
@@ -61,6 +61,21 @@ def find_active_symbols() -> List[Symbol]:
     return sbs
 
 
+def update_all_symbols(status=0, beyond=None):
+    session = db.get_session(Entity.Symbol)
+    update_sql = "UPDATE `symbol` SET `status` = {}".format(status)
+    if status == 1:
+        update_sql = "{} WHERE `code` LIKE '60%' OR `code` LIKE '30%' OR `code` LIKE '00%'".format(update_sql)
+    session.execute(text(update_sql))
+    # session.commit()
+    if beyond is not None:
+        b_status = 1 if status == 0 else 0
+        update_sql2 = "UPDATE `symbol` SET `status` = {} WHERE `code` IN ({})".format(b_status,beyond)
+        session.execute(text(update_sql2))
+    session.flush()
+    session.commit()
+
+
 def find_candles(code, klt, begin='2015-01-01', end=None, limit=10000) -> List[Candle]:
     session = db.get_session(code)
     clauses = and_(Candle.klt == klt, Candle.dt >= begin)
@@ -72,10 +87,13 @@ def find_candles(code, klt, begin='2015-01-01', end=None, limit=10000) -> List[C
     return list(reversed(cds))
 
 
-def find_signals(notify=0) -> List[Signal]:
+def find_signals(notify=0, begin=None) -> List[Signal]:
     session = db.get_session(Entity.Signal)
+    clauses = and_(Signal.notify == notify)
+    if begin is not None:
+        clauses = clauses.__and__(Signal.created > begin)
     sgs = session.execute(
-        select(Signal).where(and_(Signal.notify == notify))
+        select(Signal).where(clauses)
     ).scalars().fetchall()
     return sgs
 
