@@ -68,7 +68,7 @@ class BottomConfirm(Strategy):
 
 
 if __name__ == '__main__':
-    cs = '603982,601890'
+    cs = '002997,603693'
     begin = datetime.now()
     update_all_symbols(status=0, beyond=cs)
     fetch_all()
