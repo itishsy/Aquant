@@ -26,7 +26,12 @@ class BottomConfirm(Strategy):
                 if self.klt in [60, 101]:
                     kl = 101 if self.klt == 60 else 102
                     a_flag = True
-                    beg = datetime.strptime(si.dt, '%Y-%m-%d') - timedelta(30 * 5)
+                    if self.klt == 101:
+                        beg = datetime.strptime(si.dt, '%Y-%m-%d') - timedelta(30 * 5)
+                        kl = 102
+                    elif self.klt == 60:
+                        beg = datetime.strptime(si.dt, '%Y-%m-%d %H:%M') - timedelta(30 * 5)
+                        kl = 101
                     wcs = find_candles(self.code, kl, begin=beg.strftime('%Y-%m-%d'), end=si.dt)
                     wi = len(wcs) - 1
                     while wi > 1:

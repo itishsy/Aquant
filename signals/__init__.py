@@ -1,1 +1,1 @@
-__all__ = ['strategy', 'rising', 'gold_cross_second', 'bottom_confirm']
+__all__ = ['strategy', 'bottom_confirm']
