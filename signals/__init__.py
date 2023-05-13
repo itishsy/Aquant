@@ -1,1 +1,1 @@
-__all__ = ['strategy', 'rising', 'second_gold_cross']
+__all__ = ['strategy', 'rising', 'gold_cross_second']

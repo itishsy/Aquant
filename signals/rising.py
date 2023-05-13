@@ -1,9 +1,8 @@
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from signals.strategy import register_strategy, Strategy
+from signals.strategy import register_strategy, Strategy, reverse_signals
 from storage.db import find_candles
-from signals.reverse import search_reverse
 
 
 @register_strategy
@@ -50,7 +49,7 @@ class Rising(Strategy):
                         for klt in [15, 30]:
                             beg = c_1.dt # c_2.dt if i < m_size - 1 else c_1.dt
                             c_candles = find_candles(self.code, klt, begin=beg)
-                            sis = search_reverse(c_candles)
+                            sis = reverse_signals(c_candles)
                             for si in sis:
                                 if si.dt > beg and si.value == -3:
                                     si.klt = klt
