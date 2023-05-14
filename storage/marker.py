@@ -75,11 +75,12 @@ def remark(code, klt):
 
 
 if __name__ == '__main__':
-    symbols = find_active_symbols()
-    for sbl in symbols:
-        try:
-            remark(sbl.code, 102)
-            remark(sbl.code, 101)
-            remark(sbl.code, 60)
-        except:
-            print('{} mark error'.format(sbl.code))
+    remark('300014', 101)
+    # symbols = find_active_symbols()
+    # for sbl in symbols:
+    #     try:
+    #         remark(sbl.code, 102)
+    #         remark(sbl.code, 101)
+    #         remark(sbl.code, 60)
+    #     except:
+    #         print('{} mark error'.format(sbl.code))

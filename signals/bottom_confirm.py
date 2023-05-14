@@ -59,7 +59,7 @@ class BottomConfirm(Strategy):
                 c_flag = True
                 s_flag = False
             if c_flag:
-                if candles[i].bar() < 0:
+                if candles[i].bar() < 0 and candles[i-1].bar() < 0:
                     c_flag = False
                 else:
                     c_2 = candles[i - 2]
@@ -73,7 +73,7 @@ class BottomConfirm(Strategy):
 
 
 if __name__ == '__main__':
-    cs = '002997,603693'
+    cs = '300014'
     begin = datetime.now()
     update_all_symbols(status=0, beyond=cs)
     fetch_all()
