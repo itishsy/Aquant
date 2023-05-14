@@ -26,6 +26,9 @@ def fetch_and_save(code, klt, begin='2015-01-01'):
         session.execute(delete(Candle).where(and_(Candle.klt == klt,Candle.dt >= sdt.strftime('%Y-%m-%d'))))
         session.commit()
         begin = sdt.strftime('%Y%m%d')
+    l_candle = session.execute(
+        select(Candle).where(Candle.klt == klt).order_by(desc('id')).limit(1)
+    ).scalar()
     candles = fetch_data(code, klt, begin, l_candle=l_candle)
     session.add_all(mark(candles))
     session.commit()
@@ -64,6 +67,11 @@ def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
                 c.ema12 = Decimal(c.close)
                 c.ema26 = Decimal(c.close)
                 c.dea9 = Decimal(0)
+                c.ma5 = Decimal(c.close)
+                c.ma10 = Decimal(c.close)
+                c.ma20 = Decimal(c.close)
+                c.ma30 = Decimal(c.close)
+                c.mav5 = Decimal(c.volume)
         else:
             if klt == 101:
                 c.ma5 = get_ma(candles, 5, c.close)
@@ -79,19 +87,20 @@ def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
 
 
 def get_ma(candles: List[Candle], seq, val=None, att='close'):
-    res = val
     ss = 0
     siz = len(candles)
     if val is None:
-        res = 0.0
+        res = Decimal(0.0)
         sta = siz - seq
     else:
-        ss = val
+        res = Decimal(val)
+        ss = Decimal(val)
         sta = siz - seq + 1
     if siz > seq:
         cds = candles[sta:]
         for cd in cds:
-            ss = ss + eval('cd.' + att)
+            ev = eval('cd.' + att)
+            ss = Decimal(ss) + Decimal(ev)
         res = Decimal(ss / seq)
     return res
 

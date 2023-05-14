@@ -80,8 +80,8 @@ def reverse_signals(candles: List[Candle]) -> List[Signal]:
             up_stage1 = get_stage(candles, c_2.dt)
             up_stage2 = get_stage(candles, c_0.dt)
             if get_trend(up_stage1) == 1 and get_trend(up_stage2) == 1:
-                high2 = get_highest(candles, c_2.dt)
-                high0 = get_highest(candles, c_0.dt)
+                high2 = get_highest(up_stage1)
+                high0 = get_highest(up_stage2)
                 if c_2.diff() > c_0.diff() and high2 < high0:
                     signals.append(Signal(dt=c_0.dt, type='reverse', value=c_0.mark))
     return signals
@@ -97,7 +97,7 @@ def get_lowest(candles: List[Candle]):
     return lowest
 
 
-def get_highest(candles: List[Candle], dt):
+def get_highest(candles: List[Candle]):
     highest = candles[0].high
     i = 1
     while i < len(candles):
@@ -105,6 +105,16 @@ def get_highest(candles: List[Candle], dt):
             highest = candles[i].high
         i = i + 1
     return highest
+
+
+def get_candle(candles: List[Candle], dt):
+    i = 0
+    while i < len(candles):
+        if candles[i].dt == dt:
+            return candles[i]
+        i = i + 1
+    return None
+
 
 
 def get_stage(candles: List[Candle], dt) -> List[Candle]:
