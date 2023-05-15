@@ -112,7 +112,7 @@ def fetch_symbols():
         df = ef.stock.get_realtime_quotes(['沪A', '深A', 'ETF'])
         df = df.iloc[:, 0:2]
         df.columns = ['code', 'name']
-        df = df[df['name'].str.contains('ST') is False]
+        # df = df[df['name'].str.contains('ST') is False]
         symbols = []
         for i, row in df.iterrows():
             s = Symbol(row)
@@ -150,9 +150,9 @@ def fetch_daily():
 
 if __name__ == '__main__':
     # fetch_daily()
-    # fetch_symbols()
+    fetch_symbols()
     # df = ef.stock.get_quote_history('300133', klt=15, beg='20230511')
     # print('===============df')
     # print(df)
     # fetch_and_save('60', 15, begin='2023-05-11')
-    fetch_all()
+    # fetch_all()
