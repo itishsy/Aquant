@@ -2,20 +2,80 @@ import datetime
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
+from storage.db import find_candles
 
 
-def one_buy(candles: List[Candle]) -> Signal:
+def reverse_confirm(code, candles: List[Candle]) -> Signal:
+    """
+    reverse的list取最后一个mark=-3的dt，最近的
+    :param candles:
+    :return:
+    """
     signals = reverse(candles)
     if len(signals) > 0:
         signal = signals[-1]
+        klt = signal.klt
         flag = False
+        flag_3 = False
+        dt = None
         for c in candles:
+            if flag_3:
+                dt = c.dt
             if c.dt == signal.dt:
                 flag = True
-            if flag:
-
+            if flag and c.mark == 3:
+                flag_3 = True
+                flag = False
+        if dt is not None:
+            sts = get_stage(candles, dt)
+            if len(sts) > 2:
+                sdt = sts[0].dt
+                edt = sts[-1].dt
+                ss1 = find_candles(code, cal_klt(klt, -1), begin=sdt, end=edt)
+                rs1 = reverse(ss1)
+                if len(rs1) == 0:
+                    suk = cal_klt(klt, -2)
+                    ss2 = find_candles(code, suk, begin=sdt, end=edt)
+                    rs2 = reverse(ss2)
+                    if len(rs2) > 0:
+                        s = rs2[-1]
+                        sig =Signal(s.dt,klt,'rc',suk)
 
     return None
+
+
+def cal_klt(klt, add):
+    if klt == 101:
+        if add == -1:
+            return 60
+        elif add == -2:
+            return 30
+        elif add == -3:
+            return 15
+        elif add == 1:
+            return 102
+        else:
+            return 0
+    elif klt == 60:
+        if add == 1:
+            return 101
+        elif add == -1:
+            return 30
+        elif add == -2:
+            return 15
+        else:
+            return 0
+    elif klt == 30:
+        if add == 1:
+            return 60
+        elif add == 2:
+            return 101
+        elif add == -1:
+            return 15
+        else:
+            return 0
+    else:
+        return 0
 
 
 def reverse(candles: List[Candle]) -> List[Signal]:
@@ -33,18 +93,18 @@ def reverse(candles: List[Candle]) -> List[Signal]:
             down_stage1 = get_stage(candles, c_2.dt)
             down_stage2 = get_stage(candles, c_0.dt)
             if get_trend(down_stage1) == -1 and get_trend(down_stage2) == -1:
-                low1 = get_lowest(down_stage1)
-                low2 = get_lowest(down_stage2)
+                low1 = get_lowest(down_stage1).low
+                low2 = get_lowest(down_stage2).low
                 if c_2.diff() < c_0.diff() and low1 > low2:
-                    signals.append(Signal(dt=c_0.dt, type='reverse', value=c_0.mark))
+                    signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='reverse', value=c_0.mark))
         if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
             up_stage1 = get_stage(candles, c_2.dt)
             up_stage2 = get_stage(candles, c_0.dt)
             if get_trend(up_stage1) == 1 and get_trend(up_stage2) == 1:
-                high2 = get_highest(up_stage1)
-                high0 = get_highest(up_stage2)
+                high2 = get_highest(up_stage1).high
+                high0 = get_highest(up_stage2).high
                 if c_2.diff() > c_0.diff() and high2 < high0:
-                    signals.append(Signal(dt=c_0.dt, type='reverse', value=c_0.mark))
+                    signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='reverse', value=c_0.mark))
     return signals
 
 
@@ -77,10 +137,10 @@ def get_candle(candles: List[Candle], dt):
     return None
 
 
-
 def get_stage(candles: List[Candle], dt) -> List[Candle]:
     """
-
+    获取dt所处的bar一段，即起于下叉（上叉）终于上叉（下叉）的一段走势。
+    准确的是用最高（低）那一根作为起点，不影响判断这一段走势是否有背驰。
     :param candles:
     :param dt:
     :return:

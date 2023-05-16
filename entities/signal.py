@@ -4,9 +4,10 @@ from datetime import datetime
 
 @dataclass
 class Signal:
-    def __init__(self, dt, type, value):
+    def __init__(self, dt, klt, type, value):
         self.dt = dt
         self.type = type
+        self.klt = klt
         self.value = value
 
     id: int
