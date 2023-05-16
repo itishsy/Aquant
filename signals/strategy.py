@@ -29,6 +29,7 @@ class Strategy(ABC):
             return
         session = db.get_session(Entity.Signal)
         signals = []
+        print('[{}] [{}] signal searching...'.format(datetime.datetime.now(), self.__class__.__name__))
         if self.code is not None:
             sis = self.search_signal(find_candles(self.code, self.klt, self.begin))
             self.append_signals(signals, sis)
@@ -41,6 +42,7 @@ class Strategy(ABC):
         if len(signals) > 0:
             session.add_all(signals)
             session.commit()
+        print('[{}] [{}] signals: {}'.format(datetime.datetime.now(), self.__class__.__name__, len(signals)))
 
     def append_signals(self, signals: List[Signal], sis: List[Signal]):
         if len(sis) > 0:
@@ -114,7 +116,6 @@ def get_candle(candles: List[Candle], dt):
             return candles[i]
         i = i + 1
     return None
-
 
 
 def get_stage(candles: List[Candle], dt) -> List[Candle]:
