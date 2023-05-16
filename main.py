@@ -1,6 +1,7 @@
 from datetime import datetime
 from storage.fetcher import fetch_all
 from signals import *
+from storage.db import find_signals
 import logging
 import config
 import time
@@ -39,4 +40,7 @@ if __name__ == '__main__':
         st = strategy.factory[name]()
         st.search_all()
     end_time = datetime.now()
+    sis = find_signals(begin=start_time)
+    for si in sis:
+        logging.INFO(si)
     print("==============用時：{}=================".format(end_time - start_time))

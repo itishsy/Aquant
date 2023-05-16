@@ -24,7 +24,6 @@ class BottomConfirm(Strategy):
         for si in sis:
             if si.value == -3:
                 if self.klt in [60, 101]:
-                    kl = 101 if self.klt == 60 else 102
                     a_flag = True
                     if self.klt == 101:
                         beg = datetime.strptime(si.dt, '%Y-%m-%d') - timedelta(30 * 5)
