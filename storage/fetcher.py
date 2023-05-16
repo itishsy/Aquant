@@ -131,11 +131,11 @@ def fetch_all(kls=None):
         try:
             for klt in kls:
                 fetch_and_save(sb.code, klt)
-            print('[{}] {} fetch code [{}] done!'.format(datetime.now(),count, sb.code))
+            print('[{}] {} fetch candles [{}] done!'.format(datetime.now(),count, sb.code))
             count = count + 1
         except Exception as ex:
-            print('fetch code [{}] error!'.format(sb.code))
-            logging.error('fetch code [{}] error!'.format(sb.code), ex)
+            print('fetch candles [{}] error!'.format(sb.code))
+            logging.error('fetch candles [{}] error!'.format(sb.code), ex)
 
 
 def fetch_daily():

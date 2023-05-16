@@ -34,9 +34,12 @@ def watch_start():
 if __name__ == '__main__':
     start_time = datetime.now()
     fetch_all()
+    print('fetch all done!')
     for name in strategy.factory:
+        print('searching for [{}] signal!'.format(name))
         st = strategy.factory[name]()
         # st.klt = 60
         st.search_all()
+        print('search signal [{}]  done !'.format(name))
     end_time = datetime.now()
     print("==============用時：{}=================".format(end_time - start_time))
