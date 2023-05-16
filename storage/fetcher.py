@@ -23,7 +23,7 @@ def fetch_and_save(code, klt, begin='2015-01-01'):
             sdt = datetime.strptime(l_candle.dt, '%Y-%m-%d %H:%M')
         else:
             sdt = datetime.strptime(l_candle.dt, '%Y-%m-%d')
-        session.execute(delete(Candle).where(and_(Candle.klt == klt,Candle.dt >= sdt.strftime('%Y-%m-%d'))))
+        session.execute(delete(Candle).where(and_(Candle.klt == klt, Candle.dt >= sdt.strftime('%Y-%m-%d'))))
         session.commit()
         begin = sdt.strftime('%Y%m%d')
     l_candle = session.execute(
@@ -57,7 +57,7 @@ def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
                 c.ema26 = l_candle.ema26 * Decimal(25 / 27) + Decimal(c.close) * Decimal(2 / 27)
                 c.dea9 = l_candle.dea9 * Decimal(8 / 10) + Decimal(c.ema12 - c.ema26) * Decimal(2 / 10)
                 if klt == 101:
-                    cs = find_candles(code,klt,limit=30)
+                    cs = find_candles(code, klt, limit=30)
                     c.ma5 = get_ma(cs, 5, c.close)
                     c.ma10 = get_ma(cs, 10, c.close)
                     c.ma20 = get_ma(cs, 20, c.close)
@@ -126,12 +126,16 @@ def fetch_all(kls=None):
     if kls is None:
         kls = [102, 101, 60, 30, 15]
     sbs = find_active_symbols()
+    count = 0
     for sb in sbs:
         try:
             for klt in kls:
                 fetch_and_save(sb.code, klt)
-        except:
-            logging.error('{} error'.format(sb.code))
+            print('[{}] {} fetch code [{}] done!'.format(datetime.now(),count, sb.code))
+            count = count + 1
+        except Exception as ex:
+            print('fetch code [{}] error!'.format(sb.code))
+            logging.error('fetch code [{}] error!'.format(sb.code), ex)
 
 
 def fetch_daily():

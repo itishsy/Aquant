@@ -36,7 +36,7 @@ class DB:
             # 多久之后对链接池中的链接进行一次回收
             pool_recycle=1,
             # 查看原生语句（未格式化）
-            echo=True)
+            echo=False)
         return engine
 
     def get_session(self, table_name=''):
