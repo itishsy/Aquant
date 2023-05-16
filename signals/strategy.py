@@ -74,18 +74,18 @@ def reverse_signals(candles: List[Candle]) -> List[Signal]:
             down_stage1 = get_stage(candles, c_2.dt)
             down_stage2 = get_stage(candles, c_0.dt)
             if get_trend(down_stage1) == -1 and get_trend(down_stage2) == -1:
-                low1 = get_lowest(down_stage1)
-                low2 = get_lowest(down_stage2)
+                low1 = get_lowest(down_stage1).low
+                low2 = get_lowest(down_stage2).low
                 if c_2.diff() < c_0.diff() and low1 > low2:
-                    signals.append(Signal(dt=c_0.dt, type='reverse', value=c_0.mark))
+                    signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='reverse', value=c_0.mark))
         if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
             up_stage1 = get_stage(candles, c_2.dt)
             up_stage2 = get_stage(candles, c_0.dt)
             if get_trend(up_stage1) == 1 and get_trend(up_stage2) == 1:
-                high2 = get_highest(up_stage1)
-                high0 = get_highest(up_stage2)
+                high2 = get_highest(up_stage1).high
+                high0 = get_highest(up_stage2).high
                 if c_2.diff() > c_0.diff() and high2 < high0:
-                    signals.append(Signal(dt=c_0.dt, type='reverse', value=c_0.mark))
+                    signals.append(Signal(dt=c_0.dt, klt=c_2.klt, type='reverse', value=c_0.mark))
     return signals
 
 

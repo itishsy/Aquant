@@ -74,7 +74,7 @@ class BottomConfirm(Strategy):
                 break
             elif (sts[i - 2].bar() > sts[i - 1].bar() < sts[i].bar()) and (
                     sts[i - 2].low > sts[i - 1].low < sts[i].low) and lowest < sts[i - 1].low:
-                signals.append(Signal(dt=sts[i].dt, type=self.__class__.__name__, value=sts[i].mark))
+                signals.append(Signal(dt=sts[i].dt, klt=sts[i-1].klt, type=self.__class__.__name__, value=sts[i].mark))
             i = i + 1
         return signals
 
