@@ -5,6 +5,7 @@ from typing import List
 from signals.strategy import register_strategy, Strategy, reverse_signals, factory, get_candle
 from storage.db import find_candles, update_all_symbols, find_signals
 from storage.fetcher import fetch_all
+import signals.signals as sig
 
 
 @register_strategy
@@ -21,6 +22,7 @@ class BottomConfirm(Strategy):
         signals = []
         sis = reverse_signals(candles)
         ss = []
+        # 1
         for si in sis:
             if si.value == -3:
                 if self.klt in [60, 101]:
@@ -46,35 +48,36 @@ class BottomConfirm(Strategy):
         if len(ss) == 0:
             return signals
 
-        i = 0
-        s = 0
-        s_flag = False
-        c_flag = False
-        sdt = ss[0].dt
-        while i < len(candles):
-            if s < len(ss) and candles[i].dt == ss[s].dt:
-                s_flag = True
-                sdt = ss[s].dt
-                s = s + 1
-            if s_flag and i > 1 and candles[i - 1].bar() < 0 < candles[i].bar():
-                c_flag = True
-                s_flag = False
-            if c_flag:
-                if candles[i].bar() < 0 and candles[i - 1].bar() < 0:
-                    c_flag = False
-                else:
-                    c_2 = candles[i - 2]
-                    c_1 = candles[i - 1]
-                    c_0 = candles[i]
-                    if (c_2.bar() > c_1.bar() < c_0.bar()) and (c_2.low > c_1.low < c_0.low):
-                        if get_candle(candles, sdt).low < c_1.low:
-                            signals.append(Signal(dt=c_0.dt, type=self.__class__.__name__, value=c_0.mark))
-                        c_flag = False
+        # 底背后第一个mart=3右边的dt
+        flag = False
+        flag_3 = False
+        dt = None
+        lowest = None
+        for c in candles:
+            if flag_3:
+                dt = c.dt
+            if c.dt == ss[-1].dt:
+                flag = True
+                lowest = c.low
+            if flag and c.mark == 3:
+                flag_3 = True
+                flag = False
+
+        if dt is None:
+            return signals
+
+        # 判断confirm段是否满足
+        i = 2
+        sts = sig.get_stage(candles, dt)
+        while i < len(sts):
+            if sts[i - 1].bar() < 0 and sts[i].bar() < 0:
+                break
+            elif (sts[i - 2].bar() > sts[i - 1].bar() < sts[i].bar()) and (
+                    sts[i - 2].low > sts[i - 1].low < sts[i].low) and lowest < sts[i - 1].low:
+                signals.append(Signal(dt=sts[i].dt, type=self.__class__.__name__, value=sts[i].mark))
             i = i + 1
         return signals
 
-    def get_confirm_stage(self, candles: List[Candle]):
-        pass
 
 if __name__ == '__main__':
     cs = '301220,600795'

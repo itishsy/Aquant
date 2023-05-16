@@ -5,45 +5,6 @@ from typing import List
 from storage.db import find_candles
 
 
-def reverse_confirm(code, candles: List[Candle]) -> Signal:
-    """
-    reverse的list取最后一个mark=-3的dt，最近的
-    :param candles:
-    :return:
-    """
-    signals = reverse(candles)
-    if len(signals) > 0:
-        signal = signals[-1]
-        klt = signal.klt
-        flag = False
-        flag_3 = False
-        dt = None
-        for c in candles:
-            if flag_3:
-                dt = c.dt
-            if c.dt == signal.dt:
-                flag = True
-            if flag and c.mark == 3:
-                flag_3 = True
-                flag = False
-        if dt is not None:
-            sts = get_stage(candles, dt)
-            if len(sts) > 2:
-                sdt = sts[0].dt
-                edt = sts[-1].dt
-                ss1 = find_candles(code, cal_klt(klt, -1), begin=sdt, end=edt)
-                rs1 = reverse(ss1)
-                if len(rs1) == 0:
-                    suk = cal_klt(klt, -2)
-                    ss2 = find_candles(code, suk, begin=sdt, end=edt)
-                    rs2 = reverse(ss2)
-                    if len(rs2) > 0:
-                        s = rs2[-1]
-                        sig =Signal(s.dt,klt,'rc',suk)
-
-    return None
-
-
 def cal_klt(klt, add):
     if klt == 101:
         if add == -1:
