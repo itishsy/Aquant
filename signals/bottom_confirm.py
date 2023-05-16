@@ -73,6 +73,8 @@ class BottomConfirm(Strategy):
             i = i + 1
         return signals
 
+    def get_confirm_stage(self, candles: List[Candle]):
+        pass
 
 if __name__ == '__main__':
     cs = '301220,600795'

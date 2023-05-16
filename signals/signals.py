@@ -1,65 +1,24 @@
 import datetime
-from storage.db import db, find_candles, find_active_symbols
-from abc import ABC, abstractmethod
 from entities.candle import Candle
 from entities.signal import Signal
-from enums.entity import Entity
 from typing import List
 
-factory = {}
+
+def one_buy(candles: List[Candle]) -> Signal:
+    signals = reverse(candles)
+    if len(signals) > 0:
+        signal = signals[-1]
+        flag = False
+        for c in candles:
+            if c.dt == signal.dt:
+                flag = True
+            if flag:
 
 
-def register_strategy(cls):
-    cls_name = cls.__name__
-
-    def register(clz):
-        factory[cls_name] = clz
-
-    return register(cls)
+    return None
 
 
-class Strategy(ABC):
-    code = None
-    begin = None
-    klt = 101
-
-    def search_all(self):
-        symbols = find_active_symbols()
-        if len(symbols) == 0:
-            return
-        session = db.get_session(Entity.Signal)
-        signals = []
-        print('[{}] [{}] signal searching...'.format(datetime.datetime.now(), self.__class__.__name__))
-        if self.code is not None:
-            sis = self.search_signal(find_candles(self.code, self.klt, self.begin))
-            self.append_signals(signals, sis)
-        else:
-            for sb in symbols:
-                self.code = sb.code
-                sis = self.search_signal(find_candles(sb.code, self.klt, limit=100))
-                self.append_signals(signals, sis)
-
-        if len(signals) > 0:
-            session.add_all(signals)
-            session.commit()
-        print('[{}] [{}] signals: {}'.format(datetime.datetime.now(), self.__class__.__name__, len(signals)))
-
-    def append_signals(self, signals: List[Signal], sis: List[Signal]):
-        if len(sis) > 0:
-            for si in sis:
-                si.code = self.code
-                if si.klt is None:
-                    si.klt = self.klt
-                si.notify = 0
-                si.created = datetime.datetime.now()
-                signals.append(si)
-
-    @abstractmethod
-    def search_signal(self, candles: List[Candle]) -> List[Signal]:
-        pass
-
-
-def reverse_signals(candles: List[Candle]) -> List[Signal]:
+def reverse(candles: List[Candle]) -> List[Signal]:
     mark_candles = []
     for cd in candles:
         if abs(cd.mark) == 3:
@@ -118,7 +77,14 @@ def get_candle(candles: List[Candle], dt):
     return None
 
 
+
 def get_stage(candles: List[Candle], dt) -> List[Candle]:
+    """
+
+    :param candles:
+    :param dt:
+    :return:
+    """
     i = 0
     s = len(candles)
     stage = []
