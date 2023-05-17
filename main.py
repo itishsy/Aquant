@@ -34,13 +34,13 @@ def watch_start():
 
 if __name__ == '__main__':
     start_time = datetime.now()
-    # fetch_all()
-    print('[{}] fetch all done!'.format(datetime.now()))
+    #fetch_all()
     for name in strategy.factory:
         st = strategy.factory[name]()
+        #st.klt=30
         st.search_all()
     end_time = datetime.now()
     sis = find_signals(begin=start_time)
     for si in sis:
-        logging.INFO(si)
+        print(si)
     print("==============用時：{}=================".format(end_time - start_time))

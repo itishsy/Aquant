@@ -123,6 +123,7 @@ def fetch_symbols():
 
 
 def fetch_all(kls=None):
+    start_time = datetime.now()
     if kls is None:
         kls = [102, 101, 60, 30, 15]
     sbs = find_active_symbols()
@@ -131,21 +132,23 @@ def fetch_all(kls=None):
         try:
             for klt in kls:
                 fetch_and_save(sb.code, klt)
-            print('[{}] {} fetch candles [{}] done!'.format(datetime.now(),count, sb.code))
+            print('[{}] {} fetch candles [{}] done!'.format(datetime.now(), count, sb.code))
             count = count + 1
         except Exception as ex:
             print('fetch candles [{}] error!'.format(sb.code))
             logging.error('fetch candles [{}] error!'.format(sb.code), ex)
+    print('[{}] fetch all done! elapsed time:'.format(datetime.now(), datetime.now() - start_time))
 
 
 def fetch_daily():
     while True:
         try:
             now = datetime.now()
-            if now.weekday() < 5 and now.hour == 16 and now.minute < 3:
-                print("start fetching.", now)
-                fetch_all()
-                print('fetch all done!')
+            if now.weekday() < 5:
+                if (now.hour == 11 and now.minute == 35) or (now.hour == 15 and now.minute == 10):
+                    print("start fetching.", now)
+                    fetch_all()
+                    print('fetch all done!')
         except Exception as e:
             print(e)
         finally:
@@ -153,8 +156,8 @@ def fetch_daily():
 
 
 if __name__ == '__main__':
-    # fetch_daily()
-    fetch_symbols()
+    fetch_daily()
+    # fetch_symbols()
     # df = ef.stock.get_quote_history('300133', klt=15, beg='20230511')
     # print('===============df')
     # print(df)

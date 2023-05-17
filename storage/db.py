@@ -6,6 +6,7 @@ from entities.signal import Signal
 from entities.symbol import Symbol
 from sqlalchemy import select, desc, and_, text
 from typing import List
+from datetime import datetime, timedelta
 from enums.entity import Entity
 from sqlalchemy import (
     create_engine,
@@ -70,7 +71,7 @@ def update_all_symbols(status=0, beyond=None):
     # session.commit()
     if beyond is not None:
         b_status = 1 if status == 0 else 0
-        update_sql2 = "UPDATE `symbol` SET `status` = {} WHERE `code` IN ({})".format(b_status,beyond)
+        update_sql2 = "UPDATE `symbol` SET `status` = {} WHERE `code` IN ({})".format(b_status, beyond)
         session.execute(text(update_sql2))
     session.flush()
     session.commit()
@@ -85,6 +86,49 @@ def find_candles(code, klt, begin='2015-01-01', end=None, limit=10000) -> List[C
         select(Candle).where(clauses).order_by(desc(Candle.dt)).limit(limit)
     ).scalars().fetchall()
     return list(reversed(cds))
+
+
+def find_stage_candles(code, klt, candle) -> List[Candle]:
+    """
+    根据一根candle查找所处指定级别的一段candles
+    :param code:
+    :param klt:
+    :param candle:
+    :return:
+    """
+    if klt == candle.klt:
+        dt = candle.dt
+    else:
+        if candle.klt > 100:
+            beg = datetime.strptime(candle.dt, '%Y-%m-%d')
+        else:
+            beg = datetime.strptime(candle.dt, '%Y-%m-%d %H:%M')
+        if klt > 100:
+            dt = beg.strftime('%Y-%m-%d')
+        else:
+            dt = beg.strftime('%Y-%m-%d %H:%M')
+
+    session = db.get_session(code)
+    clauses = and_(Candle.klt == klt, Candle.dt <= dt)
+    cds = []
+    pre_candles = session.execute(
+        select(Candle).where(clauses).order_by(desc(Candle.dt)).limit(100)
+    ).scalars().fetchall()
+    for pc in pre_candles:
+        if (pc.mark > 0) == (candle.mark > 0):
+            cds.insert(0, pc)
+        else:
+            break
+    clauses = and_(Candle.klt == klt, Candle.dt > dt)
+    nex_candles = session.execute(
+        select(Candle).where(clauses).order_by(Candle.dt).limit(100)
+    ).scalars().fetchall()
+    for nc in nex_candles:
+        if (nc.mark > 0) == (candle.mark > 0):
+            cds.append(nc)
+        else:
+            break
+    return cds
 
 
 def find_signals(notify=0, begin=None) -> List[Signal]:

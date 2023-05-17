@@ -1,8 +1,6 @@
-import datetime
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from storage.db import find_candles
 
 
 def cal_klt(klt, add):
@@ -39,7 +37,7 @@ def cal_klt(klt, add):
         return 0
 
 
-def reverse(candles: List[Candle]) -> List[Signal]:
+def deviates(candles: List[Candle], is_top=False) -> List[Signal]:
     mark_candles = []
     for cd in candles:
         if abs(cd.mark) == 3:
@@ -50,22 +48,24 @@ def reverse(candles: List[Candle]) -> List[Signal]:
         c_2 = mark_candles[i - 2]
         c_1 = mark_candles[i - 1]
         c_0 = mark_candles[i]
-        if c_2.mark == -3 and c_1.mark == 3 and c_0.mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
-            down_stage1 = get_stage(candles, c_2.dt)
-            down_stage2 = get_stage(candles, c_0.dt)
-            if get_trend(down_stage1) == -1 and get_trend(down_stage2) == -1:
-                low1 = get_lowest(down_stage1).low
-                low2 = get_lowest(down_stage2).low
-                if c_2.diff() < c_0.diff() and low1 > low2:
-                    signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='reverse', value=c_0.mark))
-        if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
-            up_stage1 = get_stage(candles, c_2.dt)
-            up_stage2 = get_stage(candles, c_0.dt)
-            if get_trend(up_stage1) == 1 and get_trend(up_stage2) == 1:
-                high2 = get_highest(up_stage1).high
-                high0 = get_highest(up_stage2).high
-                if c_2.diff() > c_0.diff() and high2 < high0:
-                    signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='reverse', value=c_0.mark))
+        if is_top:
+            if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
+                up_stage1 = get_stage(candles, c_2.dt)
+                up_stage2 = get_stage(candles, c_0.dt)
+                if get_trend(up_stage1) == 1 and get_trend(up_stage2) == 1:
+                    high2 = get_highest(up_stage1).high
+                    high0 = get_highest(up_stage2).high
+                    if c_2.diff() > c_0.diff() and high2 < high0:
+                        signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='top_deviated', value=c_0.mark))
+        else:
+            if c_2.mark == -3 and c_1.mark == 3 and c_0.mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
+                down_stage1 = get_stage(candles, c_2.dt)
+                down_stage2 = get_stage(candles, c_0.dt)
+                if get_trend(down_stage1) == -1 and get_trend(down_stage2) == -1:
+                    low1 = get_lowest(down_stage1).low
+                    low2 = get_lowest(down_stage2).low
+                    if c_2.diff() < c_0.diff() and low1 > low2:
+                        signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='bottom_deviated', value=c_0.mark))
     return signals
 
 

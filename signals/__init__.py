@@ -1,1 +1,1 @@
-__all__ = ['strategy', 'bottom_confirm']
+__all__ = ['strategy', 'one_buy_affirm']
