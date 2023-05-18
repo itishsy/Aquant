@@ -10,27 +10,6 @@ logging.basicConfig(format='%(asctime)s %(message)s', filename='d://aquant.log'.
 logging.getLogger().setLevel(logging.INFO)
 
 
-def watch_start():
-    while True:
-        try:
-            now = datetime.now()
-            wd = now.weekday() + 1
-            hm = now.hour * 100 + now.minute
-            if wd in [1, 2, 3, 4, 5]:
-                if hm in [946, 1001, 1016, 1031, 1046, 1101, 1116, 1131,
-                          1316, 1331, 1346, 1401, 1416, 1431, 1446, 1501, 2226]:
-                    print("start watching. {} {} {}".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
-                    fetch_all()
-                    print('watch all done!')
-                elif hm in [1601, 1602, 2001, 2002]:
-                    print("start fetching. {} {} {}".format(datetime.now().strftime('%Y-%m-%d'), wd, hm))
-                    fetch_all()
-                    print('fetch all done!')
-        except:
-            pass
-        finally:
-            time.sleep(60)
-
 
 def daily_task():
     print('[{}] daily task working'.format(datetime.now()))
@@ -51,7 +30,8 @@ def daily_task():
             time.sleep(60)
 
 
-def search(sta):
+def search_all(sta):
+    fetch_all()
     begin = datetime.now().strftime('%Y-%m-%d')
     st = strategy.factory[sta]()
     st.search_all()
@@ -60,4 +40,4 @@ def search(sta):
 
 if __name__ == '__main__':
     # daily_task()
-    search('UAR')
+    search_all('UAR')

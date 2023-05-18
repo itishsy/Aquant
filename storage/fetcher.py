@@ -85,7 +85,7 @@ def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
             c.ema26 = candles[i - 1].ema26 * Decimal(25 / 27) + Decimal(c.close) * Decimal(2 / 27)
             c.dea9 = candles[i - 1].dea9 * Decimal(8 / 10) + Decimal(c.ema12 - c.ema26) * Decimal(2 / 10)
         candles.append(c)
-    return mark(candles)
+    return candles
 
 
 def get_ma(candles: List[Candle], seq, val=None, att='close'):
