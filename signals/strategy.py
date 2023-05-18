@@ -56,7 +56,7 @@ class Strategy(ABC):
 
     def get_child_klt(self):
         if self.klt == 101:
-            return [60, 30, 15]
+            return [60, 30]
         elif self.klt == 102:
             return [101]
         else:
