@@ -5,7 +5,7 @@ from entities.symbol import Symbol
 from decimal import Decimal
 from storage.db import db
 from sqlalchemy import select, desc, delete, and_
-from storage.marker import mark
+from storage.marker import remark
 from enums.entity import Entity
 from storage.db import find_active_symbols, find_candles
 from typing import List
@@ -15,9 +15,10 @@ import time
 
 def fetch_and_save(code, klt, begin='2015-01-01'):
     session = db.get_session(code)
-    l_candle = session.execute(
-        select(Candle).where(Candle.klt == klt).order_by(desc('id')).limit(1)
-    ).scalar()
+    a_candles = session.execute(
+        select(Candle).where(Candle.klt == klt).order_by(desc('id')).limit(100)
+    ).scalars().fetchall()
+    l_candle = a_candles[0]
     if l_candle is not None:
         if l_candle.dt.find(':') > 0:
             sdt = datetime.strptime(l_candle.dt, '%Y-%m-%d %H:%M')
@@ -30,8 +31,9 @@ def fetch_and_save(code, klt, begin='2015-01-01'):
         select(Candle).where(Candle.klt == klt).order_by(desc('id')).limit(1)
     ).scalar()
     candles = fetch_data(code, klt, begin, l_candle=l_candle)
-    session.add_all(mark(candles))
+    session.add_all(candles)
     session.commit()
+    remark(code,klt,beg= a_candles[-1].dt)
 
 
 def need_upset(sdt):

@@ -1,5 +1,4 @@
-import datetime
-
+from datetime import datetime
 from signals.strategy import register_strategy, Strategy
 from entities.candle import Candle
 from entities.signal import Signal
@@ -19,6 +18,7 @@ class UAR(Strategy):
         :param candles:
         :return:
         """
+        print('[{}] search UAR: [{}]'.format(datetime.now(), self.code))
         signals = []
         c_last = candles[-1]
         if c_last.bar() > 0 or c_last.diff() < 0 or c_last.dea9 < 0:
@@ -56,7 +56,7 @@ class UAR(Strategy):
                 for si in sis:
                     s = Signal(si.dt, type=self.__class__.__name__, klt=self.klt, value=kl)
                     s.code = self.code
-                    s.created = datetime.datetime.now()
+                    s.created = datetime.now()
                     print(s)
                     signals.append(s)
         return signals

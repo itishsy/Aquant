@@ -1,7 +1,7 @@
 from typing import List
 from storage.db import db, find_active_symbols
 from entities.candle import Candle
-from sqlalchemy import select
+from sqlalchemy import select,and_
 
 
 def mark(candles: List[Candle]) -> List[Candle]:
@@ -59,11 +59,12 @@ def mark(candles: List[Candle]) -> List[Candle]:
     return candles
 
 
-def remark(code, klt):
+def remark(code, klt, beg=None):
     session = db.get_session(code)
-    candles = session.execute(
-        select(Candle).where(Candle.klt == klt)
-    ).scalars().fetchall()
+    clauses = and_(Candle.klt == klt)
+    if beg is not None:
+        clauses = clauses.__and__(Candle.dt > beg)
+    candles = session.execute(select(Candle).where(clauses)).scalars().fetchall()
     mark_candles = mark(candles)
     mappings = []
     for cad in mark_candles:
@@ -75,12 +76,14 @@ def remark(code, klt):
 
 
 if __name__ == '__main__':
-    remark('300014', 101)
-    # symbols = find_active_symbols()
-    # for sbl in symbols:
-    #     try:
-    #         remark(sbl.code, 102)
-    #         remark(sbl.code, 101)
-    #         remark(sbl.code, 60)
-    #     except:
-    #         print('{} mark error'.format(sbl.code))
+    # remark('300031', 101)
+    symbols = find_active_symbols()
+    for sbl in symbols:
+        try:
+            remark(sbl.code, 102)
+            remark(sbl.code, 101)
+            remark(sbl.code, 60)
+            remark(sbl.code, 30)
+            remark(sbl.code, 15)
+        except:
+            print('{} mark error'.format(sbl.code))
