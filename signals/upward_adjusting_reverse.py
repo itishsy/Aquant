@@ -20,6 +20,8 @@ class UAR(Strategy):
         """
         print('[{}] search UAR: [{}]'.format(datetime.now(), self.code))
         signals = []
+        if len(candles) == 0:
+            return signals
         c_last = candles[-1]
         if c_last.bar() > 0 or c_last.diff() < 0 or c_last.dea9 < 0:
             return signals
