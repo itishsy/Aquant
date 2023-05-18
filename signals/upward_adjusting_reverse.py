@@ -20,22 +20,34 @@ class UAR(Strategy):
         :return:
         """
         signals = []
-        mark_candles = []
-        for cd in candles:
-            if abs(cd.mark) == 3:
-                mark_candles.append(cd)
-        if len(mark_candles) == 0:
+        c_last = candles[-1]
+        if c_last.bar() > 0 or c_last.diff() < 0 or c_last.dea9 < 0:
             return signals
-        m_last = mark_candles[-1]
-        if m_last.mark != -3 or m_last.diff() < 0 or m_last.dea9 < 0 or m_last.bar() < 0:
+
+        l_stage = sig.get_stage(candles, c_last.dt)
+        l_low = sig.get_lowest(l_stage).low
+
+        highest = None
+        lowest = None
+        for x in reversed(candles):
+            if x.mark == 3:
+                up_stage = sig.get_stage(candles, x.dt)
+                highest = sig.get_highest(up_stage)
+            if x.mark == -3:
+                if x.diff() < 0 or x.dea9 < 0:
+                    return signals
+                else:
+                    down_stage = sig.get_stage(candles, x.dt)
+                    lowest = sig.get_lowest(down_stage)
+                    if lowest.diff() < 0:
+                        return signals
+                    else:
+                        break
+
+        if (highest.high - l_low) / (highest.high - lowest.low) > 0.5:
             return signals
-        up_state = sig.get_stage(candles, m_last.dt)
-        sdt = None
-        for c in up_state:
-            if c.diff() < 0 or c.dea9 < 0 or c.bar() < 0:
-                return signals
-            if sdt is None:
-                sdt = c.dt
+
+        sdt = highest.dt
         kls = self.get_child_klt()
         for kl in kls:
             cds = find_candles(self.code, kl, begin=sdt)
@@ -47,7 +59,6 @@ class UAR(Strategy):
                     s.created = datetime.datetime.now()
                     print(s)
                     signals.append(s)
-
         return signals
 
 
