@@ -31,7 +31,7 @@ def daily_task():
 
 
 def search_all(sta):
-    fetch_all()
+    # fetch_all()
     begin = datetime.now().strftime('%Y-%m-%d')
     st = strategy.factory[sta]()
     st.search_all()

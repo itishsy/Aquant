@@ -24,17 +24,19 @@ class UAR(Strategy):
         if c_last.bar() > 0 or c_last.diff() < 0 or c_last.dea9 < 0:
             return signals
 
-        l_stage = sig.get_stage(candles, c_last.dt)
-        l_low = sig.get_lowest(l_stage).low
-
         highest = None
-        lowest = None
+        flag = True
         for x in reversed(candles):
+            if flag:
+                if x.mark == -3:
+                    return signals
+
             if x.mark == 3:
+                flag = False
                 up_stage = sig.get_stage(candles, x.dt)
                 highest = sig.get_highest(up_stage)
             if x.mark == -3:
-                if x.diff() < 0 or x.dea9 < 0:
+                if flag or x.diff() < 0 or x.dea9 < 0:
                     return signals
                 else:
                     down_stage = sig.get_stage(candles, x.dt)
@@ -43,9 +45,6 @@ class UAR(Strategy):
                         return signals
                     else:
                         break
-
-        if (highest.high - l_low) / (highest.high - lowest.low) > 0.5:
-            return signals
 
         sdt = highest.dt
         kls = self.get_child_klt()
