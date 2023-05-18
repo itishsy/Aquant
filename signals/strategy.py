@@ -54,6 +54,14 @@ class Strategy(ABC):
                 si.created = datetime.datetime.now()
                 signals.append(si)
 
+    def get_child_klt(self):
+        if self.klt == 101:
+            return [60, 30, 15]
+        elif self.klt == 102:
+            return [101]
+        else:
+            return [15]
+
     @abstractmethod
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
         pass
