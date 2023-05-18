@@ -32,15 +32,24 @@ def watch_start():
             time.sleep(60)
 
 
+def daily_task():
+    print('[{}] daily task working'.format(datetime.now()))
+    while True:
+        now = datetime.now()
+        try:
+            if now.weekday() < 5 and ((now.hour == 11 and now.minute == 35) or (now.hour == 15 and now.minute == 10)):
+                fetch_all()
+                for name in strategy.factory:
+                    st = strategy.factory[name]()
+                    st.search_all()
+                print("==============用時：{}=================".format(datetime.now() - now))
+        except Exception as e:
+            print(e)
+        finally:
+            if now.minute == 1:
+                print('[{}] daily task working'.format(now))
+            time.sleep(60)
+
+
 if __name__ == '__main__':
-    start_time = datetime.now()
-    #fetch_all()
-    for name in strategy.factory:
-        st = strategy.factory[name]()
-        #st.klt=30
-        st.search_all()
-    end_time = datetime.now()
-    sis = find_signals(begin=start_time)
-    for si in sis:
-        print(si)
-    print("==============用時：{}=================".format(end_time - start_time))
+    daily_task()
