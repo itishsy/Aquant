@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from signals.strategy import register_strategy, Strategy, reverse_signals, factory, get_candle
+from signals.strategy import register_strategy, Strategy, factory, get_candle
 from storage.db import find_candles, update_all_symbols, find_signals, find_stage_candles
 from storage.fetcher import fetch_all
 import signals.signals as sig
@@ -77,7 +77,7 @@ class RCB(Strategy):
 
 if __name__ == '__main__':
     cs = '301220,600795'
-    begin = datetime.now()
+    begin = datetime.now().strftime('%Y-%m-%d')
     update_all_symbols(status=0, beyond=cs)
     fetch_all()
     st = factory['BottomConfirm']()

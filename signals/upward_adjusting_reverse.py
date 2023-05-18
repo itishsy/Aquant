@@ -1,4 +1,6 @@
-from signals.strategy import register_strategy, Strategy, reverse_signals
+import datetime
+
+from signals.strategy import register_strategy, Strategy
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
@@ -22,6 +24,8 @@ class UAR(Strategy):
         for cd in candles:
             if abs(cd.mark) == 3:
                 mark_candles.append(cd)
+        if len(mark_candles) == 0:
+            return signals
         m_last = mark_candles[-1]
         if m_last.mark != -3 or m_last.diff() < 0 or m_last.dea9 < 0 or m_last.bar() < 0:
             return signals
@@ -38,7 +42,11 @@ class UAR(Strategy):
             sis = sig.deviates(cds)
             if len(sis) > 0:
                 for si in sis:
-                    signals.append(Signal(si.dt, type=self.__class__.__name__, klt=self.klt, value=kl))
+                    s = Signal(si.dt, type=self.__class__.__name__, klt=self.klt, value=kl)
+                    s.code = self.code
+                    s.created = datetime.datetime.now()
+                    print(s)
+                    signals.append(s)
 
         return signals
 

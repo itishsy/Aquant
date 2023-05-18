@@ -51,5 +51,13 @@ def daily_task():
             time.sleep(60)
 
 
+def search(sta):
+    begin = datetime.now().strftime('%Y-%m-%d')
+    st = strategy.factory[sta]()
+    st.search_all()
+    print(find_signals(begin=begin))
+
+
 if __name__ == '__main__':
-    daily_task()
+    # daily_task()
+    search('UAR')
