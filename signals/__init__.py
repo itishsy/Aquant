@@ -1,1 +1,1 @@
-__all__ = ['strategy', 'one_buy_affirm','gold_cross_second']
+__all__ = ['strategy', 'reverse_confirm_buy', 'rising_gold_affirm']

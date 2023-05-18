@@ -9,9 +9,9 @@ import signals.signals as sig
 
 
 @register_strategy
-class BottomConfirm(Strategy):
+class RCB(Strategy):
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
-        """ 底部确认信号
+        """ 反转确认买点
         满足以下条件：
         1. 大级别最近的快慢线交叉发生在0轴上方,50%以上diff在0轴上方
         2. 本级别发生底背离

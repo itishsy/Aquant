@@ -6,9 +6,7 @@ from storage.db import find_candles
 
 
 @register_strategy
-class GoldCrossSecond(Strategy):
-    """
-    """
+class RGA(Strategy):
 
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
         """ 二次金叉信号
