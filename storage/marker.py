@@ -6,6 +6,8 @@ from sqlalchemy import select,and_
 
 def mark(candles: List[Candle]) -> List[Candle]:
     size = len(candles)
+    if size == 0:
+        return candles
 
     for c in candles:
         c.mark = 1 if c.bar() > 0 else -1

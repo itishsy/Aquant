@@ -11,11 +11,12 @@ from entities.signal import Signal
 
 
 def get_message(sgs: List[Signal]):
-    msg1 = ''
-    if len(signals) > 0:
-        for s in sgs:
-            msg1 = '【{}】, klt: {}, type: {}, datetime: {}; {}' \
-                .format(s.code, s.klt, s.type, s.dt, msg1)
+    msg1 = '123'
+    signals = find_signals()
+    # if len(signals) > 0:
+    #     for s in sgs:
+    #         msg1 = '【{}】, klt: {}, type: {}, datetime: {}; {}' \
+    #             .format(s.code, s.klt, s.type, s.dt, msg1)
     return msg1
 
 
@@ -27,8 +28,7 @@ while True:
         msg_panel = WebDriverWait(driver, 600).until(
             expected_conditions.presence_of_element_located((By.LINK_TEXT, '发消息')))
         if msg_panel is not None:
-            signals = find_signals()
-            msg = get_message(signals)
+            msg = get_message()
             if msg == '':
                 continue
 
@@ -63,7 +63,6 @@ while True:
             btn_ok.click()
             print('btn_ok.click')
             time.sleep(5)
-            update_signal_notify(signals)
         else:
             print('maybe no login')
     except Exception as e:

@@ -38,12 +38,14 @@ def cal_klt(klt, add):
 
 
 def deviates(candles: List[Candle], is_top=False) -> List[Signal]:
+    signals = []
     mark_candles = []
     for cd in candles:
+        if cd.mark is None:
+            return signals
         if abs(cd.mark) == 3:
             mark_candles.append(cd)
     size = len(mark_candles)
-    signals = []
     for i in range(2, size):
         c_2 = mark_candles[i - 2]
         c_1 = mark_candles[i - 1]
