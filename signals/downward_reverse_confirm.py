@@ -9,7 +9,7 @@ import signals.signals as sig
 
 
 @register_strategy
-class RCB(Strategy):
+class DRC(Strategy):
     def search_signal(self, candles: List[Candle]) -> List[Signal]:
         """ 反转确认买点
         满足以下条件：

@@ -56,11 +56,11 @@ class Strategy(ABC):
 
     def get_child_klt(self):
         if self.klt == 101:
-            return [60, 30]
+            return [60, 30, 15]
         elif self.klt == 102:
             return [101]
         else:
-            return [15]
+            return [15, 5]
 
     @abstractmethod
     def search_signal(self, candles: List[Candle]) -> List[Signal]:

@@ -18,7 +18,6 @@ class UAR(Strategy):
         :param candles:
         :return:
         """
-        print('[{}] search UAR: [{}]'.format(datetime.now(), self.code))
         signals = []
         if len(candles) == 0:
             return signals
@@ -47,6 +46,11 @@ class UAR(Strategy):
                         return signals
                     else:
                         break
+
+        if highest is None:
+            return signals
+
+        print('[{}] search UAR: [{}]'.format(datetime.now(), self.code))
 
         sdt = highest.dt
         kls = self.get_child_klt()
