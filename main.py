@@ -39,5 +39,5 @@ def search_all(sta):
 
 
 if __name__ == '__main__':
-    # daily_task()
-    search_all('UAR')
+    daily_task()
+    # search_all('UAR')
