@@ -8,8 +8,9 @@ class Ticket:
 
     id: int
     code: str
-    deal_type: int
-    deal_klt: int
-    deal_dt: str
+    type: int
+    klt: int
+    dt: str
     status: int
-    updated: datetime = datetime.now()
+    created: datetime = datetime.now()
+    updated: datetime = None

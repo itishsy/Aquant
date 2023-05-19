@@ -2,6 +2,7 @@ from sqlalchemy.orm import registry
 from entities.candle import Candle
 from entities.signal import Signal
 from entities.symbol import Symbol
+from entities.ticket import Ticket
 from enums.entity import Entity
 import config as cfg
 from sqlalchemy import (
@@ -62,6 +63,19 @@ class Mapper:
             Column('value', String(50)),
             Column('notify', Integer),
             Column('created', DateTime)
+        ))
+
+    def ticket_table(self, meta):
+        registry().map_imperatively(Ticket, Table(
+            Entity.Ticket, meta,
+            Column('id', Integer, autoincrement=True, primary_key=True),
+            Column('code', String(50)),
+            Column('type', String(50)),
+            Column('klt', Integer),
+            Column('dt', String(50)),
+            Column('status', Integer),
+            Column('created', DateTime),
+            Column('updated', DateTime)
         ))
 
 

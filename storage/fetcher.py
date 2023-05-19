@@ -48,7 +48,7 @@ def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
     df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount', 'zf', 'zdf', 'zde',
                   'turnover']
     df.drop(['name', 'code', 'zf', 'zdf', 'zde'], axis=1, inplace=True)
-
+    print(df)
     candles = []
     for i, row in df.iterrows():
         row['klt'] = klt

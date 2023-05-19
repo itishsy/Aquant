@@ -4,6 +4,7 @@ from storage.mapping import do_mapping
 from entities.candle import Candle
 from entities.signal import Signal
 from entities.symbol import Symbol
+from entities.ticket import Ticket
 from sqlalchemy import select, desc, and_, text
 from typing import List
 from datetime import datetime, timedelta
@@ -142,6 +143,15 @@ def find_signals(notify=0, begin=None) -> List[Signal]:
     return sgs
 
 
+def find_tickets() -> List[Ticket]:
+    session = db.get_session('ticket')
+    clauses = and_(Ticket.status == 1)
+    tis = session.execute(
+        select(Ticket).where(clauses)
+    ).scalars().fetchall()
+    return tis
+
+
 def update_signal_notify(signals: List[Signal]):
     session = db.get_session(Entity.Signal)
     mappings = []
@@ -149,6 +159,13 @@ def update_signal_notify(signals: List[Signal]):
         dic = {'id': s.id, 'notify': 1}
         mappings.append(dic)
     session.bulk_update_mappings(Signal, mappings)
+    session.flush()
+    session.commit()
+
+
+def update_ticket(mappings):
+    session = db.get_session(Entity.Ticket)
+    session.bulk_update_mappings(Ticket, mappings)
     session.flush()
     session.commit()
 
