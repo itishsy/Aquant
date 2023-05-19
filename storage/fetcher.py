@@ -48,7 +48,6 @@ def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
     df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount', 'zf', 'zdf', 'zde',
                   'turnover']
     df.drop(['name', 'code', 'zf', 'zdf', 'zde'], axis=1, inplace=True)
-    print(df)
     candles = []
     for i, row in df.iterrows():
         row['klt'] = klt
@@ -158,10 +157,5 @@ def fetch_daily():
 
 
 if __name__ == '__main__':
-    fetch_daily()
-    # fetch_symbols()
-    # df = ef.stock.get_quote_history('300133', klt=15, beg='20230511')
-    # print('===============df')
-    # print(df)
-    # fetch_and_save('60', 15, begin='2023-05-11')
-    # fetch_all()
+    # fetch_daily()
+    fetch_all()
