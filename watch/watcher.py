@@ -16,7 +16,6 @@ def get_tickets() -> List[Ticket]:
         now = datetime.now()
         if True or now.weekday() < 5 and now.hour in [10, 11, 13, 14] and now.minute in [5, 25, 45]:
             fts = find_tickets()
-            print('find_tickets=', fts)
             for t in fts:
                 if t.klt in [5, 15]:
                     s = 10 if t.klt == 15 else 5
@@ -50,4 +49,6 @@ if __name__ == '__main__':
         except Exception:
             traceback.print_exc()
         finally:
+            if datetime.now().minute == 0:
+                print('[{}] watching'.format(datetime.now()))
             time.sleep(60)

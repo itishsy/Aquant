@@ -9,6 +9,7 @@ import logging
 options = webdriver.ChromeOptions()
 driver = webdriver.Chrome(options=options)
 driver.get("https://work.weixin.qq.com/wework_admin/frame#index")
+time.sleep(30)
 
 
 def send_msg(content):
@@ -49,7 +50,7 @@ def element_click(by, name):
     el = WebDriverWait(driver, 20).until(
         expected_conditions.presence_of_element_located((by, name)))
     print('{}.click'.format(name))
-    el.click()
+    driver.execute_script("arguments[0].click();", el)
     time.sleep(5)
 
 
@@ -58,4 +59,4 @@ def element_input(by, name, val):
         expected_conditions.presence_of_element_located((by, name)))
     print('{}.send_keys: {}'.format(name, val))
     el.send_keys(val)
-    time.sleep(5)
+    time.sleep(10)
