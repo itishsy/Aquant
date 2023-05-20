@@ -25,8 +25,8 @@ def daily_task():
             time.sleep(60)
 
 
-def fetch_search_all(sta = None):
-    begin = datetime.now().strftime('%Y-%m-%d')
+def fetch_search_all(sta=None):
+    now = datetime.now()
     fetch_all()
     if sta is None:
         for name in strategy.factory:
@@ -36,9 +36,9 @@ def fetch_search_all(sta = None):
         st = strategy.factory[sta]()
         st.search_all()
     print("==============用時：{}=================".format(datetime.now() - now))
-    print(find_signals(begin=begin))
+    print(find_signals(begin=now.strftime('%Y-%m-%d')))
 
 
 if __name__ == '__main__':
-    # daily_task()
-    fetch_search_all()
+    daily_task()
+    # fetch_search_all()
