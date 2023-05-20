@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from entities.candle import Candle
 from entities.symbol import Symbol
 from decimal import Decimal
-from storage.db import db
+from storage.db import db, kls
 from sqlalchemy import select, desc, delete, and_
 from storage.marker import remark
 from enums.entity import Entity
@@ -33,7 +33,7 @@ def fetch_and_save(code, klt, begin='2015-01-01'):
     candles = fetch_data(code, klt, begin, l_candle=l_candle)
     session.add_all(candles)
     session.commit()
-    remark(code,klt,beg= a_candles[-1].dt)
+    remark(code, klt, beg=a_candles[-1].dt)
 
 
 def need_upset(sdt):
@@ -123,16 +123,19 @@ def fetch_symbols():
         session.commit()
 
 
-def fetch_all(kls=None):
+def fetch_all(klt=None):
     start_time = datetime.now()
-    if kls is None:
-        kls = [102, 101, 60, 30, 15]
+    ks = []
+    if klt is not None:
+        ks.append(klt)
+    else:
+        ks = kls
     sbs = find_active_symbols()
     count = 0
     for sb in sbs:
         try:
-            for klt in kls:
-                fetch_and_save(sb.code, klt)
+            for k in ks:
+                fetch_and_save(sb.code, k)
             print('[{}] {} fetch candles [{}] done!'.format(datetime.now(), count, sb.code))
             count = count + 1
         except Exception as ex:

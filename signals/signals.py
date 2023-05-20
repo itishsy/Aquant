@@ -3,41 +3,7 @@ from entities.signal import Signal
 from typing import List
 
 
-def cal_klt(klt, add):
-    if klt == 101:
-        if add == -1:
-            return 60
-        elif add == -2:
-            return 30
-        elif add == -3:
-            return 15
-        elif add == 1:
-            return 102
-        else:
-            return 0
-    elif klt == 60:
-        if add == 1:
-            return 101
-        elif add == -1:
-            return 30
-        elif add == -2:
-            return 15
-        else:
-            return 0
-    elif klt == 30:
-        if add == 1:
-            return 60
-        elif add == 2:
-            return 101
-        elif add == -1:
-            return 15
-        else:
-            return 0
-    else:
-        return 0
-
-
-def deviates(candles: List[Candle], is_top=False) -> List[Signal]:
+def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
     signals = []
     mark_candles = []
     for cd in candles:

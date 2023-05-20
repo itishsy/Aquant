@@ -54,6 +54,8 @@ class DB:
 
 db = DB()
 
+kls = [102, 101, 60, 30, 15]
+
 
 def find_active_symbols() -> List[Symbol]:
     session = db.get_session(Entity.Symbol)
