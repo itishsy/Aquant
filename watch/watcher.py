@@ -1,6 +1,6 @@
 import time
 from datetime import datetime, timedelta
-from signals.signals import deviates
+from strategies import deviates
 from storage.db import find_tickets, update_ticket
 from storage.fetcher import fetch_data
 from storage.marker import mark

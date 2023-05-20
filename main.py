@@ -1,6 +1,6 @@
 from datetime import datetime
 from storage.fetcher import fetch_all
-from signals import *
+from strategies import *
 from storage.db import find_signals
 import logging
 import config

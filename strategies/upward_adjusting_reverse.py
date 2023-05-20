@@ -1,10 +1,10 @@
 from datetime import datetime
-from signals.strategy import register_strategy, Strategy
+from strategies import register_strategy, Strategy
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
 from storage.db import find_candles
-import signals.signals as sig
+import strategies.signals as sig
 
 
 @register_strategy

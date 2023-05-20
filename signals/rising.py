@@ -1,7 +1,7 @@
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from signals.strategy import register_strategy, Strategy, reverse_signals
+from strategies import register_strategy, Strategy, reverse_signals
 from storage.db import find_candles
 
 

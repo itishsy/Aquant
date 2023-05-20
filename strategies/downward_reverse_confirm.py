@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
-from signals.strategy import register_strategy, Strategy, factory, get_candle
-from storage.db import find_candles, update_all_symbols, find_signals, find_stage_candles
+from strategies import register_strategy, Strategy, factory, get_candle
+from storage.db import update_all_symbols, find_signals, find_stage_candles
 from storage.fetcher import fetch_all
-import signals.signals as sig
+import strategies.signals as sig
 
 
 @register_strategy
