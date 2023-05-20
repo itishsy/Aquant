@@ -16,7 +16,11 @@ def daily_task():
         now = datetime.now()
         try:
             if now.weekday() < 5 and ((now.hour == 11 and now.minute == 40) or (now.hour == 15 and now.minute == 10)):
-                fetch_search_all()
+                now = datetime.now()
+                fetch_all()
+                search_all()
+                print("==============用時：{}=================".format(datetime.now() - now))
+                print(find_signals(begin=now.strftime('%Y-%m-%d')))
         except Exception as e:
             print(e)
         finally:
@@ -25,9 +29,7 @@ def daily_task():
             time.sleep(60)
 
 
-def fetch_search_all(sta=None):
-    now = datetime.now()
-    fetch_all()
+def search_all(sta=None):
     if sta is None:
         for name in strategy.factory:
             st = strategy.factory[name]()
@@ -35,11 +37,8 @@ def fetch_search_all(sta=None):
     else:
         st = strategy.factory[sta]()
         st.search_all()
-    print("==============用時：{}=================".format(datetime.now() - now))
-    print(find_signals(begin=now.strftime('%Y-%m-%d')))
 
 
 if __name__ == '__main__':
     # daily_task()
-    for n in strategy.factory:
-        strategy.factory[n]().search_all()
+    search_all()
