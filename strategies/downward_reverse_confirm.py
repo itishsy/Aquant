@@ -1,16 +1,19 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.db import find_stage_candles, find_candles
+from storage.db import find_stage_candles, find_candles, kls
 import signals.signals as sig
+from storage.fetcher import fetch_data
+from entities.signal import Signal
+from datetime import datetime
 
 
 @register_strategy
 class DRC(Strategy):
     def search(self, code):
-        """ 下跌趋势反转策略
+        """ 下跌趋势反转策略，找出所有处在C段确认的
         满足以下条件：
         1. 大级别最近的快慢线交叉发生在0轴上方,50%以上diff在0轴上方
         2. 本级别发生底背离
-        3. 反弹后回落向下确认，快线不破慢线，发生次某级别的一买。
+        3. 反弹后回落向下确认，快线不破慢线，发生孙子级别的一买。
         :param code:
         """
         candles = find_candles(code, self.klt, begin=self.begin, limit=self.limit)
@@ -21,50 +24,74 @@ class DRC(Strategy):
         if len(sis) == 0:
             return
 
-        # 获取最后一个
+        # 只获取最后一个
         si = sis[-1]
+        sdt = si.dt
 
         # 判断父級別的一段是否符合
-        psc = find_stage_candles(code, self.parent_klt(), sig.get_candle(candles, si.dt))
-        for sc in psc[:len(psc) // 2]:
-            if sc.diff() < 0 or sc.dea9 < 0:
-                return
-
-        # 查询C段(确认段)的起始位置（底背离信号－3后第一个mart=3右边的dt）
-        flag = False
-        flag_3 = False
-        sdt = None
-        lowest = None
-        for c in candles:
-            if flag_3:
-                sdt = c.dt
-            if c.dt == si.dt:
-                flag = True
-                lowest = c.low
-            if flag and c.mark == 3:
-                flag_3 = True
-                flag = False
-
-        if sdt is None:
+        psc = find_stage_candles(code, self.parent_klt(), sig.get_candle(candles, sdt))
+        if len(psc) < 2 or psc[:len(psc) // 2][-1].dea9 < 0:
             return
 
-        # C段(3,-3)不可连续击穿慢线。
-        i = 2
-        sts = sig.get_stage(candles, sdt)
-        edt = None
+        m3 = []
+        for cd in reversed(candles):
+            if abs(cd.mark) == 3:
+                m3.append(cd)
+
+        a3 = None  # A段
+        r3 = None  # R段
+        c3 = None  # C段
+        l = len(m3) - 1
+        while l > 1:
+            if m3[l].dt == sdt:
+                if l + 1 < len(m3):
+                    r3 = m3[l + 1]
+                if l + 2 < len(m3):
+                    c3 = m3[l + 2]
+                a3 = m3[l - 1]
+                break
+            l = l - 1
+
+        # 有力度的反弹
+        if a3 is None or r3 is None or a3.high > r3.high:
+            return
+        if c3 is None:
+            c3 = candles[-1]
+
+        b3 = sig.get_candle(candles, si.dt)
+
+        # 确认段跌破背驰段，C段无效
+        if c3.low < b3.low or c3.bar() < 0:
+            return
+
+        # C段要有一段小趋势
+        sts = sig.get_stage(candles, c3.dt)
+        if len(sts) < 3:
+            return
+
+        # C段不可连续击穿慢线。
+        flag = True
+        i = 0
         while i < len(sts):
             if sts[i - 1].bar() < 0 and sts[i].bar() < 0:
-                return []
-            # 最后一个拐点时间
-            if (sts[i - 2].bar() > sts[i - 1].bar() < sts[i].bar()) and (
-                    sts[i - 2].low > sts[i - 1].low < sts[i].low) and lowest < sts[i - 1].low:
-                edt = sts[i].dt
+                return
+            # C段回调至少有三根递减的bar
+            if sts[i - 2].bar() > sts[i - 1].bar() > sts[i].bar():
+                flag = False
             i = i + 1
 
-        if edt is None:
+        if flag:
             return
 
-        # C段子级别出现的背离，是信号
-        for kl in self.child_klt():
-            ccs = find_candles(code, kl, begin=sdt, end=edt)
+        # c3是信号
+        si = Signal(c3.dt, self.klt, type=self.__class__.__name__, value=c3.mark)
+        si.code = code
+        si.created = datetime.now()
+        self.signals.append(si)
+
+        for ck in self.child_child_klt():
+            if ck not in kls:
+                ccs = fetch_data(code, ck, begin=sdt)
+            else:
+                ccs = find_candles(code, ck, begin=sdt, end=c3.dt)
             self.append_signals(code, ccs)

@@ -34,15 +34,16 @@ class Strategy(ABC):
             for sym in symbols:
                 self.codes.append(sym.code)
 
+        i = 1
         for code in self.codes:
-            print('[{}] [{}] [{}] searching...'.format(datetime.now(), code, self.__class__.__name__))
+            print('[{}] [{}] [{}] searching... {}'.format(datetime.now(), code, self.__class__.__name__, i))
             self.search(code)
-
-        if len(self.signals) > 0:
-            session.add_all(self.signals)
-            session.commit()
-            print('[{}] [{}] signals: {}'.format(datetime.now(), self.__class__.__name__, len(self.signals)))
-            self.signals.clear()
+            if len(self.signals) > 0:
+                session.add_all(self.signals)
+                session.commit()
+                print('[{}] [{}] signals: {}'.format(datetime.now(), self.__class__.__name__, len(self.signals)))
+                self.signals.clear()
+            i = i + 1
 
     def append_signals(self, code, candles: List[Candle]):
         if len(candles) > 0:
@@ -54,26 +55,40 @@ class Strategy(ABC):
                 si.created = datetime.now()
                 self.signals.append(si)
 
-    def child_klt(self):
-        if self.klt == 101:
-            return [60, 30, 15]
-        elif self.klt == 102:
-            return [101, 60]
-        elif self.klt == 60:
-            return [15, 5]
-        elif self.klt == 30:
+    def child_klt(self, klt=None):
+        if klt is None:
+            klt = self.klt
+        if klt == 101:
+            return [60, 30]
+        elif klt == 102:
+            return [101]
+        elif klt == 60:
+            return [15]
+        elif klt == 30:
             return [5]
         else:
             return []
 
-    def parent_klt(self):
-        if self.klt == 101:
+    def child_child_klt(self, klt=None):
+        ks = self.child_klt(klt)
+        cck = []
+        for k in ks:
+            cks = self.child_klt(k)
+            for ck in cks:
+                if ck not in cck:
+                    cck.append(ck)
+        return cck
+
+    def parent_klt(self, klt=None):
+        if klt is None:
+            klt = self.klt
+        if klt == 101:
             return 102
-        elif self.klt in [30, 60]:
+        elif klt in [30, 60]:
             return 101
-        elif self.klt == 15:
+        elif klt == 15:
             return 60
-        elif self.klt == 5:
+        elif klt == 5:
             return 30
         else:
             return []

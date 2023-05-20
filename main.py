@@ -33,6 +33,7 @@ def search_all(sta=None):
     if sta is None:
         for name in strategy.factory:
             st = strategy.factory[name]()
+            # st.codes = ['300239']
             st.search_all()
     else:
         st = strategy.factory[sta]()
@@ -41,4 +42,4 @@ def search_all(sta=None):
 
 if __name__ == '__main__':
     # daily_task()
-    search_all()
+    search_all('DRC')

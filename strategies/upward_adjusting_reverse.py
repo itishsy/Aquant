@@ -1,5 +1,6 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.db import find_candles
+from storage.db import find_candles, kls
+from storage.fetcher import fetch_data
 
 
 @register_strategy
@@ -22,28 +23,31 @@ class UAR(Strategy):
             return
 
         sdt = None
-        diff = None
+        dea = None
         i = len(candles) - 1
         while i > 1:
             if candles[i].mark == 3:
                 sdt = candles[i].dt
 
-            if candles[i - 1].mark < 0 < candles[i - 1].mark:
+            if candles[i - 1].mark < 0 < candles[i].mark:
                 # 前一个金叉发生在0轴上
-                if candles[i - 1].diff() < 0:
+                if candles[i - 1].dea9 < 0:
                     return
                 else:
-                    diff = candles[i - 1].diff()
+                    dea = candles[i - 1].dea9
                     break
             i = i - 1
 
         # 调整下来的慢线低于上涨启动的快线
-        if c_last.dea9 < diff:
+        if dea is None or c_last.dea9 < dea:
             return
 
         if sdt is None:
             return
 
         for kl in self.child_klt():
-            ccs = find_candles(code, kl, begin=sdt)
-            self.fetch_signals(code, ccs)
+            if kl not in kls:
+                css = fetch_data(code, kl , begin=sdt)
+            else:
+                css = find_candles(code, kl, begin=sdt)
+            self.append_signals(code, css)

@@ -81,6 +81,8 @@ def update_all_symbols(status=0, beyond=None):
 
 
 def find_candles(code, klt, begin='2015-01-01', end=None, limit=10000) -> List[Candle]:
+    if begin is None:
+        begin = '2015-01-01'
     session = db.get_session(code)
     clauses = and_(Candle.klt == klt, Candle.dt >= begin)
     if end is not None:
