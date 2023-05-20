@@ -40,5 +40,6 @@ def fetch_search_all(sta=None):
 
 
 if __name__ == '__main__':
-    daily_task()
-    # fetch_search_all()
+    # daily_task()
+    for n in strategy.factory:
+        strategy.factory[n]().search_all()
