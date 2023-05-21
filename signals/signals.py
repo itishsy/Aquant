@@ -162,6 +162,7 @@ def has_cross(candles: List[Candle]):
         return 1
     if d_flag:
         return -1
+    return 0
 
 
 def get_section(candles: List[Candle], sdt, edt):
