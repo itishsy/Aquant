@@ -34,9 +34,12 @@ class DRC(Strategy):
             return
 
         m3 = []
-        for cd in reversed(candles):
-            if abs(cd.mark) == 3:
+        for cd in candles:
+            if cd.mark == 3 or cd.mark == -3:
                 m3.append(cd)
+
+        b_stage = sig.get_stage(candles, si.dt)
+        b3 = sig.get_lowest(b_stage)
 
         a3 = None  # A段
         r3 = None  # R段
@@ -58,16 +61,12 @@ class DRC(Strategy):
         if c3 is None:
             c3 = candles[-1]
 
-        b3 = sig.get_candle(candles, si.dt)
-
         # 确认段跌破背驰段，C段无效
         if c3.low < b3.low or c3.bar() < 0:
             return
 
         # C段要有一段小趋势
-        sts = sig.get_stage(candles, c3.dt)
-        if len(sts) < 3:
-            return
+        sts = find_candles(code, self.klt, begin=r3.dt)
 
         # C段不可连续击穿慢线。
         flag = True
@@ -75,23 +74,22 @@ class DRC(Strategy):
         while i < len(sts):
             if sts[i - 1].bar() < 0 and sts[i].bar() < 0:
                 return
-            # C段回调至少有三根递减的bar
+            # C段回调有三根递减的bar
             if sts[i - 2].bar() > sts[i - 1].bar() > sts[i].bar():
                 flag = False
             i = i + 1
 
         if flag:
-            return
-
-        # c3是信号
-        si = Signal(c3.dt, self.klt, type=self.__class__.__name__, value=c3.mark)
-        si.code = code
-        si.created = datetime.now()
-        self.signals.append(si)
-
-        for ck in self.child_child_klt():
-            if ck not in kls:
-                ccs = fetch_data(code, ck, begin=sdt)
-            else:
-                ccs = find_candles(code, ck, begin=sdt, end=c3.dt)
-            self.append_signals(code, ccs)
+            # c3是信号
+            si = Signal(c3.dt, self.klt, type=self.__class__.__name__, value=c3.mark)
+            si.code = code
+            si.created = datetime.now()
+            self.signals.append(si)
+        else:
+            # C段孙子级别的背离
+            for ck in self.child_child_klt():
+                if ck not in kls:
+                    ccs = fetch_data(code, ck, begin=sdt)
+                else:
+                    ccs = find_candles(code, ck, begin=sdt, end=c3.dt)
+                self.append_signals(code, ccs)
