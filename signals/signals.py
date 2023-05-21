@@ -96,6 +96,8 @@ def get_stage(candles: List[Candle], dt) -> List[Candle]:
     :return: 与定位时间bar同向相临的candle集合
     """
     i = 0
+    if candles is None:
+        return []
     s = len(candles)
     stage = []
     while i < s:
@@ -126,7 +128,7 @@ def has_trend(candles: List[Candle]):
     :param candles:
     :return: -1 存在向下趋势，1 存在向上趋势，0 不存在趋势
     """
-    if len(candles) < 3:
+    if candles is None or len(candles) < 3:
         return 0
     i = 2
     while i < len(candles):
@@ -144,6 +146,8 @@ def has_cross(candles: List[Candle]):
     :param candles:
     :return: 1 上叉 -1 下叉 0 无或同时存在
     """
+    if candles is None:
+        return 0
     u_flag, d_flag = False, False
     i = 1
     while i < len(candles):
@@ -153,6 +157,7 @@ def has_cross(candles: List[Candle]):
             d_flag = True
         if u_flag and d_flag:
             return 0
+        i = i + 1
     if u_flag:
         return 1
     if d_flag:
@@ -168,6 +173,8 @@ def get_section(candles: List[Candle], sdt, edt):
     :return: candle集合，包含起止两根
     """
     cs = []
+    if candles is None:
+        return cs
     flag = False
     for c in candles:
         if c.dt == sdt:
@@ -187,6 +194,10 @@ def get_dabrc(candles: List[Candle], b3_dt):
     :return: 高低位五段
     """
     d, a, b, r, c = None, None, None, None, None
+
+    if candles is None:
+        return d, a, b, r, c
+
     d3_dt, a3_dt, r3_dt, c3_dt = None, None, None, None
 
     m3 = [x for x in candles if abs(x.mark) == 3]

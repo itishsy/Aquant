@@ -4,6 +4,7 @@ import signals.signals as sig
 from storage.fetcher import fetch_data
 from entities.signal import Signal
 from datetime import datetime
+from decimal import Decimal
 
 
 @register_strategy
@@ -57,8 +58,8 @@ class DRC(Strategy):
                 i = i + 1
 
         # 反弹空间力度不够
-        gold_line = (sig.get_lowest(a).low + sig.get_highest(a).high) * 0.618
-        if gold_line > sig.get_highest(r).close:
+        gold_line = (sig.get_lowest(a).low + sig.get_highest(a).high) * Decimal(0.618)
+        if gold_line > Decimal(sig.get_highest(r).close):
             return
 
         # 反弹时间力度不够
