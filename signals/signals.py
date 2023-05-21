@@ -49,6 +49,8 @@ def get_lowest(candles: List[Candle]):
     :param candles:
     :return: 最低的一根
     """
+    if candles is None or len(candles) ==0:
+        return None
     lowest = candles[0]
     i = 1
     while i < len(candles):
@@ -64,6 +66,8 @@ def get_highest(candles: List[Candle]):
     :param candles:
     :return: 最高点的一根
     """
+    if candles is None or len(candles) ==0:
+        return None
     highest = candles[0]
     i = 1
     while i < len(candles):
