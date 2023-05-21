@@ -67,7 +67,7 @@ class Strategy(ABC):
         elif klt == 30:
             return [5]
         else:
-            return []
+            return [1]
 
     def child_child_klt(self, klt=None):
         ks = self.child_klt(klt)
@@ -91,7 +91,7 @@ class Strategy(ABC):
         elif klt == 5:
             return 30
         else:
-            return []
+            return 5
 
     @abstractmethod
     def search(self, code):

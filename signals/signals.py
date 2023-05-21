@@ -4,6 +4,12 @@ from typing import List
 
 
 def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
+    """
+    获取背离信号集合
+    :param candles:
+    :param is_top: 是否顶背离
+    :return: 默认取底背离，is_top=True取顶背离
+    """
     signals = []
     mark_candles = []
     for cd in candles:
@@ -20,7 +26,7 @@ def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
             if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
                 up_stage1 = get_stage(candles, c_2.dt)
                 up_stage2 = get_stage(candles, c_0.dt)
-                if get_trend(up_stage1) == 1 and get_trend(up_stage2) == 1:
+                if has_trend(up_stage1) == 1 and has_trend(up_stage2) == 1:
                     high2 = get_highest(up_stage1).high
                     high0 = get_highest(up_stage2).high
                     if c_2.diff() > c_0.diff() and high2 < high0:
@@ -29,7 +35,7 @@ def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
             if c_2.mark == -3 and c_1.mark == 3 and c_0.mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
                 down_stage1 = get_stage(candles, c_2.dt)
                 down_stage2 = get_stage(candles, c_0.dt)
-                if get_trend(down_stage1) == -1 and get_trend(down_stage2) == -1:
+                if has_trend(down_stage1) == -1 and has_trend(down_stage2) == -1:
                     low1 = get_lowest(down_stage1).low
                     low2 = get_lowest(down_stage2).low
                     if c_2.diff() < c_0.diff() and low1 > low2:
@@ -38,6 +44,11 @@ def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
 
 
 def get_lowest(candles: List[Candle]):
+    """
+    集合同取最低的那一根
+    :param candles:
+    :return: 最低的一根
+    """
     lowest = candles[0]
     i = 1
     while i < len(candles):
@@ -48,6 +59,11 @@ def get_lowest(candles: List[Candle]):
 
 
 def get_highest(candles: List[Candle]):
+    """
+    集合同取最高的那一根
+    :param candles:
+    :return: 最高点的一根
+    """
     highest = candles[0]
     i = 1
     while i < len(candles):
@@ -58,6 +74,12 @@ def get_highest(candles: List[Candle]):
 
 
 def get_candle(candles: List[Candle], dt):
+    """
+    集合中获取一根candle
+    :param candles:
+    :param dt: 按时间定位
+    :return: candle
+    """
     i = 0
     while i < len(candles):
         if candles[i].dt == dt:
@@ -68,11 +90,10 @@ def get_candle(candles: List[Candle], dt):
 
 def get_stage(candles: List[Candle], dt) -> List[Candle]:
     """
-    获取dt所处的bar一段，即起于下叉（上叉）终于上叉（下叉）的一段走势。
-    准确的是用最高（低）那一根作为起点，不影响判断这一段走势是否有背驰。
+    获取同向相邻的candle集合
     :param candles:
-    :param dt:
-    :return:
+    :param dt: 定位时间
+    :return: 与定位时间bar同向相临的candle集合
     """
     i = 0
     s = len(candles)
@@ -99,11 +120,11 @@ def get_stage(candles: List[Candle], dt) -> List[Candle]:
     return stage
 
 
-def get_trend(candles: List[Candle]):
+def has_trend(candles: List[Candle]):
     """
-    无趋势不背离
+    是否包含有趋势
     :param candles:
-    :return:
+    :return: -1 存在向下趋势，1 存在向上趋势，0 不存在趋势
     """
     if len(candles) < 3:
         return 0
@@ -115,3 +136,86 @@ def get_trend(candles: List[Candle]):
             return 1
         i = i + 1
     return 0
+
+
+def has_cross(candles: List[Candle]):
+    """
+    是否包含快慢线交叉
+    :param candles:
+    :return: 1 上叉 -1 下叉 0 无或同时存在
+    """
+    u_flag, d_flag = False, False
+    i = 1
+    while i < len(candles):
+        if candles[i - 1].bar() < 0 < candles[i].bar():
+            u_flag = True
+        if candles[i - 1].bar() > 0 > candles[i].bar():
+            d_flag = True
+        if u_flag and d_flag:
+            return 0
+    if u_flag:
+        return 1
+    if d_flag:
+        return -1
+
+
+def get_section(candles: List[Candle], sdt, edt):
+    """
+    获取起始区间的部分
+    :param candles:
+    :param sdt: 开始时间
+    :param edt: 结束时间
+    :return: candle集合，包含起止两根
+    """
+    cs = []
+    flag = False
+    for c in candles:
+        if c.dt == sdt:
+            flag = True
+        if flag:
+            cs.append(c)
+        if c.dt == edt:
+            break
+    return cs
+
+
+def get_dabrc(candles: List[Candle], b3_dt):
+    """
+    底部形态5段
+    :param candles: 存在背离的
+    :param b3_dt: 背离时间
+    :return: 高低位五段
+    """
+    d, a, b, r, c = None, None, None, None, None
+    d3_dt, a3_dt, r3_dt, c3_dt = None, None, None, None
+
+    m3 = [x for x in candles if abs(x.mark) == 3]
+
+    i = len(m3) - 1
+    while i > 1:
+        if m3[i].dt == b3_dt:
+            if i + 1 < len(m3):
+                r_s = get_stage(candles, m3[i + 1].dt)
+                r3_dt = get_highest(r_s).dt
+            if i + 2 < len(m3):
+                c_s = get_stage(candles, m3[i + 2].dt)
+                c3_dt = get_lowest(c_s).dt
+            if i - 1 > 0:
+                a_s = get_stage(candles, m3[i - 1].dt)
+                a3_dt = get_highest(a_s).dt
+            if i - 2 > 0:
+                d_s = get_stage(candles, m3[i - 2].dt)
+                d3_dt = get_lowest(d_s).dt
+                d = get_section(candles, d_s[0].dt, d3_dt)
+            break
+        i = i - 1
+
+    if d3_dt is None or a3_dt is None or b3_dt is None:
+        return None, None, None, None, None
+
+    a = get_section(candles, d3_dt, a3_dt)
+    b = get_section(candles, a3_dt, b3_dt)
+    r = get_section(candles, b3_dt, r3_dt)
+    if c3_dt is not None:
+        c = get_section(candles, r3_dt, c3_dt)
+    return d, a, b, r, c
