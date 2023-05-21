@@ -2,6 +2,7 @@ from strategies.strategy import register_strategy, Strategy
 from storage.db import find_stage_candles, find_candles, kls
 import signals.signals as sig
 from storage.fetcher import fetch_data
+from storage.marker import mark
 from entities.signal import Signal
 from datetime import datetime
 from decimal import Decimal
@@ -58,7 +59,7 @@ class DRC(Strategy):
                 i = i + 1
 
         # 反弹空间力度不够
-        gold_line = (sig.get_lowest(a).low + sig.get_highest(a).high) * Decimal(0.5)
+        gold_line = sig.get_lowest(a).low + (sig.get_highest(a).high - sig.get_lowest(a).low) * Decimal(0.5)
         if gold_line > Decimal(sig.get_highest(r).high):
             return
 
@@ -66,16 +67,22 @@ class DRC(Strategy):
         if len(b) > len(r):
             pass
 
+        si = Signal(c3.dt, self.klt, type=self.__class__.__name__, value=c3.mark)
+        si.code = code
+        si.value = self.klt
+        si.created = datetime.now()
+        self.signals.append(si)
+
         if sig.has_trend(c):
+            if self.klt > 100:
+                sdt = datetime.strptime(c[0].dt, '%Y-%m-%d')
+            else:
+                sdt = datetime.strptime(c[0].dt, '%Y-%m-%d %H:%M')
             # c段有一段小走势,查小级别的背离信号
             for ck in self.child_child_klt():
                 if ck not in kls:
-                    ccs = fetch_data(code, ck, begin=si.dt)
+                    ccs = fetch_data(code, ck, begin=sdt.strftime('%Y%m%d'))
+                    ccs = mark(ccs)
                 else:
-                    ccs = find_candles(code, ck, begin=si.dt, end=c3.dt)
+                    ccs = find_candles(code, ck, begin=c[0].dt, end=c[-1].dt)
                 self.append_signals(code, ccs)
-        else:
-            si = Signal(c3.dt, self.klt, type=self.__class__.__name__, value=c3.mark)
-            si.code = code
-            si.created = datetime.now()
-            self.signals.append(si)

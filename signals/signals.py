@@ -26,20 +26,20 @@ def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
             if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
                 up_stage1 = get_stage(candles, c_2.dt)
                 up_stage2 = get_stage(candles, c_0.dt)
-                if has_trend(up_stage1) == 1 and has_trend(up_stage2) == 1:
-                    high2 = get_highest(up_stage1).high
-                    high0 = get_highest(up_stage2).high
-                    if c_2.diff() > c_0.diff() and high2 < high0:
-                        signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='top_deviated', value=c_0.mark))
+                # if has_trend(up_stage1) == 1 and has_trend(up_stage2) == 1:
+                high2 = get_highest(up_stage1).high
+                high0 = get_highest(up_stage2).high
+                if c_2.diff() > c_0.diff() and high2 < high0:
+                    signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='top_deviated', value=c_0.mark))
         else:
             if c_2.mark == -3 and c_1.mark == 3 and c_0.mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
                 down_stage1 = get_stage(candles, c_2.dt)
                 down_stage2 = get_stage(candles, c_0.dt)
-                if has_trend(down_stage1) == -1 and has_trend(down_stage2) == -1:
-                    low1 = get_lowest(down_stage1).low
-                    low2 = get_lowest(down_stage2).low
-                    if c_2.diff() < c_0.diff() and low1 > low2:
-                        signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='bottom_deviated', value=c_0.mark))
+                # if has_trend(down_stage1) == -1 and has_trend(down_stage2) == -1:
+                low1 = get_lowest(down_stage1).low
+                low2 = get_lowest(down_stage2).low
+                if c_2.diff() < c_0.diff() and low1 > low2:
+                    signals.append(Signal(dt=c_0.dt, klt=c_0.klt, type='bottom_deviated', value=c_0.mark))
     return signals
 
 
