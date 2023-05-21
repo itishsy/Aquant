@@ -36,7 +36,8 @@ def search_all(sta=None):
             st.search_all()
     else:
         st = strategy.factory[sta]()
-        # st.codes = ['603790']
+        # st.klt = 60
+        # st.codes = ['601890']
         st.search_all()
 
 

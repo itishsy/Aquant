@@ -213,9 +213,11 @@ def get_dabrc(candles: List[Candle], b3_dt):
             if i + 1 < len(m3):
                 r_s = get_stage(candles, m3[i + 1].dt)
                 r3_dt = get_highest(r_s).dt
-            if i + 2 < len(m3):
-                c_s = get_stage(candles, m3[i + 2].dt)
-                c3_dt = get_lowest(c_s).dt
+                if i + 2 < len(m3):
+                    c_s = get_stage(candles, m3[i + 2].dt)
+                    c3_dt = get_lowest(c_s).dt
+                else:
+                    c3_dt = candles[-1].dt
             if i - 1 > 0:
                 a_s = get_stage(candles, m3[i - 1].dt)
                 a3_dt = get_highest(a_s).dt

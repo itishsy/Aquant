@@ -78,9 +78,12 @@ def remark(code, klt, beg=None):
 
 
 if __name__ == '__main__':
+    codes = ['002292','002997']
     # remark('300031', 101)
     symbols = find_active_symbols()
     for sbl in symbols:
+        if len(codes) > 0 and sbl.code not in codes:
+            continue
         try:
             remark(sbl.code, 102)
             remark(sbl.code, 101)
@@ -89,3 +92,6 @@ if __name__ == '__main__':
             remark(sbl.code, 15)
         except:
             print('{} mark error'.format(sbl.code))
+        finally:
+            print('{} mark finish'.format(sbl.code))
+

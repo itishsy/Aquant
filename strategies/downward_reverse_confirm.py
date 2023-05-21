@@ -36,7 +36,7 @@ class DRC(Strategy):
 
         # 获取底部形态的5段
         d, a, b, r, c = sig.get_dabrc(candles, si.dt)
-        if a is None or r is None:
+        if a is None or r is None or c is None:
             return
 
         # 反弹段要有向上叉
@@ -46,7 +46,7 @@ class DRC(Strategy):
         # c段不可跌破b段最低点
         c3 = candles[-1] if c is None else sig.get_lowest(c)
         b3 = sig.get_lowest(b)
-        if c3.low < b3.low:
+        if c3 is None or b3 is None or c3.low < b3.low:
             return
 
         # c段不可连续击穿慢线
@@ -58,13 +58,13 @@ class DRC(Strategy):
                 i = i + 1
 
         # 反弹空间力度不够
-        gold_line = (sig.get_lowest(a).low + sig.get_highest(a).high) * Decimal(0.618)
-        if gold_line > Decimal(sig.get_highest(r).close):
+        gold_line = (sig.get_lowest(a).low + sig.get_highest(a).high) * Decimal(0.5)
+        if gold_line > Decimal(sig.get_highest(r).high):
             return
 
         # 反弹时间力度不够
         if len(b) > len(r):
-            return
+            pass
 
         if sig.has_trend(c):
             # c段有一段小走势,查小级别的背离信号
