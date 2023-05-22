@@ -1,5 +1,5 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.db import find_stage_candles, find_candles, kls
+from storage.db import find_stage_candles, find_candles, freqs
 import signals.signals as sig
 from storage.fetcher import fetch_data
 from storage.marker import mark
@@ -18,7 +18,7 @@ class DRC(Strategy):
         3. 反弹后回落向下确认，快线不破慢线，发生孙子级别的一买。
         :param code:
         """
-        candles = find_candles(code, self.klt, begin=self.begin, limit=self.limit)
+        candles = find_candles(code, self.freq, begin=self.begin, limit=self.limit)
         if len(candles) < self.limit:
             return
 
@@ -30,7 +30,7 @@ class DRC(Strategy):
         si = sis[-1]
 
         # 背离点所在父級別一段，大部分是在0轴上方
-        psc = find_stage_candles(code, self.parent_klt(), sig.get_candle(candles, si.dt))
+        psc = find_stage_candles(code, self.parent_freq(), sig.get_candle(candles, si.dt))
         pos = int(len(psc) * 0.618)
         if len(psc) < 2 or psc[:pos][-1].dea9 < 0:
             return
@@ -67,20 +67,20 @@ class DRC(Strategy):
         if len(b) > len(r):
             pass
 
-        si = Signal(c3.dt, self.klt, type=self.__class__.__name__, value=c3.mark)
+        si = Signal(c3.dt, self.freq, type=self.__class__.__name__, value=c3.mark)
         si.code = code
-        si.value = self.klt
+        si.value = self.freq
         si.created = datetime.now()
         self.signals.append(si)
 
         if sig.has_trend(c):
-            if self.klt > 100:
+            if self.freq > 100:
                 sdt = datetime.strptime(c[0].dt, '%Y-%m-%d')
             else:
                 sdt = datetime.strptime(c[0].dt, '%Y-%m-%d %H:%M')
             # c段有一段小走势,查小级别的背离信号
-            for ck in self.child_child_klt():
-                if ck not in kls:
+            for ck in self.grandchild_freq():
+                if ck not in freqs:
                     ccs = fetch_data(code, ck, begin=sdt.strftime('%Y%m%d'))
                     ccs = mark(ccs)
                 else:

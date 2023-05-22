@@ -1,5 +1,5 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.db import find_candles, kls
+from storage.db import find_candles, freqs
 from storage.fetcher import fetch_data
 
 
@@ -13,7 +13,7 @@ class UAR(Strategy):
         3. 调整过程中，出现次某级别的背驰买点
         :param code:
         """
-        candles = find_candles(code, self.klt, begin=self.begin, limit=self.limit)
+        candles = find_candles(code, self.freq, begin=self.begin, limit=self.limit)
         if len(candles) == 0:
             return
 
@@ -45,8 +45,8 @@ class UAR(Strategy):
         if sdt is None:
             return
 
-        for kl in self.child_klt():
-            if kl not in kls:
+        for kl in self.child_freq():
+            if kl not in freqs:
                 css = fetch_data(code, kl , begin=sdt)
             else:
                 css = find_candles(code, kl, begin=sdt)

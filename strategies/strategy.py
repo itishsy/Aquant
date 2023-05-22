@@ -23,7 +23,7 @@ class Strategy(ABC):
     signals = []
     codes = []
     begin = None
-    klt = 101
+    freq = 101
     limit = 100
 
     def search_all(self):
@@ -49,46 +49,46 @@ class Strategy(ABC):
         if len(candles) > 0:
             cds = sig.divergence(candles)
             for cd in cds:
-                si = Signal(dt=cd.dt, klt=self.klt, type=self.__class__.__name__, value=cd.klt)
+                si = Signal(dt=cd.dt, freq=self.freq, type=self.__class__.__name__, value=cd.freq)
                 si.code = code
                 si.notify = 0
                 si.created = datetime.now()
                 self.signals.append(si)
 
-    def child_klt(self, klt=None):
-        if klt is None:
-            klt = self.klt
-        if klt == 101:
+    def child_freq(self, freq=None):
+        if freq is None:
+            freq = self.freq
+        if freq == 101:
             return [60, 30]
-        elif klt == 102:
+        elif freq == 102:
             return [101]
-        elif klt == 60:
+        elif freq == 60:
             return [15]
-        elif klt == 30:
+        elif freq == 30:
             return [5]
         else:
             return [1]
 
-    def child_child_klt(self, klt=None):
-        ks = self.child_klt(klt)
+    def grandchild_freq(self, freq=None):
+        ks = self.child_freq(freq)
         cck = []
         for k in ks:
-            cks = self.child_klt(k)
+            cks = self.child_freq(k)
             for ck in cks:
                 if ck not in cck:
                     cck.append(ck)
         return cck
 
-    def parent_klt(self, klt=None):
-        if klt is None:
-            klt = self.klt
-        if klt == 101:
+    def parent_freq(self, freq=None):
+        if freq is None:
+            freq = self.freq
+        if freq == 101:
             return 102
-        elif klt in [30, 60]:
+        elif freq in [30, 60]:
             return 101
-        elif klt == 15:
+        elif freq == 15:
             return 60
-        elif klt == 5:
+        elif freq == 5:
             return 30
         else:
             return 5

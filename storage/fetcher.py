@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from entities.candle import Candle
 from entities.symbol import Symbol
 from decimal import Decimal
-from storage.db import db, kls
+from storage.db import db, freqs
 from sqlalchemy import select, desc, delete, and_
 from storage.marker import remark
 from enums.entity import Entity
@@ -13,10 +13,10 @@ import logging
 import time
 
 
-def fetch_and_save(code, klt, begin='2015-01-01'):
+def fetch_and_save(code, freq, begin='2015-01-01'):
     session = db.get_session(code)
     a_candles = session.execute(
-        select(Candle).where(Candle.klt == klt).order_by(desc('id')).limit(100)
+        select(Candle).where(Candle.freq == freq).order_by(desc('id')).limit(100)
     ).scalars().fetchall()
     l_candle = a_candles[0]
     if l_candle is not None:
@@ -24,16 +24,16 @@ def fetch_and_save(code, klt, begin='2015-01-01'):
             sdt = datetime.strptime(l_candle.dt, '%Y-%m-%d %H:%M')
         else:
             sdt = datetime.strptime(l_candle.dt, '%Y-%m-%d')
-        session.execute(delete(Candle).where(and_(Candle.klt == klt, Candle.dt >= sdt.strftime('%Y-%m-%d'))))
+        session.execute(delete(Candle).where(and_(Candle.freq == freq, Candle.dt >= sdt.strftime('%Y-%m-%d'))))
         session.commit()
         begin = sdt.strftime('%Y%m%d')
     l_candle = session.execute(
-        select(Candle).where(Candle.klt == klt).order_by(desc('id')).limit(1)
+        select(Candle).where(Candle.freq == freq).order_by(desc('id')).limit(1)
     ).scalar()
-    candles = fetch_data(code, klt, begin, l_candle=l_candle)
+    candles = fetch_data(code, freq, begin, l_candle=l_candle)
     session.add_all(candles)
     session.commit()
-    remark(code, klt, beg=a_candles[-1].dt)
+    remark(code, freq, beg=a_candles[-1].dt)
 
 
 def need_upset(sdt):
@@ -43,22 +43,22 @@ def need_upset(sdt):
     return False
 
 
-def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
-    df = ef.stock.get_quote_history(code, klt=klt, beg=begin)
+def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
+    df = ef.stock.get_quote_history(code, freq=freq, beg=begin)
     df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount', 'zf', 'zdf', 'zde',
                   'turnover']
     df.drop(['name', 'code', 'zf', 'zdf', 'zde'], axis=1, inplace=True)
     candles = []
     for i, row in df.iterrows():
-        row['klt'] = klt
+        row['freq'] = freq
         c = Candle(row)
         if i == 0:
             if l_candle is not None and l_candle.ema12 is not None:
                 c.ema12 = l_candle.ema12 * Decimal(11 / 13) + Decimal(c.close) * Decimal(2 / 13)
                 c.ema26 = l_candle.ema26 * Decimal(25 / 27) + Decimal(c.close) * Decimal(2 / 27)
                 c.dea9 = l_candle.dea9 * Decimal(8 / 10) + Decimal(c.ema12 - c.ema26) * Decimal(2 / 10)
-                if klt == 101:
-                    cs = find_candles(code, klt, limit=30)
+                if freq == 101:
+                    cs = find_candles(code, freq, limit=30)
                     c.ma5 = get_ma(cs, 5, c.close)
                     c.ma10 = get_ma(cs, 10, c.close)
                     c.ma20 = get_ma(cs, 20, c.close)
@@ -74,7 +74,7 @@ def fetch_data(code, klt, begin, l_candle=None) -> List[Candle]:
                 c.ma30 = Decimal(c.close)
                 c.mav5 = Decimal(c.volume)
         else:
-            if klt == 101:
+            if freq == 101:
                 c.ma5 = get_ma(candles, 5, c.close)
                 c.ma10 = get_ma(candles, 10, c.close)
                 c.ma20 = get_ma(candles, 20, c.close)
@@ -123,13 +123,13 @@ def fetch_symbols():
         session.commit()
 
 
-def fetch_all(klt=None):
+def fetch_all(freq=None):
     start_time = datetime.now()
     ks = []
-    if klt is not None:
-        ks.append(klt)
+    if freq is not None:
+        ks.append(freq)
     else:
-        ks = kls
+        ks = freqs
     sbs = find_active_symbols()
     count = 0
     for sb in sbs:

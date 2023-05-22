@@ -4,16 +4,16 @@ from datetime import datetime
 
 @dataclass
 class Signal:
-    def __init__(self, dt, klt, type, value):
+    def __init__(self, dt, freq, type, value):
         self.dt = dt
         self.type = type
-        self.klt = klt
+        self.freq = freq
         self.value = value
 
     id: int
     code: str
     dt: str
-    klt: int
+    freq: int
     type: str
     value: int
     notify: int = 0

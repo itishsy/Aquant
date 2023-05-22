@@ -33,12 +33,12 @@ class RGA(Strategy):
             if c_3.mark == -3 and c_2.mark == 3 and c_1.mark == -3:
                 if is_above(c_3) and is_above(c_2) and is_above(c_1):
                     if (c_2.high - c_1.low) / (c_2.high - c_3.low) > 0.5:
-                        for klt in [15, 30, 60]:
-                            c_candles = find_candles(self.code, klt, begin=c_3.dt)
+                        for freq in [15, 30, 60]:
+                            c_candles = find_candles(self.code, freq, begin=c_3.dt)
                             sis = reverse_signals(c_candles)
                             for si in sis:
                                 if c_1.dt > si.dt > c_2.dt and si.value == -3:
-                                    si.klt = klt
+                                    si.freq = freq
                                     si.type = self.__class__.__name__
                                     signals.append(si)
             i = i + 1

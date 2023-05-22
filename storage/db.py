@@ -54,7 +54,7 @@ class DB:
 
 db = DB()
 
-kls = [102, 101, 60, 30, 15]
+freqs = [102, 101, 60, 30, 15]
 
 
 def find_active_symbols() -> List[Symbol]:
@@ -80,11 +80,11 @@ def update_all_symbols(status=0, beyond=None):
     session.commit()
 
 
-def find_candles(code, klt, begin='2015-01-01', end=None, limit=10000) -> List[Candle]:
+def find_candles(code, freq, begin='2015-01-01', end=None, limit=10000) -> List[Candle]:
     if begin is None:
         begin = '2015-01-01'
     session = db.get_session(code)
-    clauses = and_(Candle.klt == klt, Candle.dt >= begin)
+    clauses = and_(Candle.freq == freq, Candle.dt >= begin)
     if end is not None:
         clauses = clauses.__and__(Candle.dt < end)
     cds = session.execute(
@@ -93,28 +93,28 @@ def find_candles(code, klt, begin='2015-01-01', end=None, limit=10000) -> List[C
     return list(reversed(cds))
 
 
-def find_stage_candles(code, klt, candle) -> List[Candle]:
+def find_stage_candles(code, freq, candle) -> List[Candle]:
     """
     根据一根candle查找所处指定级别的一段candles
     :param code:
-    :param klt:
+    :param freq:
     :param candle:
     :return:
     """
-    if klt == candle.klt:
+    if freq == candle.freq:
         dt = candle.dt
     else:
-        if candle.klt > 100:
+        if candle.freq > 100:
             beg = datetime.strptime(candle.dt, '%Y-%m-%d')
         else:
             beg = datetime.strptime(candle.dt, '%Y-%m-%d %H:%M')
-        if klt > 100:
+        if freq > 100:
             dt = beg.strftime('%Y-%m-%d')
         else:
             dt = beg.strftime('%Y-%m-%d %H:%M')
 
     session = db.get_session(code)
-    clauses = and_(Candle.klt == klt, Candle.dt <= dt)
+    clauses = and_(Candle.freq == freq, Candle.dt <= dt)
     cds = []
     pre_candles = session.execute(
         select(Candle).where(clauses).order_by(desc(Candle.dt)).limit(100)
@@ -124,7 +124,7 @@ def find_stage_candles(code, klt, candle) -> List[Candle]:
             cds.insert(0, pc)
         else:
             break
-    clauses = and_(Candle.klt == klt, Candle.dt > dt)
+    clauses = and_(Candle.freq == freq, Candle.dt > dt)
     nex_candles = session.execute(
         select(Candle).where(clauses).order_by(Candle.dt).limit(100)
     ).scalars().fetchall()

@@ -17,9 +17,9 @@ def get_tickets() -> List[Ticket]:
         if True or now.weekday() < 5 and now.hour in [10, 11, 13, 14] and now.minute in [5, 25, 45]:
             fts = find_tickets()
             for t in fts:
-                if t.klt in [5, 15]:
-                    s = 10 if t.klt == 15 else 5
-                    candles = fetch_data(t.code, t.klt, (datetime.now() - timedelta(s)).strftime('%Y%m%d'))
+                if t.freq in [5, 15]:
+                    s = 10 if t.freq == 15 else 5
+                    candles = fetch_data(t.code, t.freq, (datetime.now() - timedelta(s)).strftime('%Y%m%d'))
                     candles = mark(candles)
                     if len(candles) > 0:
                         des = divergence(candles, t.type == 1)
@@ -40,7 +40,7 @@ if __name__ == '__main__':
             mappings = []
             tis = get_tickets()
             for ti in tis:
-                content = 'code={},klt={},dt={};{}'.format(ti.code, ti.klt, ti.dt, content)
+                content = 'code={},freq={},dt={};{}'.format(ti.code, ti.freq, ti.dt, content)
                 dic = {'id': ti.id, 'dt': ti.dt, 'status': 2, 'updated': ti.updated}
                 mappings.append(dic)
             res = qywx.send_msg(content)

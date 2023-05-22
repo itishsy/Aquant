@@ -11,7 +11,7 @@ class Candle:
 
     id: int
     dt: str
-    klt: int
+    freq: int
     open: Decimal
     close: Decimal
     high: Decimal

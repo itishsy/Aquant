@@ -46,13 +46,13 @@ class Rising(Strategy):
                     c_1 = mark_candles[i]
                     # (c_2.mark == 3 and c_1.mark == -3) or
                     if i == m_size - 1 and c_1.mark == 3:
-                        for klt in [15, 30]:
+                        for freq in [15, 30]:
                             beg = c_1.dt # c_2.dt if i < m_size - 1 else c_1.dt
-                            c_candles = find_candles(self.code, klt, begin=beg)
+                            c_candles = find_candles(self.code, freq, begin=beg)
                             sis = reverse_signals(c_candles)
                             for si in sis:
                                 if si.dt > beg and si.value == -3:
-                                    si.klt = klt
+                                    si.freq = freq
                                     si.type = 'rising {} reverse'.format(20 if flag_20 else 30)
                                     signals.append(si)
                     i = i + 1

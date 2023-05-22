@@ -61,9 +61,9 @@ def mark(candles: List[Candle]) -> List[Candle]:
     return candles
 
 
-def remark(code, klt, beg=None):
+def remark(code, freq, beg=None):
     session = db.get_session(code)
-    clauses = and_(Candle.klt == klt)
+    clauses = and_(Candle.freq == freq)
     if beg is not None:
         clauses = clauses.__and__(Candle.dt > beg)
     candles = session.execute(select(Candle).where(clauses)).scalars().fetchall()
