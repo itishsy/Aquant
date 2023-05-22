@@ -44,7 +44,7 @@ def need_upset(sdt):
 
 
 def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
-    df = ef.stock.get_quote_history(code, freq=freq, beg=begin)
+    df = ef.stock.get_quote_history(code, klt=freq, beg=begin)
     df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount', 'zf', 'zdf', 'zde',
                   'turnover']
     df.drop(['name', 'code', 'zf', 'zdf', 'zde'], axis=1, inplace=True)

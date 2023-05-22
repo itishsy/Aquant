@@ -39,6 +39,7 @@ def mark(candles: List[Candle]) -> List[Candle]:
                     if min_diff > candles[j].diff():
                         candles[i].mark = -2
                         min_diff = candles[j].diff()
+                        i = j
                     else:
                         candles[j].mark = -2
                 j = j + 1
@@ -54,6 +55,7 @@ def mark(candles: List[Candle]) -> List[Candle]:
                     if max_diff < candles[j].diff():
                         candles[i].mark = 2
                         max_diff = candles[j].diff()
+                        i = j
                     else:
                         candles[j].mark = 2
                 j = j + 1

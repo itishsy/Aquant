@@ -1,6 +1,8 @@
 from entities.candle import Candle
 from entities.signal import Signal
 from typing import List
+from storage.fetcher import fetch_data
+from storage.marker import mark
 
 
 def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
@@ -249,3 +251,13 @@ def get_dabrc(candles: List[Candle], b3_dt):
     if c3_dt is not None:
         c = get_section(candles, r3_dt, c3_dt)
     return d, a, b, r, c
+
+
+if __name__ == '__main__':
+    cds = fetch_data('300002', 5, '20230517')
+    cds = mark(cds)
+    sis = divergence(cds)
+    for si in sis:
+        print(si.dt)
+    # for cd in cds:
+    #     print(cd)

@@ -54,7 +54,7 @@ class DB:
 
 db = DB()
 
-freqs = [102, 101, 60, 30, 15]
+freqs = [102, 101, 60, 30]
 
 
 def find_active_symbols() -> List[Symbol]:
