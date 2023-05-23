@@ -10,13 +10,13 @@ logging.basicConfig(format='%(asctime)s %(message)s', filename='d://aquant.log'.
 logging.getLogger().setLevel(logging.INFO)
 
 
-def daily_task():
+def daily_task(sta=False):
     print('[{}] daily task working'.format(datetime.now()))
     while True:
         now = datetime.now()
         try:
-            if now.weekday() < 5 and ((now.hour == 11 and now.minute == 40) or (now.hour == 15 and now.minute == 20)):
-                now = datetime.now()
+            if sta or (now.weekday() < 5 and (
+                    (now.hour == 11 and now.minute == 40) or (now.hour == 15 and now.minute == 10))):
                 fetch_all()
                 search_all()
                 print("==============用時：{}=================".format(datetime.now() - now))
@@ -42,5 +42,5 @@ def search_all(sta=None):
 
 
 if __name__ == '__main__':
-    # daily_task()
-    search_all('UAR')
+    daily_task(sta=True)
+    # search_all('UAR')
