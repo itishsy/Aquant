@@ -34,9 +34,9 @@ def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
                 if is_cross:
                     up_stage1 = get_stage(candles, c_2.dt)
                     up_stage2 = get_stage(candles, c_0.dt)
-                    # if has_trend(up_stage1) == 1 and has_trend(up_stage2) == 1:
-                    high2 = get_highest(up_stage1).high
-                    high0 = get_highest(up_stage2).high
+                    if has_trend(up_stage1) == 1 and has_trend(up_stage2) == 1:
+                        high2 = get_highest(up_stage1).high
+                        high0 = get_highest(up_stage2).high
                     if c_2.diff() > c_0.diff() and high2 < high0:
                         signals.append(Signal(dt=c_0.dt, freq=c_0.freq, type='top_divergence', value=c_0.mark))
         else:
@@ -49,9 +49,9 @@ def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
                 if is_cross:
                     down_stage1 = get_stage(candles, c_2.dt)
                     down_stage2 = get_stage(candles, c_0.dt)
-                    # if has_trend(down_stage1) == -1 and has_trend(down_stage2) == -1:
-                    low1 = get_lowest(down_stage1).low
-                    low2 = get_lowest(down_stage2).low
+                    if has_trend(down_stage1) == -1 and has_trend(down_stage2) == -1:
+                        low1 = get_lowest(down_stage1).low
+                        low2 = get_lowest(down_stage2).low
                     if c_2.diff() < c_0.diff() and low1 > low2:
                         signals.append(Signal(dt=c_0.dt, freq=c_0.freq, type='bottom_divergence', value=c_0.mark))
     return signals
