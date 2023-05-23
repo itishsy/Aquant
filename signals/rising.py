@@ -22,10 +22,10 @@ class Rising(Strategy):
             i = size - 20
             j = size - 30
             flag_20 = True
-            flag_30 = True
+            flag_30 = Truea
             while i < size:
                 if candles[i].ma20 is not None and candles[i].high < candles[i].ma20:
-                    flag_20 = False
+                    flag_20 = Flse
                     break
                 i = i + 1
             if flag_20 is False:
