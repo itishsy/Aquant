@@ -1,6 +1,7 @@
 from strategies.strategy import register_strategy, Strategy
 from storage.db import find_candles, freqs
 from storage.fetcher import fetch_data
+import signals.signals as sig
 
 
 @register_strategy
@@ -24,10 +25,14 @@ class UAR(Strategy):
 
         sdt = None
         dea = None
+        highest=None
+        lowest=None
         i = len(candles) - 1
         while i > 1:
             if candles[i].mark == 3:
                 sdt = candles[i].dt
+                s_high = sig.get_stage(candles, sdt)
+                highest = sig.get_highest(s_high)
 
             if candles[i - 1].mark < 0 < candles[i].mark:
                 # 前一个金叉发生在0轴上
@@ -35,14 +40,21 @@ class UAR(Strategy):
                     return
                 else:
                     dea = candles[i - 1].dea9
+                    s_low = sig.get_stage(candles,candles[i-1].dt)
+                    lowest = sig.get_lowest(s_low)
                     break
             i = i - 1
 
-        # 调整下来的慢线低于上涨启动的快线
-        if dea is None or c_last.dea9 < dea:
+        if sdt is None or lowest is None:
             return
 
-        if sdt is None:
+        s_cur = sig.get_stage(candles, c_last.dt)
+        a_lowest = sig.get_lowest(s_cur)
+        if (highest.high - a_lowest.low)/(highest.high - lowest.low) > 0.5:
+            return
+
+        # 调整下来的慢线低于上涨启动的快线
+        if dea is None or c_last.dea9 < dea:
             return
 
         for kl in self.child_freq():

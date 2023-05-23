@@ -28,7 +28,7 @@ def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
             if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
                 is_cross = True
                 if i + 1 == size:
-                    cs = get_section(candles, c_0.dt)
+                    cs = get_section(candles, c_0.dt, candles[-1])
                     if has_cross(cs) != -1:
                         is_cross = False
                 if is_cross:
@@ -43,7 +43,7 @@ def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
             if c_2.mark == -3 and c_1.mark == 3 and c_0.mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
                 is_cross = True
                 if i + 1 == size:
-                    cs = get_section(candles, c_0.dt)
+                    cs = get_section(candles, c_0.dt, candles[-1].dt)
                     if has_cross(cs) != 1:
                         is_cross = False
                 if is_cross:

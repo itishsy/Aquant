@@ -15,7 +15,7 @@ def daily_task():
     while True:
         now = datetime.now()
         try:
-            if now.weekday() < 5 and ((now.hour == 11 and now.minute == 40) or (now.hour == 15 and now.minute == 10)):
+            if now.weekday() < 5 and ((now.hour == 11 and now.minute == 40) or (now.hour == 15 and now.minute == 20)):
                 now = datetime.now()
                 fetch_all()
                 search_all()
@@ -42,5 +42,5 @@ def search_all(sta=None):
 
 
 if __name__ == '__main__':
-    daily_task()
-    # search_all('UAR')
+    # daily_task()
+    search_all('UAR')

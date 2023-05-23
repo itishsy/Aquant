@@ -183,4 +183,7 @@ if __name__ == '__main__':
     #     print(c)
     fas = find_active_symbols()
     for sb in fas:
-        print(sb.code)
+        sql = "ALTER TABLE `{}` CHANGE `klt` `freq` INT(11) NULL;".format(sb.code)
+        session = db.get_session(sb.code)
+        session.execute(text(sql))
+        session.commit()
