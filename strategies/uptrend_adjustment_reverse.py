@@ -8,19 +8,16 @@ import signals.signals as sig
 class UAR(Strategy):
 
     def search(self, code):
-        """ 向上趋势调整策略
-        1. 前一次的上叉发生在0轴之上
-        2. 调整回落的幅度不能超过上涨幅度的黄金分割线
-        3. 调整过程中，出现次某级别的背驰买点
-        :param code:
         """
+        1. 连续20/30日站在ma20/30均线上面,
+        2. 最后一个3以下出现30/15级别reverse买点
+        3. 3_-3_3未出现日级或60级别顶背离
+        :param code:
+        :return:
+        """
+
         candles = find_candles(code, self.freq, begin=self.begin, limit=self.limit)
         if len(candles) == 0:
-            return
-
-        # 最后一根在0轴上方且macd向下调整
-        c_last = candles[-1]
-        if c_last.bar() > 0 or c_last.diff() < 0 or c_last.dea9 < 0:
             return
 
         sdt = None
@@ -30,9 +27,9 @@ class UAR(Strategy):
         i = len(candles) - 1
         while i > 1:
             if candles[i].mark == 3:
-                sdt = candles[i].dt
-                s_high = sig.get_stage(candles, sdt)
+                s_high = sig.get_stage(candles, candles[i].dt)
                 highest = sig.get_highest(s_high)
+                sdt = highest.dt
 
             if candles[i - 1].mark < 0 < candles[i].mark:
                 # 前一个金叉发生在0轴上

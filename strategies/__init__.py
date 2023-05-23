@@ -1,1 +1,1 @@
-__all__ = ['strategy', 'upward_adjusting_reverse', 'downward_reverse_confirm']
+__all__ = ['strategy', 'golden_adjustment_reverse.py', 'downward_reverse_confirm']
