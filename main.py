@@ -19,6 +19,7 @@ def daily_task(sta=False):
                     (now.hour == 11 and now.minute == 40) or (now.hour == 15 and now.minute == 10))):
                 fetch_all()
                 search_all()
+                sta=False
                 print("==============用時：{}=================".format(datetime.now() - now))
                 print(find_signals(begin=now.strftime('%Y-%m-%d')))
         except Exception as e:
@@ -43,4 +44,4 @@ def search_all(sta=None):
 
 if __name__ == '__main__':
     daily_task(sta=True)
-    # search_all('UAR')
+    # search_all('MAR')

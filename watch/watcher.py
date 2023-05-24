@@ -23,7 +23,7 @@ def get_tickets() -> List[Ticket]:
                     candles = mark(candles)
                     if len(candles) > 0:
                         des = divergence(candles, t.type == 1)
-                        if len(des) > 0:  # and des[-1].dt >= datetime.now().strftime('%Y-%m-%d'):
+                        if len(des) > 0 and des[-1].dt >= datetime.now().strftime('%Y-%m-%d'):
                             t.dt = des[-1].dt
                             t.updated = datetime.now()
                             tickets.append(t)

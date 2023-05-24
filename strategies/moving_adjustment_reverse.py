@@ -5,7 +5,7 @@ import signals.signals as sig
 
 
 @register_strategy
-class UAR(Strategy):
+class MAR(Strategy):
 
     def search(self, code):
         """ ma线上的买点
@@ -18,13 +18,19 @@ class UAR(Strategy):
         if len(candles) == 0 or len(candles) < 30:
             return
 
+        if candles[-1].close < candles[-1].ma30:
+            return
+
         i = len(candles) - 30
+        flag=True
         while i < len(candles):
-            if candles[i].ma20 is None or candles[i].high < candles[i].ma30:
+            if flag and candles[i].ma30 is None or candles[i].close < candles[i].ma30:
+                flag=False
                 return
             i = i + 1
 
-        sdt = candles[-30].dt
-        for kl in self.child_freq():
-            css = find_candles(code, kl, begin=sdt)
-            self.append_signals(code, css)
+        if flag:
+            sdt = candles[-30].dt
+            for kl in self.child_freq():
+                css = find_candles(code, kl, begin=sdt)
+                self.append_signals(code, css)
