@@ -4,7 +4,7 @@ from entities.signal import Signal
 from entities.symbol import Symbol
 from entities.ticket import Ticket
 from enums.entity import Entity
-import config as cfg
+from conf.config import Config
 from sqlalchemy import (
     Table,
     Column,
@@ -82,7 +82,7 @@ class Mapper:
 def do_mapping(engine, meta, table_name):
     if meta.tables.get(table_name) is None:
         mapper = Mapper()
-        if table_name[0:2] in cfg.prefix:
+        if table_name[0:2] in Config.PREFIX:
             mapper.candle_table(meta, table_name)
         else:
             eval('mapper.{}_table'.format(table_name))(meta)

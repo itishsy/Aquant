@@ -6,11 +6,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'super-secret'
     DB_HOST = '127.0.0.1'
+    DB_PORT = 3306
     DB_USER = 'root'
     DB_PASSWD = 'root'
     DB_DATABASE = 'aq'
     ITEMS_PER_PAGE = 10
     JWT_AUTH_URL_RULE = '/api/auth'
+    PREFIX = ['00', '60', '30', '51']
 
     @staticmethod
     def init_app(app):

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker, registry
-import config as cfg
+from conf.config import Config
 from storage.mapping import do_mapping
 from entities.candle import Candle
 from entities.signal import Signal
@@ -19,15 +19,15 @@ class DB:
     meta = MetaData()
 
     def get_engine(self, code=''):
-        dbname = 'aq'
-        if code[0:2] in cfg.prefix:
+        dbname = Config.DB_DATABASE
+        if code[0:2] in Config.PREFIX:
             dbname = 'aq_{}'.format(code[0:2])
         engine = create_engine(
             'mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(
-                cfg.username,
-                cfg.password,
-                cfg.host,
-                cfg.port,
+                Config.DB_USER,
+                Config.DB_PASSWD,
+                Config.DB_HOST,
+                Config.DB_PORT,
                 dbname),
             # 超过链接池大小外最多创建的链接
             max_overflow=0,
@@ -44,7 +44,7 @@ class DB:
     def get_session(self, table_name=''):
         engine = self.get_engine(table_name)
         for key in self.meta.tables.keys():
-            if key[0:2] in cfg.prefix:
+            if key[0:2] in Config.PREFIX:
                 if key != table_name:
                     self.meta.remove(self.meta.tables.get(key))
                     break
@@ -186,4 +186,5 @@ if __name__ == '__main__':
         sql = "ALTER TABLE `{}` CHANGE `klt` `freq` INT(11) NULL;".format(sb.code)
         session = db.get_session(sb.code)
         session.execute(text(sql))
+        session.flush()
         session.commit()

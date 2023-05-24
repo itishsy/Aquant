@@ -3,10 +3,9 @@ from storage.fetcher import fetch_all
 from strategies import *
 from storage.db import find_signals
 import logging
-import config
 import time
 
-logging.basicConfig(format='%(asctime)s %(message)s', filename='d://aquant.log'.format(config.work_path))
+logging.basicConfig(format='%(asctime)s %(message)s', filename='d://aquant.log')
 logging.getLogger().setLevel(logging.INFO)
 
 
@@ -19,7 +18,7 @@ def daily_task(sta=False):
                     (now.hour == 11 and now.minute == 40) or (now.hour == 15 and now.minute == 10))):
                 fetch_all()
                 search_all()
-                sta=False
+                sta = False
                 print("==============用時：{}=================".format(datetime.now() - now))
                 print(find_signals(begin=now.strftime('%Y-%m-%d')))
         except Exception as e:
@@ -38,10 +37,10 @@ def search_all(sta=None):
     else:
         st = strategy.factory[sta]()
         # st.freq = 60
-        # st.codes = ['002419']
+        st.codes = ['000802']
         st.search_all()
 
 
 if __name__ == '__main__':
-    daily_task(sta=True)
+    daily_task(sta=False)
     # search_all('MAR')

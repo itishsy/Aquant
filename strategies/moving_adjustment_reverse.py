@@ -22,15 +22,16 @@ class MAR(Strategy):
             return
 
         i = len(candles) - 30
-        flag=True
         while i < len(candles):
-            if flag and candles[i].ma30 is None or candles[i].close < candles[i].ma30:
-                flag=False
+            if candles[i].ma30 is None or candles[i].close < candles[i].ma30:
                 return
             i = i + 1
 
-        if flag:
-            sdt = candles[-30].dt
-            for kl in self.child_freq():
-                css = find_candles(code, kl, begin=sdt)
-                self.append_signals(code, css)
+        sis = sig.divergence(candles, is_top=True)
+        if len(sis) > 0:
+            return
+
+        sdt = candles[-30].dt
+        for kl in self.child_freq():
+            css = find_candles(code, kl, begin=sdt)
+            self.append_signals(code, css)

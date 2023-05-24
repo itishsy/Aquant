@@ -4,7 +4,7 @@ from entities.candle import Candle
 from entities.symbol import Symbol
 from decimal import Decimal
 from storage.db import db, freqs
-from sqlalchemy import select, desc, delete, and_
+from sqlalchemy import select, desc, delete, and_, text
 from storage.marker import remark
 from enums.entity import Entity
 from storage.db import find_active_symbols, find_candles
@@ -52,34 +52,23 @@ def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
     for i, row in df.iterrows():
         row['freq'] = freq
         c = Candle(row)
+        if freq == 101:
+            cs = find_candles(code, freq, limit=100)
+            c.ma5 = get_ma(cs, 5, c.close)
+            c.ma10 = get_ma(cs, 10, c.close)
+            c.ma20 = get_ma(cs, 20, c.close)
+            c.ma30 = get_ma(cs, 30, c.close)
+            c.mav5 = get_ma(cs, 5, c.volume, att='volume')
         if i == 0:
             if l_candle is not None and l_candle.ema12 is not None:
                 c.ema12 = l_candle.ema12 * Decimal(11 / 13) + Decimal(c.close) * Decimal(2 / 13)
                 c.ema26 = l_candle.ema26 * Decimal(25 / 27) + Decimal(c.close) * Decimal(2 / 27)
                 c.dea9 = l_candle.dea9 * Decimal(8 / 10) + Decimal(c.ema12 - c.ema26) * Decimal(2 / 10)
-                if freq == 101:
-                    cs = find_candles(code, freq, limit=30)
-                    c.ma5 = get_ma(cs, 5, c.close)
-                    c.ma10 = get_ma(cs, 10, c.close)
-                    c.ma20 = get_ma(cs, 20, c.close)
-                    c.ma30 = get_ma(cs, 30, c.close)
-                    c.mav5 = get_ma(cs, 5, c.volume, att='volume')
             else:
                 c.ema12 = Decimal(c.close)
                 c.ema26 = Decimal(c.close)
                 c.dea9 = Decimal(0)
-                c.ma5 = Decimal(c.close)
-                c.ma10 = Decimal(c.close)
-                c.ma20 = Decimal(c.close)
-                c.ma30 = Decimal(c.close)
-                c.mav5 = Decimal(c.volume)
         else:
-            if freq == 101:
-                c.ma5 = get_ma(candles, 5, c.close)
-                c.ma10 = get_ma(candles, 10, c.close)
-                c.ma20 = get_ma(candles, 20, c.close)
-                c.ma30 = get_ma(candles, 30, c.close)
-                c.mav5 = get_ma(candles, 5, c.volume, att='volume')
             c.ema12 = candles[i - 1].ema12 * Decimal(11 / 13) + Decimal(c.close) * Decimal(2 / 13)
             c.ema26 = candles[i - 1].ema26 * Decimal(25 / 27) + Decimal(c.close) * Decimal(2 / 27)
             c.dea9 = candles[i - 1].dea9 * Decimal(8 / 10) + Decimal(c.ema12 - c.ema26) * Decimal(2 / 10)
@@ -161,4 +150,4 @@ def fetch_daily():
 
 if __name__ == '__main__':
     # fetch_daily()
-    fetch_all()
+    fetch_all(freq=101)
