@@ -1,3 +1,5 @@
+from werkzeug.security import generate_password_hash
+
 """
 日上涨走势中。量化：日线macd的前一个金叉在零轴上方。l实现：mark=-3_3_-3且在零轴上方。日线macd调整回零轴，出现30/60底（背驰或底背离）
 日级别调整幅度未破黄金分割点。
@@ -11,3 +13,6 @@
 减仓1/3：30/60级别的死叉。
 清仓：中枢后一笔小于中枢前一笔的幅度。
 """
+
+s = generate_password_hash('admin')
+print(s)

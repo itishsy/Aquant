@@ -1,16 +1,18 @@
 from app import get_logger, get_config
 import math
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app import utils
-from app.models import CfgNotify,Signal
-from app.main.forms import CfgNotifyForm,SignalForm
+from app.models import CfgNotify, Signal
+from app.main.forms import CfgNotifyForm, SignalForm
 from . import main
 from conf.config import Config
 
 
+
 logger = get_logger(__name__)
 cfg = get_config()
+
 
 # 通用列表查询
 def common_list(DynamicModel, view):
@@ -80,6 +82,14 @@ def root():
 @login_required
 def index():
     return render_template('index.html', current_user=current_user)
+
+
+# 根目录跳转
+@main.route('/api/stats/summary', methods=['GET'])
+@login_required
+def api():
+    data = {'batch_count': 10, 'test_count': 5, 'succ_count': 103, 'fail_count': 46}
+    return jsonify(data)
 
 
 # 通知方式查询

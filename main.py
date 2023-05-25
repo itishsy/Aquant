@@ -42,5 +42,5 @@ def search_all(sta=None):
 
 
 if __name__ == '__main__':
-    daily_task(sta=False)
-    # search_all('MAR')
+    # daily_task(sta=True)
+    search_all()
