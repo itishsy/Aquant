@@ -13,6 +13,7 @@ class Config:
     ITEMS_PER_PAGE = 10
     JWT_AUTH_URL_RULE = '/api/auth'
     PREFIX = ['00', '60', '30', '51']
+    URL_PREFIX = '/69f2aeb7fa0e11edad01f46b8c05cf04'
 
     @staticmethod
     def init_app(app):

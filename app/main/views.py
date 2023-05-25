@@ -6,6 +6,8 @@ from app import utils
 from app.models import CfgNotify,Signal
 from app.main.forms import CfgNotifyForm,SignalForm
 from . import main
+from conf.config import Config
+
 
 logger = get_logger(__name__)
 cfg = get_config()

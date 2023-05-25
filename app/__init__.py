@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
-from conf.config import config
+from conf.config import config, Config
 import logging
 from logging.config import fileConfig
 import os
@@ -25,16 +25,16 @@ def get_config():
 
 
 def create_app(config_name):
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path=Config.URL_PREFIX)
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
 
     login_manager.init_app(app)
 
     from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint)
+    app.register_blueprint(main_blueprint, url_prefix=Config.URL_PREFIX)
 
     from .auth import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint)
+    app.register_blueprint(auth_blueprint, url_prefix=Config.URL_PREFIX)
 
     return app
