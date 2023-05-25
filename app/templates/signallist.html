@@ -33,7 +33,13 @@
             {% for row in form.content %}
             <tr>
                 <td>{{row.id}}</td>
-                <td><a href="http://xueqiu.com/S/{{row.code}}">{{row.code}}</a> </td>
+                <td>
+                    {% if row.code.startswith('60') %}
+                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.code}}</a>
+                    {% else %}
+                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.code}}</a>
+                    {% endif %}
+                </td>
                 <td>{{row.dt}}</td>
                 <td>{{row.freq}}</td>
                 <td>{{row.type}}</td>
@@ -83,12 +89,12 @@
             max: 100,
             value: slide_value
         });
-
         $('.status').bootstrapSwitch();
         $(".status").on("switchChange.bootstrapSwitch", function (event, state) {
             switchStatus($(this).data("id"), state, this);
         });
     }
+
     function switchStatus(id, status, switchBox) {
         restTemplate("PUT", "/notifies/" + id + "/status/" + status, null, function () {
             $($(switchBox)).bootstrapSwitch("state", status);

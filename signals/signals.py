@@ -130,6 +130,8 @@ def get_stage(candles: List[Candle], dt) -> List[Candle]:
                     break
                 j = j - 1
             while k < s:
+                if candles[k].mark is None:
+                    return []
                 if (candles[k].mark > 0) == (candles[i].mark > 0):
                     stage.append(candles[k])
                 else:

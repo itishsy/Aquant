@@ -32,6 +32,8 @@ class GAR(Strategy):
             if candles[i].mark == 3:
                 s_high = sig.get_stage(candles, candles[i].dt)
                 highest = sig.get_highest(s_high)
+                if highest is None:
+                    return
                 sdt = highest.dt
 
             if candles[i - 1].mark < 0 < candles[i].mark:
