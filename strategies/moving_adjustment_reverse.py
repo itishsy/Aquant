@@ -1,7 +1,7 @@
 from strategies.strategy import register_strategy, Strategy
 from storage.db import find_candles, freqs
 from storage.fetcher import fetch_data
-import signals.signals as sig
+import signals.utils as sig
 
 
 @register_strategy
@@ -15,7 +15,7 @@ class MAR(Strategy):
         """
 
         candles = find_candles(code, self.freq, begin=self.begin, limit=self.limit)
-        if len(candles) == 0 or len(candles) < 30:
+        if len(candles) == 0 or len(candles) < 80:
             return
 
         if candles[-1].close < candles[-1].ma30:

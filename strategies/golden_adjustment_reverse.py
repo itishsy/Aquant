@@ -1,7 +1,7 @@
 from strategies.strategy import register_strategy, Strategy
 from storage.db import find_candles, freqs
 from storage.fetcher import fetch_data
-import signals.signals as sig
+import signals.utils as sig
 
 
 @register_strategy

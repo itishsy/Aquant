@@ -57,6 +57,16 @@ def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
     return signals
 
 
+def get_top_bottom(candles: List[Candle]):
+    tbc = []
+    for cd in candles:
+        if cd.mark is None:
+            return tbc
+        if abs(cd.mark) == 3:
+            tbc.append(cd)
+    return tbc
+
+
 def get_lowest(candles: List[Candle]):
     """
     集合同取最低的那一根

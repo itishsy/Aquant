@@ -5,7 +5,7 @@ from entities.candle import Candle
 from entities.signal import Signal
 from enums.entity import Entity
 from typing import List
-import signals.signals as sig
+import signals.utils as sig
 
 factory = {}
 
