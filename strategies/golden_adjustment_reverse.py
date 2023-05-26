@@ -36,6 +36,8 @@ class GAR(Strategy):
                     return
                 sdt = highest.dt
 
+            if candles[i - 1].mark is None or candles[i].mark is None:
+                return
             if candles[i - 1].mark < 0 < candles[i].mark:
                 # 前一个金叉发生在0轴上
                 if candles[i - 1].dea9 < 0:

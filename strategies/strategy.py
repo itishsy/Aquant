@@ -27,23 +27,26 @@ class Strategy(ABC):
     limit = 100
 
     def search_all(self):
-        session = db.get_session(Entity.Signal)
+        try:
+            session = db.get_session(Entity.Signal)
 
-        if len(self.codes) == 0:
-            symbols = find_active_symbols()
-            for sym in symbols:
-                self.codes.append(sym.code)
+            if len(self.codes) == 0:
+                symbols = find_active_symbols()
+                for sym in symbols:
+                    self.codes.append(sym.code)
 
-        i = 1
-        for code in self.codes:
-            print('[{}] [{}] [{}] searching... {}'.format(datetime.now(), code, self.__class__.__name__, i))
-            self.search(code)
-            if len(self.signals) > 0:
-                session.add_all(self.signals)
-                session.commit()
-                print('[{}] [{}] signals: {}'.format(datetime.now(), self.__class__.__name__, len(self.signals)))
-                self.signals.clear()
-            i = i + 1
+            i = 1
+            for code in self.codes:
+                print('[{}] [{}] [{}] searching... {}'.format(datetime.now(), code, self.__class__.__name__, i))
+                self.search(code)
+                if len(self.signals) > 0:
+                    session.add_all(self.signals)
+                    session.commit()
+                    print('[{}] [{}] signals: {}'.format(datetime.now(), self.__class__.__name__, len(self.signals)))
+                    self.signals.clear()
+                i = i + 1
+        except Exception as e:
+            print(e)
 
     def append_signals(self, code, candles: List[Candle]):
         if len(candles) > 0:

@@ -30,13 +30,13 @@ class DB:
                 Config.DB_PORT,
                 dbname),
             # 超过链接池大小外最多创建的链接
-            max_overflow=0,
+            max_overflow=100,
             # 链接池大小
-            pool_size=5,
+            pool_size=100,
             # 链接池中没有可用链接则最多等待的秒数，超过该秒数后报错
-            pool_timeout=10,
+            pool_timeout=20,
             # 多久之后对链接池中的链接进行一次回收
-            pool_recycle=1,
+            pool_recycle=10,
             # 查看原生语句（未格式化）
             echo=False)
         return engine
@@ -62,22 +62,26 @@ def find_active_symbols() -> List[Symbol]:
     sbs = session.execute(
         select(Symbol).where(and_(Symbol.status == 1))
     ).scalars().fetchall()
+    session.close()
     return sbs
 
 
 def update_all_symbols(status=0, beyond=None):
     session = db.get_session(Entity.Symbol)
-    update_sql = "UPDATE `symbol` SET `status` = {}".format(status)
-    if status == 1:
-        update_sql = "{} WHERE `code` LIKE '60%' OR `code` LIKE '30%' OR `code` LIKE '00%'".format(update_sql)
-    session.execute(text(update_sql))
-    # session.commit()
-    if beyond is not None:
-        b_status = 1 if status == 0 else 0
-        update_sql2 = "UPDATE `symbol` SET `status` = {} WHERE `code` IN ({})".format(b_status, beyond)
-        session.execute(text(update_sql2))
-    session.flush()
-    session.commit()
+    try:
+        update_sql = "UPDATE `symbol` SET `status` = {}".format(status)
+        if status == 1:
+            update_sql = "{} WHERE `code` LIKE '60%' OR `code` LIKE '30%' OR `code` LIKE '00%'".format(update_sql)
+        session.execute(text(update_sql))
+        # session.commit()
+        if beyond is not None:
+            b_status = 1 if status == 0 else 0
+            update_sql2 = "UPDATE `symbol` SET `status` = {} WHERE `code` IN ({})".format(b_status, beyond)
+            session.execute(text(update_sql2))
+        session.flush()
+        session.commit()
+    except:
+        session.rollback()
 
 
 def find_candles(code, freq, begin='2015-01-01', end=None, limit=10000) -> List[Candle]:
@@ -90,6 +94,7 @@ def find_candles(code, freq, begin='2015-01-01', end=None, limit=10000) -> List[
     cds = session.execute(
         select(Candle).where(clauses).order_by(desc(Candle.dt)).limit(limit)
     ).scalars().fetchall()
+    session.close()
     return list(reversed(cds))
 
 
@@ -133,6 +138,7 @@ def find_stage_candles(code, freq, candle) -> List[Candle]:
             cds.append(nc)
         else:
             break
+    session.close()
     return cds
 
 
@@ -144,6 +150,7 @@ def find_signals(notify=0, begin=None) -> List[Signal]:
     sgs = session.execute(
         select(Signal).where(clauses)
     ).scalars().fetchall()
+    session.close()
     return sgs
 
 
@@ -153,25 +160,33 @@ def find_tickets() -> List[Ticket]:
     tis = session.execute(
         select(Ticket).where(clauses)
     ).scalars().fetchall()
+    session.close()
     return tis
 
 
 def update_signal_notify(signals: List[Signal]):
     session = db.get_session(Entity.Signal)
-    mappings = []
-    for s in signals:
-        dic = {'id': s.id, 'notify': 1}
-        mappings.append(dic)
-    session.bulk_update_mappings(Signal, mappings)
-    session.flush()
-    session.commit()
+    try:
+        mappings = []
+        for s in signals:
+            dic = {'id': s.id, 'notify': 1}
+            mappings.append(dic)
+        session.bulk_update_mappings(Signal, mappings)
+        session.flush()
+        session.commit()
+    except:
+        session.rollback()
 
 
 def update_ticket(mappings):
     session = db.get_session(Entity.Ticket)
-    session.bulk_update_mappings(Ticket, mappings)
-    session.flush()
-    session.commit()
+    try:
+        session.bulk_update_mappings(Ticket, mappings)
+        session.flush()
+        session.commit()
+    except:
+        session.rollback()
+
 
 
 if __name__ == '__main__':
