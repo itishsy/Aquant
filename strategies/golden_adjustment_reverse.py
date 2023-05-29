@@ -57,10 +57,11 @@ class GAR(Strategy):
         if (highest.high - a_lowest.low) / (highest.high - lowest.low) > 0.5:
             return
 
-        # 调整下来的慢线低于上涨启动的快线
+        # 调整过度。下来的慢线低于上涨启动的快线
         if dea is None or c_last.dea9 < dea:
             return
 
+        ss = []
         for kl in self.child_freq():
             if kl not in freqs:
                 css = fetch_data(code, kl, begin=sdt)

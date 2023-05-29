@@ -36,8 +36,9 @@ class MAR(Strategy):
         for freq in self.child_freq():
             css = find_candles(code, freq, begin=sdt)
             cds = diver_bottom(css)
-            for cd in cds:
-                s = Signal(dt=cd.dt, freq=self.freq, type=self.__class__.__name__, value=cd.freq)
-                s.code = code
-                ss.append(s)
+            for cs in cds:
+                cs.type=self.__class__.__name__,
+                cs.value=self.freq
+                cs.code = code
+                ss.append(cs)
         self.upset_signals(ss)
