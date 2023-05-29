@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, BooleanField, PasswordField, Selec
 from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
 
 
-class CfgNotifyForm(FlaskForm):
+class NotifyForm(FlaskForm):
     check_order = StringField('排序', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     notify_type = SelectField('通知类型', choices=[('MAIL', '邮件通知'), ('SMS', '短信通知')],
                               validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
@@ -14,6 +14,13 @@ class CfgNotifyForm(FlaskForm):
 
 
 class SignalForm(FlaskForm):
+    code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    dt = StringField('时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    notify = BooleanField('生效标识', default=True)
+    submit = SubmitField('提交')
+
+
+class TicketForm(FlaskForm):
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     dt = StringField('时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     notify = BooleanField('生效标识', default=True)

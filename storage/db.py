@@ -9,10 +9,8 @@ from sqlalchemy import select, desc, and_, text
 from typing import List
 from datetime import datetime, timedelta
 from enums.entity import Entity
-from sqlalchemy import (
-    create_engine,
-    MetaData
-)
+from sqlalchemy import create_engine, MetaData
+import traceback
 
 
 class DB:
@@ -38,7 +36,7 @@ class DB:
             # 多久之后对链接池中的链接进行一次回收
             pool_recycle=10,
             # 查看原生语句（未格式化）
-            echo=False)
+            echo=True)
         return engine
 
     def get_session(self, table_name=''):
@@ -142,16 +140,36 @@ def find_stage_candles(code, freq, candle) -> List[Candle]:
     return cds
 
 
-def find_signals(notify=0, begin=None) -> List[Signal]:
+def find_signals(watch=None) -> List[Signal]:
     session = db.get_session(Entity.Signal)
-    clauses = and_(Signal.notify == notify)
-    if begin is not None:
-        clauses = clauses.__and__(Signal.created > begin)
+    if watch is None:
+        clauses = and_(1 == 1)
+    else:
+        clauses = and_(Signal.watch == watch)
     sgs = session.execute(
         select(Signal).where(clauses)
     ).scalars().fetchall()
     session.close()
     return sgs
+
+
+def get_signal(id) -> Signal:
+    session = db.get_session(Entity.Signal)
+    sig = session.execute(
+        select(Signal).where(Signal.id == id)
+    ).first()
+    session.close()
+    return sig
+
+
+def count_signals(today=False):
+    session = db.get_session(Entity.Signal)
+    if today:
+        count = session.query(Signal).filter_by('created >= {}'.format(datetime.now().strftime('%Y-%m-%d'))).count()
+    else:
+        count = session.query(Signal).count()
+    session.close()
+    return count
 
 
 def find_tickets() -> List[Ticket]:
@@ -164,13 +182,17 @@ def find_tickets() -> List[Ticket]:
     return tis
 
 
-def update_signal_notify(signals: List[Signal]):
+def count_tickets():
+    session = db.get_session(Entity.Ticket)
+    count = session.query(Ticket).count()
+    session.close()
+    return count
+
+
+def update_signal_watch(ident, watch):
     session = db.get_session(Entity.Signal)
     try:
-        mappings = []
-        for s in signals:
-            dic = {'id': s.id, 'notify': 1}
-            mappings.append(dic)
+        mappings = [{'id': ident, 'watch': watch}]
         session.bulk_update_mappings(Signal, mappings)
         session.flush()
         session.commit()
@@ -178,28 +200,41 @@ def update_signal_notify(signals: List[Signal]):
         session.rollback()
 
 
-def update_ticket(mappings):
+def save_ticket_by_signal(signal: Signal):
     session = db.get_session(Entity.Ticket)
     try:
-        session.bulk_update_mappings(Ticket, mappings)
-        session.flush()
+        print('==========', signal)
+        ticket = Ticket(signal.code)
+        print('==========', ticket)
+        session.add(ticket)
         session.commit()
-    except:
+        return 1
+    except Exception as ex:
+        traceback.print_exc()
         session.rollback()
+        return 0
 
+    def update_ticket(mappings):
+        session = db.get_session(Entity.Ticket)
+        try:
+            session.bulk_update_mappings(Ticket, mappings)
+            session.flush()
+            session.commit()
+        except:
+            session.rollback()
 
-
-if __name__ == '__main__':
-    # fetch_symbols()
-    # mark('300223', 101)
-    # fetch_data('300223', 30)
-    # candles = find_candles('300223', 101, begin='2023-01-01', limit=100)
-    # for c in candles:
-    #     print(c)
-    fas = find_active_symbols()
-    for sb in fas:
-        sql = "ALTER TABLE `{}` CHANGE `klt` `freq` INT(11) NULL;".format(sb.code)
-        session = db.get_session(sb.code)
-        session.execute(text(sql))
-        session.flush()
-        session.commit()
+    if __name__ == '__main__':
+        pass
+        # fetch_symbols()
+        # mark('300223', 101)
+        # fetch_data('300223', 30)
+        # candles = find_candles('300223', 101, begin='2023-01-01', limit=100)
+        # for c in candles:
+        #     print(c)
+        # fas = find_active_symbols()
+        # for sb in fas:
+        #     sql = "ALTER TABLE `{}` CHANGE `klt` `freq` INT(11) NULL;".format(sb.code)
+        #     session = db.get_session(sb.code)
+        #     session.execute(text(sql))
+        #     session.flush()
+        #     session.commit()

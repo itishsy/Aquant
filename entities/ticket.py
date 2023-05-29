@@ -5,10 +5,13 @@ from datetime import datetime
 
 @dataclass
 class Ticket:
+    def __init__(self, code):
+        self.code = code
+
     id: int
     code: str
+    freq: str
     type: int
-    freq: int
     dt: str
     status: int
     created: datetime = datetime.now()

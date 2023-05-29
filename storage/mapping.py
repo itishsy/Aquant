@@ -61,6 +61,7 @@ class Mapper:
             Column('freq', Integer),
             Column('type', String(50)),
             Column('value', String(50)),
+            Column('watch', Integer),
             Column('notify', Integer),
             Column('created', DateTime)
         ))

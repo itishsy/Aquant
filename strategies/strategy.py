@@ -55,7 +55,6 @@ class Strategy(ABC):
             for cd in cds:
                 si = Signal(dt=cd.dt, freq=self.freq, type=self.__class__.__name__, value=cd.freq)
                 si.code = code
-                si.notify = 0
                 si.created = datetime.now()
                 self.signals.append(si)
 

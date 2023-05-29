@@ -41,8 +41,8 @@ class User(UserMixin, BaseModel):
         return check_password_hash(self.password, raw_password)
 
 
-# 通知人配置
-class CfgNotify(BaseModel):
+# 通知
+class Notify(BaseModel):
     check_order = IntegerField()  # 排序
     notify_type = CharField()  # 通知类型：MAIL/SMS
     notify_name = CharField()  # 通知人姓名
@@ -50,14 +50,23 @@ class CfgNotify(BaseModel):
     status = BooleanField(default=True)  # 生效失效标识
 
 
-# 信号配置
+# 信号
 class Signal(BaseModel):
     code = CharField()  # 编码
     dt = CharField()  # 时间
     freq = CharField()  # 周期
     type = CharField()  # 策略类型
     value = CharField()  # 策略值
-    notify = BooleanField(default=True)  # 生效失效标识
+    watch = BooleanField(default=True)  # 生效失效标识
+
+
+# 票据
+class Ticket(BaseModel):
+    code = CharField()  # 编码
+    dt = CharField()  # 时间
+    freq = CharField()  # 周期
+    type = CharField()  # 策略类型
+    status = BooleanField(default=True)
 
 
 @login_manager.user_loader
@@ -68,7 +77,7 @@ def load_user(user_id):
 # 建表
 def create_table():
     db.connect()
-    db.create_tables([CfgNotify, User])
+    db.create_tables([Notify, User, Signal, Ticket])
 
 
 if __name__ == '__main__':

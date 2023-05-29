@@ -20,7 +20,7 @@ def daily_task(sta=False):
                 search_all()
                 sta = False
                 print("==============用時：{}=================".format(datetime.now() - now))
-                print(find_signals(begin=now.strftime('%Y-%m-%d')))
+                print(find_signals())
         except Exception as e:
             print(e)
         finally:

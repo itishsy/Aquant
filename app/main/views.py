@@ -3,12 +3,12 @@ import math
 from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app import utils
-from app.models import CfgNotify, Signal
-from app.main.forms import CfgNotifyForm, SignalForm
+from app.models import Notify, Signal, Ticket
+from app.main.forms import NotifyForm, SignalForm, TicketForm
 from . import main
+from storage.db import count_signals, count_tickets, get_signal, update_signal_watch, save_ticket_by_signal
+from enums.entity import Entity
 from conf.config import Config
-
-
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -88,7 +88,26 @@ def index():
 @main.route('/api/stats/summary', methods=['GET'])
 @login_required
 def api():
-    data = {'batch_count': 10, 'test_count': 5, 'succ_count': 103, 'fail_count': 46}
+    s_signal = count_signals()
+    t_signal = count_signals(today=True)
+    data = {'count01': s_signal, 'count02': t_signal, 'count03': count_tickets(), 'count04': 46}
+    return jsonify(data)
+
+
+# 根目录跳转
+@main.route('/api/save/ticket', methods=['POST'])
+@login_required
+def save_ticket():
+    id = request.args.get('id')
+    status = request.args.get('status')
+    sig = get_signal(id)
+    if sig is None:
+        ok = 0
+    else:
+        print('========', id, status, sig)
+        update_signal_watch(id, status)
+        ok = save_ticket_by_signal(sig)
+    data = {'ok': ok}
     return jsonify(data)
 
 
@@ -96,25 +115,35 @@ def api():
 @main.route('/notifylist', methods=['GET', 'POST'])
 @login_required
 def notifylist():
-    return common_list(CfgNotify, 'notifylist.html')
+    return common_list(Notify, 'notifylist.html')
 
 
 # 通知方式配置
 @main.route('/notifyedit', methods=['GET', 'POST'])
 @login_required
 def notifyedit():
-    return common_edit(CfgNotify, CfgNotifyForm(), 'notifyedit.html')
+    return common_edit(Notify, NotifyForm(), 'notifyedit.html')
 
 
-# 通知方式查询
 @main.route('/signallist', methods=['GET', 'POST'])
 @login_required
 def signallist():
     return common_list(Signal, 'signallist.html')
 
 
-# 通知方式配置
 @main.route('/signaledit', methods=['GET', 'POST'])
 @login_required
 def signaledit():
     return common_edit(Signal, SignalForm(), 'signaledit.html')
+
+
+@main.route('/ticketlist', methods=['GET', 'POST'])
+@login_required
+def ticketlist():
+    return common_list(Ticket, 'ticketlist.html')
+
+
+@main.route('/ticketedit', methods=['GET', 'POST'])
+@login_required
+def ticketedit():
+    return common_edit(Ticket, TicketForm(), 'ticketedit.html')

@@ -22,17 +22,17 @@
         {% if form%}
         <table class="table table-bordered">
             <tr>
-                <th>ID</th>
-                <th>信号</th>
-                <th>发出时间</th>
-                <th>周期</th>
-                <th>类型</th>
+                <th style="display: none" >ID</th>
+                <th>编码</th>
+                <th>策略</th>
+                <th>发生时间</th>
+                <th>级别</th>
+                <th>监视</th>
                 <th>编辑</th>
-                <th>删除</th>
             </tr>
             {% for row in form.content %}
             <tr>
-                <td>{{row.id}}</td>
+                <td style="display: none">{{row.id}}</td>
                 <td>
                     {% if row.code.startswith('60') %}
                     <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.code}}</a>
@@ -40,10 +40,9 @@
                     <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.code}}</a>
                     {% endif %}
                 </td>
+                <td>{{row.type}}({{row.value}})</td>
                 <td>{{row.dt}}</td>
                 <td>{{row.freq}}</td>
-                <td>{{row.type}}</td>
-                <td>{{row.value}}</td>
                 <td>
                     {% if row.notify %}
                     <input type="checkbox" data-id="{{row.id}}" class="status" data-on-text="生效" data-off-text="失效"
@@ -53,8 +52,6 @@
                            data-size="mini">
                     {% endif %}
                 </td>
-                <td><a class='fa fa-lg fa-edit text-light-blue'
-                       href='{{ url_for("main.notifyedit", id=row.id) }}'></a></td>
                 <td><a class='fa fa-lg fa-warning text-red' href='?action=del&id={{row.id}}'></a></td>
             </tr>
             {% endfor %}
@@ -96,7 +93,11 @@
     }
 
     function switchStatus(id, status, switchBox) {
-        restTemplate("PUT", "/notifies/" + id + "/status/" + status, null, function () {
+        // restTemplate("PUT", "/notifies/" + id + "/status/" + status, null, function () {
+        //
+        // });
+        s = status ? 1 : 0
+        restTemplate("POST", "/save/ticket?id=" + id + "&status=" + s, null, function (obj) {
             $($(switchBox)).bootstrapSwitch("state", status);
         });
     }

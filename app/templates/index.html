@@ -20,7 +20,7 @@
                 <div class="small-box bg-aqua">
                     <div class="inner">
                         <h3 id="count01">0</h3>
-                        <p>统计信息</p>
+                        <p>信号总数</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-ios-gear-outline"></i>
@@ -31,7 +31,7 @@
                 <div class="small-box bg-green">
                     <div class="inner">
                         <h3 id="count02">0</h3>
-                        <p>统计信息</p>
+                        <p>今日新增</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-iphone"></i>
@@ -42,7 +42,7 @@
                 <div class="small-box bg-yellow">
                     <div class="inner">
                         <h3 id="count03">0</h3>
-                        <p>统计信息</p>
+                        <p>正在監視</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-person-add"></i>
@@ -80,10 +80,10 @@
     function initPage() {
         var jsInObj = null;
         restTemplate("GET", "/stats/summary", jsInObj, function (jsOutObj) {
-            $("#count01").text(jsOutObj.batch_count);
-            $("#count02").text(jsOutObj.test_count);
-            $("#count03").text(jsOutObj.succ_count);
-            $("#count04").text(jsOutObj.fail_count);
+            $("#count01").text(jsOutObj.count01);
+            $("#count02").text(jsOutObj.count02);
+            $("#count03").text(jsOutObj.count03);
+            $("#count04").text(jsOutObj.count04);
         });
     }
 </script>

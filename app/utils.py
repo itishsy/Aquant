@@ -4,7 +4,7 @@ import html
 import json
 import datetime
 from urllib.parse import unquote
-from app.models import CfgNotify
+from app.models import Notify, Signal, Ticket
 from flask import Response, flash
 
 
@@ -81,7 +81,11 @@ def jsonresp(jsonobj=None, status=200, errinfo=None):
 # 通过名称获取PEEWEE模型
 def get_model_by_name(model_name):
     if model_name == 'notifies':
-        DynamicModel = CfgNotify
+        DynamicModel = Notify
+    elif model_name == 'signals':
+        DynamicModel = Signal
+    elif model_name == 'tickets':
+        DynamicModel = Ticket
     else:
         DynamicModel = None
     return DynamicModel
