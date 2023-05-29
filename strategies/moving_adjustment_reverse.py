@@ -1,7 +1,7 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.db import find_candles, freqs
-from storage.fetcher import fetch_data
-import signals.utils as sig
+from storage.db import find_candles
+from entities.signal import Signal
+from signals.divergence import diver_bottom, diver_top
 
 
 @register_strategy
@@ -15,7 +15,7 @@ class MAR(Strategy):
         """
 
         candles = find_candles(code, self.freq, begin=self.begin, limit=self.limit)
-        if len(candles) == 0 or len(candles) < 80:
+        if len(candles) < self.limit:
             return
 
         if candles[-1].close < candles[-1].ma30:
@@ -27,11 +27,17 @@ class MAR(Strategy):
                 return
             i = i + 1
 
-        sis = sig.divergence(candles, is_top=True)
+        sis = diver_top(candles)
         if len(sis) > 0:
             return
 
         sdt = candles[-30].dt
-        for kl in self.child_freq():
-            css = find_candles(code, kl, begin=sdt)
-            self.append_signals(code, css)
+        ss = []
+        for freq in self.child_freq():
+            css = find_candles(code, freq, begin=sdt)
+            cds = diver_bottom(css)
+            for cd in cds:
+                s = Signal(dt=cd.dt, freq=self.freq, type=self.__class__.__name__, value=cd.freq)
+                s.code = code
+                ss.append(s)
+        self.upset_signals(ss)

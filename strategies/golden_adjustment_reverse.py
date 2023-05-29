@@ -15,7 +15,7 @@ class GAR(Strategy):
         :param code:
         """
         candles = find_candles(code, self.freq, begin=self.begin, limit=self.limit)
-        if len(candles) == 0:
+        if len(candles) < self.limit:
             return
 
         # 最后一根在0轴上方且macd向下调整
