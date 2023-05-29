@@ -165,7 +165,8 @@ def get_signal(id) -> Signal:
 def count_signals(today=False):
     session = db.get_session(Entity.Signal)
     if today:
-        count = session.query(Signal).filter_by('created >= {}'.format(datetime.now().strftime('%Y-%m-%d'))).count()
+        dt = datetime.now().strftime('%Y-%m-%d')
+        count = session.query(Signal).filter(Signal.created >= dt).count()
     else:
         count = session.query(Signal).count()
     session.close()

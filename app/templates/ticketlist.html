@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}信号查询{% endblock %}
+{% block title %}票據查询{% endblock %}
 {% block navbar %}
 <section class="content-header">
-    <h1>信号查询</h1>
+    <h1>票據查询</h1>
     <ol class="breadcrumb">
         <li><i class="fa fa-dashboard"></i> 当前位置</li>
-        <li class="active">信号管理</li>
-        <li class="active">信号查询</li>
+        <li class="active">票據管理</li>
+        <li class="active">票據查询</li>
     </ol>
 </section>
 {% endblock %}
@@ -22,24 +22,33 @@
         {% if form%}
         <table class="table table-bordered">
             <tr>
-                <th>ID</th>
-                <th>信号</th>
-                <th>发出时间</th>
+                <th style="display: none" >ID</th>
+                <th>編碼</th>
+                <th>时间</th>
                 <th>周期</th>
-                <th>类型</th>
+                <th>交易類型</th>
+                <th>啓用/停用</th>
                 <th>编辑</th>
-                <th>删除</th>
             </tr>
             {% for row in form.content %}
             <tr>
-                <td>{{row.id}}</td>
-                <td>{{row.code}}</td>
+                <td style="display: none" >{{row.id}}</td>
+                <td>
+                    {% if row.code.startswith('60') %}
+                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.code}}</a>
+                    {% else %}
+                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.code}}</a>
+                    {% endif %}
+                </td>
                 <td>{{row.dt}}</td>
                 <td>{{row.freq}}</td>
-                <td>{{row.type}}</td>
-                <td>{{row.value}}</td>
+                <td>{% if (row.type == 0) %}
+                    <label style="color: #4149e1">買入</label>
+                    {% else %}
+                    <label style="color: #a10000">賣出</label>
+                    {% endif %}</td>
                 <td>
-                    {% if row.notify %}
+                    {% if row.status %}
                     <input type="checkbox" data-id="{{row.id}}" class="status" data-on-text="生效" data-off-text="失效"
                            data-size="mini" checked>
                     {% else %}
@@ -49,7 +58,6 @@
                 </td>
                 <td><a class='fa fa-lg fa-edit text-light-blue'
                        href='{{ url_for("main.notifyedit", id=row.id) }}'></a></td>
-                <td><a class='fa fa-lg fa-warning text-red' href='?action=del&id={{row.id}}'></a></td>
             </tr>
             {% endfor %}
         </table>
