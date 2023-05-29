@@ -106,7 +106,7 @@ def save_ticket():
     else:
         print('========', id, status, sig)
         update_signal_watch(id, status)
-        ok = save_ticket_by_signal(sig)
+        ok = save_ticket_by_signal(sig, status)
     data = {'ok': ok}
     return jsonify(data)
 

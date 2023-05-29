@@ -5,12 +5,14 @@ from datetime import datetime
 
 @dataclass
 class Ticket:
-    def __init__(self, code):
+    def __init__(self, code, dt, freq):
         self.code = code
+        self.dt = dt
+        self.freq = freq
 
     id: int
     code: str
-    freq: str
+    freq: int
     type: int
     dt: str
     status: int

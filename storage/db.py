@@ -157,7 +157,7 @@ def get_signal(id) -> Signal:
     session = db.get_session(Entity.Signal)
     sig = session.execute(
         select(Signal).where(Signal.id == id)
-    ).first()
+    ).scalar()
     session.close()
     return sig
 
@@ -182,6 +182,14 @@ def find_tickets() -> List[Ticket]:
     return tis
 
 
+def get_ticket(code) -> Signal:
+    session = db.get_session(Entity.Ticket)
+    sig = session.execute(
+        select(Ticket).where(Ticket.code == code)
+    ).scalar()
+    session.close()
+    return sig
+
 def count_tickets():
     session = db.get_session(Entity.Ticket)
     count = session.query(Ticket).count()
@@ -200,14 +208,25 @@ def update_signal_watch(ident, watch):
         session.rollback()
 
 
-def save_ticket_by_signal(signal: Signal):
+def save_ticket_by_signal(signal: Signal, status):
     session = db.get_session(Entity.Ticket)
     try:
-        print('==========', signal)
-        ticket = Ticket(signal.code)
-        print('==========', ticket)
-        session.add(ticket)
-        session.commit()
+        tic = get_ticket(signal.code)
+        if tic is None:
+            print('==========', signal)
+            ticket = Ticket(signal.code,signal.dt,signal.freq)
+            ticket.type = 0
+            ticket.status = status
+            ticket.created = datetime.now()
+            ticket.updated = datetime.now()
+            print('==========', ticket)
+            session.add(ticket)
+            session.commit()
+        else:
+            mappings = [{'id': tic.id, 'status': status}]
+            session.bulk_update_mappings(Ticket, mappings)
+            session.flush()
+            session.commit()
         return 1
     except Exception as ex:
         traceback.print_exc()
