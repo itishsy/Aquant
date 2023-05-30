@@ -1,8 +1,6 @@
-from entities.candle import Candle
-from entities.signal import Signal
+from models.candle import Candle
+from models.signal import Signal
 from typing import List
-from storage.fetcher import fetch_data
-from storage.marker import mark
 import signals.utils as utl
 
 

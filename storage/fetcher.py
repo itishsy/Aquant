@@ -1,13 +1,14 @@
 import efinance as ef
 from datetime import datetime, timedelta
-from entities.candle import Candle
-from entities.symbol import Symbol
+from models.candle import Candle
+from models.symbol import Symbol
 from decimal import Decimal
 from storage.db import db, freqs
 from sqlalchemy import select, desc, delete, and_, text
 from storage.marker import remark
 from enums.entity import Entity
-from storage.db import find_active_symbols, find_candles
+from models.symbol import find_active_symbols
+from models.candle import find_candles
 from typing import List
 import logging
 import time
@@ -134,20 +135,22 @@ def fetch_all(freq=None):
 
 
 def fetch_daily():
+    print('[{}] daily fetch working'.format(datetime.now()))
     while True:
+        now = datetime.now()
         try:
-            now = datetime.now()
-            if now.weekday() < 5:
-                if (now.hour == 11 and now.minute == 35) or (now.hour == 15 and now.minute == 10):
-                    print("start fetching.", now)
-                    fetch_all()
-                    print('fetch all done!')
+            if now.weekday() < 5 and (
+                    (now.hour == 11 and now.minute == 35) or (now.hour == 15 and now.minute == 10)):
+                fetch_all()
+                print("==============用時：{}=================".format(datetime.now() - now))
         except Exception as e:
             print(e)
         finally:
+            if now.minute == 1:
+                print('[{}] daily fetch working'.format(now))
             time.sleep(60)
 
 
 if __name__ == '__main__':
-    # fetch_daily()
-    fetch_all(freq=101)
+    fetch_daily()
+    # fetch_all(freq=101)

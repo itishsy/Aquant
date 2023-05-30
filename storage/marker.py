@@ -1,6 +1,7 @@
 from typing import List
-from storage.db import db, find_active_symbols
-from entities.candle import Candle
+from storage.db import db
+from models.candle import Candle
+from models.symbol import find_active_symbols
 from sqlalchemy import select,and_
 
 

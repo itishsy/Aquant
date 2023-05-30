@@ -1,6 +1,6 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.db import find_candles
-from entities.signal import Signal
+from models.candle import find_candles
+from models.signal import Signal
 from signals.divergence import diver_bottom, diver_top
 
 

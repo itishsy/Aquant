@@ -1,31 +1,21 @@
 from datetime import datetime
-from storage.fetcher import fetch_all
 from strategies import *
-from models.signal import find_signals
-import logging
 import time
 
-logging.basicConfig(format='%(asctime)s %(message)s', filename='d://aquant.log')
-logging.getLogger().setLevel(logging.INFO)
 
-
-def daily_task(sta=False):
-    print('[{}] daily task working'.format(datetime.now()))
+def daily_search():
+    print('[{}] daily search working'.format(datetime.now()))
     while True:
         now = datetime.now()
         try:
-            if sta or (now.weekday() < 5 and (
-                    (now.hour == 11 and now.minute == 40) or (now.hour == 15 and now.minute == 10))):
-                fetch_all()
+            if now.weekday() < 5 and now.hour == 17 and now.minute == 10:
                 search_all()
-                sta = False
                 print("==============用時：{}=================".format(datetime.now() - now))
-                print(find_signals())
         except Exception as e:
             print(e)
         finally:
             if now.minute == 1:
-                print('[{}] daily task working'.format(now))
+                print('[{}] daily search working'.format(now))
             time.sleep(60)
 
 
@@ -42,5 +32,5 @@ def search_all(sta=None):
 
 
 if __name__ == '__main__':
-    daily_task()
+    daily_search()
     # search_all()
