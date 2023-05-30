@@ -58,7 +58,7 @@ class Signal(BaseModel):
     freq = CharField()  # 周期
     strategy = CharField()  # 策略类型
     value = CharField()  # 策略值
-    tick = BooleanField(default=True)  # 是否票据
+    tick = BooleanField(default=False)  # 转票据
     created = DateTimeField
 
 
@@ -68,6 +68,9 @@ class Ticket(BaseModel):
     dt = CharField()  # 时间
     freq = CharField()  # 周期
     strategy = CharField()  # 策略类型
+    b_point = CharField()  # 买点
+    s_point = CharField()  # 卖点
+    c_point = CharField()  # 止损点
     status = BooleanField(default=True) # 状态
 
 
