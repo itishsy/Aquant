@@ -1,7 +1,7 @@
 import time
 from datetime import datetime, timedelta
-from signals.utils import divergence
-from storage.db import find_tickets, update_ticket
+from signals.divergence import diver_top, diver_bottom
+from storage.db import find_tickets
 from storage.fetcher import fetch_data
 from storage.marker import mark
 from typing import List
@@ -22,7 +22,10 @@ def get_tickets() -> List[Ticket]:
                     candles = fetch_data(t.code, t.freq, (datetime.now() - timedelta(s)).strftime('%Y%m%d'))
                     candles = mark(candles)
                     if len(candles) > 0:
-                        des = divergence(candles, t.type == 1)
+                        if t.type == 1:
+                            des = diver_top(candles)
+                        else:
+                            des = diver_bottom(candles)
                         if len(des) > 0 and des[-1].dt >= datetime.now().strftime('%Y-%m-%d'):
                             t.dt = des[-1].dt
                             t.updated = datetime.now()

@@ -1,15 +1,14 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, BooleanField, PasswordField, SelectField, TextAreaField, HiddenField
+from wtforms import StringField, SubmitField, BooleanField,IntegerField, PasswordField, SelectField, TextAreaField, HiddenField
 from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
 
 
 class NotifyForm(FlaskForm):
-    check_order = StringField('排序', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    notify_type = SelectField('通知类型', choices=[('MAIL', '邮件通知'), ('SMS', '短信通知')],
+    code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    strategy = SelectField('策略', choices=[('DRC', '反转确认'), ('GAR', '金叉调整'), ('MAR', '趋势调整')],
                               validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    notify_name = StringField('通知人姓名', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    notify_number = StringField('通知号码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    status = BooleanField('生效标识', default=True)
+    dt = StringField('发生时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    status = IntegerField('发送状态', default=0)
     submit = SubmitField('提交')
 
 

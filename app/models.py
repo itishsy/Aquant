@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from peewee import MySQLDatabase, Model, CharField, BooleanField, IntegerField
+from peewee import MySQLDatabase, Model, CharField, BooleanField, IntegerField, DateTimeField
 import json
 from werkzeug.security import check_password_hash
 from flask_login import UserMixin
@@ -28,7 +28,7 @@ class BaseModel(Model):
         return json.dumps(r, ensure_ascii=False)
 
 
-# 管理员工号
+# 用户
 class User(UserMixin, BaseModel):
     username = CharField()  # 用户名
     password = CharField()  # 密码
@@ -43,11 +43,12 @@ class User(UserMixin, BaseModel):
 
 # 通知
 class Notify(BaseModel):
-    check_order = IntegerField()  # 排序
-    notify_type = CharField()  # 通知类型：MAIL/SMS
-    notify_name = CharField()  # 通知人姓名
-    notify_number = CharField()  # 通知号码
-    status = BooleanField(default=True)  # 生效失效标识
+    code = CharField() # 编码
+    strategy = CharField()  # 策略
+    dt = CharField()  # 发生时间
+    status = IntegerField(default=0)  # 0 未发送 1 已发送
+    created = DateTimeField()
+    updated = DateTimeField()
 
 
 # 信号
@@ -55,9 +56,10 @@ class Signal(BaseModel):
     code = CharField()  # 编码
     dt = CharField()  # 时间
     freq = CharField()  # 周期
-    type = CharField()  # 策略类型
+    strategy = CharField()  # 策略类型
     value = CharField()  # 策略值
-    watch = BooleanField(default=True)  # 生效失效标识
+    tick = BooleanField(default=True)  # 是否票据
+    created = DateTimeField
 
 
 # 票据
@@ -65,8 +67,8 @@ class Ticket(BaseModel):
     code = CharField()  # 编码
     dt = CharField()  # 时间
     freq = CharField()  # 周期
-    type = CharField()  # 策略类型
-    status = BooleanField(default=True)
+    strategy = CharField()  # 策略类型
+    status = BooleanField(default=True) # 状态
 
 
 @login_manager.user_loader
