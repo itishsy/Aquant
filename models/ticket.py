@@ -1,10 +1,10 @@
-from decimal import Decimal
 from dataclasses import dataclass
 from models.signal import Signal
 from sqlalchemy import select, desc, and_, text
 from storage.db import db
 from typing import List
 from datetime import datetime, timedelta
+import traceback
 
 
 @dataclass
@@ -37,7 +37,7 @@ def find_tickets() -> List[Ticket]:
 
 
 def get_ticket(code) -> Signal:
-    session = db.get_session(Entity.Ticket)
+    session = db.get_session()
     sig = session.execute(
         select(Ticket).where(Ticket.code == code)
     ).scalar()
@@ -46,14 +46,14 @@ def get_ticket(code) -> Signal:
 
 
 def count_tickets():
-    session = db.get_session(Entity.Ticket)
+    session = db.get_session()
     count = session.query(Ticket).count()
     session.close()
     return count
 
 
 def save_ticket_by_signal(signal: Signal, status):
-    session = db.get_session(Entity.Ticket)
+    session = db.get_session()
     try:
         tic = get_ticket(signal.code)
         if tic is None:
@@ -77,7 +77,7 @@ def save_ticket_by_signal(signal: Signal, status):
 
 
 def update_ticket(mappings):
-    session = db.get_session(Entity.Ticket)
+    session = db.get_session()
     try:
         session.bulk_update_mappings(Ticket, mappings)
         session.flush()

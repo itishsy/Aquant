@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from sqlalchemy import select, desc, and_, text
 from storage.db import db
 from typing import List
-import traceback
 from datetime import datetime, timedelta
 
 
@@ -22,7 +21,7 @@ class Symbol:
 
 
 def find_active_symbols() -> List[Symbol]:
-    session = db.get_session(Entity.Symbol)
+    session = db.get_session()
     sbs = session.execute(
         select(Symbol).where(and_(Symbol.status == 1))
     ).scalars().fetchall()
