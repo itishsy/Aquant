@@ -58,6 +58,11 @@ def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
 
 
 def get_top_bottom(candles: List[Candle]):
+    """
+    获取diff的顶和底
+    :param candles:
+    :return:
+    """
     tbc = []
     for cd in candles:
         if cd.mark is None:

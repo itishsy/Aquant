@@ -49,15 +49,6 @@ class Strategy(ABC):
         except Exception as e:
             print(e)
 
-    def append_signals(self, code, candles: List[Candle]):
-        if len(candles) > 0:
-            cds = sig.divergence(candles)
-            for cd in cds:
-                si = Signal(dt=cd.dt, freq=self.freq, type=self.__class__.__name__, value=cd.freq)
-                si.code = code
-                si.created = datetime.now()
-                self.signals.append(si)
-
     def upset_signals(self, signals: List[Signal]):
         if len(signals) > 0:
             session = db.get_session(Entity.Signal)

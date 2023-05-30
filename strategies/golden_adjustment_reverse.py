@@ -1,7 +1,7 @@
 from strategies.strategy import register_strategy, Strategy
 from storage.db import find_candles, freqs
-from storage.fetcher import fetch_data
 import signals.utils as sig
+from signals.divergence import diver_bottom
 
 
 @register_strategy
@@ -62,9 +62,13 @@ class GAR(Strategy):
             return
 
         ss = []
-        for kl in self.child_freq():
-            if kl not in freqs:
-                css = fetch_data(code, kl, begin=sdt)
-            else:
-                css = find_candles(code, kl, begin=sdt)
-            self.append_signals(code, css)
+        for fre in self.child_freq():
+            if fre in freqs:
+                css = find_candles(code, fre, begin=sdt)
+                cds = diver_bottom(css)
+                for cs in cds:
+                    cs.type = self.__class__.__name__,
+                    cs.value = self.freq
+                    cs.code = code
+                    ss.append(cs)
+        self.upset_signals(ss)
