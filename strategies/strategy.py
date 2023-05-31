@@ -1,11 +1,11 @@
 from datetime import datetime
-from storage.db import db
+from storage.dba import db
 from abc import ABC, abstractmethod
-from models.symbol import find_active_symbols
+from storage.symbol import find_active_symbols
 from models.signal import Signal
 from enums.entity import Entity
 from typing import List
-from sqlalchemy import select, desc, and_, text
+from sqlalchemy import select, and_
 
 factory = {}
 

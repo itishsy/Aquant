@@ -1,4 +1,4 @@
-from models.candle import Candle
+from storage.candle import Candle
 from models.signal import Signal
 from typing import List
 import signals.utils as utl

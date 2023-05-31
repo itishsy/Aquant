@@ -3,12 +3,12 @@ import math
 from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app import utils
-from app.models import Notify, Signal, Ticket
-from app.main.forms import NotifyForm, SignalForm, TicketForm
+from app.models import Notify
+from app.main.forms import NotifyForm, TicketForm
 from . import main
-from storage.db import count_signals, count_tickets, get_signal, update_signal_watch, save_ticket_by_signal
-from enums.entity import Entity
-from conf.config import Config
+from models.signal import Signal
+from models.ticket import Ticket
+import datetime as dt
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -88,9 +88,11 @@ def index():
 @main.route('/api/stats/summary', methods=['GET'])
 @login_required
 def api():
-    s_signal = count_signals()
-    t_signal = count_signals(today=True)
-    data = {'count01': s_signal, 'count02': t_signal, 'count03': count_tickets(), 'count04': 46}
+    count01 = Signal.select().count()
+    today = dt.datetime.now().strftime('%Y-%m-%d')
+    count02 = Signal.select().where((Signal.created > dt.date(2023,1,1))).count()
+    count03 = Ticket.select().count()
+    data = {'count01': count01, 'count02': count02, 'count03': count03, 'count04': 46}
     return jsonify(data)
 
 
@@ -100,14 +102,15 @@ def api():
 def save_ticket():
     id = request.args.get('id')
     status = request.args.get('status')
-    sig = get_signal(id)
+    sig = Signal.get_by_id(id)
     if sig is None:
-        ok = 0
+        flash('操作失败：id={}不存在'.format(id))
     else:
-        print('========', id, status, sig)
-        update_signal_watch(id, status)
-        ok = save_ticket_by_signal(sig, status)
-    data = {'ok': ok}
+        sig.watch = status
+        sig.save()
+        Ticket.create(code=sig.code,status=0)
+        flash('操作成功')
+    data = {'ok': 1}
     return jsonify(data)
 
 
@@ -123,18 +126,6 @@ def notifylist():
 @login_required
 def notifyedit():
     return common_edit(Notify, NotifyForm(), 'notifyedit.html')
-
-
-@main.route('/signallist', methods=['GET', 'POST'])
-@login_required
-def signallist():
-    return common_list(Signal, 'signallist.html')
-
-
-@main.route('/signaledit', methods=['GET', 'POST'])
-@login_required
-def signaledit():
-    return common_edit(Signal, SignalForm(), 'signaledit.html')
 
 
 @main.route('/ticketlist', methods=['GET', 'POST'])

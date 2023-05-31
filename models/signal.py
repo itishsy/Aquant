@@ -1,13 +1,14 @@
 from dataclasses import dataclass
-from datetime import datetime
+from models.base import BaseModel, db
+from peewee import CharField, BooleanField, IntegerField, DateTimeField
 from sqlalchemy import select, desc, and_, text
-from storage.db import db
+from storage.dba import dba
 from typing import List
 from datetime import datetime, timedelta
 
 
 @dataclass
-class Signal:
+class Signal2:
     def __init__(self, dt, freq, type, value):
         self.dt = dt
         self.type = type
@@ -24,9 +25,21 @@ class Signal:
     created: datetime = datetime.now()
 
 
+# 信号
+class Signal(BaseModel):
+    code = CharField()  # 编码
+    freq = IntegerField()  # 主级别
+    dt = DateTimeField()  # 时间
+    strategy = CharField()  # 策略
+    value = CharField()  # 策略值
+    tick = BooleanField(default=False)  # 转票据
+    status = IntegerField(default=1)  # 状态
+    created = DateTimeField()
+    updated = DateTimeField()
+
 
 def find_signals(watch=None) -> List[Signal]:
-    session = db.get_session(Entity.Signal)
+    session = dba.get_session()
     if watch is None:
         clauses = and_(1 == 1)
     else:
@@ -39,7 +52,7 @@ def find_signals(watch=None) -> List[Signal]:
 
 
 def get_signal(id) -> Signal:
-    session = db.get_session(Entity.Signal)
+    session = dba.get_session()
     sig = session.execute(
         select(Signal).where(Signal.id == id)
     ).scalar()
@@ -48,7 +61,7 @@ def get_signal(id) -> Signal:
 
 
 def count_signals(today=False):
-    session = db.get_session(Entity.Signal)
+    session = dba.get_session()
     if today:
         dt = datetime.now().strftime('%Y-%m-%d')
         count = session.query(Signal).filter(Signal.created >= dt).count()
@@ -59,7 +72,7 @@ def count_signals(today=False):
 
 
 def update_signal_watch(ident, watch):
-    session = db.get_session(Entity.Signal)
+    session = dba.get_session()
     try:
         mappings = [{'id': ident, 'watch': watch}]
         session.bulk_update_mappings(Signal, mappings)
@@ -69,3 +82,6 @@ def update_signal_watch(ident, watch):
         session.rollback()
 
 
+if __name__ == '__main__':
+    db.connect()
+    db.create_tables([Signal])

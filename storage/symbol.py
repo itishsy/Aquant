@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from sqlalchemy import select, desc, and_, text
-from storage.db import db
+from storage.dba import db
 from typing import List
 from datetime import datetime, timedelta
 
@@ -30,7 +30,7 @@ def find_active_symbols() -> List[Symbol]:
 
 
 def update_all_symbols(status=0, beyond=None):
-    session = db.get_session(Entity.Symbol)
+    session = db.get_session()
     try:
         update_sql = "UPDATE `symbol` SET `status` = {}".format(status)
         if status == 1:

@@ -24,35 +24,34 @@
         </div>
 
         <div class="box-body">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="form-group">
                     <label>{{form.code.label}}</label>
-                    {{form.code(class_="slider form-control",placeholder="请输入 列表顺序")}}
+                    {{form.code(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.notify_type.label}}</label>
-                    {{form.notify_type(class_="form-control select2",placeholder="请输入")}}
+                    <label>{{form.strategy.label}}</label>
+                    {{form.strategy(class_="form-control select2",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.notify_name.label}}</label>
-                    {{form.notify_name(class_="form-control",placeholder="请输入")}}
+                    <label>{{form.freq.label}}</label>
+                    {{form.freq(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.notify_number.label}}</label>
-                    {{form.notify_number(class_="form-control",placeholder="请输入")}}
+                    <label>{{form.dt.label}}</label>
+                    {{form.dt(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
         </div>
 
         <div class="box-footer">
             <div class="col-md-12">
-                {{form.status()}}
                 {{form.submit(class_="btn btn-primary pull-right")}}
             </div>
         </div>

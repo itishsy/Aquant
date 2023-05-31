@@ -23,16 +23,27 @@
         <table class="table table-bordered">
             <tr>
                 <th style="display: none" >ID</th>
+                <th>状态</th>
                 <th>编码</th>
                 <th>策略</th>
-                <th>发生时间</th>
                 <th>级别</th>
-                <th>监视</th>
-                <th>编辑</th>
+                <th>发生时间</th>
+                <th>删除</th>
             </tr>
             {% for row in form.content %}
             <tr>
                 <td style="display: none">{{row.id}}</td>
+                <td>
+                    {% if row.tick %}
+                    <a href='?action=tick&status=0&id={{row.id}}'>
+                    <input type="checkbox" data-id="{{row.id}}" class="status" data-on-text="T" data-off-text="W"
+                           data-size="mini" checked></a>
+                    {% else %}
+                    <a href='?action=tick&status=1&id={{row.id}}'>
+                    <input type="checkbox" data-id="{{row.id}}" class="status" data-on-text="T" data-off-text="W"
+                           data-size="mini"></a>
+                    {% endif %}
+                </td>
                 <td>
                     {% if row.code.startswith('60') %}
                     <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.code}}</a>
@@ -40,18 +51,9 @@
                     <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.code}}</a>
                     {% endif %}
                 </td>
-                <td>{{row.type}}({{row.value}})</td>
-                <td>{{row.dt}}</td>
+                <td>{{row.strategy}}({{row.value}})</td>
                 <td>{{row.freq}}</td>
-                <td>
-                    {% if row.watch %}
-                    <input type="checkbox" data-id="{{row.id}}" class="status" data-on-text="生效" data-off-text="失效"
-                           data-size="mini" checked>
-                    {% else %}
-                    <input type="checkbox" data-id="{{row.id}}" class="status" data-on-text="生效" data-off-text="失效"
-                           data-size="mini">
-                    {% endif %}
-                </td>
+                <td>{{row.dt}}</td>
                 <td><a class='fa fa-lg fa-warning text-red' href='?action=del&id={{row.id}}'></a></td>
             </tr>
             {% endfor %}
@@ -87,19 +89,16 @@
             value: slide_value
         });
         $('.status').bootstrapSwitch();
-        $(".status").on("switchChange.bootstrapSwitch", function (event, state) {
-            switchStatus($(this).data("id"), state, this);
-        });
-    }
-
-    function switchStatus(id, status, switchBox) {
-        // restTemplate("PUT", "/notifies/" + id + "/status/" + status, null, function () {
-        //
+        // $(".status").on("switchChange.bootstrapSwitch", function (event, state) {
+        //     switchStatus($(this).data("id"), state, this);
         // });
-        s = status ? 1 : 0
-        restTemplate("POST", "/save/ticket?id=" + id + "&status=" + s, null, function (obj) {
-            $($(switchBox)).bootstrapSwitch("state", status);
-        });
     }
+    //
+    // function switchStatus(id, status, switchBox) {
+    //     s = status ? 1 : 0
+    //     restTemplate("GET", "../signallist?action=tick&id==" + id + "&status=" + s, null, function (obj) {
+    //         $($(switchBox)).bootstrapSwitch("state", status);
+    //     });
+    // }
 </script>
 {% endblock %}

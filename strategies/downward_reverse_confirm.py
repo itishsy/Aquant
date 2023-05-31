@@ -1,8 +1,8 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.db import freqs
+from storage.dba import freqs
 import signals.utils as sig
 from models.signal import Signal
-from models.candle import find_stage_candles,find_candles
+from storage.dba import find_stage_candles,find_candles
 from datetime import datetime
 from decimal import Decimal
 from signals.divergence import diver_bottom

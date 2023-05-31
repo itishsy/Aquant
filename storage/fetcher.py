@@ -1,14 +1,14 @@
 import efinance as ef
-from datetime import datetime, timedelta
-from models.candle import Candle
-from models.symbol import Symbol
+from datetime import datetime
+from storage.candle import Candle
+from storage.symbol import Symbol
 from decimal import Decimal
-from storage.db import db, freqs
-from sqlalchemy import select, desc, delete, and_, text
+from storage.dba import db, freqs
+from sqlalchemy import select, desc, delete, and_
 from storage.marker import remark
 from enums.entity import Entity
-from models.symbol import find_active_symbols
-from models.candle import find_candles
+from storage.symbol import find_active_symbols
+from storage.candle import find_candles
 from typing import List
 import logging
 import time

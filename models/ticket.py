@@ -1,14 +1,16 @@
 from dataclasses import dataclass
 from models.signal import Signal
 from sqlalchemy import select, desc, and_, text
-from storage.db import db
+from models.base import BaseModel
+from peewee import CharField, BooleanField, IntegerField, DateTimeField
+from storage.dba import dba
 from typing import List
 from datetime import datetime, timedelta
 import traceback
 
 
 @dataclass
-class Ticket:
+class Ticket2:
     def __init__(self, code, dt, freq):
         self.code = code
         self.dt = dt
@@ -26,8 +28,19 @@ class Ticket:
     updated: datetime = None
 
 
+# 票据
+class Ticket(BaseModel):
+    code = CharField()  # 编码
+    b_freq = CharField()  # b点
+    s_freq = CharField()  # s点
+    cut_point = CharField()
+    status = IntegerField(default=0)  # 状态 0 观察中， 1 持有 2 清仓 3 弃用
+    created = DateTimeField()
+    updated = DateTimeField()
+
+
 def find_tickets() -> List[Ticket]:
-    session = db.get_session('ticket')
+    session = dba.get_session()
     clauses = and_(Ticket.status == 1)
     tis = session.execute(
         select(Ticket).where(clauses)
@@ -37,7 +50,7 @@ def find_tickets() -> List[Ticket]:
 
 
 def get_ticket(code) -> Signal:
-    session = db.get_session()
+    session = dba.get_session()
     sig = session.execute(
         select(Ticket).where(Ticket.code == code)
     ).scalar()
@@ -46,14 +59,14 @@ def get_ticket(code) -> Signal:
 
 
 def count_tickets():
-    session = db.get_session()
+    session = dba.get_session()
     count = session.query(Ticket).count()
     session.close()
     return count
 
 
 def save_ticket_by_signal(signal: Signal, status):
-    session = db.get_session()
+    session = dba.get_session()
     try:
         tic = get_ticket(signal.code)
         if tic is None:
@@ -77,7 +90,7 @@ def save_ticket_by_signal(signal: Signal, status):
 
 
 def update_ticket(mappings):
-    session = db.get_session()
+    session = dba.get_session()
     try:
         session.bulk_update_mappings(Ticket, mappings)
         session.flush()

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import registry
-from models.candle import Candle
+from storage.candle import Candle
 from models.signal import Signal
-from models.symbol import Symbol
+from storage.symbol import Symbol
 from models.ticket import Ticket
 from enums.entity import Entity
 from conf.config import Config
@@ -42,42 +42,42 @@ class Mapper:
             Column('mark', Integer)
         ))
 
-    def symbol_table(self, meta):
-        registry().map_imperatively(Symbol, Table(
-            Entity.Symbol, meta,
-            Column('id', Integer, autoincrement=True, primary_key=True),
-            Column('code', String(50)),
-            Column('name', String(50)),
-            Column('status', Integer),
-            Column('comment', String(500))
-        ))
-
-    def signal_table(self, meta):
-        registry().map_imperatively(Signal, Table(
-            Entity.Signal, meta,
-            Column('id', Integer, autoincrement=True, primary_key=True),
-            Column('code', String(50)),
-            Column('dt', String(50)),
-            Column('freq', Integer),
-            Column('type', String(50)),
-            Column('value', String(50)),
-            Column('watch', Integer),
-            Column('notify', Integer),
-            Column('created', DateTime)
-        ))
-
-    def ticket_table(self, meta):
-        registry().map_imperatively(Ticket, Table(
-            Entity.Ticket, meta,
-            Column('id', Integer, autoincrement=True, primary_key=True),
-            Column('code', String(50)),
-            Column('type', String(50)),
-            Column('freq', Integer),
-            Column('dt', String(50)),
-            Column('status', Integer),
-            Column('created', DateTime),
-            Column('updated', DateTime)
-        ))
+    # def symbol_table(self, meta):
+    #     registry().map_imperatively(Symbol, Table(
+    #         Entity.Symbol, meta,
+    #         Column('id', Integer, autoincrement=True, primary_key=True),
+    #         Column('code', String(50)),
+    #         Column('name', String(50)),
+    #         Column('status', Integer),
+    #         Column('comment', String(500))
+    #     ))
+    #
+    # def signal_table(self, meta):
+    #     registry().map_imperatively(Signal, Table(
+    #         Entity.Signal, meta,
+    #         Column('id', Integer, autoincrement=True, primary_key=True),
+    #         Column('code', String(50)),
+    #         Column('dt', String(50)),
+    #         Column('freq', Integer),
+    #         Column('type', String(50)),
+    #         Column('value', String(50)),
+    #         Column('watch', Integer),
+    #         Column('notify', Integer),
+    #         Column('created', DateTime)
+    #     ))
+    #
+    # def ticket_table(self, meta):
+    #     registry().map_imperatively(Ticket, Table(
+    #         Entity.Ticket, meta,
+    #         Column('id', Integer, autoincrement=True, primary_key=True),
+    #         Column('code', String(50)),
+    #         Column('type', String(50)),
+    #         Column('freq', Integer),
+    #         Column('dt', String(50)),
+    #         Column('status', Integer),
+    #         Column('created', DateTime),
+    #         Column('updated', DateTime)
+    #     ))
 
 
 def do_mapping(engine, meta, table_name):

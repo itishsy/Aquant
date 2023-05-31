@@ -1,7 +1,6 @@
 from datetime import datetime
 from storage.fetcher import fetch_all
 from strategies import *
-from models.signal import find_signals
 import logging
 import time
 
@@ -20,7 +19,6 @@ def daily_task(sta=False):
                 search_all()
                 sta = False
                 print("==============用時：{}=================".format(datetime.now() - now))
-                print(find_signals())
         except Exception as e:
             print(e)
         finally:
