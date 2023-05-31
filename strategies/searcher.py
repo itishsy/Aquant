@@ -27,10 +27,10 @@ def search_all(sta=None):
     else:
         st = strategy.factory[sta]()
         # st.freq = 60
-        st.codes = ['000802']
+        # st.codes = ['603790']
         st.search_all()
 
 
 if __name__ == '__main__':
-    daily_search()
-    # search_all()
+    # daily_search()
+    search_all()

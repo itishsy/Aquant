@@ -3,7 +3,7 @@ from models.signal import Signal
 from typing import List
 from storage.fetcher import fetch_data
 from storage.marker import mark
-from divergence import diver_bottom
+from signals.divergence import diver_bottom
 
 
 def divergence(candles: List[Candle], is_top=False) -> List[Signal]:

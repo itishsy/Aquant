@@ -59,7 +59,7 @@ def diver_bottom(candles: List[Candle]) -> List[Signal]:
                     low1 = utl.get_lowest(down_stage1).low
                     low2 = utl.get_lowest(down_stage2).low
                     if c_2.diff() < c_0.diff() and low1 > low2:
-                        signals.append(Signal(dt=c_0.dt, freq=c_0.freq, type='bottom_divergence', value=c_0.mark))
+                        signals.append(Signal(dt=c_0.dt, freq=c_0.freq, strategy='bottom_divergence', value=c_0.freq))
     return signals
 
 

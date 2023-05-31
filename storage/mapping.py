@@ -42,15 +42,15 @@ class Mapper:
             Column('mark', Integer)
         ))
 
-    # def symbol_table(self, meta):
-    #     registry().map_imperatively(Symbol, Table(
-    #         Entity.Symbol, meta,
-    #         Column('id', Integer, autoincrement=True, primary_key=True),
-    #         Column('code', String(50)),
-    #         Column('name', String(50)),
-    #         Column('status', Integer),
-    #         Column('comment', String(500))
-    #     ))
+    def symbol_table(self, meta):
+        registry().map_imperatively(Symbol, Table(
+            Entity.Symbol, meta,
+            Column('id', Integer, autoincrement=True, primary_key=True),
+            Column('code', String(50)),
+            Column('name', String(50)),
+            Column('status', Integer),
+            Column('comment', String(500))
+        ))
     #
     # def signal_table(self, meta):
     #     registry().map_imperatively(Signal, Table(
@@ -80,11 +80,11 @@ class Mapper:
     #     ))
 
 
-def do_mapping(engine, meta, table_name):
-    if meta.tables.get(table_name) is None:
-        mapper = Mapper()
-        if table_name[0:2] in Config.PREFIX:
-            mapper.candle_table(meta, table_name)
-        else:
-            eval('mapper.{}_table'.format(table_name))(meta)
-        meta.tables.get(table_name).create(engine, checkfirst=True)
+# def do_mapping(engine, meta, table_name):
+#     if meta.tables.get(table_name) is None:
+#         mapper = Mapper()
+#         if table_name[0:2] in Config.PREFIX:
+#             mapper.candle_table(meta, table_name)
+#         else:
+#             eval('mapper.{}_table'.format(table_name))(meta)
+#         meta.tables.get(table_name).create(engine, checkfirst=True)

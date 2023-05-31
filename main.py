@@ -8,23 +8,14 @@ logging.basicConfig(format='%(asctime)s %(message)s', filename='d://aquant.log')
 logging.getLogger().setLevel(logging.INFO)
 
 
-def daily_task(sta=False):
-    print('[{}] daily task working'.format(datetime.now()))
-    while True:
+def fetch_and_search_all(sta=False):
+    try:
         now = datetime.now()
-        try:
-            if sta or (now.weekday() < 5 and (
-                    (now.hour == 11 and now.minute == 40) or (now.hour == 15 and now.minute == 10))):
-                fetch_all()
-                search_all()
-                sta = False
-                print("==============用時：{}=================".format(datetime.now() - now))
-        except Exception as e:
-            print(e)
-        finally:
-            if now.minute == 1:
-                print('[{}] daily task working'.format(now))
-            time.sleep(60)
+        fetch_all()
+        search_all()
+        print("==============用時：{}=================".format(datetime.now() - now))
+    except Exception as e:
+        print(e)
 
 
 def search_all(sta=None):
@@ -35,10 +26,9 @@ def search_all(sta=None):
     else:
         st = strategy.factory[sta]()
         # st.freq = 60
-        st.codes = ['000802']
+        st.code = '000802'
         st.search_all()
 
 
 if __name__ == '__main__':
-    daily_task()
-    # search_all()
+    fetch_and_search_all()

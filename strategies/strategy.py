@@ -1,11 +1,8 @@
-from datetime import datetime
-from storage.dba import db
+from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
-from storage.symbol import find_active_symbols
+from storage.dba import find_active_symbols,find_candles
 from models.signal import Signal
-from enums.entity import Entity
-from typing import List
-from sqlalchemy import select, and_
+import traceback
 
 factory = {}
 
@@ -21,44 +18,61 @@ def register_strategy(cls):
 
 class Strategy(ABC):
     signals = []
-    codes = []
+    code = None
     begin = None
     freq = 101
     limit = 100
 
     def search_all(self):
         try:
-            session = db.get_session(Entity.Signal)
-
-            if len(self.codes) == 0:
+            codes = []
+            if self.code is None:
                 symbols = find_active_symbols()
                 for sym in symbols:
-                    self.codes.append(sym.code)
+                    codes.append(sym.code)
 
             i = 1
-            for code in self.codes:
+            for code in codes:
                 print('[{}] [{}] [{}] searching... {}'.format(datetime.now(), code, self.__class__.__name__, i))
-                self.search(code)
+
+                self.code = code
+                candles = find_candles(code, self.freq, begin=self.begin, limit=self.limit)
+                if len(candles) < self.limit:
+                    continue
+
+                ldt = candles[-1].dt
+                if ldt.find(':') > 0:
+                    sdt = datetime.strptime(ldt, '%Y-%m-%d %H:%M')
+                else:
+                    sdt = datetime.strptime(ldt, '%Y-%m-%d')
+                if (sdt + timedelta(5)) < datetime.now():
+                    continue
+
+                self.search(candles)
                 if len(self.signals) > 0:
-                    session.add_all(self.signals)
-                    session.commit()
+                    self.upset_signals()
                     print('[{}] [{}] signals: {}'.format(datetime.now(), self.__class__.__name__, len(self.signals)))
-                    self.signals.clear()
                 i = i + 1
         except Exception as e:
-            print(e)
+            traceback.print_exc()
+        finally:
+            self.code = None
+            self.signals.clear()
 
-    def upset_signals(self, signals: List[Signal]):
-        if len(signals) > 0:
-            session = db.get_session(Entity.Signal)
-            for signal in signals:
-                session.query()
-                clauses = and_(Signal.code == signal.code, Signal.type == signal.type, Signal.dt == signal.dt, Signal.freq == signal.freq)
-                sgs = session.execute(
-                    select(Signal).where(clauses)
-                ).scalars().fetchall()
-                if sgs is None or len(sgs) == 0:
-                    self.signals.append(signal)
+    def upset_signals(self):
+        if len(self.signals) > 0:
+            for signal in self.signals:
+                try:
+                    si = Signal.get(Signal.code == signal.code, Signal.freq == signal.freq)
+                    si.status = 1
+                    si.updated = datetime.now()
+                    si.save()
+                except:
+                    signal.tick = False
+                    signal.status = 1
+                    signal.created = datetime.now()
+                    signal.updated = datetime.now()
+                    signal.save()
 
     def child_freq(self, freq=None):
         if freq is None:

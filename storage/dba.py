@@ -1,9 +1,9 @@
 from sqlalchemy.orm import sessionmaker, registry
 from conf.config import Config
-# from storage.mapping import do_mapping
 from typing import List
 from datetime import datetime, timedelta
 from storage.candle import Candle
+from storage.symbol import Symbol
 from sqlalchemy import (
     create_engine,
     MetaData,
@@ -15,7 +15,7 @@ from sqlalchemy import (
     Integer,
     String,
     DECIMAL,
-    DateTime
+    text
 )
 
 
@@ -42,7 +42,7 @@ class DBA:
             # 多久之后对链接池中的链接进行一次回收
             pool_recycle=10,
             # 查看原生语句（未格式化）
-            echo=True)
+            echo=False)
         return engine
 
     def get_session(self, table_name=''):
@@ -119,6 +119,34 @@ def find_stage_candles(code, freq, candle) -> List[Candle]:
     return cds
 
 
+def find_active_symbols() -> List[Symbol]:
+    session = dba.get_session('symbol')
+    sbs = session.execute(
+        select(Symbol).where(and_(Symbol.status == 1))
+    ).scalars().fetchall()
+    session.close()
+    return sbs
+
+
+def update_all_symbols(status=0, beyond=None):
+    session = dba.get_session('symbol')
+    try:
+        update_sql = "UPDATE `symbol` SET `status` = {}".format(status)
+        if status == 1:
+            update_sql = "{} WHERE `code` LIKE '60%' OR `code` LIKE '30%' OR `code` LIKE '00%'".format(update_sql)
+        session.execute(text(update_sql))
+        # session.commit()
+        if beyond is not None:
+            b_status = 1 if status == 0 else 0
+            update_sql2 = "UPDATE `symbol` SET `status` = {} WHERE `code` IN ({})".format(b_status, beyond)
+            session.execute(text(update_sql2))
+        session.flush()
+        session.commit()
+    except:
+        session.rollback()
+
+
+
 class Mapper:
     reg = registry()
 
@@ -146,15 +174,15 @@ class Mapper:
             Column('mark', Integer)
         ))
 
-    # def symbol_table(self, meta):
-    #     registry().map_imperatively(Symbol, Table(
-    #         Entity.Symbol, meta,
-    #         Column('id', Integer, autoincrement=True, primary_key=True),
-    #         Column('code', String(50)),
-    #         Column('name', String(50)),
-    #         Column('status', Integer),
-    #         Column('comment', String(500))
-    #     ))
+    def symbol_table(self, meta):
+        registry().map_imperatively(Symbol, Table(
+            'symbol', meta,
+            Column('id', Integer, autoincrement=True, primary_key=True),
+            Column('code', String(50)),
+            Column('name', String(50)),
+            Column('status', Integer),
+            Column('comment', String(500))
+        ))
     #
     # def signal_table(self, meta):
     #     registry().map_imperatively(Signal, Table(

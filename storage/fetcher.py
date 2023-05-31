@@ -3,19 +3,18 @@ from datetime import datetime
 from storage.candle import Candle
 from storage.symbol import Symbol
 from decimal import Decimal
-from storage.dba import db, freqs
+from storage.dba import dba, freqs, find_candles
 from sqlalchemy import select, desc, delete, and_
 from storage.marker import remark
 from enums.entity import Entity
-from storage.symbol import find_active_symbols
-from storage.candle import find_candles
+from storage.dba import find_active_symbols
 from typing import List
 import logging
 import time
 
 
 def fetch_and_save(code, freq, begin='2015-01-01'):
-    session = db.get_session(code)
+    session = dba.get_session(code)
     a_candles = session.execute(
         select(Candle).where(Candle.freq == freq).order_by(desc('id')).limit(100)
     ).scalars().fetchall()
@@ -97,7 +96,7 @@ def get_ma(candles: List[Candle], seq, val=None, att='close'):
 
 
 def fetch_symbols():
-    session = db.get_session(Entity.Symbol)
+    session = dba.get_session(Entity.Symbol)
     sbs = session.query(Symbol).all()
     if len(sbs) == 0:
         df = ef.stock.get_realtime_quotes(['沪A', '深A', 'ETF'])

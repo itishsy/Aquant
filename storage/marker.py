@@ -1,7 +1,7 @@
 from typing import List
-from storage.dba import db
+from storage.dba import dba
 from storage.candle import Candle
-from storage.symbol import find_active_symbols
+from storage.dba import find_active_symbols
 from sqlalchemy import select,and_
 
 
@@ -65,7 +65,7 @@ def mark(candles: List[Candle]) -> List[Candle]:
 
 
 def remark(code, freq, beg=None):
-    session = db.get_session(code)
+    session = dba.get_session(code)
     clauses = and_(Candle.freq == freq)
     if beg is not None:
         clauses = clauses.__and__(Candle.dt > beg)

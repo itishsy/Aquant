@@ -3,21 +3,21 @@ from storage.dba import freqs
 from storage.dba import find_candles
 import signals.utils as sig
 from signals.divergence import diver_bottom
+from storage.candle import Candle
+from typing import List
+from datetime import datetime
 
 
 @register_strategy
 class GAR(Strategy):
 
-    def search(self, code):
+    def search(self,  candles: List[Candle]):
         """ 向上趋势调整策略
         1. 前一次的上叉发生在0轴之上
         2. 调整回落的幅度不能超过上涨幅度的黄金分割线
         3. 调整过程中，出现次某级别的背驰买点
-        :param code:
+        :param candles:
         """
-        candles = find_candles(code, self.freq, begin=self.begin, limit=self.limit)
-        if len(candles) < self.limit:
-            return
 
         # 最后一根在0轴上方且macd向下调整
         c_last = candles[-1]
@@ -65,11 +65,11 @@ class GAR(Strategy):
         ss = []
         for fre in self.child_freq():
             if fre in freqs:
-                css = find_candles(code, fre, begin=sdt)
+                css = find_candles(self.code, fre, begin=sdt)
                 cds = diver_bottom(css)
                 for cs in cds:
-                    cs.type = self.__class__.__name__,
+                    cs.strategy = self.__class__.__name__,
                     cs.value = self.freq
-                    cs.code = code
-                    ss.append(cs)
-        self.upset_signals(ss)
+                    cs.code = self.code
+                    self.signals.append(cs)
+
