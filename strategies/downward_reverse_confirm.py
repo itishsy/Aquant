@@ -86,5 +86,9 @@ class DRC(Strategy):
         while i < len(c):
             if c[i].bar() > c[i - 1].bar() < c[i - 2].bar() < c[i].bar():
                 self.signals.append(
-                    Signal(code=self.code, dt=c[i].dt, freq=self.freq, strategy=self.__class__.__name__, value=self.freq))
+                    Signal(code=self.code, dt=c[i].dt, freq=self.freq, strategy=self.__class__.__name__,
+                           value=self.freq))
             i = i + 1
+
+    def deal(self, code):
+        pass

@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
 from storage.dba import find_active_symbols,find_candles
 from models.signal import Signal
+from models.ticket import Ticket
 import traceback
 
 factory = {}
@@ -18,6 +19,7 @@ def register_strategy(cls):
 
 class Strategy(ABC):
     signals = []
+    trades = []
     code = None
     begin = None
     freq = 101
@@ -59,20 +61,37 @@ class Strategy(ABC):
             self.code = None
             self.signals.clear()
 
+    def deal_all(self):
+        try:
+            tickets = Ticket.select().where(Ticket.status < 2)
+            for tick in tickets:
+                self.deal(tick)
+                if len(self.trades) > 0:
+                    self.upset_trades()
+        except Exception as e:
+            traceback.print_exc()
+
     def upset_signals(self):
         if len(self.signals) > 0:
             for signal in self.signals:
                 try:
-                    si = Signal.get(Signal.code == signal.code, Signal.freq == signal.freq)
-                    si.status = 1
-                    si.updated = datetime.now()
-                    si.save()
-                except:
-                    signal.tick = False
-                    signal.status = 1
-                    signal.created = datetime.now()
-                    signal.updated = datetime.now()
-                    signal.save()
+                    if Signal.select().where(Signal.code == signal.code,Signal.freq == signal.freq).exists():
+                        si = Signal.get(Signal.code == signal.code, Signal.freq == signal.freq)
+                        si.status = 1
+                        si.updated = datetime.now()
+                        si.save()
+                    else:
+                        signal.tick = False
+                        signal.status = 1
+                        signal.created = datetime.now()
+                        signal.updated = datetime.now()
+                        signal.save()
+                except Exception as e:
+                    traceback.print_exc()
+
+    def upset_trades(self):
+        pass
+
 
     def child_freq(self, freq=None):
         if freq is None:
@@ -113,5 +132,9 @@ class Strategy(ABC):
             return 5
 
     @abstractmethod
-    def search(self, code):
+    def search(self, candles):
+        pass
+
+    @abstractmethod
+    def deal(self, tick):
         pass
