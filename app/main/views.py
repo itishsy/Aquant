@@ -8,6 +8,7 @@ from app.main.forms import NotifyForm
 from . import main
 from models.signal import Signal
 from models.ticket import Ticket
+from models.trade import Trade
 from datetime import datetime
 
 logger = get_logger(__name__)
@@ -92,7 +93,8 @@ def api():
     today = datetime.now().strftime('%Y-%m-%d')
     count02 = Signal.select().where((Signal.created > today)).count()
     count03 = Ticket.select().where(Ticket.status < 3).count()
-    data = {'count01': count01, 'count02': count02, 'count03': count03, 'count04': 46}
+    count04 = Trade.select().where(Trade.created > today).count()
+    data = {'count01': count01, 'count02': count02, 'count03': count03, 'count04': count04}
     return jsonify(data)
 
 

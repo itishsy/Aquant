@@ -18,6 +18,8 @@ def fetch_and_save(code, freq, begin='2015-01-01'):
     a_candles = session.execute(
         select(Candle).where(Candle.freq == freq).order_by(desc('id')).limit(100)
     ).scalars().fetchall()
+    if len(a_candles) == 0:
+        return
     l_candle = a_candles[0]
     if l_candle is not None:
         if l_candle.dt.find(':') > 0:
