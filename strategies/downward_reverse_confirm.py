@@ -37,10 +37,6 @@ class DRC(Strategy):
         if a is None or r is None or c is None:
             return
 
-        # 反弹段要有向上叉
-        if sig.has_cross(r) < 1:
-            return
-
         # c段不可跌破b段最低点
         c3 = candles[-1] if c is None else sig.get_lowest(c)
         b3 = sig.get_lowest(b)
