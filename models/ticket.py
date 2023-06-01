@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from models.signal import Signal
 from sqlalchemy import select, desc, and_, text
-from models.base import BaseModel
-from peewee import CharField, BooleanField, IntegerField, DateTimeField
+from models.base import BaseModel, db
+from peewee import CharField, BooleanField, IntegerField, DateTimeField, DecimalField
 from storage.dba import dba
 from typing import List
 from datetime import datetime, timedelta
@@ -31,10 +31,13 @@ class Ticket2:
 # 票据
 class Ticket(BaseModel):
     code = CharField()  # 编码
-    b_freq = CharField()  # b点
-    s_freq = CharField()  # s点
-    cut_point = CharField()
+    cost = DecimalField()  # 成本
+    hold = IntegerField()  # 持有总量
+    buy = CharField()  # 可买入的级别
+    sell = CharField()  # 可卖出的级别
+    cut = DecimalField()  # 止损
     status = IntegerField(default=0)  # 状态 0 观察中， 1 持有 2 清仓 3 弃用
+    source = CharField()  # 来源
     created = DateTimeField()
     updated = DateTimeField()
 
@@ -97,3 +100,8 @@ def update_ticket(mappings):
         session.commit()
     except:
         session.rollback()
+
+
+if __name__ == '__main__':
+    db.connect()
+    db.create_tables([Ticket])

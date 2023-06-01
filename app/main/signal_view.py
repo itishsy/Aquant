@@ -36,14 +36,21 @@ def signallist():
                 sig.tick = (status == '1')
                 sig.updated = datetime.now()
                 sig.save()
-                Ticket.create(code=sig.code, status=status)
+                if not Ticket.select().where(Ticket.code == sig.code).exists():
+                    Ticket.create(code=sig.code, status=0, created=datetime.now())
             flash('操作成功')
         except:
             flash('操作失败')
 
     # 查询列表
-    query = Signal.select().where(Signal.status == 1).order_by(Signal.tick.desc())
-    total_count = query.select().where(Signal.status == 1).count()
+    today = request.args.get('today')
+    if today:
+        dt = datetime.now().strftime('%Y-%m-%d')
+        query = Signal.select().where(Signal.created > dt)
+        total_count = query.select().where(Signal.created > dt).count()
+    else:
+        query = Signal.select().where(Signal.status == 1).order_by(Signal.tick.desc())
+        total_count = query.select().where(Signal.status == 1).count()
 
     # 处理分页
     if page: query = query.paginate(page, length)

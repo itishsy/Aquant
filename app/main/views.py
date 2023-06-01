@@ -4,11 +4,11 @@ from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app import utils
 from app.models import Notify
-from app.main.forms import NotifyForm, TicketForm
+from app.main.forms import NotifyForm
 from . import main
 from models.signal import Signal
 from models.ticket import Ticket
-import datetime as dt
+from datetime import datetime
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -89,9 +89,9 @@ def index():
 @login_required
 def api():
     count01 = Signal.select().count()
-    today = dt.datetime.now().strftime('%Y-%m-%d')
-    count02 = Signal.select().where((Signal.created > dt.date(2023,1,1))).count()
-    count03 = Ticket.select().count()
+    today = datetime.now().strftime('%Y-%m-%d')
+    count02 = Signal.select().where((Signal.created > today)).count()
+    count03 = Ticket.select().where(Ticket.status < 3).count()
     data = {'count01': count01, 'count02': count02, 'count03': count03, 'count04': 46}
     return jsonify(data)
 
@@ -126,15 +126,3 @@ def notifylist():
 @login_required
 def notifyedit():
     return common_edit(Notify, NotifyForm(), 'notifyedit.html')
-
-
-@main.route('/ticketlist', methods=['GET', 'POST'])
-@login_required
-def ticketlist():
-    return common_list(Ticket, 'ticketlist.html')
-
-
-@main.route('/ticketedit', methods=['GET', 'POST'])
-@login_required
-def ticketedit():
-    return common_edit(Ticket, TicketForm(), 'ticketedit.html')

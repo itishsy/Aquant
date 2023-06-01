@@ -10,11 +10,3 @@ class NotifyForm(FlaskForm):
     dt = StringField('发生时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     status = IntegerField('发送状态', default=0)
     submit = SubmitField('提交')
-
-
-class TicketForm(FlaskForm):
-    code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    dt = StringField('时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    strategy = StringField('策略', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    submit = SubmitField('提交')

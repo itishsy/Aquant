@@ -8,8 +8,8 @@
     <h1>票据管理</h1>
     <ol class="breadcrumb">
         <li><i class="fa fa-dashboard"></i> 当前位置</li>
-        <li class="active">票据管理</li>
-        <li class="active">票据配置</li>
+        <li class="active"><a href="{{ url_for('main.ticketlist') }}">票據管理</a></li>
+        <li class="active">票据维护</li>
     </ol>
 </section>
 {% endblock %}
@@ -26,33 +26,62 @@
         <div class="box-body">
             <div class="col-md-12">
                 <div class="form-group">
-                    <label>{{form.check_order.label}}</label>
-                    {{form.check_order(class_="slider form-control",placeholder="请输入 列表顺序")}}
+                    <label>{{form.code.label}}</label>
+                    {{form.code(class_="form-control",placeholder="请输入 列表顺序")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.notify_type.label}}</label>
-                    {{form.notify_type(class_="form-control select2",placeholder="请输入")}}
+                    <label>{{form.cost.label}}</label>
+                    {{form.cost(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.notify_name.label}}</label>
-                    {{form.notify_name(class_="form-control",placeholder="请输入")}}
+                    <label>{{form.hold.label}}</label>
+                    {{form.hold(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.notify_number.label}}</label>
-                    {{form.notify_number(class_="form-control",placeholder="请输入")}}
+                    <label>{{form.buy.label}}</label>
+                    {{form.buy(class_="form-control",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{form.sell.label}}</label>
+                    {{form.sell(class_="form-control",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{form.cut.label}}</label>
+                    {{form.cut(class_="form-control",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{form.status.label}}</label>
+                    {{form.status(class_="form-control select2")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{form.source.label}}</label>
+                    {{form.source(class_="form-control select2")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{form.created.label}}</label>
+                    {{form.created(class_="form-control",placeholder="创建时间")}}
                 </div>
             </div>
         </div>
 
         <div class="box-footer">
             <div class="col-md-12">
-                {{form.status()}}
                 {{form.submit(class_="btn btn-primary pull-right")}}
             </div>
         </div>
@@ -63,21 +92,6 @@
 {% block scripts %}
 <script>
     function initPage() {
-        slide_value = $(".slider").val() == "" ? 50 : parseInt($(".slider").val());
-        $(".slider").slider({
-            id: "blue",
-            max: 100,
-            value: slide_value
-        });
-
-        switch_value = $('#status')[0].checked
-        $('#status').bootstrapSwitch({
-            state: switch_value,
-            onText: '生效',
-            offText: '失效'
-
-        });
-
         $(".select2").select2();
     }
 </script>

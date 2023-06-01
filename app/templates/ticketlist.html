@@ -6,7 +6,7 @@
     <h1>票據查询</h1>
     <ol class="breadcrumb">
         <li><i class="fa fa-dashboard"></i> 当前位置</li>
-        <li class="active">票據管理</li>
+        <li class="active"><a href="{{ url_for('main.ticketlist') }}">票據管理</a></li>
         <li class="active">票據查询</li>
     </ol>
 </section>
@@ -23,11 +23,10 @@
         <table class="table table-bordered">
             <tr>
                 <th style="display: none" >ID</th>
-                <th>編碼</th>
-                <th>时间</th>
-                <th>周期</th>
-                <th>交易類型</th>
-                <th>啓用/停用</th>
+                <th>票据</th>
+                <th>操作</th>
+                <th>B级</th>
+                <th>S级</th>
                 <th>编辑</th>
             </tr>
             {% for row in form.content %}
@@ -40,24 +39,19 @@
                     <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.code}}</a>
                     {% endif %}
                 </td>
-                <td>{{row.dt}}</td>
-                <td>{{row.freq}}</td>
-                <td>{% if (row.type == 0) %}
-                    <label style="color: #4149e1">買入</label>
-                    {% else %}
-                    <label style="color: #a10000">賣出</label>
-                    {% endif %}</td>
                 <td>
-                    {% if row.status %}
-                    <input type="checkbox" data-id="{{row.id}}" class="status" data-on-text="生效" data-off-text="失效"
-                           data-size="mini" checked>
+                    {% if row.status == 0 %}
+                    <label>观察中</label>
+                    {% elif row.status == 1 %}
+                    <label>持有</label>
                     {% else %}
-                    <input type="checkbox" data-id="{{row.id}}" class="status" data-on-text="生效" data-off-text="失效"
-                           data-size="mini">
+                    <label>无</label>
                     {% endif %}
                 </td>
+                <td>{{row.buy}}</td>
+                <td>{{row.sell}}</td>
                 <td><a class='fa fa-lg fa-edit text-light-blue'
-                       href='{{ url_for("main.notifyedit", id=row.id) }}'></a></td>
+                       href='{{ url_for("main.ticketedit", id=row.id) }}'></a></td>
             </tr>
             {% endfor %}
         </table>
@@ -85,22 +79,7 @@
 {% block scripts %}
 <script>
     function initPage() {
-        slide_value = $(".slider").val() == "" ? 50 : parseInt($(".slider").val());
-        $(".slider").slider({
-            id: "blue",
-            max: 100,
-            value: slide_value
-        });
 
-        $('.status').bootstrapSwitch();
-        $(".status").on("switchChange.bootstrapSwitch", function (event, state) {
-            switchStatus($(this).data("id"), state, this);
-        });
-    }
-    function switchStatus(id, status, switchBox) {
-        restTemplate("PUT", "/notifies/" + id + "/status/" + status, null, function () {
-            $($(switchBox)).bootstrapSwitch("state", status);
-        });
     }
 </script>
 {% endblock %}
