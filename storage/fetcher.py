@@ -98,7 +98,7 @@ def get_ma(candles: List[Candle], seq, val=None, att='close'):
 
 
 def fetch_symbols():
-    session = dba.get_session(Entity.Symbol)
+    session = dba.get_session()
     sbs = session.query(Symbol).all()
     if len(sbs) == 0:
         df = ef.stock.get_realtime_quotes(['沪A', '深A', 'ETF'])
