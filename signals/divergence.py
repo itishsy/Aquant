@@ -37,7 +37,7 @@ def diver_bottom(candles: List[Candle]) -> List[Signal]:
     """
     底背离
     :param candles:
-    :return: 返回形成底背离的最底点
+    :return: 返回形成底背离的最底那一根
     """
     signals = []
     tbs = utl.get_top_bottom(candles)

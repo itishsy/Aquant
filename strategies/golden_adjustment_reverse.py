@@ -1,6 +1,5 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.dba import freqs
-from storage.dba import find_candles
+from storage.dba import freqs, find_candles
 import signals.utils as sig
 from signals.divergence import diver_bottom
 from storage.candle import Candle
@@ -73,3 +72,5 @@ class GAR(Strategy):
                     cs.code = self.code
                     self.signals.append(cs)
 
+    def deal(self, tick):
+        pass

@@ -77,7 +77,7 @@ def find_candles(code, freq, begin=None, end=None, limit=100) -> List[Candle]:
 
 def find_stage_candles(code, freq, candle) -> List[Candle]:
     """
-    根据一根candle查找所处指定级别的一段candles
+    根据一根candle查找所处指定级别的一段candles,bar同向的一段
     :param code:
     :param freq:
     :param candle:

@@ -1,1 +1,3 @@
-__all__ = ['dba.py', 'fetcher']
+__all__ = ['dba', 'fetcher', 'candle']
+
+from candle import Candle

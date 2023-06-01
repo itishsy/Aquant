@@ -1,8 +1,7 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.dba import freqs
+from storage.dba import freqs, find_stage_candles, find_candles
 import signals.utils as sig
 from models.signal import Signal
-from storage.dba import find_stage_candles, find_candles
 from datetime import datetime, timedelta
 from decimal import Decimal
 from signals.divergence import diver_bottom
@@ -28,10 +27,9 @@ class DRC(Strategy):
         # 最后一个背离signal
         si = sis[-1]
 
-        # 背离点所在父級別一段，大部分是在0轴上方
+        # 父級別的一段起點在0轴上方
         psc = find_stage_candles(self.code, self.parent_freq(), sig.get_candle(candles, si.dt))
-        pos = int(len(psc) * 0.618)
-        if len(psc) < 2 or psc[:pos][-1].dea9 < 0:
+        if len(psc) < 2 or psc[0].dea9 < 0:
             return
 
         # 获取底部形态的5段

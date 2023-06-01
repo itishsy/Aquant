@@ -1,12 +1,10 @@
 import efinance as ef
 from datetime import datetime
 from storage.candle import Candle
-from storage.symbol import Symbol
 from decimal import Decimal
 from storage.dba import dba, freqs, find_candles
 from sqlalchemy import select, desc, delete, and_
 from storage.marker import remark
-from enums.entity import Entity
 from storage.dba import find_active_symbols
 from typing import List
 import logging
@@ -36,13 +34,6 @@ def fetch_and_save(code, freq, begin='2015-01-01'):
     session.add_all(candles)
     session.commit()
     remark(code, freq, beg=a_candles[-1].dt)
-
-
-def need_upset(sdt):
-    now = datetime.now()
-    if sdt.month == now.month and sdt.day == now.day and now.hour < 15:
-        return True
-    return False
 
 
 def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
@@ -95,23 +86,6 @@ def get_ma(candles: List[Candle], seq, val=None, att='close'):
             ss = Decimal(ss) + Decimal(ev)
         res = Decimal(ss / seq)
     return res
-
-
-def fetch_symbols():
-    session = dba.get_session()
-    sbs = session.query(Symbol).all()
-    if len(sbs) == 0:
-        df = ef.stock.get_realtime_quotes(['沪A', '深A', 'ETF'])
-        df = df.iloc[:, 0:2]
-        df.columns = ['code', 'name']
-        # df = df[df['name'].str.contains('ST') is False]
-        symbols = []
-        for i, row in df.iterrows():
-            s = Symbol(row)
-            s.status = 1
-            symbols.append(s)
-        session.add_all(symbols)
-        session.commit()
 
 
 def fetch_all(freq=None):

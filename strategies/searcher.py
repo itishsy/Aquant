@@ -30,6 +30,16 @@ def search_all(sta=None):
         # st.codes = ['603790']
         st.search_all()
 
+def deal_all(sta=None):
+    if sta is None:
+        for name in strategy.factory:
+            st = strategy.factory[name]()
+            st.deal_all()
+    else:
+        st = strategy.factory[sta]()
+        # st.freq = 60
+        # st.codes = ['603790']
+        st.deal_all()
 
 if __name__ == '__main__':
     daily_search()
