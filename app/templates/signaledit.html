@@ -52,6 +52,7 @@
 
         <div class="box-footer">
             <div class="col-md-12">
+                <a class='btn btn-primary' href='{{ url_for("main.signallist", id=form.id, action="del") }}'>删除</a>
                 {{form.submit(class_="btn btn-primary pull-right")}}
             </div>
         </div>
