@@ -42,5 +42,5 @@ def deal_all(sta=None):
         st.deal_all()
 
 if __name__ == '__main__':
-    daily_search()
-    #search_all()
+    # daily_search()
+    search_all()
