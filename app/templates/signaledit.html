@@ -5,7 +5,7 @@
 
 {% block navbar %}
 <section class="content-header">
-<!--    <h1>信号配置</h1>-->
+    <h3></h3>
     <ol class="breadcrumb">
         <li><i class="fa fa-dashboard"></i> <a href="{{ url_for('main.index') }}">首页</a></li>
         <li class="active"><a href="{{ url_for('main.signallist') }}">信号管理</a></li>
@@ -26,14 +26,20 @@
         <div class="box-body">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.name}}</label>
+                    <label>{{form.name.label}}</label>
+                    {{form.name(class_="form-control",placeholder="请输入")}}
+                </div>
+            </div>
+             <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{form.code.label}}</label>
                     {{form.code(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.strategy.label}}</label>
-                    {{form.strategy(class_="form-control select2",placeholder="请输入")}}
+                    <label>{{form.dt.label}}</label>
+                    {{form.dt(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -44,23 +50,27 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.tick.label}}</label>
-                    {{form.tick(class_="form-control select2",placeholder="请输入")}}
+                    <label>{{form.strategy.label}}</label>
+                    {{form.strategy(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.dt.label}}</label>
-                    {{form.dt(class_="form-control",placeholder="请输入")}}
+                    <label>{{form.tick.label}}</label>
+                    {{form.tick(class_="form-control select2 tick_select",placeholder="请输入")}}
                 </div>
             </div>
         </div>
 
         <div class="box-footer">
             <div class="col-md-12">
-                <a class='btn btn-primary' href='{{ url_for("main.signallist", id=form.id, action="del") }}'>删除</a>
-                <a class='btn btn-primary' href='{{ url_for("main.signallist", id=form.id, action="tick") }}'>转为票据</a>
+                {% if form.id.data %}
+                <a class='btn btn-danger' href='{{ url_for("main.signallist", id=form.id.data, action="del") }}'>删除</a>
+                <a class='btn btn-default' href='{{ url_for("main.signallist", id=form.id.data, action="tick") }}'>转为票据</a>
+                <a class='btn btn-primary pull-right' href='{{ url_for("main.signallist") }}'>返回</a>
+                {% else %}
                 {{form.submit(class_="btn btn-primary pull-right")}}
+                {% endif %}
             </div>
         </div>
     </form>
@@ -70,22 +80,7 @@
 {% block scripts %}
 <script>
     function initPage() {
-        slide_value = $(".slider").val() == "" ? 50 : parseInt($(".slider").val());
-        $(".slider").slider({
-            id: "blue",
-            max: 100,
-            value: slide_value
-        });
-
-        switch_value = $('#status')[0].checked
-        $('#status').bootstrapSwitch({
-            state: switch_value,
-            onText: '生效',
-            offText: '失效'
-
-        });
-
-        $(".select2").select2();
+        $(".tick_select").val("{{form.tick.data}}").select2();
     }
 </script>
 {% endblock %}

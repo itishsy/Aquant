@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
-from storage.dba import find_active_symbols,find_candles
+from storage.dba import find_active_symbols,find_candles, get_symbol
 from models.signal import Signal
 from models.ticket import Ticket
 import traceback
@@ -82,6 +82,7 @@ class Strategy(ABC):
                         si.save()
                     else:
                         signal.tick = False
+                        signal.name = get_symbol(signal.code).name
                         signal.status = 1
                         signal.created = datetime.now()
                         signal.updated = datetime.now()

@@ -37,8 +37,7 @@ def signallist():
                 sig.updated = datetime.now()
                 sig.save()
                 if not Ticket.select().where(Ticket.code == sig.code).exists():
-                    Ticket.create(code=sig.code, status=0, created=datetime.now())
-            flash('操作成功')
+                    Ticket.create(code=sig.code, name=sig.name, status=0, created=datetime.now())
         except:
             flash('操作失败')
 
@@ -70,9 +69,6 @@ def signaledit():
         model = Signal.get(Signal.id == id)
         if request.method == 'GET':
             utils.model_to_form(model, form)
-            form.id = id
-            sym = get_symbol(model.code)
-            form.name = sym.name
         # 修改
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -95,10 +91,10 @@ def signaledit():
 
 class SignalForm(FlaskForm):
     id = IntegerField('id')
-    tick = SelectField('票据', choices=[('0', '未转'), ('1', '已转')])
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    name = StringField('名称')
-    dt = StringField('信号产生时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    name = StringField('名称', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    tick = SelectField('票据', choices=[(0, '未转'), (1, '已转')], default=0)
+    dt = StringField('发出时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     strategy = StringField('策略', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     submit = SubmitField('提交')

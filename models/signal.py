@@ -28,11 +28,12 @@ class Signal2:
 # 信号
 class Signal(BaseModel):
     code = CharField()  # 编码
+    name = CharField()  # 名称
     freq = IntegerField()  # 主级别
     dt = DateTimeField()  # 时间
     strategy = CharField()  # 策略
     value = CharField()  # 策略值
-    tick = BooleanField(default=False)  # 转票据
+    tick = IntegerField(default=0)  # 转票据
     status = IntegerField(default=1)  # 状态
     created = DateTimeField()
     updated = DateTimeField()

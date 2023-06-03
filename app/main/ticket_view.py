@@ -35,7 +35,7 @@ def ticketlist():
             flash('操作失败')
 
     # 查询列表
-    query = Ticket.select().where(Ticket.status < 3)
+    query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.hold.desc())
     total_count = query.select().where(Ticket.status < 3).count()
 
     # 处理分页
@@ -77,11 +77,12 @@ def ticketedit():
 
 
 class TicketForm(FlaskForm):
+    name = StringField('名称', validators=[DataRequired(message='不能为空'), Length(0, 6, message='长度不正确')])
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 6, message='长度不正确')])
-    cost = DecimalField('成本', validators=[DataRequired(message='不能为空')])
-    hold = IntegerField('持有量', validators=[DataRequired(message='不能为空')])
-    buy = StringField('可买入的级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    sell = StringField('可卖出的级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    cost = DecimalField('成本')
+    hold = IntegerField('持有量')
+    buy = StringField('买入级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    sell = StringField('卖出级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     cut = DecimalField('止损点', validators=[DataRequired(message='不能为空')])
     status = SelectField('状态', choices=[('0', '观察中'), ('1', '持有'), ('2', '清仓'), ('3', '弃用')])
     source = SelectField('来源于', choices=[('TTS', '趋势策略'), ('自选', '自选')])

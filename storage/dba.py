@@ -81,7 +81,7 @@ def fetch_symbols():
 
 def get_symbol(code):
     session = dba.get_session('symbol')
-    sbs = session.query(Symbol).filter(Symbol.code==code).first()
+    sbs = session.query(Symbol).filter(Symbol.code == code).first()
     return sbs
 
 
@@ -168,7 +168,6 @@ def update_all_symbols(status=0, beyond=None):
         session.commit()
     except:
         session.rollback()
-
 
 
 class Mapper:

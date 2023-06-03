@@ -31,11 +31,12 @@ class Ticket2:
 # 票据
 class Ticket(BaseModel):
     code = CharField()  # 编码
-    cost = DecimalField()  # 成本
-    hold = IntegerField()  # 持有总量
+    name = CharField()  # 名称
+    cost = DecimalField(default=0.0)  # 成本
+    hold = IntegerField(default=0)  # 持有总量
     buy = CharField()  # 可买入的级别
     sell = CharField()  # 可卖出的级别
-    cut = DecimalField()  # 止损
+    cut = DecimalField(default=0)  # 止损
     status = IntegerField(default=0)  # 状态 0 观察中， 1 持有 2 清仓 3 弃用
     source = CharField()  # 来源
     created = DateTimeField()

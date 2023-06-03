@@ -33,6 +33,7 @@ def update_trade(mappings):
 # 票据
 class Trade(BaseModel):
     code = CharField()  # 票据
+    name = CharField()  # 名称
     freq = CharField()  # 交易级别
     dt = CharField()  # 交易时间
     strategy = CharField()  # 策略
