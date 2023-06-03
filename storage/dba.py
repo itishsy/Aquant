@@ -1,3 +1,4 @@
+import efinance as ef
 from sqlalchemy.orm import sessionmaker, registry
 from conf.config import Config
 from typing import List
@@ -76,6 +77,12 @@ def fetch_symbols():
             symbols.append(s)
         session.add_all(symbols)
         session.commit()
+
+
+def get_symbol(code):
+    session = dba.get_session('symbol')
+    sbs = session.query(Symbol).filter(Symbol.code==code).first()
+    return sbs
 
 
 def find_candles(code, freq, begin=None, end=None, limit=100) -> List[Candle]:

@@ -10,6 +10,7 @@ from models.signal import Signal
 from models.ticket import Ticket
 from models.trade import Trade
 from datetime import datetime
+from storage.dba import find_candles
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -90,7 +91,7 @@ def index():
 @login_required
 def api():
     count01 = Signal.select().where(Signal.status == 1).count()
-    today = datetime.now().strftime('%Y-%m-%d')
+    today = find_candles('000001',101, limit=1)[0].dt
     count02 = Signal.select().where(Signal.created > today, Signal.status == 1).count()
     count03 = Ticket.select().where(Ticket.status < 3).count()
     count04 = Trade.select().where(Trade.created > today).count()

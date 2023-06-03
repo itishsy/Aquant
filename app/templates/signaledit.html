@@ -7,7 +7,7 @@
 <section class="content-header">
 <!--    <h1>信号配置</h1>-->
     <ol class="breadcrumb">
-        <li><i class="fa fa-dashboard"></i> 当前位置</li>
+        <li><i class="fa fa-dashboard"></i> <a href="{{ url_for('main.index') }}">首页</a></li>
         <li class="active"><a href="{{ url_for('main.signallist') }}">信号管理</a></li>
         <li class="active">信号配置</li>
     </ol>
@@ -32,6 +32,12 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
+                    <label>{{form.name.label}}</label>
+                    {{form.name(class_="form-control",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
                     <label>{{form.strategy.label}}</label>
                     {{form.strategy(class_="form-control select2",placeholder="请输入")}}
                 </div>
@@ -40,6 +46,12 @@
                 <div class="form-group">
                     <label>{{form.freq.label}}</label>
                     {{form.freq(class_="form-control",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{form.tick.label}}</label>
+                    {{form.tick(class_="form-control select2",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -53,6 +65,7 @@
         <div class="box-footer">
             <div class="col-md-12">
                 <a class='btn btn-primary' href='{{ url_for("main.signallist", id=form.id, action="del") }}'>删除</a>
+                <a class='btn btn-primary' href='{{ url_for("main.signallist", id=form.id, action="tick") }}'>转为票据</a>
                 {{form.submit(class_="btn btn-primary pull-right")}}
             </div>
         </div>

@@ -61,9 +61,9 @@ class DRC(Strategy):
                         ccs = find_candles(self.code, fre, begin=c[0].dt, end=c[-1].dt)
                         dbs = diver_bottom(ccs)
                         for cs in dbs:
-                            cs.strategy = self.__class__.__name__,
-                            cs.freq = self.freq
+                            cs.strategy = self.__class__.__name__
                             cs.code = self.code
+                            cs.value = self.freq
                             cs.created = datetime.now()
                             self.signals.append(cs)
                 return

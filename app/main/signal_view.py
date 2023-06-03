@@ -8,9 +8,9 @@ from models.signal import Signal
 from models.ticket import Ticket
 from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField
+from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
-
+from storage.dba import get_symbol
 logger = get_logger(__name__)
 cfg = get_config()
 
@@ -71,6 +71,8 @@ def signaledit():
         if request.method == 'GET':
             utils.model_to_form(model, form)
             form.id = id
+            sym = get_symbol(model.code)
+            form.name = sym.name
         # 修改
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -93,7 +95,9 @@ def signaledit():
 
 class SignalForm(FlaskForm):
     id = IntegerField('id')
+    tick = SelectField('票据', choices=[('0', '未转'), ('1', '已转')])
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    name = StringField('名称')
     dt = StringField('时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     strategy = StringField('策略', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
