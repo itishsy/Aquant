@@ -23,26 +23,18 @@
         <table class="table table-bordered">
             <tr>
                 <th style="display: none" >ID</th>
-                <th>状态</th>
                 <th>编码</th>
-                <th>策略</th>
-                <th>级别</th>
                 <th>发生时间</th>
-                <th>操作</th>
+                <th>级别</th>
+                <th>策略</th>
             </tr>
             {% for row in form.content %}
+            {% if row.tick %}
+            <tr style="background-color: burlywood">
+            {% else %}
             <tr>
+            {% endif %}
                 <td style="display: none">{{row.id}}</td>
-                <td>
-                    {% if row.tick %}
-                    <input type="checkbox" data-id="{{row.id}}" class="status" data-on-text="T" data-off-text="W"
-                           data-size="mini" checked readonly>
-                    {% else %}
-<!--                    <a href='?action=tick&status=1&id={{row.id}}'></a>-->
-                    <input type="checkbox" data-id="{{row.id}}" class="status" data-on-text="T" data-off-text="W"
-                           data-size="mini" readonly>
-                    {% endif %}
-                </td>
                 <td>
                     {% if row.code.startswith('60') %}
                     <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.code}}</a>
@@ -50,12 +42,10 @@
                     <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.code}}</a>
                     {% endif %}
                 </td>
-                <td>{{row.strategy}}</td>
-                <td>{{row.freq}}</td>
                 <td>{{row.dt}}</td>
+                <td>{{row.freq}}</td>
                 <td>
-                <a class='fa fa-lg fa-edit text-light-blue'
-                       href='{{ url_for("main.signaledit", id=row.id) }}'></a>
+                <a href='{{ url_for("main.signaledit", id=row.id) }}'>{{row.strategy}}</a>
                 </td>
             </tr>
             {% endfor %}

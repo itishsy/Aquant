@@ -34,7 +34,7 @@ class MAR(Strategy):
             css = find_candles(self.code, freq, begin=sdt)
             cds = diver_bottom(css)
             for cs in cds:
-                cs.strategy = self.__class__.__name__,
+                cs.strategy = self.__class__.__name__
                 cs.value = self.freq
                 cs.code = self.code
                 self.signals.append(cs)

@@ -10,7 +10,8 @@ from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
-from storage.dba import get_symbol
+from storage.dba import get_symbol, find_candles
+
 logger = get_logger(__name__)
 cfg = get_config()
 
@@ -32,8 +33,7 @@ def signallist():
                 sig.updated = datetime.now()
                 sig.save()
             elif action == 'tick':
-                status = request.args.get('status')
-                sig.tick = (status == '1')
+                sig.tick = True
                 sig.updated = datetime.now()
                 sig.save()
                 if not Ticket.select().where(Ticket.code == sig.code).exists():
@@ -45,9 +45,9 @@ def signallist():
     # 查询列表
     today = request.args.get('today')
     if today:
-        dt = datetime.now().strftime('%Y-%m-%d')
-        query = Signal.select().where(Signal.status == 1, Signal.created > dt)
-        total_count = query.select().where(Signal.status == 1, Signal.created > dt).count()
+        last_day = find_candles('000001', 101, limit=1)[0].dt
+        query = Signal.select().where(Signal.status == 1, Signal.dt >= last_day).order_by(Signal.tick.desc())
+        total_count = query.select().where(Signal.status == 1, Signal.dt >= last_day).count()
     else:
         query = Signal.select().where(Signal.status == 1).order_by(Signal.tick.desc(), Signal.dt.desc())
         total_count = query.select().where(Signal.status == 1).count()
@@ -98,7 +98,7 @@ class SignalForm(FlaskForm):
     tick = SelectField('票据', choices=[('0', '未转'), ('1', '已转')])
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     name = StringField('名称')
-    dt = StringField('时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    dt = StringField('信号产生时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     strategy = StringField('策略', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     submit = SubmitField('提交')
