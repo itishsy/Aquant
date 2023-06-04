@@ -4,7 +4,7 @@ import time
 
 
 def daily_search():
-    print('[{}] daily search working'.format(datetime.now()))
+    print('[{}] searcher working ...'.format(datetime.now()))
     while True:
         now = datetime.now()
         try:
@@ -15,7 +15,7 @@ def daily_search():
             print(e)
         finally:
             if now.minute == 1:
-                print('[{}] daily search working'.format(now))
+                print('[{}] searcher working ...'.format(now))
             time.sleep(60)
 
 
@@ -30,6 +30,7 @@ def search_all(sta=None):
         # st.codes = ['603790']
         st.search_all()
 
+
 def deal_all(sta=None):
     if sta is None:
         for name in strategy.factory:
@@ -40,6 +41,7 @@ def deal_all(sta=None):
         # st.freq = 60
         # st.codes = ['603790']
         st.deal_all()
+
 
 if __name__ == '__main__':
     # daily_search()

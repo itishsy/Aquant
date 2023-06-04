@@ -1,6 +1,6 @@
 import efinance as ef
 from sqlalchemy.orm import sessionmaker, registry
-from conf.config import Config
+from common.config import Config
 from typing import List
 from datetime import datetime, timedelta
 from storage.candle import Candle

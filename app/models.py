@@ -5,7 +5,7 @@ import json
 from werkzeug.security import check_password_hash
 from flask_login import UserMixin
 from app import login_manager
-from conf.config import config
+from common.config import config
 import os
 
 cfg = config[os.getenv('FLASK_CONFIG') or 'default']

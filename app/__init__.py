@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
-from conf.config import config, Config
+from common.config import config, Config
 import logging
 from logging.config import fileConfig
 import os

@@ -110,7 +110,7 @@ def fetch_all(freq=None):
 
 
 def fetch_daily():
-    print('[{}] daily fetch working'.format(datetime.now()))
+    print('[{}] fetcher working ...'.format(datetime.now()))
     while True:
         now = datetime.now()
         try:
