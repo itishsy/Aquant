@@ -1,61 +1,7 @@
 from storage.candle import Candle
-from models.signal import Signal
 from typing import List
 from storage.fetcher import fetch_data
 from storage.marker import mark
-from signals.divergence import diver_bottom
-
-
-def divergence(candles: List[Candle], is_top=False) -> List[Signal]:
-    """
-    获取背离信号集合
-    :param candles:
-    :param is_top: 是否顶背离
-    :return: 默认取底背离，is_top=True取顶背离
-    """
-    signals = []
-    mark_candles = []
-    for cd in candles:
-        if cd.mark is None:
-            return signals
-        if abs(cd.mark) == 3:
-            mark_candles.append(cd)
-    size = len(mark_candles)
-    for i in range(2, size):
-        c_2 = mark_candles[i - 2]
-        c_1 = mark_candles[i - 1]
-        c_0 = mark_candles[i]
-        if is_top:
-            if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
-                is_cross = True
-                if i + 1 == size:
-                    cs = get_section(candles, c_0.dt, candles[-1])
-                    if has_cross(cs) != -1:
-                        is_cross = False
-                if is_cross:
-                    up_stage1 = get_stage(candles, c_2.dt)
-                    up_stage2 = get_stage(candles, c_0.dt)
-                    # if has_trend(up_stage1) == 1 and has_trend(up_stage2) == 1:
-                    high2 = get_highest(up_stage1).high
-                    high0 = get_highest(up_stage2).high
-                    if c_2.diff() > c_0.diff() and high2 < high0:
-                        signals.append(Signal(dt=c_0.dt, freq=c_0.freq, type='top_divergence', value=c_0.mark))
-        else:
-            if c_2.mark == -3 and c_1.mark == 3 and c_0.mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
-                is_cross = True
-                if i + 1 == size:
-                    cs = get_section(candles, c_0.dt, candles[-1].dt)
-                    if has_cross(cs) != 1:
-                        is_cross = False
-                if is_cross:
-                    down_stage1 = get_stage(candles, c_2.dt)
-                    down_stage2 = get_stage(candles, c_0.dt)
-                    if has_trend(down_stage1) == -1 and has_trend(down_stage2) == -1:
-                        low1 = get_lowest(down_stage1).low
-                        low2 = get_lowest(down_stage2).low
-                        if c_2.diff() < c_0.diff() and low1 > low2:
-                            signals.append(Signal(dt=c_0.dt, freq=c_0.freq, type='bottom_divergence', value=c_0.mark))
-    return signals
 
 
 def get_top_bottom(candles: List[Candle]):
