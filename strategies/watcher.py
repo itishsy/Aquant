@@ -53,7 +53,7 @@ def watch_all():
         for ti in tis:
             deal(ti)
     except Exception as e:
-        print(e)
+        traceback.print_exc()
     finally:
         return tickets
 
@@ -74,5 +74,6 @@ def daily_watch():
 
 
 if __name__ == '__main__':
-    flag = True
-    watch_all()
+    # flag = True
+    # watch_all()
+    daily_watch()

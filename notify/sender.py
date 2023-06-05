@@ -6,7 +6,7 @@ import traceback
 
 
 def find_notify_content():
-    trs = Trade.select().where(Trade.notify == 0)
+    trs = Trade.select().where(Trade.notify == 0).order_by(Trade.id).limit(5)
     content = ''
     for tr in trs:
         content = 'code={},freq={},dt={};{}'.format(tr.code, tr.freq, tr.dt, content)
@@ -14,7 +14,7 @@ def find_notify_content():
 
 
 def update_notify_status():
-    trs = Trade.select().where(Trade.notify == 0)
+    trs = Trade.select().where(Trade.notify == 0).order_by(Trade.id).limit(5)
     for tr in trs:
         tr.notify = 1
     Trade.bulk_update(trs, fields=['notify'], batch_size=50)

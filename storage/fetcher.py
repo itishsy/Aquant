@@ -7,18 +7,14 @@ from sqlalchemy import select, desc, delete, and_
 from storage.marker import remark
 from storage.dba import find_active_symbols
 from typing import List
+from common.utils import dt_format
 import logging
 import time
 
 
-def fetch_and_save(code, freq, begin='2015-01-01'):
+def get_last_candle(code, freq, l_candle: Candle):
     session = dba.get_session(code)
-    a_candles = session.execute(
-        select(Candle).where(Candle.freq == freq).order_by(desc('id')).limit(100)
-    ).scalars().fetchall()
-    if len(a_candles) == 0:
-        return
-    l_candle = a_candles[0]
+    begin = '2015-01-01'
     if l_candle is not None:
         if l_candle.dt.find(':') > 0:
             sdt = datetime.strptime(l_candle.dt, '%Y-%m-%d %H:%M')
@@ -30,10 +26,26 @@ def fetch_and_save(code, freq, begin='2015-01-01'):
     l_candle = session.execute(
         select(Candle).where(Candle.freq == freq).order_by(desc('id')).limit(1)
     ).scalar()
-    candles = fetch_data(code, freq, begin, l_candle=l_candle)
-    session.add_all(candles)
-    session.commit()
-    remark(code, freq, beg=a_candles[-1].dt)
+    return l_candle, begin
+
+
+def fetch_and_save(code, freq, begin='2015-01-01'):
+    session = dba.get_session(code)
+    a_candles = session.execute(
+        select(Candle).where(Candle.freq == freq).order_by(desc('id')).limit(100)
+    ).scalars().fetchall()
+    if len(a_candles) == 0:
+        candles = fetch_data(code, freq, begin)
+        session.add_all(candles)
+        session.commit()
+        remark(code, freq)
+    else:
+        l_candle, begin = get_last_candle(code, freq, a_candles[0])
+        beg = a_candles[-1].dt
+        candles = fetch_data(code, freq, begin, l_candle=l_candle)
+        session.add_all(candles)
+        session.commit()
+        remark(code, freq, beg=beg)
 
 
 def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
