@@ -4,7 +4,7 @@ from storage.fetcher import fetch_and_save
 from storage.dba import find_candles
 from models.ticket import Ticket
 from models.trade import Trade
-from common.utils import dt_format
+from common.utils import dt_format, freq_level
 import traceback
 import time
 
@@ -13,8 +13,8 @@ flag = False
 
 def freq_collect(ti: Ticket):
     fqs = []
-    bfs = ti.buy.split(',')
-    sfs = ti.sell.split(',')
+    bfs = freq_level(ti.buy)
+    sfs = freq_level(ti.sell)
     for bf in bfs:
         if not fqs.__contains__(bf):
             fqs.append(bf)
@@ -25,11 +25,6 @@ def freq_collect(ti: Ticket):
 
 
 def is_watch_time(freq):
-    try:
-        freq = int(freq)
-    except:
-        print(freq)
-
     now = datetime.now()
     hm = now.hour * 100 + now.minute
     if now.weekday() < 5:
@@ -63,25 +58,25 @@ def deal(ti: Ticket):
     for fq in fqs:
         if flag or is_watch_time(fq):
             fetch_and_save(ti.code, fq)
-            bfs = ti.buy.split(',')
-            sfs = ti.sell.split(',')
+            bfs = freq_level(ti.buy)
+            sfs = freq_level(ti.sell)
             cds = find_candles(ti.code, fq)
             if len(cds) < 50:
                 return
             ldt = dt_format(cds[-1].dt)
             if bfs.__contains__(fq):
                 sis = diver_bottom(cds)
-                print('deal code:{} buy:{},size:{}'.format(ti.code, fq, len(sis)))
                 if len(sis) > 0:  # and sis[-1].dt >= ldt:
                     si = sis[-1]
+                    print('deal code:{} buy:{},size:{}'.format(ti.code, fq, len(sis)))
                     if not Trade.select().where(Trade.code == si.code, Trade.dt == si.dt, Trade.freq == fq,
                                                 Trade.type == 0).exists():
                         Trade.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, price=sis[-1].value)
             if sfs.__contains__(fq):
                 sis = diver_top(cds)
-                print('deal code:{} sell:{},size:{}'.format(ti.code, fq, len(sis)))
                 if len(sis) > 0:  # and sis[-1].dt >= ldt:
                     si = sis[-1]
+                    print('deal code:{} sell:{},size:{}'.format(ti.code, fq, len(sis)))
                     if not Trade.select().where(Trade.code == si.code, Trade.dt == si.dt, Trade.freq == fq,
                                                 Trade.type == 1).exists():
                         Trade.create(code=ti.code, name=ti.name, freq=fq, dt=sis[-1].dt, type=1, price=sis[-1].value)

@@ -7,8 +7,9 @@ from . import main
 from models.ticket import Ticket
 from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField,DecimalField,IntegerField
+from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length
+from common.utils import freq_level
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -35,7 +36,7 @@ def ticketlist():
             flash('操作失败')
 
     # 查询列表
-    query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.hold.desc(),Ticket.buy)
+    query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.hold.desc(), Ticket.buy)
     total_count = query.select().where(Ticket.status < 3).count()
 
     # 处理分页
@@ -81,9 +82,10 @@ class TicketForm(FlaskForm):
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 6, message='长度不正确')])
     cost = DecimalField('成本')
     hold = IntegerField('持有量')
-    buy = StringField('买入级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    sell = StringField('卖出级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    buy = SelectField('买入级别', choices=freq_level())
+    sell = SelectField('卖出级别', choices=freq_level())
     cut = DecimalField('止损点', validators=[DataRequired(message='不能为空')])
+    clean = SelectField('剔除级别', choices=freq_level())
     status = SelectField('状态', choices=[('0', '观察中'), ('1', '持有'), ('2', '清仓'), ('3', '弃用')])
     source = SelectField('来源于', choices=[('TTS', '趋势策略'), ('自选', '自选')])
     created = StringField('创建时间')

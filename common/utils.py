@@ -7,3 +7,22 @@ def dt_format(dt, fm='%Y-%m-%d'):
     else:
         sdt = datetime.strptime(dt, '%Y-%m-%d')
     return sdt.strftime(fm)
+
+
+def freq_level(lev=None):
+    if lev is None:
+        return [(1, [5, 15]), (2, [15, 30]), (3, [30, 60]), (4, [60, 120]), (5, [201]), (6, [207])]
+    if lev == 1:
+        return [5, 15]
+    elif lev == 2:
+        return [15, 30]
+    elif lev == 3:
+        return [30, 60]
+    elif lev == 4:
+        return [60, 120]
+    elif lev == 5:
+        return [201]
+    elif lev == 6:
+        return [207]
+    else:
+        return []
