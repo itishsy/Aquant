@@ -54,8 +54,8 @@
                     <label>无</label>
                     {% endif %}
                 </td>
-                <td>{{row.buy}}</td>
-                <td>{{row.sell}}</td>
+                <td>{{ fel(row.buy) }}</td>
+                <td>{{ fel(row.sell) }}</td>
                 <td><a class='fa fa-lg fa-edit text-light-blue'
                        href='{{ url_for("main.ticketedit", id=row.id) }}'></a></td>
             </tr>

@@ -36,7 +36,7 @@ def ticketlist():
             flash('操作失败')
 
     # 查询列表
-    query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.hold.desc(), Ticket.buy)
+    query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.hold.desc(),Ticket.buy)
     total_count = query.select().where(Ticket.status < 3).count()
 
     # 处理分页
@@ -44,7 +44,7 @@ def ticketlist():
 
     dict = {'content': utils.query_to_list(query), 'total_count': total_count,
             'total_page': math.ceil(total_count / length), 'page': page, 'length': length}
-    return render_template('ticketlist.html', form=dict, current_user=current_user)
+    return render_template('ticketlist.html', form=dict, fel=freq_level, current_user=current_user)
 
 
 @main.route('/ticketedit', methods=['GET', 'POST'])
@@ -61,6 +61,7 @@ def ticketedit():
         if request.method == 'POST':
             if form.validate_on_submit():
                 utils.form_to_model(form, model)
+                model.updated = datetime.now()
                 model.save()
                 flash('修改成功')
             else:
@@ -70,6 +71,7 @@ def ticketedit():
         if form.validate_on_submit():
             model = Ticket()
             utils.form_to_model(form, model)
+            model.created = datetime.now()
             model.save()
             flash('保存成功')
         else:

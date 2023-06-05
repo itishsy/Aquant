@@ -51,13 +51,13 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>{{form.buy.label}}</label>
-                    {{form.buy(class_="form-control",placeholder="请输入")}}
+                    {{form.buy(class_="form-control buy_select",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label>{{form.sell.label}}</label>
-                    {{form.sell(class_="form-control",placeholder="请输入")}}
+                    {{form.sell(class_="form-control sell_select",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -68,14 +68,20 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
+                    <label>{{form.clean.label}}</label>
+                    {{form.clean(class_="form-control clean_select",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
                     <label>{{form.status.label}}</label>
-                    {{form.status(class_="form-control select2")}}
+                    {{form.status(class_="form-control status_select")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label>{{form.source.label}}</label>
-                    {{form.source(class_="form-control select2")}}
+                    {{form.source(class_="form-control source_select")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -98,7 +104,11 @@
 {% block scripts %}
 <script>
     function initPage() {
-        $(".select2").select2();
+        $(".buy_select").val("{{form.buy.data}}").select2();
+        $(".sell_select").val("{{form.sell.data}}").select2();
+        $(".clean_select").val("{{form.clean.data}}").select2();
+        $(".status_select").val("{{form.status.data}}").select2();
+        $(".source_select").val("{{form.source.data}}").select2();
     }
 </script>
 {% endblock %}
