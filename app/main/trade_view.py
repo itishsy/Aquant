@@ -35,7 +35,7 @@ def tradelist():
             flash('操作失败')
 
     # 查询列表
-    query = Trade.select()
+    query = Trade.select().order_by(Trade.dt.desc())
     total_count = query.select().count()
 
     # 处理分页
@@ -82,8 +82,8 @@ class TradeForm(FlaskForm):
     dt = StringField('交易时间', validators=[DataRequired(message='不能为空')])
     strategy = StringField('交易策略', validators=[DataRequired(message='不能为空')])
     price = DecimalField('价格', validators=[DataRequired(message='不能为空')])
-    type = SelectField('类别', choices=[('0', '买入'), ('1', '卖出')])
-    status = SelectField('状态', choices=[('0', '未成交'), ('1', '已成交')])
+    type = SelectField('类别', choices=[(0, '买入'), (1, '卖出')])
+    status = SelectField('状态', choices=[(0, '未成交'), (1, '已成交')])
     notify = SelectField('通知', choices=[('0', '未通知'), ('1', '已通知')])
     created = StringField('创建时间')
     submit = SubmitField('提交')

@@ -71,7 +71,7 @@ def deal(ti: Ticket):
                     print('deal code:{} buy:{},size:{}'.format(ti.code, fq, len(sis)))
                     if not Trade.select().where(Trade.code == si.code, Trade.dt == si.dt, Trade.freq == fq,
                                                 Trade.type == 0).exists():
-                        Trade.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, price=sis[-1].value)
+                        Trade.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, price=si.value, created=datetime.now())
             if sfs.__contains__(fq):
                 sis = diver_top(cds)
                 if len(sis) > 0:  # and sis[-1].dt >= ldt:
@@ -79,7 +79,7 @@ def deal(ti: Ticket):
                     print('deal code:{} sell:{},size:{}'.format(ti.code, fq, len(sis)))
                     if not Trade.select().where(Trade.code == si.code, Trade.dt == si.dt, Trade.freq == fq,
                                                 Trade.type == 1).exists():
-                        Trade.create(code=ti.code, name=ti.name, freq=fq, dt=sis[-1].dt, type=1, price=sis[-1].value)
+                        Trade.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=1, price=si.value, created=datetime.now())
 
 
 def watch_all():
@@ -110,6 +110,6 @@ def daily_watch():
 
 
 if __name__ == '__main__':
-    #flag = True
-    #watch_all()
-    daily_watch()
+    flag = True
+    watch_all()
+    #daily_watch()

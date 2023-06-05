@@ -23,32 +23,37 @@
         <table class="table table-bordered">
             <tr>
                 <th style="display: none" >ID</th>
-                <th>状态</th>
                 <th>编码</th>
-                <th>时间</th>
+                <th>状态</th>
                 <th>级别</th>
+                <th>时间</th>
                 <th>通知</th>
                 <th>编辑</th>
             </tr>
             {% for row in form.content %}
+            {% if row.type == 1 %}
+            <tr style="background-color: greenyellow">
+            {% else %}
             <tr>
+            {% endif %}
                 <td style="display: none">{{row.id}}</td>
-                <td>
-                    {% if row.status == 1 %}
-                    <label>已成交</label>
-                    {% else %}
-                    <label>未成交</label>
-                    {% endif %}
-                </td>
+
                 <td>
                     {% if row.code.startswith('60') %}
-                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.code}}</a>
+                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.name}}</a>
                     {% else %}
-                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.code}}</a>
+                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>
                     {% endif %}
                 </td>
+                <td>
+                    {% if row.type == 1 %}
+                    <label>卖出</label>
+                    {% else %}
+                    <label>买入</label>
+                    {% endif %}
+                </td>
+                <td>{{row.freq}}</td> </td>
                 <td>{{row.dt}}</td>
-                <td>{{row.freq}}</td>
                 <td>
                     {% if row.notify == 1 %}
                     <label>已通知</label>
