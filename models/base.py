@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from peewee import MySQLDatabase, Model, CharField, BooleanField, IntegerField, DateTimeField
+from flask_peewee.db import MySQLDatabase, Model, CharField, BooleanField, IntegerField, DateTimeField
 import json
 from werkzeug.security import check_password_hash
 from flask_login import UserMixin

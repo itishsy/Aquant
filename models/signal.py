@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from models.base import BaseModel, db
-from peewee import CharField, BooleanField, IntegerField, DateTimeField
+from flask_peewee.db import CharField, BooleanField, IntegerField, DateTimeField
 from sqlalchemy import select, desc, and_, text
 from storage.dba import dba
 from typing import List

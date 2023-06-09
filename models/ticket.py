@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from models.signal import Signal
 from sqlalchemy import select, desc, and_, text
 from models.base import BaseModel, db
-from peewee import CharField, BooleanField, IntegerField, DateTimeField, DecimalField
+from flask_peewee.db import CharField, BooleanField, IntegerField, DateTimeField, DecimalField
 from storage.dba import dba
 from typing import List
 from datetime import datetime, timedelta

@@ -2,7 +2,7 @@ from decimal import Decimal
 from dataclasses import dataclass
 from datetime import datetime
 from models.base import BaseModel, db
-from peewee import CharField, BooleanField, IntegerField, DateTimeField, DecimalField
+from flask_peewee.db import CharField, BooleanField, IntegerField, DateTimeField, DecimalField
 
 
 

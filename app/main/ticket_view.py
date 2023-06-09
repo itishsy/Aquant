@@ -88,7 +88,7 @@ class TicketForm(FlaskForm):
     sell = SelectField('卖出级别', choices=freq_level())
     cut = DecimalField('止损点', validators=[DataRequired(message='不能为空')])
     clean = SelectField('剔除级别', choices=freq_level())
-    status = SelectField('状态', choices=[('0', '观察中'), ('1', '持有'), ('2', '清仓'), ('3', '弃用')])
+    status = SelectField('状态', choices=[(0, '观察中'), (1, '持有'), (2, '清仓'), (3, '弃用')])
     source = SelectField('来源于', choices=[('TTS', '趋势策略'), ('自选', '自选')])
     created = StringField('创建时间')
     submit = SubmitField('提交')

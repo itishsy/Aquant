@@ -1,4 +1,4 @@
-peewee
+flask-peewee
 pymysql
 flask
 flask-script
