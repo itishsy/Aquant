@@ -24,7 +24,7 @@ def ticketlist():
     length = int(request.args.get('length')) if request.args.get('length') else cfg.ITEMS_PER_PAGE
 
     if id:
-        tic = Ticket.get(Ticket.id == id)
+        tic = Ticket.get(Ticket.code == id)
         try:
             # 删除操作
             if action == 'del':

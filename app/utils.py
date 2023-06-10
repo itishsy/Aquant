@@ -110,7 +110,7 @@ def model_to_form(model, form):
     dict = obj_to_dict(model)
     form_key_list = [k for k in form.__dict__]
     for k, v in dict.items():
-        if k in form_key_list and v:
+        if k in form_key_list and v is not None:
             field = form.__getitem__(k)
             field.data = v
             form.__setattr__(k, field)

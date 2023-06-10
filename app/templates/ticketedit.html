@@ -27,7 +27,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>{{form.code.label}}</label>
-                    {{form.code(class_="form-control",placeholder="请输入")}}
+                    {{form.code(class_="form-control",placeholder="请输入",onblur="check_code(this)")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -94,6 +94,11 @@
 
         <div class="box-footer">
             <div class="col-md-12">
+                {% if form.code.data %}
+                <a class='btn btn-danger'
+                   href='{{ url_for("main.ticketlist", id=form.code.data, action="del") }}'>删除</a>
+                <a class='btn btn-default' href='{{ url_for("main.ticketlist") }}'>返回</a>
+                {% endif %}
                 {{form.submit(class_="btn btn-primary pull-right")}}
             </div>
         </div>
@@ -109,6 +114,18 @@
         $(".clean_select").val("{{form.clean.data}}").select2();
         $(".status_select").val("{{form.status.data}}").select2();
         $(".source_select").val("{{form.source.data}}").select2();
+    }
+
+    function check_code(obj) {
+        let c = "{{form.code.data}}"
+        if (c === "None") {
+            let code = $(obj).val()
+            restTemplate("GET", "/get/id?code=" + code, null, function (obj) {
+                if (obj.id > 0) {
+                    location.href = '{{ url_for("main.ticketedit") }}' + '?id=' + obj.id
+                }
+            });
+        }
     }
 </script>
 {% endblock %}

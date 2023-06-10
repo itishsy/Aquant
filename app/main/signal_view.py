@@ -38,6 +38,10 @@ def signallist():
                 sig.save()
                 if not Ticket.select().where(Ticket.code == sig.code).exists():
                     Ticket.create(code=sig.code, name=sig.name, status=0, created=datetime.now())
+            elif action == 'untick':
+                sig.tick = False
+                sig.updated = datetime.now()
+                sig.save()
         except:
             flash('操作失败')
 

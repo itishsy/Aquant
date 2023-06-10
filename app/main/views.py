@@ -89,15 +89,25 @@ def index():
 # 根目录跳转
 @main.route('/api/stats/summary', methods=['GET'])
 @login_required
-def api():
+def summary():
     count01 = Signal.select().where(Signal.status == 1).count()
-    today = find_candles('000001',101, limit=1)[0].dt
+    today = find_candles('000001', 101, limit=1)[0].dt
     count02 = Signal.select().where(Signal.created >= today, Signal.status == 1).count()
     count03 = Ticket.select().where(Ticket.status < 3).count()
     count04 = Trade.select().where(Trade.created > today).count()
     data = {'count01': count01, 'count02': count02, 'count03': count03, 'count04': count04}
     return jsonify(data)
 
+
+@main.route('/api/get/id', methods=['GET'])
+@login_required
+def getTickIdByCode():
+    code = request.args.get('code')
+    data = {'id': -1}
+    if Ticket.select().where(Ticket.code == code).exists():
+        tic = Ticket.get(Ticket.code == code)
+        data = {'id':  tic.id}
+    return jsonify(data)
 
 # 根目录跳转
 @main.route('/api/save/ticket', methods=['POST'])
@@ -111,7 +121,7 @@ def save_ticket():
     else:
         sig.watch = status
         sig.save()
-        Ticket.create(code=sig.code,status=0)
+        Ticket.create(code=sig.code, status=0)
         flash('操作成功')
     data = {'ok': 1}
     return jsonify(data)
