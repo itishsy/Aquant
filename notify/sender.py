@@ -9,8 +9,10 @@ def find_notify_content():
     trs = Trade.select().where(Trade.notify == 0).order_by(Trade.id).limit(5)
     content = ''
     for tr in trs:
+        sc = 'SH' if tr.code.startswith('60') else 'SZ'
+        l = 'http://xueqiu.com/S/{}{}'.format(sc, tr.code)
         t = 'B' if tr.type == 0 else 'S'
-        content = '【{}】{} {} {};{}'.format(t, tr.code, tr.freq, tr.dt, content)
+        content = '【{}】{} {} {};{}'.format(t, l, tr.freq, tr.dt, content)
     return content
 
 

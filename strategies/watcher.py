@@ -83,6 +83,7 @@ def watch_all():
     tickets = []
     try:
         tis = Ticket.select().where(Ticket.status < 2)
+        print('[{}] watch deal size:{}'.format(datetime.now(), len(tis)))
         for ti in tis:
             deal(ti)
     except Exception as e:
@@ -92,7 +93,7 @@ def watch_all():
 
 
 def daily_watch():
-    print('[{}] watcher working ...'.format(datetime.now()))
+    print('[{}] watcher start'.format(datetime.now()))
     while True:
         now = datetime.now()
         try:
@@ -101,9 +102,9 @@ def daily_watch():
         except Exception as e:
             print(e)
         finally:
-            if now.minute == 1:
+            if now.minute < 10:
                 print('[{}] watcher working ...'.format(now))
-            time.sleep(650)
+            time.sleep(60*15)
 
 
 if __name__ == '__main__':
