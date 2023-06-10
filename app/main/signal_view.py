@@ -45,8 +45,8 @@ def signallist():
     today = request.args.get('today')
     if today:
         last_day = find_candles('000001', 101, limit=1)[0].dt
-        query = Signal.select().where(Signal.status == 1, Signal.dt >= last_day).order_by(Signal.tick.desc())
-        total_count = query.select().where(Signal.status == 1, Signal.dt >= last_day).count()
+        query = Signal.select().where(Signal.status == 1, Signal.created >= last_day).order_by(Signal.tick.desc())
+        total_count = query.select().where(Signal.status == 1, Signal.created >= last_day).count()
     else:
         query = Signal.select().where(Signal.status == 1).order_by(Signal.tick.desc(), Signal.dt.desc())
         total_count = query.select().where(Signal.status == 1).count()

@@ -11,9 +11,9 @@ def dt_format(dt, fm='%Y-%m-%d'):
 
 def freq_level(lev=None):
     if lev is None:
-        return [(1, [5]), (2, [15, 30]), (3, [30, 60]), (4, [60, 120]), (5, [101]), (6, [102])]
+        return [(1, [5, 15]), (2, [15, 30]), (3, [30, 60]), (4, [60, 120]), (5, [101]), (6, [102])]
     if lev == 1:
-        return [5]
+        return [5, 15]
     elif lev == 2:
         return [15, 30]
     elif lev == 3:

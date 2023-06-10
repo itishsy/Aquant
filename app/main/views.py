@@ -92,7 +92,7 @@ def index():
 def api():
     count01 = Signal.select().where(Signal.status == 1).count()
     today = find_candles('000001',101, limit=1)[0].dt
-    count02 = Signal.select().where(Signal.dt >= today, Signal.status == 1).count()
+    count02 = Signal.select().where(Signal.created >= today, Signal.status == 1).count()
     count03 = Ticket.select().where(Ticket.status < 3).count()
     count04 = Trade.select().where(Trade.created > today).count()
     data = {'count01': count01, 'count02': count02, 'count03': count03, 'count04': count04}
