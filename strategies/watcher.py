@@ -108,6 +108,6 @@ def daily_watch():
 
 
 if __name__ == '__main__':
-    # flag = True
-    # watch_all()
-    daily_watch()
+    flag = True
+    watch_all()
+    # daily_watch()

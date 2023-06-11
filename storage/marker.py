@@ -2,7 +2,7 @@ from typing import List
 from storage.dba import dba
 from storage.candle import Candle
 from storage.dba import find_active_symbols
-from sqlalchemy import select,and_
+from sqlalchemy import select, and_
 
 
 def mark(candles: List[Candle]) -> List[Candle]:
@@ -12,6 +12,16 @@ def mark(candles: List[Candle]) -> List[Candle]:
 
     for c in candles:
         c.mark = 1 if c.bar() > 0 else -1
+
+    for i in range(2, size - 1):
+        c_2 = candles[i - 2]
+        c_1 = candles[i - 1]
+        c_0 = candles[i]
+        c_01 = candles[i + 1]
+        if c_2.mark == c_01.mark == c_1.mark == -1 and c_0.mark == 1:
+            c_0.mark = -1
+        if c_2.mark == c_01.mark == c_1.mark == 1 and c_0.mark == -1:
+            c_0.mark = 1
 
     for i in range(2, size):
         c_2 = candles[i - 2]
@@ -81,20 +91,19 @@ def remark(code, freq, beg=None):
 
 
 if __name__ == '__main__':
-    codes = ['002292','002997']
+    codes = ['300634']
     # remark('300031', 101)
     symbols = find_active_symbols()
     for sbl in symbols:
         if len(codes) > 0 and sbl.code not in codes:
             continue
         try:
-            remark(sbl.code, 102)
-            remark(sbl.code, 101)
-            remark(sbl.code, 60)
-            remark(sbl.code, 30)
+            # remark(sbl.code, 102)
+            # remark(sbl.code, 101)
+            # remark(sbl.code, 60)
+            # remark(sbl.code, 30)
             remark(sbl.code, 15)
         except:
             print('{} mark error'.format(sbl.code))
         finally:
             print('{} mark finish'.format(sbl.code))
-
