@@ -4,6 +4,7 @@ from storage.fetcher import fetch_and_save
 from storage.dba import find_candles
 from models.ticket import Ticket
 from models.trade import Trade
+from models.component import Component
 from common.utils import dt_format, freq_level
 import traceback
 import time
@@ -90,6 +91,7 @@ def deal(ti: Ticket):
 def watch_all():
     tickets = []
     try:
+        Component.update(status=2).where(Component.name == 'watcher').execute()
         tis = Ticket.select().where(Ticket.status < 2)
         print('[{}] watch deal size:{}'.format(datetime.now(), len(tis)))
         for ti in tis:
@@ -97,6 +99,7 @@ def watch_all():
     except Exception as e:
         traceback.print_exc()
     finally:
+        Component.update(status=1).where(Component.name == 'watcher').execute()
         return tickets
 
 

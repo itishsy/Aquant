@@ -78,11 +78,18 @@ class Ticket(BaseModel):
 def load_user(user_id):
     return User.get(User.id == int(user_id))
 
+# 通知
+class Component(BaseModel):
+    name = CharField()  # 名称
+    clock_time = DateTimeField()  # 最近打卡时间
+    run_time = DateTimeField()  # 最近执行时间
+    status = IntegerField(default=0)  # 状态
+
 
 # 建表
 def create_table():
     db.connect()
-    db.create_tables([Notify, User, Signal, Ticket])
+    db.create_tables([Component])
 
 
 if __name__ == '__main__':

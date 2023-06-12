@@ -32,7 +32,7 @@
             {% for row in form.content %}
             {% if row.status == 1 %}
             <tr style="background-color: goldenrod">
-                {% elif row.buy == '05' %}
+                {% elif row.hold > 0 %}
             <tr style="background-color: gainsboro">
             {% else %}
             <tr>

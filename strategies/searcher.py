@@ -1,5 +1,6 @@
 from datetime import datetime
 from strategies import *
+from models.component import Component
 import time
 
 
@@ -20,15 +21,21 @@ def daily_search():
 
 
 def search_all(sta=None):
-    if sta is None:
-        for name in strategy.factory:
-            st = strategy.factory[name]()
+    try:
+        Component.update(status=2).where(Component.name == 'searcher').execute()
+        if sta is None:
+            for name in strategy.factory:
+                st = strategy.factory[name]()
+                st.search_all()
+        else:
+            st = strategy.factory[sta]()
+            # st.freq = 60
+            # st.codes = ['603790']
             st.search_all()
-    else:
-        st = strategy.factory[sta]()
-        # st.freq = 60
-        # st.codes = ['603790']
-        st.search_all()
+    except Exception as e:
+        print(e)
+    finally:
+        Component.update(status=1).where(Component.name == 'searcher').execute()
 
 
 def deal_all(sta=None):
