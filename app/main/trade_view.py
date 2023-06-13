@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from app import utils
 from . import main
 from models.trade import Trade
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length
@@ -35,13 +35,20 @@ def tradelist():
             flash('操作失败')
 
     # 查询列表
-    query = Trade.select().order_by(Trade.dt.desc())
+    query = Trade.select().order_by(Trade.dt.desc(), Trade.type)
     total_count = query.select().count()
 
     # 处理分页
     if page: query = query.paginate(page, length)
 
-    dict = {'content': utils.query_to_list(query), 'total_count': total_count,
+    list = utils.query_to_list(query)
+    for obj in list:
+        if obj['created'] > (datetime.now() + timedelta(-1)):
+            obj['flag'] = 1
+        else:
+            obj['flag'] = 0
+
+    dict = {'content': list, 'total_count': total_count,
             'total_page': math.ceil(total_count / length), 'page': page, 'length': length}
     return render_template('tradelist.html', form=dict, current_user=current_user)
 

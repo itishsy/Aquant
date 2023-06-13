@@ -25,19 +25,16 @@
                 <th style="display: none" >ID</th>
                 <th>编码</th>
                 <th>状态</th>
-                <th>级别</th>
                 <th>时间</th>
-                <th>通知</th>
-                <th>编辑</th>
+                <th>级别</th>
             </tr>
             {% for row in form.content %}
-            {% if row.type == 0 %}
-            <tr style="background-color: lightgray">
+            {% if row.flag == 1 %}
+            <tr style="background-color: beige">
             {% else %}
             <tr>
             {% endif %}
                 <td style="display: none">{{row.id}}</td>
-
                 <td>
                     {% if row.code.startswith('60') %}
                     <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.name}}</a>
@@ -49,20 +46,17 @@
                     {% if row.type == 1 %}
                     <label>卖出</label>
                     {% else %}
-                    <label>买入</label>
+                    <label style="color: orangered">买入</label>
                     {% endif %}
                 </td>
-                <td>{{row.freq}}</td> </td>
                 <td>{{row.dt}}</td>
                 <td>
                     {% if row.notify == 1 %}
-                    <label>已通知</label>
+                    <label style="color: brown"><a href='{{ url_for("main.tradeedit", id=row.id) }}'>{{row.freq}}</a></label>
                     {% else %}
-                    <label>未通知</label>
+                    <label><a href='{{ url_for("main.tradeedit", id=row.id) }}'>{{row.freq}}</a></label>
                     {% endif %}
                 </td>
-                <td><a class='fa fa-lg fa-edit text-light-blue'
-                       href='{{ url_for("main.tradeedit", id=row.id) }}'></a></td>
             </tr>
             {% endfor %}
         </table>
