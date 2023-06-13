@@ -71,16 +71,18 @@ def deal(ti: Ticket):
             return
         ldt = dt_format(cds[-1].dt)
         if bfs.__contains__(fq):
+            print('watch buy code :{} freq:{}'.format(ti.code, fq))
             sis = diver_bottom(cds)
-            if len(sis) > 0 and sis[-1].dt >= ldt:
+            if len(sis) > 0: # and sis[-1].dt >= ldt:
                 si = sis[-1]
                 print('deal code:{} buy:{},size:{}'.format(ti.code, fq, len(sis)))
                 if not Trade.select().where(Trade.code == ti.code, Trade.dt == si.dt, Trade.freq == fq).exists():
                     Trade.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, price=si.value,
                                  created=datetime.now())
         if sfs.__contains__(fq):
+            print('watch sell code :{} freq:{}'.format(ti.code, fq))
             sis = diver_top(cds)
-            if len(sis) > 0 and sis[-1].dt >= ldt:
+            if len(sis) > 0: # and sis[-1].dt >= ldt:
                 si = sis[-1]
                 print('deal code:{} sell:{},size:{}'.format(ti.code, fq, len(sis)))
                 if not Trade.select().where(Trade.code == ti.code, Trade.dt == si.dt, Trade.freq == fq).exists():

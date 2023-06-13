@@ -25,9 +25,7 @@
                 <th style="display: none" >ID</th>
                 <th>票据</th>
                 <th>操作</th>
-                <th>B级</th>
-                <th>S级</th>
-                <th>编辑</th>
+                <th>级别</th>
             </tr>
             {% for row in form.content %}
             {% if row.status == 1 %}
@@ -54,10 +52,7 @@
                     <label>无</label>
                     {% endif %}
                 </td>
-                <td>{{ fel(row.buy) }}</td>
-                <td>{{ fel(row.sell) }}</td>
-                <td><a class='fa fa-lg fa-edit text-light-blue'
-                       href='{{ url_for("main.ticketedit", id=row.id) }}'></a></td>
+                <td><a href='{{ url_for("main.ticketedit", id=row.id) }}'>{{ fel(row.buy) }}</a></td>
             </tr>
             {% endfor %}
         </table>
