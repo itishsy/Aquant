@@ -52,7 +52,7 @@ def signallist():
         query = Signal.select().where(Signal.status == 1, Signal.created >= last_day).order_by(Signal.tick.desc())
         total_count = query.select().where(Signal.status == 1, Signal.created >= last_day).count()
     else:
-        query = Signal.select().where(Signal.status == 1).order_by(Signal.tick.desc(), Signal.dt.desc())
+        query = Signal.select().where(Signal.status == 1).order_by(Signal.dt.desc(), Signal.tick.desc())
         total_count = query.select().where(Signal.status == 1).count()
 
     # 处理分页
