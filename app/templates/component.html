@@ -23,7 +23,11 @@
         <div class="box-body">
             <div class="row">
             <div class="col-lg-3 col-xs-6">
+                {% if dic.fetcher == "已启动"%}
                 <div class="small-box bg-gray">
+                {% else %}
+                <div class="small-box bg-red">
+                {% endif %}
                     <div class="inner">
                         <h5>{{ dic.fetcher }}</h5>
                         <p>fetcher</p>
@@ -34,7 +38,11 @@
                 </div>
             </div>
             <div class="col-lg-3 col-xs-6">
+                {% if dic.searcher == "已启动"%}
                 <div class="small-box bg-gray">
+                {% else %}
+                <div class="small-box bg-red">
+                {% endif %}
                     <div class="inner">
                         <h5>{{ dic.searcher }}</h5>
                         <p>searcher</p>
@@ -45,7 +53,11 @@
                 </div>
             </div>
             <div class="col-lg-3 col-xs-6">
+                {% if dic.watcher == "已启动"%}
                 <div class="small-box bg-gray">
+                {% else %}
+                <div class="small-box bg-red">
+                {% endif %}
                     <div class="inner">
                         <h5>{{ dic.watcher }}</h5>
                         <p>watcher</p>
@@ -56,7 +68,11 @@
                 </div>
             </div>
             <div class="col-lg-3 col-xs-6">
+                {% if dic.sender == "已启动"%}
                 <div class="small-box bg-gray">
+                {% else %}
+                <div class="small-box bg-red">
+                {% endif %}
                     <div class="inner">
                         <h5>{{ dic.sender }}</h5>
                         <p>sender</p>
@@ -73,6 +89,7 @@
             <div class="col-md-12">
                 <a class='btn btn-primary' href='{{ url_for("main.searchtask") }}'>search</a>
                 <a class='btn btn-primary' href='{{ url_for("main.watchtask") }}'>watch</a>
+                <a class='btn btn-default pull-right' href='{{ url_for("main.index") }}'>home</a>
             </div>
         </div>
     </form>
@@ -82,7 +99,9 @@
 {% block scripts %}
 <script>
     function initPage() {
-
+        setInterval(function(){
+           location.reload();
+        }, 10000);
     }
 </script>
 {% endblock %}

@@ -43,7 +43,7 @@ def tradelist():
 
     list = utils.query_to_list(query)
     for obj in list:
-        if obj['created'] > (datetime.now() + timedelta(-1)):
+        if obj['created'] > datetime.strptime(datetime.now().strftime("%Y-%m-%d"),"%Y-%m-%d"):
             obj['flag'] = 1
         else:
             obj['flag'] = 0
