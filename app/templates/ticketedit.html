@@ -97,7 +97,12 @@
                 {% if form.code.data %}
                 <a class='btn btn-danger'
                    href='{{ url_for("main.ticketlist", id=form.code.data, action="del") }}'>删除</a>
-                <a class='btn btn-default' href='{{ url_for("main.ticketlist") }}'>返回</a>
+                <a class='btn btn-danger'
+                   href='{{ url_for("main.ticketlist", id=form.code.data, action="trd") }}'>交易</a>
+                <a class='btn btn-default'
+                   href='{{ url_for("main.ticketlist", id=form.code.data, action="frx") }}'>FRX</a>
+                <a class='btn btn-default'
+                   href='{{ url_for("main.ticketlist", id=form.code.data, action="trx") }}'>TRX</a>
                 {% endif %}
                 {{form.submit(class_="btn btn-primary pull-right")}}
             </div>

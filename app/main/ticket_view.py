@@ -32,6 +32,32 @@ def ticketlist():
                 tic.updated = datetime.now()
                 tic.save()
                 flash('操作成功')
+            # frx
+            elif action == 'trd':
+                tic.status = 1
+                tic.buy = 'FR-'
+                tic.watch = 5
+                tic.updated = datetime.now()
+                tic.save()
+                flash('操作成功')
+            # frx
+            elif action == 'frx':
+                tic.status = 0
+                tic.buy = 'FRX'
+                tic.watch = 3
+                tic.clean = 4
+                tic.updated = datetime.now()
+                tic.save()
+                flash('操作成功')
+            # trx
+            elif action == 'trx':
+                tic.status = 0
+                tic.buy = 'TRX'
+                tic.watch = 3
+                tic.clean = 4
+                tic.updated = datetime.now()
+                tic.save()
+                flash('操作成功')
         except:
             flash('操作失败')
 
