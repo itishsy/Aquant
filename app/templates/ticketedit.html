@@ -51,13 +51,13 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>{{form.buy.label}}</label>
-                    {{form.buy(class_="form-control buy_select",placeholder="请输入")}}
+                    {{form.buy(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.sell.label}}</label>
-                    {{form.sell(class_="form-control sell_select",placeholder="请输入")}}
+                    <label>{{form.watch.label}}</label>
+                    {{form.watch(class_="form-control watch_select",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -109,8 +109,7 @@
 {% block scripts %}
 <script>
     function initPage() {
-        $(".buy_select").val("{{form.buy.data}}").select2();
-        $(".sell_select").val("{{form.sell.data}}").select2();
+        $(".watch_select").val("{{form.watch.data}}").select2();
         $(".clean_select").val("{{form.clean.data}}").select2();
         $(".status_select").val("{{form.status.data}}").select2();
         $(".source_select").val("{{form.source.data}}").select2();

@@ -11,12 +11,15 @@ def dt_format(dt, fm='%Y-%m-%d'):
 
 def freq_level(lev=None):
     if lev is None:
-        return [(1, [5, 15]), (2, [5, 15, 30, 60]), (3, [15, 30, 60]), (4, [60, 120, 101]), (5, [101]), (6, [102])]
+        return [(1, [5]), (2, [5, 15]), (3, [15, 30, 60]), (4, [60, 120, 101]), (5, [101]), (6, [102])]
     if lev == 1:
-        return [5, 15]
+        # 30C
+        return [5]
     elif lev == 2:
-        return [5, 15, 30, 60]
+        # 60C
+        return [5, 15]
     elif lev == 3:
+        # 上涨中枢
         return [15, 30, 60]
     elif lev == 4:
         return [60, 120, 101]

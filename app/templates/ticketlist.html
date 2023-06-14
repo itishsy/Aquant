@@ -24,8 +24,8 @@
             <tr>
                 <th style="display: none" >ID</th>
                 <th>票据</th>
-                <th>操作</th>
-                <th>级别</th>
+                <th>交易编码</th>
+                <th>监控</th>
             </tr>
             {% for row in form.content %}
             {% if row.status == 1 %}
@@ -43,16 +43,8 @@
                     <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>
                     {% endif %}
                 </td>
-                <td>
-                    {% if row.status == 0 %}
-                    <label>观察中</label>
-                    {% elif row.status == 1 %}
-                    <label>持有</label>
-                    {% else %}
-                    <label>无</label>
-                    {% endif %}
-                </td>
-                <td><a href='{{ url_for("main.ticketedit", id=row.id) }}'>{{ fel(row.buy) }}</a></td>
+                <td>{{ row.buy }}</td>
+                <td><a href='{{ url_for("main.ticketedit", id=row.id) }}'>{{ fel(row.watch) }}</a></td>
             </tr>
             {% endfor %}
         </table>
