@@ -22,9 +22,9 @@ def freq_level(lev=None):
         # 上涨中枢
         return [15, 30, 60]
     elif lev == 4:
-        return [60, 120, 101]
-    elif lev == 5:
         return [101]
+    elif lev == 5:
+        return [5, 15, 30, 60, 120, 101]
     elif lev == 6:
         return [102]
     else:

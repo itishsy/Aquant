@@ -47,8 +47,8 @@ def is_trade_time():
     now = datetime.now()
     if now.weekday() > 4:
         return False
-    else:
-        return 930 < now_hm() < 1530
+
+    return 930 < now_hm() < 1530
 
 
 def now_hm():
@@ -72,13 +72,13 @@ def deal(ti: Ticket):
         if len(dbs) > 0: # and sis[-1].dt >= ldt:
             si = dbs[-1]
             print('buy code:{} freq:{},size:{}'.format(ti.code, fq, len(dbs)))
-            if not Trade.select().where(Trade.code == ti.code, Trade.dt == si.dt, Trade.freq == fq).exists():
+            if not Trade.select().where(Trade.code == ti.code, Trade.dt >= si.dt, Trade.freq == fq).exists():
                 Trade.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, price=si.value, created=datetime.now())
         dts = diver_top(cds)
         if len(dts) > 0: # and sis[-1].dt >= ldt:
             si = dts[-1]
             print('sell code:{} freq:{},size:{}'.format(ti.code, fq, len(dts)))
-            if not Trade.select().where(Trade.code == ti.code, Trade.dt == si.dt, Trade.freq == fq).exists():
+            if not Trade.select().where(Trade.code == ti.code, Trade.dt >= si.dt, Trade.freq == fq).exists():
                 Trade.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=1, price=si.value,
                             created=datetime.now())
 
@@ -86,15 +86,15 @@ def deal(ti: Ticket):
 def watch_all():
     tickets = []
     try:
-        Component.update(status=2).where(Component.name == 'watcher').execute()
+        Component.update(status=2, run_start=datetime.now()).where(Component.name == 'watcher').execute()
         tis = Ticket.select().where(Ticket.status < 2)
         print('[{}] watch deal size:{}'.format(datetime.now(), len(tis)))
         for ti in tis:
             deal(ti)
+        Component.update(status=1, run_end=datetime.now()).where(Component.name == 'watcher').execute()
     except Exception as e:
         traceback.print_exc()
     finally:
-        Component.update(status=1).where(Component.name == 'watcher').execute()
         return tickets
 
 
@@ -103,6 +103,7 @@ def daily_watch():
     while True:
         now = datetime.now()
         try:
+            Component.update(clock_time=datetime.now()).where(Component.name == 'watcher').execute()
             if is_trade_time():
                 watch_all()
         except Exception as e:

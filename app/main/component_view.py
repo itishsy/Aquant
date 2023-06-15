@@ -4,15 +4,14 @@ from . import main
 from models.component import Component
 from strategies.searcher import search_all
 from strategies.watcher import watch_all
-import asyncio
-from threading import Thread,current_thread
+from threading import Thread
 
 
 @main.route('/component', methods=['GET'])
 @login_required
 def component():
     cos = Component.select()
-    dic = {'fetcher': '未知', 'searcher': '未知', 'watcher': '未知', 'sender': '未知'}
+    dic = {'fetcher': '未知', 'searcher': '未知', 'watcher': '未知', 'sender': '未知', 'fetcher_time': '未知', 'searcher_time': '未知', 'watcher_time': '未知', 'sender_time': '未知'}
     for co in cos:
         if co.status == 0:
             dic[co.name] = '未启动'
@@ -20,6 +19,7 @@ def component():
             dic[co.name] = '已启动'
         elif co.status == 2:
             dic[co.name] = '运行中'
+        dic["{}_time".format(co.name)] = co.run_end
     return render_template('component.html', dic=dic, current_user=current_user)
 
 
@@ -30,8 +30,6 @@ def searchtask():
     th.setDaemon(True)
     th.start()
     return redirect(url_for('main.component'))
-    #eval('search_all()')
-    #asyncio.run(search_task())
 
 
 @main.route('/watchtask', methods=['GET'])
@@ -41,19 +39,3 @@ def watchtask():
     th.setDaemon(True)
     th.start()
     return redirect(url_for('main.component'))
-    #eval('watch_all()')
-    #asyncio.run(watch_task())
-
-
-async def search_task():
-    print("start search task")
-    task = asyncio.create_task(search_all())
-    await task
-    print("search task completed")
-
-
-async def watch_task():
-    print("start watch task")
-    task = asyncio.create_task(watch_all())
-    await task
-    print("watch task completed")

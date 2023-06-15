@@ -8,6 +8,7 @@ from storage.marker import remark
 from storage.dba import find_active_symbols
 from typing import List
 from common.utils import dt_format
+from models.component import Component
 import logging
 import time
 
@@ -102,6 +103,7 @@ def get_ma(candles: List[Candle], seq, val=None, att='close'):
 
 def fetch_all(freq=None):
     start_time = datetime.now()
+    Component.update(run_start=start_time).where(Component.name == 'fetcher').execute()
     ks = []
     if freq is not None:
         ks.append(freq)
@@ -118,24 +120,26 @@ def fetch_all(freq=None):
         except Exception as ex:
             print('fetch candles [{}] error!'.format(sb.code))
             logging.error('fetch candles [{}] error!'.format(sb.code), ex)
+    Component.update(run_end=datetime.now()).where(Component.name == 'fetcher').execute()
     print('[{}] fetch all done! elapsed time:'.format(datetime.now(), datetime.now() - start_time))
 
 
 def fetch_daily():
-    print('[{}] fetcher working ...'.format(datetime.now()))
+    print('[{}] fetcher start ...'.format(datetime.now()))
     while True:
         now = datetime.now()
         try:
-            if now.weekday() < 5 and (
-                    (now.hour == 11 and now.minute == 35) or (now.hour == 15 and now.minute == 10)):
-                fetch_all()
-                print("==============用時：{}=================".format(datetime.now() - now))
+            Component.update(clock_time=now).where(Component.name == 'fetcher').execute()
+            if now.weekday() < 5 and now.hour > 15:
+                fet = Component.get(Component.name == 'fetcher')
+                fet_time = fet.run_end #datetime.p(fet.run_time, '%Y-%m-%d %H:%M:%S')
+                if fet_time.day < now.day or fet_time.hour < 15:
+                    fetch_all()
+                    print("==============用時：{}=================".format(datetime.now() - now))
         except Exception as e:
             print(e)
         finally:
-            if now.minute == 1:
-                print('[{}] daily fetch working'.format(now))
-            time.sleep(60)
+            time.sleep(60 * 30)
 
 
 if __name__ == '__main__':
