@@ -1,6 +1,7 @@
 from models.trade import Trade
 from datetime import datetime
 from notify.qywx import send_msg
+from models.component import Component
 import time
 import traceback
 
@@ -23,15 +24,20 @@ def update_notify_status():
     Trade.bulk_update(trs, fields=['notify'], batch_size=50)
 
 
+def do_send():
+    message = find_notify_content()
+    if send_msg(message):
+        Component.update(status=2, run_start=datetime.now()).where(Component.name == 'sender').execute()
+        update_notify_status()
+        Component.update(status=1, run_end=datetime.now()).where(Component.name == 'sender').execute()
+
+
 if __name__ == '__main__':
     while True:
         try:
-            message = find_notify_content()
-            if send_msg(message):
-                update_notify_status()
-            if datetime.now().minute == 0:
-                print('[{}] sender working'.format(datetime.now()))
+            Component.update(status=1, clock_time=datetime.now()).where(Component.name == 'sender').execute()
+            do_send()
         except Exception:
             traceback.print_exc()
         finally:
-            time.sleep(300)
+            time.sleep(60 * 5)

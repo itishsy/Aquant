@@ -103,14 +103,12 @@ def daily_watch():
     while True:
         now = datetime.now()
         try:
-            Component.update(clock_time=datetime.now()).where(Component.name == 'watcher').execute()
+            Component.update(status=1, clock_time=now).where(Component.name == 'watcher').execute()
             if is_trade_time():
                 watch_all()
         except Exception as e:
             print(e)
         finally:
-            if now.minute < 10:
-                print('[{}] watcher working ...'.format(now))
             time.sleep(60 * 15)
 
 
