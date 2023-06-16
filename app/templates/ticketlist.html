@@ -37,14 +37,10 @@
             {% endif %}
                 <td style="display: none" >{{row.id}}</td>
                 <td>
-                    {% if row.code.startswith('60') %}
-                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.name}}</a>
-                    {% else %}
-                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>
-                    {% endif %}
+                    <a href='{{ url_for("main.ticketedit", id=row.id) }}'>{{ row.name }}</a>
                 </td>
                 <td>{{ row.buy }}</td>
-                <td><a href='{{ url_for("main.ticketedit", id=row.id) }}'>{{ fel(row.watch) }}</a></td>
+                <td>{{ fel(row.watch) }}</td>
             </tr>
             {% endfor %}
         </table>
