@@ -17,21 +17,21 @@
     <div class="box-body">
         <div class="row">
             <div class="col-lg-3 col-xs-6">
-                <div class="small-box bg-aqua">
+                <div class="small-box bg-gray">
                     <div class="inner">
-                        <a href="{{ url_for('main.signallist') }}"><h3 id="count01">0</h3></a>
-                        <p>信号总数</p>
+                        <a href="{{ url_for('main.tradelist') }}"><h3 id="count04">0</h3></a>
+                        <p>今日交易</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-ios-gear-outline"></i>
+                        <i class="ion ion-pie-graph"></i>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-xs-6">
-                <div class="small-box bg-green">
+                <div class="small-box bg-gray">
                     <div class="inner">
                         <a href="{{ url_for('main.signallist', today=1) }}"><h3 id="count02">0</h3></a>
-                        <p>今日新增</p>
+                        <p>今日信号</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-iphone"></i>
@@ -39,7 +39,7 @@
                 </div>
             </div>
             <div class="col-lg-3 col-xs-6">
-                <div class="small-box bg-yellow">
+                <div class="small-box bg-info">
                     <div class="inner">
                         <a href="{{ url_for('main.ticketlist') }}"><h3 id="count03">0</h3></a>
                         <p>票据</p>
@@ -50,13 +50,13 @@
                 </div>
             </div>
             <div class="col-lg-3 col-xs-6">
-                <div class="small-box bg-red">
+                <div class="small-box bg-info">
                     <div class="inner">
-                        <a href="{{ url_for('main.tradelist') }}"><h3 id="count04">0</h3></a>
-                        <p>今日交易</p>
+                        <a href="{{ url_for('main.signallist') }}"><h3 id="count01">0</h3></a>
+                        <p>信号总数</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-pie-graph"></i>
+                        <i class="ion ion-ios-gear-outline"></i>
                     </div>
                 </div>
             </div>
@@ -64,8 +64,8 @@
     </div>
     <div class="box-footer">
         <div class="col-md-12">
-            <a class='btn btn-default' href='{{ url_for("main.component") }}'>组件</a>
-            <a class='btn btn-default pull-right ' href='{{ url_for("main.ticketedit") }}'>添加</a>
+            <a class='btn btn-info' href='{{ url_for("main.component") }}'>组件状态</a>
+            <a class='btn btn-primary pull-right ' href='{{ url_for("main.ticketedit") }}'>添加自选</a>
         </div>
     </div>
 </div>

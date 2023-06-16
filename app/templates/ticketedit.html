@@ -60,13 +60,13 @@
             </table>
             </div>
             {% endif %}
-            <div class="col-md-6">
+            <div class="col-md-6" {% if form.code.data%} style="display: none" {% endif %}>
                 <div class="form-group">
                     <label>{{form.code.label}}</label>
                         {{form.code(class_="form-control",placeholder="请输入",onblur="check_code(this)")}}
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" {% if form.code.data%} style="display: none" {% endif %}>
                 <div class="form-group">
                     <label>{{form.name.label}}</label>
                     {{form.name(class_="form-control",placeholder="请输入")}}
