@@ -1,8 +1,5 @@
-from decimal import Decimal
-from dataclasses import dataclass
-from datetime import datetime
-from models.base import BaseModel, db
-from flask_peewee.db import CharField, BooleanField, IntegerField, DateTimeField, DecimalField
+from models.base import BaseModel
+from flask_peewee.db import CharField, IntegerField, DateTimeField, DecimalField
 
 
 # 交易
@@ -18,8 +15,3 @@ class Trade(BaseModel):
     status = IntegerField(default=1)  # 状态 0 无效 1 有效
     created = DateTimeField()
     updated = DateTimeField()
-
-
-if __name__ == '__main__':
-    db.connect()
-    db.create_tables([Trade])

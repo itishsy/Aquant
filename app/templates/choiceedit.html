@@ -70,12 +70,11 @@
 
         <div class="box-footer">
             <div class="col-md-12">
-                {% if form.id.data %}
+                {% if form.code.data %}
                 <a class='btn btn-danger' href='{{ url_for("main.choice_edit", id=form.id.data, action="del") }}'>删除</a>
                 <a class='btn btn-default' href='{{ url_for("main.choice_edit", id=form.id.data, action="tick") }}'>转为票据</a>
-                {% else %}
-                {{form.submit(class_="btn btn-primary pull-right")}}
                 {% endif %}
+                {{form.submit(class_="btn btn-primary pull-right")}}
             </div>
         </div>
     </form>
@@ -87,13 +86,19 @@
     function initPage() {
         $(".strategy_select").val("{{form.strategy.data}}").select2();
         $(".status_select").val("{{form.status.data}}").select2();
+        setTimeout(function (){
+            let clo = $(".close")
+            if (clo.length > 0){
+                clo.click()
+            }
+        }, 3000)
     }
 
     function check_code(obj) {
         let c = "{{form.code.data}}"
         if (c === "None") {
             let code = $(obj).val()
-            restTemplate("GET", '{{ url_for("main.load_choice") }}?code=' + code, null, function (obj) {
+            restTemplate("GET", '/load_choice?code=' + code, null, function (obj) {
                 if (obj.id > 0) {
                     location.href = '{{ url_for("main.choice_edit") }}' + '?id=' + obj.id
                 } else if (obj.id === 0){

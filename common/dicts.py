@@ -1,34 +1,52 @@
-
-def freq_level(lev=None):
-    if lev is None:
-        return [(1, [5]), (2, [5, 15]), (3, [15, 30, 60]), (4, [101]), (5, [5, 15, 30, 60, 120, 101]), (6, [102])]
-    if lev == 1:
-        # 30C
-        return [5]
-    elif lev == 2:
-        # 60C
-        return [5, 15]
-    elif lev == 3:
-        # 上涨中枢
+def freq_level(ts=None):
+    if ts is None:
+        return [(0, [15, 30, 60]), (1, [5, 10, 15]), (2, [5, 10, 15, 30, 60]), (3, [101]), (4, [])]
+    if ts == 0:
         return [15, 30, 60]
-    elif lev == 4:
+    if ts == 1:
+        return [5, 10, 15]
+    if ts == 2:
+        return [5, 10, 15, 30, 60]
+    if ts == 3:
         return [101]
-    elif lev == 5:
-        return [5, 15, 30, 60, 120, 101]
-    elif lev == 6:
-        return [102]
-    else:
+    if ts == 4:
         return []
+    return [5, 10, 15, 30, 60, 120, 101]
 
 
 def choice_strategy(key=None):
     if key is None:
-        return [('uar', '趋势调整'), ('drc', '趋势反转确认'), ('hot', '热点题材')]
-    if key == 'uar':
-        return '趋势调整'
-    elif key == 'drc':
-        return '趋势反转确认'
-    elif key == 'hot':
-        return '热点题材'
-    else:
-        return ''
+        return [('UAR', 'UAR'), ('DRC', 'DRC'), ('HOT', 'HOT')]
+    if key == 'UAR':
+        return 'UAR'
+    if key == 'DRC':
+        return 'DRC'
+    if key == 'HOT':
+        return 'HOT'
+    return 'undefined'
+
+
+def choice_status(key=None):
+    if key is None:
+        return [(0, '失效'), (1, '有效')]
+    if key == 0:
+        return '失效'
+    if key == 1:
+        return '有效'
+    return 'undefined'
+
+
+def ticket_status(key=None):
+    if key is None:
+        return [(0, '等待'), (1, '买入'), (2, '持有'), (3, '剔除'), (4, '弃用')]
+    if key == 0:
+        return '等待'
+    if key == 1:
+        return '买入'
+    if key == 2:
+        return '持有'
+    if key == 3:
+        return '剔除'
+    if key == 4:
+        return '弃用'
+    return 'undefined'

@@ -6,7 +6,7 @@
     <h3></h3>
     <ol class="breadcrumb">
         <li><i class="fa fa-dashboard"></i> <a href="{{ url_for('main.index') }}">首页</a></li>
-        <li class="active"><a href="{{ url_for('main.ticketlist') }}">票據管理</a></li>
+        <li class="active"><a href="{{ url_for('main.ticket_list') }}">票據管理</a></li>
         <li class="active">票據查询</li>
     </ol>
 </section>
@@ -25,10 +25,10 @@
                 <th style="display: none" >ID</th>
                 <th>票据</th>
                 <th>交易编码</th>
-                <th>监控</th>
+                <th>状态</th>
             </tr>
             {% for row in form.content %}
-            {% if row.status == 1 %}
+            {% if row.status == 2 %}
             <tr style="background-color: goldenrod">
                 {% elif row.hold > 0 %}
             <tr style="background-color: gainsboro">
@@ -37,10 +37,10 @@
             {% endif %}
                 <td style="display: none" >{{row.id}}</td>
                 <td>
-                    <a href='{{ url_for("main.ticketedit", id=row.id) }}'>{{ row.name }}</a>
+                    <a href='{{ url_for("main.ticket_edit", id=row.id) }}'>{{ row.name }}</a>
                 </td>
                 <td>{{ row.buy }}</td>
-                <td>{{ fel(row.watch) }}</td>
+                <td>{{ fel(row.status) }}</td>
             </tr>
             {% endfor %}
         </table>

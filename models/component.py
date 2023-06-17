@@ -9,3 +9,4 @@ class Component(BaseModel):
     run_start = DateTimeField()  # 最近执行时间
     run_end = DateTimeField()  # 最近执行时间
     status = IntegerField(default=0)  # 状态
+

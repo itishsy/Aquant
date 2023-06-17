@@ -62,7 +62,7 @@
                             </li>
                             <li class="user-footer">
                                 <div class="pull-left">
-                                    <a href="{{ url_for('main.ticketedit') }}" class="btn btn-default btn-flat">添加自选</a>
+                                    <a href="{{ url_for('main.choice_edit') }}" class="btn btn-default btn-flat">添加自选</a>
                                 </div>
                                 <div class="pull-right">
                                     <a href="{{ url_for('main.component') }}" class="btn btn-default btn-flat">组件管理</a>
@@ -104,8 +104,19 @@
                         <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="{{ url_for('main.choice_edit') }}"><i class="fa fa-circle-o"></i>添加自选</a></li>
+                        <li><a href="{{ url_for('main.choice_edit') }}"><i class="fa fa-circle-o"></i>添加</a></li>
                         <li><a href="{{ url_for('main.choice_list') }}"><i class="fa fa-circle-o"></i>入选池</a></li>
+                    </ul>
+                </li>
+                <li class="treeview">
+                    <a href="#">
+                        <i class="fa fa-send"></i>
+                        <span>票据管理</span>
+                        <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="{{ url_for('main.ticket_edit') }}"><i class="fa fa-circle-o"></i> 编辑</a></li>
+                        <li><a href="{{ url_for('main.ticket_list') }}"><i class="fa fa-circle-o"></i> 查询</a></li>
                     </ul>
                 </li>
                 <li class="treeview">
@@ -116,21 +127,9 @@
                     </a>
                     <ul class="treeview-menu">
                         <li><a href="{{ url_for('main.signaledit') }}"><i class="fa fa-circle-o"></i> 编辑</a></li>
-                        <li><a href="{{ url_for('main.signallist') }}"><i class="fa fa-circle-o"></i> 查询</a></li>
+                        <li><a href="{{ url_for('main.signallist') }}"><i class="fa fa-circle-o"></i>信号查询</a></li>
                     </ul>
                 </li>
-                <li class="treeview">
-                    <a href="#">
-                        <i class="fa fa-send"></i>
-                        <span>票据管理</span>
-                        <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li><a href="{{ url_for('main.ticketedit') }}"><i class="fa fa-circle-o"></i> 编辑</a></li>
-                        <li><a href="{{ url_for('main.ticketlist') }}"><i class="fa fa-circle-o"></i> 查询</a></li>
-                    </ul>
-                </li>
-
                 <li class="treeview">
                     <a href="#">
                         <i class="fa fa-cog"></i>
@@ -138,8 +137,8 @@
                         <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="{{ url_for('main.tradeedit') }}"><i class="fa fa-circle-o"></i> 编辑</a></li>
-                        <li><a href="{{ url_for('main.tradelist') }}"><i class="fa fa-circle-o"></i> 查询</a></li>
+                        <li><a href="{{ url_for('main.tradeedit') }}"><i class="fa fa-circle-o"></i>添加</a></li>
+                        <li><a href="{{ url_for('main.tradelist') }}"><i class="fa fa-circle-o"></i>查询</a></li>
                     </ul>
                 </li>
             </ul>

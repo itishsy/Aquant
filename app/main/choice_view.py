@@ -1,6 +1,6 @@
 from app import get_logger, get_config
 import math
-from flask import render_template, flash, request, jsonify
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app import utils
 from . import main
@@ -11,7 +11,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
 from storage.dba import get_symbol, find_candles
-from common.dicts import choice_strategy
+from common.dicts import choice_strategy, choice_status, freq_level
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -47,35 +47,48 @@ def choice_edit():
     id = request.args.get('id', '')
     form = ChoiceForm()
     if id:
+        cho = Choice.get(Choice.id == id)
+        action = request.args.get('action')
+        if action == 'del':
+            cho.status = 0
+            cho.updated = datetime.now()
+            cho.save()
+            flash('操作成功')
+        if action == 'tick':
+            cho.updated = datetime.now()
+            cho.save()
+            if not Ticket.select().where(Ticket.code == cho.code).exists():
+                tic = Ticket()
+                tic.code = cho.code
+                tic.name = cho.name
+                tic.cost = 0.0
+                tic.hold = 0
+                tic.buy = "{}{}".format(cho.strategy[1:3], cho.freq)
+                tic.watch = 0
+                tic.cut = 0.0
+                tic.clean = 3
+                tic.status = 0
+                tic.source = cho.strategy
+                tic.created = datetime.now()
+                tic.updated = datetime.now()
+                tic.save()
+                tic = Ticket.get(Ticket.code == cho.code)
+            else:
+                tic = Ticket.get(Ticket.code == cho.code)
+                if tic.status == 0:
+                    tic.status = 0
+                    tic.updated = datetime.now()
+                    tic.save()
+            return redirect(url_for('main.ticket_edit', id=tic.id))
+
         # 查询
-        chi = Choice.get(Choice.id == id)
         if request.method == 'GET':
-            utils.model_to_form(chi, form)
+            utils.model_to_form(cho, form)
         # 修改
         if request.method == 'POST':
-            action = request.args.get('action')
-            if action == 'del':
-                chi.status = 0
-                chi.updated = datetime.now()
-                chi.save()
-            elif action == 'tick':
-                chi.updated = datetime.now()
-                chi.save()
-                if not Ticket.select().where(Ticket.code == chi.code).exists():
-                    Ticket.create(code=chi.code, name=chi.name, status=1, created=datetime.now())
-                    flash('操作成功。新建票据')
-                else:
-                    tic = Ticket.get(Ticket.code == chi.code)
-                    if tic.status == 0:
-                        tic.status = 1
-                        tic.updated = datetime.now()
-                        tic.save()
-                        flash('票据已存在，已重新生效')
-                    else:
-                        flash('票据已存在且有效')
-            elif form.validate_on_submit():
-                utils.form_to_model(form, chi)
-                chi.save()
+            if form.validate_on_submit():
+                utils.form_to_model(form, cho)
+                cho.save()
                 flash('修改成功')
             else:
                 utils.flash_errors(form)
@@ -85,20 +98,22 @@ def choice_edit():
             model = Choice()
             utils.form_to_model(form, model)
             model.save()
-            flash('保存成功')
+            chi = Choice.get(Choice.code == model.code)
+            return redirect(url_for('main.choice_edit', id=chi.id))
         else:
             utils.flash_errors(form)
-    return render_template('chiceedit.html', form=form, current_user=current_user)
+    return render_template('choiceedit.html', form=form, current_user=current_user)
 
 
-@main.route('/load_choice', methods=['GET'])
+@main.route('/api/load_choice', methods=['GET'])
 @login_required
 def load_choice():
     code = request.args.get('code', '')
     data = {'id': -1}
     if code:
         if Choice.select().where(Choice.code == code).exists():
-            data = Choice.get(Choice.code == code)
+            chi = Choice.get(Choice.code == code)
+            data = chi.__data__
         else:
             sym = get_symbol(code)
             if sym is not None:
@@ -107,7 +122,7 @@ def load_choice():
                         'name': sym.name,
                         'freq': 30,
                         'dt': datetime.now().strftime('%Y-%m-%d'),
-                        'strategy': 'hot',
+                        'strategy': 'HOT',
                         'status': 1
                         }
     return jsonify(data)
@@ -120,5 +135,6 @@ class ChoiceForm(FlaskForm):
     dt = StringField('发出时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     strategy = SelectField('策略', choices=choice_strategy(), default='hot')
+    status = SelectField('策略', choices=choice_status(), default='hot')
     value = StringField('策略值', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     submit = SubmitField('提交')

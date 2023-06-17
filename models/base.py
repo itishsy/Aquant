@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from flask_peewee.db import MySQLDatabase, Model, CharField, BooleanField, IntegerField, DateTimeField
+from flask_peewee.db import MySQLDatabase, Model
 import json
-from werkzeug.security import check_password_hash
-from flask_login import UserMixin
-from app import login_manager
 from common.config import config
 import os
 
@@ -28,19 +25,12 @@ class BaseModel(Model):
         return json.dumps(r, ensure_ascii=False)
 
 
-# 用户
-class User(UserMixin, BaseModel):
-    username = CharField()  # 用户名
-    password = CharField()  # 密码
-    fullname = CharField()  # 真实性名
-    email = CharField()  # 邮箱
-    phone = CharField()  # 电话
-    status = BooleanField(default=True)  # 生效失效标识
+if __name__ == '__main__':
+    from models.signal import Signal
+    from models.choice import Choice
+    from models.ticket import Ticket
+    from models.component import Component
+    from models.trade import Trade
 
-    def verify_password(self, raw_password):
-        return check_password_hash(self.password, raw_password)
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(User.id == int(user_id))
+    db.connect()
+    db.create_tables([Signal, Choice, Ticket, Component, Trade])
