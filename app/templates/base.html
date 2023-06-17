@@ -39,11 +39,17 @@
             </a>
             <div class="navbar-custom-menu">
                 <ul class="nav navbar-nav">
+                    <li class="user user-menu">
+                            <a href='{{ url_for("main.index") }}'>
+                                <span class="glyphicon glyphicon-home"></span></a>
+<!--                        <a href='{{ url_for("main.index") }}'>-->
+<!--                            <img src="{{ url_for('static', filename='images/avatar.jpg') }}" class="user-image"-->
+<!--                                 alt="User Image">-->
+<!--                        </a>-->
+                    </li>
                     <li class="dropdown user user-menu">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <img src="{{ url_for('static', filename='images/avatar.jpg') }}" class="user-image"
-                                 alt="User Image">
-                            <span class="hidden-xs">{{current_user.username}}</span>
+                        <a href='#' class="dropdown-toggle" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-user"></span>
                         </a>
                         <ul class="dropdown-menu">
                             <li class="user-header">
@@ -56,10 +62,10 @@
                             </li>
                             <li class="user-footer">
                                 <div class="pull-left">
-                                    <a href="{{ url_for('main.index') }}" class="btn btn-default btn-flat">统计信息</a>
+                                    <a href="{{ url_for('main.ticketedit') }}" class="btn btn-default btn-flat">添加自选</a>
                                 </div>
                                 <div class="pull-right">
-                                    <a href="{{ url_for('auth.logout') }}" class="btn btn-default btn-flat">退出登录</a>
+                                    <a href="{{ url_for('main.component') }}" class="btn btn-default btn-flat">组件管理</a>
                                 </div>
                             </li>
                         </ul>

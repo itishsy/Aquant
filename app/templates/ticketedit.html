@@ -27,12 +27,12 @@
             {% if form.code.data%}
             <div class="col-md-6">
             <table class="table table-bordered">
-                <tr style="background-color: goldenrod">
+                <tr style="background-color: gray">
                 <th colspan="3" style="text-align: center">
                     {% if form.code.data.startswith('60') %}
-                    <a href="http://xueqiu.com/S/SH{{form.code.data}}">{{form.name.data}}</a>
+                    <a style="color: ghostwhite" href="http://xueqiu.com/S/SH{{form.code.data}}">{{form.name.data}}</a>
                     {% else %}
-                    <a href="http://xueqiu.com/S/SZ{{form.code.data}}">{{form.name.data}}</a>
+                    <a style="color: ghostwhite" href="http://xueqiu.com/S/SZ{{form.code.data}}">{{form.name.data}}</a>
                     {% endif %}
                 </th>
                 </tr>
