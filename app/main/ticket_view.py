@@ -9,7 +9,7 @@ from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length
-from common.utils import freq_level
+from common.dicts import freq_level
 
 logger = get_logger(__name__)
 cfg = get_config()

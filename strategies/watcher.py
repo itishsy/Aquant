@@ -5,7 +5,8 @@ from storage.dba import find_candles
 from models.ticket import Ticket
 from models.trade import Trade
 from models.component import Component
-from common.utils import dt_format, freq_level
+from common.dicts import freq_level
+from common.utils import dt_format
 import traceback
 import time
 

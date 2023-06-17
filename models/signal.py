@@ -1,40 +1,22 @@
-from dataclasses import dataclass
 from models.base import BaseModel, db
-from flask_peewee.db import CharField, BooleanField, IntegerField, DateTimeField
+from flask_peewee.db import CharField, DecimalField, IntegerField, DateTimeField
 from sqlalchemy import select, desc, and_, text
 from storage.dba import dba
 from typing import List
 from datetime import datetime, timedelta
 
 
-@dataclass
-class Signal2:
-    def __init__(self, dt, freq, type, value):
-        self.dt = dt
-        self.type = type
-        self.freq = freq
-        self.value = value
-
-    id: int
-    code: str
-    dt: str
-    freq: int
-    type: str
-    value: int
-    watch: int = 0
-    created: datetime = datetime.now()
-
-
 # 信号
 class Signal(BaseModel):
-    code = CharField()  # 编码
+    code = CharField()  # 票据
+    type = IntegerField()  # 类型： 0 buy 1 sell
     name = CharField()  # 名称
-    freq = IntegerField()  # 主级别
-    dt = DateTimeField()  # 时间
-    strategy = CharField()  # 策略
-    value = CharField()  # 策略值
-    tick = IntegerField(default=0)  # 转票据
-    status = IntegerField(default=1)  # 状态
+    freq = CharField()  # 信号级别
+    dt = CharField()  # 发生时间
+    source = CharField()  # 来源：背离、背驰、量价背离、放量
+    status = IntegerField(default=0)  # 状态 0 未成交 1 已成交
+    price = DecimalField()  # 时价
+    notify = IntegerField(default=0)  # 通知 0 未通知， 1 已通知
     created = DateTimeField()
     updated = DateTimeField()
 
@@ -81,8 +63,3 @@ def update_signal_watch(ident, watch):
         session.commit()
     except:
         session.rollback()
-
-
-if __name__ == '__main__':
-    db.connect()
-    db.create_tables([Signal])

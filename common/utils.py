@@ -7,25 +7,3 @@ def dt_format(dt, fm='%Y-%m-%d'):
     else:
         sdt = datetime.strptime(dt, '%Y-%m-%d')
     return sdt.strftime(fm)
-
-
-def freq_level(lev=None):
-    if lev is None:
-        return [(1, [5]), (2, [5, 15]), (3, [15, 30, 60]), (4, [101]), (5, [5, 15, 30, 60, 120, 101]), (6, [102])]
-    if lev == 1:
-        # 30C
-        return [5]
-    elif lev == 2:
-        # 60C
-        return [5, 15]
-    elif lev == 3:
-        # 上涨中枢
-        return [15, 30, 60]
-    elif lev == 4:
-        return [101]
-    elif lev == 5:
-        return [5, 15, 30, 60, 120, 101]
-    elif lev == 6:
-        return [102]
-    else:
-        return []
