@@ -24,13 +24,49 @@
         </div>
 
         <div class="box-body">
+            {% if form.code.data%}
             <div class="col-md-6">
+            <table class="table table-bordered">
+                <tr style="background-color: gray">
+                <th colspan="3" style="text-align: center">
+                    {% if form.code.data.startswith('60') %}
+                    <a style="color: ghostwhite" href="http://xueqiu.com/S/SH{{form.code.data}}">{{form.name.data}}</a>
+                    {% else %}
+                    <a style="color: ghostwhite" href="http://xueqiu.com/S/SZ{{form.code.data}}">{{form.name.data}}</a>
+                    {% endif %}
+                </th>
+                </tr>
+                {% if trades%}
+                    {% for row in trades %}
+                    <tr>
+                        <td>
+                            {% if row.type == 1 %}
+                            <label>卖出</label>
+                            {% else %}
+                            <label style="color: orangered">买入</label>
+                            {% endif %}
+                        </td>
+                        <td>{{row.dt}}</td>
+                        <td>{{row.freq}}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+            </table>
+            </div>
+            {% endif %}
+            <div class="col-md-6" {% if form.code.data%} style="display: none" {% endif %}>
                 <div class="form-group">
                     <label>{{form.code.label}}</label>
-                    {{form.code(class_="form-control",placeholder="请输入",onblur="check_code(this)")}}
+                        {{form.code(class_="form-control",placeholder="请输入",onblur="check_code(this)")}}
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" {% if form.code.data%} style="display: none" {% endif %}>
                 <div class="form-group">
                     <label>{{form.name.label}}</label>
                     {{form.name(class_="form-control",placeholder="请输入")}}
@@ -84,12 +120,13 @@
                     {{form.source(class_="form-control source_select")}}
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>{{form.created.label}}</label>
-                    {{form.created(class_="form-control",placeholder="创建时间")}}
-                </div>
-            </div>
+<!--            <div class="col-md-6">-->
+<!--                <div class="form-group">-->
+<!--                    <label>{{form.created.label}}</label>-->
+<!--                    {{form.created(class_="form-control",placeholder="创建时间")}}-->
+<!--                </div>-->
+<!--            </div>-->
+
         </div>
 
         <div class="box-footer">

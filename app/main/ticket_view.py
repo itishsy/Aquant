@@ -5,6 +5,7 @@ from flask_login import login_required, current_user
 from app import utils
 from . import main
 from models.ticket import Ticket
+from models.trade import Trade
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
@@ -78,11 +79,14 @@ def ticketlist():
 def ticketedit():
     id = request.args.get('id', '')
     form = TicketForm()
+    trades = []
     if id:
         # 查询
         model = Ticket.get(Ticket.id == id)
         if request.method == 'GET':
             utils.model_to_form(model, form)
+            query = Trade.select().where(Trade.code == model.code).order_by(Trade.dt.desc()).limit(5)
+            trades = utils.query_to_list(query)
         # 修改
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -102,7 +106,7 @@ def ticketedit():
             flash('保存成功')
         else:
             utils.flash_errors(form)
-    return render_template('ticketedit.html', form=form, current_user=current_user)
+    return render_template('ticketedit.html', form=form,trades=trades,current_user=current_user)
 
 
 class TicketForm(FlaskForm):

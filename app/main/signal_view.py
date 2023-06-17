@@ -50,10 +50,10 @@ def signallist():
     if today:
         last_day = find_candles('000001', 101, limit=1)[0].dt
         query = Signal.select().where(Signal.status == 1, Signal.created >= last_day).order_by(Signal.tick.desc())
-        total_count = query.select().where(Signal.status == 1, Signal.created >= last_day).count()
+        total_count = Signal.select().where(Signal.status == 1, Signal.created >= last_day).count()
     else:
         query = Signal.select().where(Signal.status == 1).order_by(Signal.dt.desc(), Signal.tick.desc())
-        total_count = query.select().where(Signal.status == 1).count()
+        total_count = Signal.select().where(Signal.status == 1).count()
 
     # 处理分页
     if page: query = query.paginate(page, length)
