@@ -81,6 +81,7 @@ def ticket_edit():
     id = request.args.get('id', '')
     form = TicketForm()
     trades = []
+    singles = []
     if id:
         # 查询
         tic = Ticket.get(Ticket.id == id)
@@ -109,8 +110,10 @@ def ticket_edit():
 
         if request.method == 'GET':
             utils.model_to_form(tic, form)
-            query = Trade.select().where(Trade.code == tic.code).order_by(Trade.dt.desc()).limit(5)
-            trades = utils.query_to_list(query)
+            s_query = Signal.select().where(Signal.code == tic.code).order_by(Signal.dt.desc()).limit(5)
+            t_query = Trade.select().where(Trade.code == tic.code).order_by(Trade.dt.desc()).limit(5)
+            singles = utils.query_to_list(s_query)
+            trades = utils.query_to_list(t_query)
         # 修改
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -130,7 +133,7 @@ def ticket_edit():
             flash('保存成功')
         else:
             utils.flash_errors(form)
-    return render_template('ticketedit.html', form=form, trades=trades, current_user=current_user)
+    return render_template('ticketedit.html', form=form, singles=singles, trades=trades, current_user=current_user)
 
 
 class TicketForm(FlaskForm):
