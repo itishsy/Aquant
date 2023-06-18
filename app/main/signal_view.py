@@ -11,6 +11,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
 from storage.dba import get_symbol, find_candles
+from common.dicts import trade_type, single_source
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -32,16 +33,16 @@ def signallist():
                 sig.status = 0
                 sig.updated = datetime.now()
                 sig.save()
-            elif action == 'tick':
-                sig.tick = True
-                sig.updated = datetime.now()
-                sig.save()
-                if not Ticket.select().where(Ticket.code == sig.code).exists():
-                    Ticket.create(code=sig.code, name=sig.name, status=0, created=datetime.now())
-            elif action == 'untick':
-                sig.tick = False
-                sig.updated = datetime.now()
-                sig.save()
+            # elif action == 'tick':
+            #     sig.tick = True
+            #     sig.updated = datetime.now()
+            #     sig.save()
+            #     if not Ticket.select().where(Ticket.code == sig.code).exists():
+            #         Ticket.create(code=sig.code, name=sig.name, status=0, created=datetime.now())
+            # elif action == 'untick':
+            #     sig.tick = False
+            #     sig.updated = datetime.now()
+            #     sig.save()
         except:
             flash('操作失败')
 
@@ -49,11 +50,11 @@ def signallist():
     today = request.args.get('today')
     if today:
         last_day = find_candles('000001', 101, limit=1)[0].dt
-        query = Signal.select().where(Signal.status == 1, Signal.created >= last_day).order_by(Signal.tick.desc())
-        total_count = Signal.select().where(Signal.status == 1, Signal.created >= last_day).count()
+        query = Signal.select().where(Signal.status > 0, Signal.created >= last_day).order_by(Signal.dt.desc())
+        total_count = Signal.select().where(Signal.status > 0, Signal.created >= last_day).count()
     else:
-        query = Signal.select().where(Signal.status == 1).order_by(Signal.dt.desc(), Signal.tick.desc())
-        total_count = Signal.select().where(Signal.status == 1).count()
+        query = Signal.select().where(Signal.status > 0).order_by(Signal.dt.desc())
+        total_count = Signal.select().where(Signal.status > 0).count()
 
     # 处理分页
     if page: query = query.paginate(page, length)
@@ -97,8 +98,8 @@ class SignalForm(FlaskForm):
     id = IntegerField('id')
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     name = StringField('名称', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    tick = SelectField('票据', choices=[(0, '未转'), (1, '已转')], default=0)
+    type = SelectField('信号', choices=trade_type())
     dt = StringField('发出时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    strategy = StringField('策略', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    source = SelectField('信号源', choices=single_source())
     submit = SubmitField('提交')

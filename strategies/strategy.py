@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from storage.dba import find_active_symbols,find_candles, get_symbol
 from models.signal import Signal
 from models.ticket import Ticket
+from models.choice import Choice
 import traceback
 
 factory = {}
@@ -75,18 +76,17 @@ class Strategy(ABC):
         if len(self.signals) > 0:
             for signal in self.signals:
                 try:
-                    if Signal.select().where(Signal.code == signal.code,Signal.freq == signal.freq).exists():
-                        si = Signal.get(Signal.code == signal.code, Signal.freq == signal.freq)
-                        si.status = 1
-                        si.updated = datetime.now()
-                        si.save()
-                    else:
-                        signal.tick = False
-                        signal.name = get_symbol(signal.code).name
-                        signal.status = 1
-                        signal.created = datetime.now()
-                        signal.updated = datetime.now()
-                        signal.save()
+                    if not Choice.select().where(Choice.code == signal.code, Choice.freq == signal.freq, Choice.dt == signal.dt).exists():
+                        cho = Choice()
+                        cho.code = signal.code
+                        cho.freq = signal.freq
+                        cho.dt = signal.dt
+                        cho.name = get_symbol(signal.code).name
+                        cho.status = 1
+                        cho.strategy = signal.source
+                        cho.created = datetime.now()
+                        cho.updated = datetime.now()
+                        cho.save()
                 except Exception as e:
                     traceback.print_exc()
 

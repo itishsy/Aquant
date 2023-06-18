@@ -39,7 +39,7 @@ class UAR(Strategy):
             if len(dbs) == 0:
                 continue
             sig = dbs[-1]
-            sig.strategy = self.__class__.__name__
+            sig.source = self.__class__.__name__
             sig.value = self.freq
             sig.code = self.code
             self.signals.append(sig)

@@ -17,21 +17,10 @@
     <div class="box-body">
         <div class="row">
             <div class="col-lg-6 col-xs-12">
-                <div class="small-box bg-fuchsia">
-                    <div class="inner">
-                        <a style="color: yellow" href="{{ url_for('main.tradelist') }}"><h3 id="count04">0</h3></a>
-                        <p>今日交易</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-pie-graph"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-aqua-gradient">
                     <div class="inner">
-                        <a style="color: yellow" href="{{ url_for('main.signallist', today=1) }}"><h3 id="count02">0</h3></a>
-                        <p>今日信号</p>
+                        <a style="color: yellow" href="{{ url_for('main.choice_list', today=1) }}"><h3 id="c_today_size">0</h3></a>
+                        <p>今日入选（入选池：<span id="c_size"></span>）</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-iphone"></i>
@@ -39,9 +28,9 @@
                 </div>
             </div>
             <div class="col-lg-6 col-xs-12">
-                <div class="small-box bg-purple-gradient">
+                <div class="small-box bg-orange">
                     <div class="inner">
-                        <a style="color: orangered" href="{{ url_for('main.ticket_list') }}"><h3 id="count03">0</h3></a>
+                        <a style="color: white" href="{{ url_for('main.ticket_list') }}"><h3 id="ti_size">0</h3></a>
                         <p>票据</p>
                     </div>
                     <div class="icon">
@@ -50,10 +39,21 @@
                 </div>
             </div>
             <div class="col-lg-6 col-xs-12">
-                <div class="small-box bg-primary">
+                <div class="small-box bg-fuchsia">
                     <div class="inner">
-                        <a href="{{ url_for('main.signallist') }}"><h3 id="count01">0</h3></a>
-                        <p>信号总数</p>
+                        <a style="color: yellow" href="{{ url_for('main.signallist') }}"><h3 id="s_today_size">0</h3></a>
+                        <p>今日信号（信号池：<span id="s_size"></span>）</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-pie-graph"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xs-12">
+                <div class="small-box bg-red">
+                    <div class="inner">
+                        <a style="color: white"  href="{{ url_for('main.tradelist') }}"><h3 id="tr_size">0</h3></a>
+                        <p>交易</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-ios-gear-outline"></i>
@@ -74,10 +74,12 @@
     function initPage() {
         var jsInObj = null;
         restTemplate("GET", "/stats/summary", jsInObj, function (jsOutObj) {
-            $("#count01").text(jsOutObj.count01);
-            $("#count02").text(jsOutObj.count02);
-            $("#count03").text(jsOutObj.count03);
-            $("#count04").text(jsOutObj.count04);
+            $("#c_size").text(jsOutObj.c_size);
+            $("#c_today_size").text(jsOutObj.c_today_size);
+            $("#s_size").text(jsOutObj.s_size);
+            $("#s_today_size").text(jsOutObj.s_today_size);
+            $("#ti_size").text(jsOutObj.ti_size);
+            $("#tr_size").text(jsOutObj.tr_size);
         });
     }
 </script>

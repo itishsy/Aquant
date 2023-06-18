@@ -135,6 +135,6 @@ class ChoiceForm(FlaskForm):
     dt = StringField('发出时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     strategy = SelectField('策略', choices=choice_strategy(), default='hot')
-    status = SelectField('策略', choices=choice_status(), default='hot')
+    status = SelectField('状态', choices=choice_status(), default='hot')
     value = StringField('策略值', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     submit = SubmitField('提交')

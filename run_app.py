@@ -7,4 +7,4 @@ from app import create_app
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
 if __name__ == '__main__':
-    app.run(port=5000, host='localhost', debug=True)
+    app.run(port=5000, host='172.172.4.131', debug=True)

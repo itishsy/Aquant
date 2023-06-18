@@ -50,3 +50,29 @@ def ticket_status(key=None):
     if key == 4:
         return '弃用'
     return 'undefined'
+
+
+def trade_type(key=None):
+    if key is None:
+        return [(0, '买入'), (1, '卖出')]
+    if key == 0:
+        return '买入'
+    if key == 1:
+        return '卖出'
+    return 'undefined'
+
+
+def single_source(key=None):
+    if key is None:
+        return [(0, '背离'), (1, '背驰'), (2, '量价背离'), (3, '分型'), (4, '量能')]
+    if key == 0:
+        return '背离'
+    if key == 1:
+        return '背驰'
+    if key == 2:
+        return '量价背离'
+    if key == 3:
+        return '分型'
+    if key == 4:
+        return '量能'
+    return 'undefined'

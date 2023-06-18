@@ -64,7 +64,7 @@ def ticket_list():
             flash('操作失败')
 
     # 查询列表
-    query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.hold.desc(), Ticket.watch)
+    query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.status.desc(), Ticket.hold)
     total_count = query.select().where(Ticket.status < 3).count()
 
     # 处理分页

@@ -89,6 +89,8 @@ class TradeForm(FlaskForm):
     dt = StringField('交易时间', validators=[DataRequired(message='不能为空')])
     strategy = StringField('交易策略', validators=[DataRequired(message='不能为空')])
     price = DecimalField('价格', validators=[DataRequired(message='不能为空')])
+    volume = IntegerField('成交量')
+    fee = DecimalField('手续费')
     type = SelectField('类别', choices=[(0, '买入'), (1, '卖出')])
     status = SelectField('状态', choices=[(0, '未成交'), (1, '已成交')])
     notify = SelectField('通知', choices=[('0', '未通知'), ('1', '已通知')])

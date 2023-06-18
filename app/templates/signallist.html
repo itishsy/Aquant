@@ -24,9 +24,9 @@
             <tr>
                 <th style="display: none" >ID</th>
                 <th>编码</th>
-                <th>发生时间</th>
+                <th>信号</th>
                 <th>级别</th>
-                <th>策略</th>
+                <th>发出时间</th>
             </tr>
             {% for row in form.content %}
             {% if row.tick %}
@@ -42,10 +42,16 @@
                     <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>
                     {% endif %}
                 </td>
-                <td>{{row.dt}}</td>
+                <td>
+                    {% if row.type == 1 %}
+                    <label style="color: darkgray">卖出</label>
+                    {% else %}
+                    <label style="color: red">买入</label>
+                    {% endif %}
+                </td>
                 <td>{{row.freq}}</td>
                 <td>
-                <a href='{{ url_for("main.signaledit", id=row.id) }}'>{{row.strategy}}</a>
+                    <a href='{{ url_for("main.signaledit", id=row.id) }}'>{{row.dt}}</a>
                 </td>
             </tr>
             {% endfor %}
