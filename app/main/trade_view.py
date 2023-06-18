@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length
+from common.dicts import trade_type, valid_status
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -43,7 +44,7 @@ def tradelist():
 
     list = utils.query_to_list(query)
     for obj in list:
-        if obj['created'] > datetime.strptime(datetime.now().strftime("%Y-%m-%d"),"%Y-%m-%d"):
+        if obj['created'] > datetime.strptime(datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d"):
             obj['flag'] = 1
         else:
             obj['flag'] = 0
@@ -85,14 +86,14 @@ def tradeedit():
 
 class TradeForm(FlaskForm):
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 6, message='长度不正确')])
+    name = StringField('名称', validators=[DataRequired(message='不能为空'), Length(0, 6, message='长度不正确')])
+    type = SelectField('交易类别', choices=trade_type())
     freq = StringField('交易级别', validators=[DataRequired(message='不能为空')])
     dt = StringField('交易时间', validators=[DataRequired(message='不能为空')])
-    strategy = StringField('交易策略', validators=[DataRequired(message='不能为空')])
     price = DecimalField('价格', validators=[DataRequired(message='不能为空')])
-    volume = IntegerField('成交量')
-    fee = DecimalField('手续费')
-    type = SelectField('类别', choices=[(0, '买入'), (1, '卖出')])
-    status = SelectField('状态', choices=[(0, '未成交'), (1, '已成交')])
-    notify = SelectField('通知', choices=[('0', '未通知'), ('1', '已通知')])
-    created = StringField('创建时间')
+    volume = IntegerField('成交量', validators=[DataRequired(message='不能为空')])
+    fee = DecimalField('手续费', validators=[DataRequired(message='不能为空')])
+    comment = StringField('说明', validators=[DataRequired(message='不能为空')])
+    status = SelectField('状态', choices=valid_status())
+    created = StringField('创建时间', validators=[DataRequired(message='不能为空')])
     submit = SubmitField('提交')

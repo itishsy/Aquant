@@ -62,6 +62,16 @@ def trade_type(key=None):
     return 'undefined'
 
 
+def valid_status(key=None):
+    if key is None:
+        return [(0, '无效'), (1, '有效')]
+    if key == 0:
+        return '无效'
+    if key == 1:
+        return '有效'
+    return 'undefined'
+
+
 def single_source(key=None):
     if key is None:
         return [(0, '背离'), (1, '背驰'), (2, '量价背离'), (3, '分型'), (4, '量能')]

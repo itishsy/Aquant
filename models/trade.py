@@ -12,6 +12,7 @@ class Trade(BaseModel):
     price = DecimalField()  # 成交价
     volume = IntegerField()  # 成交量
     fee = DecimalField()  # 手续费
+    comment = CharField()  # 说明
     status = IntegerField(default=1)  # 状态 0 无效 1 有效
     created = DateTimeField()
     updated = DateTimeField()

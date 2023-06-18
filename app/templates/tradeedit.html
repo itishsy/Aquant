@@ -24,10 +24,22 @@
         </div>
 
         <div class="box-body">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="form-group">
                     <label>{{form.code.label}}</label>
-                    {{form.code(class_="form-control",placeholder="请输入 列表顺序")}}
+                    {{form.code(class_="form-control",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{form.name.label}}</label>
+                    {{form.name(class_="form-control",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{form.type.label}}</label>
+                    {{form.type(class_="form-control select2 type_select",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -44,14 +56,20 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.strategy.label}}</label>
-                    {{form.strategy(class_="form-control",placeholder="请输入")}}
+                    <label>{{form.price.label}}</label>
+                    {{form.price(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.type.label}}</label>
-                    {{form.type(class_="form-control type_select",placeholder="请输入")}}
+                    <label>{{form.volume.label}}</label>
+                    {{form.volume(class_="form-control",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{form.fee.label}}</label>
+                    {{form.fee(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -62,14 +80,8 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.price.label}}</label>
-                    {{form.price(class_="form-control",placeholder="请输入")}}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>{{form.notify.label}}</label>
-                    {{form.notify(class_="form-control notify_select")}}
+                    <label>{{form.comment.label}}</label>
+                    {{form.comment(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -94,7 +106,6 @@
     function initPage() {
         $(".type_select").val("{{form.type.data}}").select2();
         $(".status_select").val("{{form.status.data}}").select2();
-        $(".notify_select").val("{{form.notify.data}}").select2();
     }
 </script>
 {% endblock %}
