@@ -38,9 +38,9 @@ def choice_status(key=None):
 
 def ticket_status(key=None):
     if key is None:
-        return [(0, '等待'), (1, '买入'), (2, '持有'), (3, '剔除'), (4, '弃用')]
+        return [(0, '观察'), (1, '买入'), (2, '持有'), (3, '剔除'), (4, '弃用')]
     if key == 0:
-        return '等待'
+        return '观察'
     if key == 1:
         return '买入'
     if key == 2:

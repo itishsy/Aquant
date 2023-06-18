@@ -1,4 +1,4 @@
-from models.trade import Trade
+from models.signal import Signal
 from datetime import datetime
 from notify.qywx import send_msg
 from models.component import Component
@@ -7,7 +7,7 @@ import traceback
 
 
 def find_notify_content():
-    trs = Trade.select().where(Trade.notify == 0).order_by(Trade.id).limit(5)
+    trs = Signal.select().where(Signal.notify == 0).order_by(Signal.id).limit(5)
     content = ''
     for tr in trs:
         sc = 'SH' if tr.code.startswith('60') else 'SZ'
@@ -18,10 +18,10 @@ def find_notify_content():
 
 
 def update_notify_status():
-    trs = Trade.select().where(Trade.notify == 0).order_by(Trade.id).limit(5)
+    trs = Signal.select().where(Signal.notify == 0).order_by(Signal.id).limit(5)
     for tr in trs:
         tr.notify = 1
-    Trade.bulk_update(trs, fields=['notify'], batch_size=50)
+    Signal.bulk_update(trs, fields=['notify'], batch_size=50)
 
 
 def do_send():

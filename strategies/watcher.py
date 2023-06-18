@@ -4,6 +4,7 @@ from storage.fetcher import fetch_and_save
 from storage.dba import find_candles
 from models.ticket import Ticket
 from models.trade import Trade
+from models.signal import Signal
 from models.component import Component
 from common.dicts import freq_level
 from common.utils import dt_format
@@ -70,18 +71,19 @@ def deal(ti: Ticket):
             return
         ldt = dt_format(cds[-1].dt)
         dbs = diver_bottom(cds)
-        if len(dbs) > 0: # and sis[-1].dt >= ldt:
+        if len(dbs) > 0:  # and sis[-1].dt >= ldt:
             si = dbs[-1]
             print('buy code:{} freq:{},size:{}'.format(ti.code, fq, len(dbs)))
-            if not Trade.select().where(Trade.code == ti.code, Trade.dt >= si.dt, Trade.freq == fq).exists():
-                Trade.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, price=si.value, created=datetime.now())
+            if not Signal.select().where(Signal.code == ti.code, Signal.dt >= si.dt, Signal.freq == fq).exists():
+                Signal.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, status=1, price=si.value,
+                              created=datetime.now())
         dts = diver_top(cds)
-        if len(dts) > 0: # and sis[-1].dt >= ldt:
+        if len(dts) > 0:  # and sis[-1].dt >= ldt:
             si = dts[-1]
             print('sell code:{} freq:{},size:{}'.format(ti.code, fq, len(dts)))
-            if not Trade.select().where(Trade.code == ti.code, Trade.dt >= si.dt, Trade.freq == fq).exists():
-                Trade.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=1, price=si.value,
-                            created=datetime.now())
+            if not Signal.select().where(Signal.code == ti.code, Signal.dt >= si.dt, Signal.freq == fq).exists():
+                Signal.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=1, status=1, price=si.value,
+                              created=datetime.now())
 
 
 def watch_all():

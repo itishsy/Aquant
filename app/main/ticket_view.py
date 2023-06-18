@@ -118,6 +118,7 @@ def ticket_edit():
         if request.method == 'POST':
             if form.validate_on_submit():
                 utils.form_to_model(form, tic)
+                tic.id = id
                 tic.updated = datetime.now()
                 tic.save()
                 flash('修改成功')
