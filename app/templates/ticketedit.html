@@ -26,7 +26,7 @@
         <div class="box-body">
             {% if form.code.data%}
             <div class="col-md-12">
-                <div class="form-group pull-right">
+                <div class="form-group">
                     {% if form.code.data.startswith('60') %}
                     <a style="color: blueviolet" href="http://xueqiu.com/S/SH{{form.code.data}}">{{form.name.data}}</a>
                     {% else %}
@@ -159,8 +159,8 @@
                 <a class='btn btn-default'
                    href='{{ url_for("main.ticket_edit", id=form.id.data, action="del") }}'>弃用</a>
                 <a class='btn btn-default'
-                   href='{{ url_for("main.ticket_edit", id=form.id.data, action="tob") }}'>设为买入</a>
-                <a class='btn btn-danger'
+                   href='{{ url_for("main.ticket_edit", id=form.id.data, action="tob") }}'>盯盘</a>
+                <a class='btn btn-default'
                    href='{{ url_for("main.ticket_edit", id=form.id.data, action="trd") }}'>交易</a>
                 {% endif %}
                 {{form.submit(class_="btn btn-primary pull-right")}}

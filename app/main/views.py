@@ -95,15 +95,20 @@ def summary():
     today = find_candles('000001', 101, limit=1)[0].dt
     c_today_size = Choice.select().where(Choice.created >= today, Choice.status == 1).count()
     ti_size = Ticket.select().where(Ticket.status < 3).count()
+    ti_today_size = Ticket.select().where(Ticket.created >= today, Ticket.status < 3).count()
     s_size = Signal.select().where(Signal.status == 1).count()
     s_today_size = Signal.select().where(Signal.status == 1, Signal.created >= today).count()
-    tr_size = Trade.select().where(Trade.created > today).count()
+    tr_size = Trade.select().where(Trade.status > 0).count()
+    tr_today_size = Trade.select().where(Trade.status > 0, Trade.created > today).count()
+
     data = {'c_size': c_size,
             'c_today_size': c_today_size,
             's_size': s_size,
             's_today_size': s_today_size,
             'ti_size': ti_size,
-            'tr_size': tr_size}
+            'ti_today_size': ti_today_size,
+            'tr_size': tr_size,
+            'tr_today_size': tr_today_size}
     return jsonify(data)
 
 

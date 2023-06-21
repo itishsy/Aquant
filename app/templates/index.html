@@ -19,8 +19,8 @@
             <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-aqua-gradient">
                     <div class="inner">
-                        <a style="color: yellow" href="{{ url_for('main.choice_list', today=1) }}"><h3 id="c_today_size">0</h3></a>
-                        <p>今日入选（入选池：<span id="c_size"></span>）</p>
+                        <a style="color: yellow" href="{{ url_for('main.choice_list') }}"><h3 id="c_size">0</h3></a>
+                        <p>策略池（今日入选：<span id="c_today_size"></span>）</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-iphone"></i>
@@ -31,7 +31,7 @@
                 <div class="small-box bg-orange">
                     <div class="inner">
                         <a style="color: white" href="{{ url_for('main.ticket_list') }}"><h3 id="ti_size">0</h3></a>
-                        <p>票据</p>
+                        <p>票据（今日：<span id="ti_today_size"></span>）</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-person-add"></i>
@@ -79,6 +79,7 @@
             $("#s_size").text(jsOutObj.s_size);
             $("#s_today_size").text(jsOutObj.s_today_size);
             $("#ti_size").text(jsOutObj.ti_size);
+            $("#ti_today_size").text(jsOutObj.ti_today_size);
             $("#tr_size").text(jsOutObj.tr_size);
         });
     }
