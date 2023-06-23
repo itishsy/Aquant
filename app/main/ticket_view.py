@@ -91,12 +91,18 @@ def ticket_edit():
             tic.updated = datetime.now()
             tic.save()
             flash('票据已弃用')
+        if action == 'wat':
+            tic.status = 0
+            tic.watch = 0
+            tic.updated = datetime.now()
+            tic.save()
+            flash('票据已调为观察')
         if action == 'tob':
             tic.status = 1
             tic.watch = 1
             tic.updated = datetime.now()
             tic.save()
-            flash('票据已调为买入级')
+            flash('票据已调为盯盘')
         if action == 'trd':
             if not Signal.select().where(Signal.code == tic.code).exists():
                 flash('未产生任何信号，无法交易')

@@ -3,8 +3,6 @@ import math
 from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app import utils
-from app.models import Notify
-from app.main.forms import NotifyForm
 from . import main
 from models.signal import Signal
 from models.ticket import Ticket
@@ -138,17 +136,3 @@ def save_ticket():
         flash('操作成功')
     data = {'ok': 1}
     return jsonify(data)
-
-
-# 通知方式查询
-@main.route('/notifylist', methods=['GET', 'POST'])
-@login_required
-def notifylist():
-    return common_list(Notify, 'notifylist.html')
-
-
-# 通知方式配置
-@main.route('/notifyedit', methods=['GET', 'POST'])
-@login_required
-def notifyedit():
-    return common_edit(Notify, NotifyForm(), 'notifyedit.html')

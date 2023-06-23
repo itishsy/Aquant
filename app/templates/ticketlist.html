@@ -3,7 +3,6 @@
 {% block title %}票據查询{% endblock %}
 {% block navbar %}
 <section class="content-header">
-    <h3></h3>
     <ol class="breadcrumb">
         <li><i class="fa fa-dashboard"></i> <a href="{{ url_for('main.index') }}">首页</a></li>
         <li class="active"><a href="{{ url_for('main.ticket_list') }}">票據管理</a></li>
@@ -30,7 +29,7 @@
             {% for row in form.content %}
             {% if row.status == 2 %}
             <tr style="background-color: goldenrod">
-                {% elif row.hold > 0 %}
+                {% elif row.status == 1 %}
             <tr style="background-color: gainsboro">
             {% else %}
             <tr>

@@ -4,7 +4,6 @@
 
 {% block navbar %}
 <section class="content-header">
-    <h3></h3>
     <ol class="breadcrumb">
         <li><i class="fa fa-dashboard"></i> 首页</li>
         <li class="active">统计</li>
@@ -42,7 +41,8 @@
                 <div class="small-box bg-fuchsia">
                     <div class="inner">
                         <a style="color: yellow" href="{{ url_for('main.signallist') }}"><h3 id="s_today_size">0</h3></a>
-                        <p>今日信号（信号池：<span id="s_size"></span>）</p>
+                        <p>信号池（今日信号:<a style="color: yellow" href="{{ url_for('main.signallist',today=1 ) }}">
+                        <span id="s_size">0</span>）</a></p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-pie-graph"></i>
