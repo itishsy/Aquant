@@ -14,10 +14,11 @@ class UAR(Strategy):
 
         # QC001
         ups = 0
+        size = len(candles)
         for c in candles:
             if c.diff() > 0:
                 ups = ups + 1
-        if ups < 80:
+        if ups / size < 0.618:
             return
 
         # QC002
