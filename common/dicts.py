@@ -78,7 +78,8 @@ def trade_strategy(key=None):
 
 def buy_type(key=None):
     if key is None:
-        return [('R60C15', 'R60C15'), ('R30C5', 'R30C5'), ('R60C10', 'R60C10'), ('R15C1', 'R15C1')]
+        return [('R60C15', 'R60C15'), ('R30C5', 'R30C5'), ('R60C10', 'R60C10'), ('R15C1', 'R15C1'),
+                ('R101C30', 'R101C30')]
     if key == 'R60C15':
         return 'R60C15'
     if key == 'R30C5':
@@ -87,6 +88,8 @@ def buy_type(key=None):
         return 'R60C10'
     if key == 'R15C1':
         return 'R15C1'
+    if key == 'R101C30':
+        return 'R101C30'
     return 'undefined'
 
 
