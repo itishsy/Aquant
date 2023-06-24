@@ -41,7 +41,8 @@ def ticket_list():
     # 查询列表
     today = request.args.get('today')
     if today and today != 'None':
-        query = Ticket.select().where(Ticket.status < 3, Ticket.status > 0).order_by(Ticket.hold.desc())
+        last_day = find_candles('000001', 101, limit=1)[0].dt
+        query = Ticket.select().where(Ticket.status < 3, Ticket.created > last_day).order_by(Ticket.hold.desc())
         total_count = query.count()
     else:
         query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.status.desc(), Ticket.hold)
