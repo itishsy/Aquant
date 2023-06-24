@@ -11,7 +11,7 @@ from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length
-from common.dicts import freq_level, ticket_status, choice_strategy
+from common.dicts import freq_level, ticket_status, choice_strategy, trade_strategy, buy_type
 from storage.dba import find_candles
 
 logger = get_logger(__name__)
@@ -129,8 +129,9 @@ class TicketForm(FlaskForm):
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 6, message='长度不正确')])
     cost = DecimalField('成本')
     hold = IntegerField('持有量')
-    buy = StringField('交易级别')
-    watch = SelectField('盯盘', choices=freq_level())
+    strategy = SelectField('交易策略', choices=trade_strategy())
+    buy = SelectField('买入类型', choices=buy_type())
+    watch = SelectField('监控级别', choices=freq_level())
     cut = DecimalField('止损')
     clean = SelectField('剔除', choices=freq_level())
     status = SelectField('状态', choices=ticket_status())

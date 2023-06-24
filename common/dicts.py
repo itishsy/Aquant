@@ -62,6 +62,34 @@ def trade_type(key=None):
     return 'undefined'
 
 
+def trade_strategy(key=None):
+    if key is None:
+        return [('UAB', 'UAB'), ('PAB', 'PAB'), ('PBC', 'PBC'), ('DRC', 'DRC')]
+    if key == 'UAB':
+        return 'UAB'
+    if key == 'PAB':
+        return 'PAB'
+    if key == 'PBC':
+        return 'PBC'
+    if key == 'DRC':
+        return 'DRC'
+    return 'undefined'
+
+
+def buy_type(key=None):
+    if key is None:
+        return [('R60C15', 'R60C15'), ('R30C5', 'R30C5'), ('R60C10', 'R60C10'), ('R15C1', 'R15C1')]
+    if key == 'R60C15':
+        return 'R60C15'
+    if key == 'R30C5':
+        return 'R30C5'
+    if key == 'R60C10':
+        return 'R60C10'
+    if key == 'R15C1':
+        return 'R15C1'
+    return 'undefined'
+
+
 def valid_status(key=None):
     if key is None:
         return [(0, '无效'), (1, '有效')]

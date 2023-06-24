@@ -59,7 +59,7 @@
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <label>交易明细</label>
+                    <label>已成交</label>
                     <table class="table table-bordered">
                         {% if trades%}
                             {% for row in trades %}
@@ -109,8 +109,14 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
+                    <label>{{form.strategy.label}}</label>
+                    {{form.strategy(class_="form-control strategy_select",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
                     <label>{{form.buy.label}}</label>
-                    {{form.buy(class_="form-control",placeholder="请输入")}}
+                    {{form.buy(class_="form-control buy_select",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -177,6 +183,8 @@
 {% block scripts %}
 <script>
     function initPage() {
+        $(".strategy_select").val("{{form.strategy.data}}").select2();
+        $(".buy_select").val("{{form.buy.data}}").select2();
         $(".watch_select").val("{{form.watch.data}}").select2();
         $(".clean_select").val("{{form.clean.data}}").select2();
         $(".status_select").val("{{form.status.data}}").select2();
