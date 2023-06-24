@@ -45,7 +45,7 @@ def ticket_list():
         query = Ticket.select().where(Ticket.status < 3, Ticket.created > last_day).order_by(Ticket.hold.desc())
         total_count = query.count()
     else:
-        query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.status.desc(), Ticket.hold)
+        query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.status.desc(), Ticket.hold.desc())
         total_count = query.count()
 
     # 处理分页
