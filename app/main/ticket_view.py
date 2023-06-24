@@ -12,6 +12,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length
 from common.dicts import freq_level, ticket_status, choice_strategy
+from storage.dba import find_candles
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -34,45 +35,24 @@ def ticket_list():
                 tic.updated = datetime.now()
                 tic.save()
                 flash('操作成功')
-            # frx
-            elif action == 'trd':
-                tic.status = 1
-                tic.buy = 'FR-'
-                tic.watch = 5
-                tic.updated = datetime.now()
-                tic.save()
-                flash('操作成功')
-            # frx
-            elif action == 'frx':
-                tic.status = 0
-                tic.buy = 'FRX'
-                tic.watch = 3
-                tic.clean = 4
-                tic.updated = datetime.now()
-                tic.save()
-                flash('操作成功')
-            # trx
-            elif action == 'trx':
-                tic.status = 0
-                tic.buy = 'TRX'
-                tic.watch = 3
-                tic.clean = 4
-                tic.updated = datetime.now()
-                tic.save()
-                flash('操作成功')
         except:
             flash('操作失败')
 
     # 查询列表
-    query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.status.desc(), Ticket.hold)
-    total_count = query.select().where(Ticket.status < 3).count()
+    today = request.args.get('today')
+    if today and today != 'None':
+        query = Ticket.select().where(Ticket.status < 3, Ticket.status > 0).order_by(Ticket.hold.desc())
+        total_count = query.count()
+    else:
+        query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.status.desc(), Ticket.hold)
+        total_count = query.count()
 
     # 处理分页
     if page: query = query.paginate(page, length)
 
     dict = {'content': utils.query_to_list(query), 'total_count': total_count,
             'total_page': math.ceil(total_count / length), 'page': page, 'length': length}
-    return render_template('ticketlist.html', form=dict, fel=ticket_status, current_user=current_user)
+    return render_template('ticketlist.html', form=dict, fel=ticket_status, today=today, current_user=current_user)
 
 
 @main.route('/ticket_edit', methods=['GET', 'POST'])
