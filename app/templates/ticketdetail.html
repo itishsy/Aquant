@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}通知方式配置{% endblock %}
+
+
+{% block navbar %}
+<section class="content-header">
+    <ol class="breadcrumb">
+        <li><i class="fa fa-leaf"></i> <a href="{{ url_for('main.ticket_list') }}">票據管理</a></li>
+        <li class="active">票据明细</li>
+    </ol>
+</section>
+{% endblock %}
+
+
+{% block content %}
+<div class="box box-primary">
+        <div class="box-header with-border">
+            {% include 'message.html' %}
+        </div>
+
+        {% if ticket.code%}
+        <div class="box-body">
+                <div class="form-group">
+                    {% if ticket.code.startswith('60') %}
+                    <a style="color: blueviolet" href="http://xueqiu.com/S/SH{{ticket.code}}">{{ticket.name}}({{ticket.code}})</a>
+                    {% else %}
+                    <a style="color: blueviolet" href="http://xueqiu.com/S/SZ{{ticket.code}}">{{ticket.name}}({{ticket.code}})</a>
+                    {% endif %}
+                </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped">
+                        <tr>
+                            <td><label>状态</label></td>
+                            <td><span type="text" >{{ticket.status_text}}</span></td>
+                        </tr>
+                        <tr>
+                            <td><label>操作策略</label></td>
+                            <td><span type="text" >{{ticket.strategy}}</span></td>
+                        </tr>
+                        <tr>
+                            <td><label>买点</label></td>
+                            <td><span type="text" >{{ticket.buy}}</span></td>
+                        </tr>
+                        <tr>
+                            <td><label>观察级别</label></td>
+                            <td><span type="text" >{{ticket.watch_text}}</span></td>
+                        </tr>
+                        <tr>
+                            <td><label>成本</label></td>
+                            <td><span type="text" >{{ticket.cost}}</span></td>
+                        </tr>
+                        <tr>
+                            <td><label>持有</label></td>
+                            <td><span type="text" >{{ticket.hold}}</span></td>
+                        </tr>
+                        <tr>
+                            <td><label>止损</label></td>
+                            <td><span type="text" >{{ticket.cut}}</span></td>
+                        </tr>
+                        <tr>
+                            <td><label>剔除</label></td>
+                            <td><span type="text" >{{ticket.clean_text}}</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-3">
+                    <label>信号明细</label>
+                </div>
+                <div class="col-md-9">
+                    <table class="table table-bordered">
+                        {% if singles%}
+                            {% for row in singles %}
+                            <tr>
+                                <td>
+                                    {% if row.type == 1 %}
+                                    <label>卖出</label>
+                                    {% else %}
+                                    <label style="color: orangered">买入</label>
+                                    {% endif %}
+                                </td>
+                                <td>{{row.dt}}</td>
+                                <td>{{row.freq}}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr><td colspan="3">无</td></tr>
+                        {% endif %}
+                    </table>
+                </div>
+                <div class="col-md-3">
+                    <label>成交记录</label>
+                </div>
+                <div class="col-md-9">
+                    <table class="table table-bordered">
+                        {% if trades%}
+                            {% for row in trades %}
+                            <tr>
+                                <td>
+                                    {% if row.type == 1 %}
+                                    <label>卖出</label>
+                                    {% else %}
+                                    <label style="color: orangered">买入</label>
+                                    {% endif %}
+                                </td>
+                                <td>{{row.dt}}</td>
+                                <td>{{row.price}}</td>
+                                <td>{{row.volume}}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr><td colspan="4">无</td></tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-footer">
+            <div class="col-md-12">
+                <a class='btn btn-default'
+                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="del") }}'>弃用</a>
+                {% if ticket.status == 1 %}
+                <a class='btn btn-default'
+                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="wat") }}'>观察</a>
+                {% else %}
+                <a class='btn btn-default'
+                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="tob") }}'>盯盘</a>
+                {% endif %}
+                <a class='btn btn-default'
+                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="trd") }}'>交易</a>
+                <a class='btn btn-primary pull-right'
+                   href='{{ url_for("main.ticket_edit", id=ticket.id) }}'>修改</a>
+            </div>
+        </div>
+
+        {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function initPage() {
+        setTimeout(function (){
+            let clo = $(".close")
+            if (clo.length > 0){
+                clo.click()
+            }
+        }, 3000)
+    }
+</script>
+{% endblock %}

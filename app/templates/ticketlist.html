@@ -42,7 +42,7 @@
             {% endif %}
                 <td style="display: none" >{{row.id}}</td>
                 <td>
-                    <a href='{{ url_for("main.ticket_edit", id=row.id) }}'>{{ row.name }}</a>
+                    <a href='{{ url_for("main.ticket_detail", id=row.id) }}'>{{ row.name }}</a>
                 </td>
                 <td>{{ row.strategy }}</td>
                 <td>{{ row.buy }}</td>

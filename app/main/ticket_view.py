@@ -65,8 +65,6 @@ def ticket_list():
 def ticket_edit():
     id = request.args.get('id', '')
     form = TicketForm()
-    trades = []
-    singles = []
     if id:
         # 查询
         tic = Ticket.get(Ticket.id == id)
@@ -76,35 +74,9 @@ def ticket_edit():
             tic.updated = datetime.now()
             tic.save()
             flash('票据已弃用')
-        if action == 'wat':
-            tic.status = 0
-            tic.watch = 0
-            tic.updated = datetime.now()
-            tic.save()
-            flash('票据已调为观察')
-        if action == 'tob':
-            tic.status = 1
-            tic.watch = 1
-            tic.updated = datetime.now()
-            tic.save()
-            flash('票据已调为盯盘')
-        if action == 'trd':
-            if not Signal.select().where(Signal.code == tic.code).exists():
-                flash('未产生任何信号，无法交易')
-            else:
-                sis = Signal.get(Signal.code == tic.code)
-                si = sis[-1]
-                if si.type == 0:
-                    flash('根据最新的信号买入。' + si.freq)
-                else:
-                    flash('根据最新的信号卖出。' + si.freq)
 
         if request.method == 'GET':
             utils.model_to_form(tic, form)
-            s_query = Signal.select().where(Signal.code == tic.code).order_by(Signal.dt.desc()).limit(5)
-            t_query = Trade.select().where(Trade.code == tic.code).order_by(Trade.dt.desc()).limit(5)
-            singles = utils.query_to_list(s_query)
-            trades = utils.query_to_list(t_query)
         # 修改
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -125,7 +97,56 @@ def ticket_edit():
             flash('保存成功')
         else:
             utils.flash_errors(form)
-    return render_template('ticketedit.html', form=form, singles=singles, trades=trades, current_user=current_user)
+    return render_template('ticketedit.html', form=form, current_user=current_user)
+
+
+@main.route('/ticket_detail', methods=['GET', 'POST'])
+@login_required
+def ticket_detail():
+    id = request.args.get('id', '')
+    ticket = None
+    form = TicketForm()
+    trades = []
+    singles = []
+    if id:
+        # 查询
+        ticket = Ticket.get(Ticket.id == id)
+        action = request.args.get('action')
+        if action == 'wat':
+            ticket.status = 0
+            ticket.watch = 0
+            ticket.updated = datetime.now()
+            ticket.save()
+            flash('票据已调为观察')
+        if action == 'tob':
+            ticket.status = 1
+            ticket.watch = 1
+            ticket.updated = datetime.now()
+            ticket.save()
+            flash('票据已调为盯盘')
+        if action == 'trd':
+            if not Signal.select().where(Signal.code == ticket.code).exists():
+                flash('未产生任何信号，无法交易')
+            else:
+                sis = Signal.get(Signal.code == ticket.code)
+                si = sis[-1]
+                if si.type == 0:
+                    flash('根据最新的信号买入。' + si.freq)
+                else:
+                    flash('根据最新的信号卖出。' + si.freq)
+
+        if request.method == 'GET':
+            utils.model_to_form(ticket, form)
+            ticket.status_text = ticket_status(ticket.status)
+            ticket.watch_text = freq_level(ticket.watch)
+            ticket.clean_text = freq_level(ticket.clean)
+            s_query = Signal.select().where(Signal.code == ticket.code).order_by(Signal.dt.desc()).limit(5)
+            t_query = Trade.select().where(Trade.code == ticket.code).order_by(Trade.dt.desc()).limit(5)
+            singles = utils.query_to_list(s_query)
+            trades = utils.query_to_list(t_query)
+    else:
+        flash('参数错误')
+    return render_template('ticketdetail.html',  ticket= ticket, form= form, singles=singles, trades=trades, current_user=current_user)
 
 
 class TicketForm(FlaskForm):

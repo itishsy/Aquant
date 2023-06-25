@@ -10,7 +10,7 @@ class Config:
     DB_USER = 'root'
     DB_PASSWD = 'root'
     DB_DATABASE = 'aq'
-    ITEMS_PER_PAGE = 10
+    ITEMS_PER_PAGE = 20
     JWT_AUTH_URL_RULE = '/api/auth'
     PREFIX = ['00', '60', '30', '51']
     URL_PREFIX = '/69f2aeb7fa0e11edad01f46b8c05cf04'
