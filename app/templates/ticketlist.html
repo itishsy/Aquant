@@ -4,9 +4,15 @@
 {% block navbar %}
 <section class="content-header">
     <ol class="breadcrumb">
-        <li><i class="fa fa-dashboard"></i> <a href="{{ url_for('main.index') }}">首页</a></li>
-        <li class="active"><a href="{{ url_for('main.ticket_list') }}">票據管理</a></li>
-        <li class="active">票據查询</li>
+        <div class="input-group col-md-10">
+            <input id="sea" type="text" class="form-control">
+            <span class="input-group-btn">
+                <button class="btn btn-info" onclick="search()">查找</button>
+            </span>
+        </div>
+
+<!--        <li><i class="fa fa-dashboard"></i> <a href="{{ url_for('main.index') }}">首页</a></li>-->
+<!--        <li class="active"><a href="{{ url_for('main.ticket_list') }}">票據管理</a></li>-->
     </ol>
 </section>
 {% endblock %}
@@ -68,6 +74,9 @@
 <script>
     function initPage() {
 
+    }
+    function search(){
+        location.href = '{{ url_for("main.ticket_list") }}' + '?sea=' + $("#sea").val()
     }
 </script>
 {% endblock %}
