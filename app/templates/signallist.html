@@ -28,8 +28,9 @@
                 <th>发出时间</th>
             </tr>
             {% for row in form.content %}
-            {% if row.tick %}
-            <tr style="background-color: ghostwhite">
+
+            {% if row.created > cdt %}
+            <tr style="background-color: oldlace">
             {% else %}
             <tr>
             {% endif %}
