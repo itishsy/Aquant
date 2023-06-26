@@ -4,10 +4,19 @@
 {% block navbar %}
 <section class="content-header">
     <ol class="breadcrumb">
-        <li><i class="fa fa-dashboard"></i> <a href="{{ url_for('main.index') }}">首页</a></li>
-        <li class="active"><a href="{{ url_for('main.tradelist') }}">交易管理</a></li>
-        <li class="active">交易查询</li>
+        <div class="input-group col-md-10">
+            <input id="sea" type="text" class="form-control">
+            <span class="input-group-btn">
+                <button class="btn btn-info" onclick="search()">查找</button>
+                <a class="btn btn-info" href="{{ url_for('main.tradeedit') }}">新建</a>
+            </span>
+        </div>
     </ol>
+<!--    <ol class="breadcrumb">-->
+<!--        <li><i class="fa fa-dashboard"></i> <a href="{{ url_for('main.index') }}">首页</a></li>-->
+<!--        <li class="active"><a href="{{ url_for('main.tradelist') }}">交易管理</a></li>-->
+<!--        <li class="active">交易查询</li>-->
+<!--    </ol>-->
 </section>
 {% endblock %}
 
@@ -35,11 +44,12 @@
             {% endif %}
                 <td style="display: none">{{row.id}}</td>
                 <td>
-                    {% if row.code.startswith('60') %}
-                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.name}}</a>
-                    {% else %}
-                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>
-                    {% endif %}
+                     <a href='{{ url_for("main.ticket_detail", id=row.code) }}'>{{row.name}}</a>
+<!--                    {% if row.code.startswith('60') %}-->
+<!--                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.name}}</a>-->
+<!--                    {% else %}-->
+<!--                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>-->
+<!--                    {% endif %}-->
                 </td>
                 <td>
                     {% if row.type == 1 %}
@@ -83,6 +93,9 @@
 {% block scripts %}
 <script>
     function initPage() {
+    }
+    function search(){
+        location.href = '{{ url_for("main.ticket_list") }}' + '?sea=' + $("#sea").val()
     }
 </script>
 {% endblock %}

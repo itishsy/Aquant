@@ -110,7 +110,10 @@ def ticket_detail():
     singles = []
     if id:
         # 查询
-        ticket = Ticket.get(Ticket.id == id)
+        if Ticket.select().where(Ticket.code == id).exists():
+            ticket = Ticket.get(Ticket.code == id)
+        else:
+            ticket = Ticket.get(Ticket.id == id)
         action = request.args.get('action')
         if action == 'wat':
             ticket.status = 0

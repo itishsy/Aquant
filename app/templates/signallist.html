@@ -36,11 +36,12 @@
             {% endif %}
                 <td style="display: none">{{row.id}}</td>
                 <td>
-                    {% if row.code.startswith('60') %}
-                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.name}}</a>
-                    {% else %}
-                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>
-                    {% endif %}
+                    <a href='{{ url_for("main.ticket_detail", id=row.code) }}'>{{row.name}}</a>
+<!--                    {% if row.code.startswith('60') %}-->
+<!--                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.name}}</a>-->
+<!--                    {% else %}-->
+<!--                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>-->
+<!--                    {% endif %}-->
                 </td>
                 <td>
                     {% if row.type == 1 %}
@@ -50,9 +51,7 @@
                     {% endif %}
                 </td>
                 <td>{{row.freq}}</td>
-                <td>
-                    <a href='{{ url_for("main.signaledit", id=row.id) }}'>{{row.dt}}</a>
-                </td>
+                <td>{{row.dt}}</td>
             </tr>
             {% endfor %}
         </table>

@@ -6,6 +6,7 @@ from app import utils
 from . import main
 from models.choice import Choice
 from models.ticket import Ticket
+from models.signal import Signal
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
@@ -73,12 +74,33 @@ def choice_edit():
                 tic.updated = datetime.now()
                 tic.save()
                 tic = Ticket.get(Ticket.code == cho.code)
+                sig = Signal()
+                sig.code = cho.code
+                sig.name = cho.name
+                sig.type = 0
+                sig.freq = cho.freq
+                sig.dt = cho.dt
+                sig.source = '背离'
+                sig.status = 1
+                sig.created = datetime.now()
+                sig.save()
             else:
                 tic = Ticket.get(Ticket.code == cho.code)
                 if tic.status == 0:
                     tic.status = 0
                     tic.updated = datetime.now()
                     tic.save()
+                if not Signal.select().where(Signal.code == cho.code, Signal.dt == cho.dt).exists():
+                    sig = Signal()
+                    sig.code = cho.code
+                    sig.name = cho.name
+                    sig.type = 0
+                    sig.freq = cho.freq
+                    sig.dt = cho.dt
+                    sig.source = '背离'
+                    sig.status = 1
+                    sig.created = datetime.now()
+                    sig.save()
             return redirect(url_for('main.ticket_edit', id=tic.id))
 
         # 查询
