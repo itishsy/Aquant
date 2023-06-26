@@ -74,14 +74,14 @@ def deal(ti: Ticket):
         if len(dbs) > 0:  # and sis[-1].dt >= ldt:
             si = dbs[-1]
             print('buy code:{} freq:{},size:{}'.format(ti.code, fq, len(dbs)))
-            if not Signal.select().where(Signal.code == ti.code, Signal.dt >= si.dt, Signal.freq == fq).exists():
+            if not Signal.select().where(Signal.code == ti.code, Signal.dt >= si.dt).exists():
                 Signal.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, status=1, price=si.value,
                               created=datetime.now())
         dts = diver_top(cds)
         if len(dts) > 0:  # and sis[-1].dt >= ldt:
             si = dts[-1]
             print('sell code:{} freq:{},size:{}'.format(ti.code, fq, len(dts)))
-            if not Signal.select().where(Signal.code == ti.code, Signal.dt >= si.dt, Signal.freq == fq).exists():
+            if not Signal.select().where(Signal.code == ti.code, Signal.dt >= si.dt).exists():
                 Signal.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=1, status=1, price=si.value,
                               created=datetime.now())
 
@@ -90,7 +90,7 @@ def watch_all():
     tickets = []
     try:
         Component.update(status=2, run_start=datetime.now()).where(Component.name == 'watcher').execute()
-        tis = Ticket.select().where(Ticket.status < 2)
+        tis = Ticket.select().where(Ticket.status < 3)
         print('[{}] watch deal size:{}'.format(datetime.now(), len(tis)))
         for ti in tis:
             deal(ti)
