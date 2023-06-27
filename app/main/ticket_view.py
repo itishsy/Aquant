@@ -1,6 +1,6 @@
 from app import get_logger, get_config
 import math
-from flask import render_template, flash, request, jsonify
+from flask import render_template, flash, request, jsonify, redirect, url_for
 from flask_login import login_required, current_user
 from app import utils
 from . import main
@@ -131,13 +131,21 @@ def ticket_detail():
             if not Signal.select().where(Signal.code == ticket.code).exists():
                 flash('未产生任何信号，无法交易')
             else:
-                sis = Signal.get(Signal.code == ticket.code)
+                sis = Signal.select().where(Signal.code == ticket.code).order_by(Signal.dt.desc()).limit(1)
                 si = sis[-1]
-                if si.type == 0:
-                    flash('根据最新的信号买入。' + si.freq)
-                else:
-                    flash('根据最新的信号卖出。' + si.freq)
-
+                tr = Trade()
+                tr.code = si.code
+                tr.name = si.name
+                tr.dt = datetime.now()
+                tr.type = si.type
+                tr.freq = si.freq
+                tr.price = si.price
+                tr.volume = 100
+                tr.fee = 5
+                tr.created = datetime.now()
+                tr.save()
+                tr1 = Trade.select().where(Trade.code == si.code).order_by(Trade.id.desc()).first()
+                return redirect(url_for('main.tradeedit', id=tr1.id))
         if request.method == 'GET':
             utils.model_to_form(ticket, form)
             ticket.status_text = ticket_status(ticket.status)
