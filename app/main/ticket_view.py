@@ -12,7 +12,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length
 from common.dicts import freq_level, ticket_status, choice_strategy, trade_strategy, buy_type
-from storage.dba import find_candles
+from storage.dba import find_candles,get_symbol
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -158,6 +158,28 @@ def ticket_detail():
     else:
         flash('参数错误')
     return render_template('ticketdetail.html',  ticket= ticket, form= form, singles=singles, trades=trades, current_user=current_user)
+
+
+@main.route('/api/load_ticket', methods=['GET'])
+@login_required
+def load_ticket():
+    code = request.args.get('code', '')
+    data = {'id': -1}
+    if code:
+        if Ticket.select().where(Ticket.code == code).exists():
+            chi = Ticket.get(Ticket.code == code)
+            data = chi.__data__
+        else:
+            sym = get_symbol(code)
+            if sym is not None:
+                data = {'id': 0,
+                        'code': code,
+                        'name': sym.name,
+                        'freq': 30,
+                        'dt': datetime.now().strftime('%Y-%m-%d'),
+                        'status': 1
+                        }
+    return jsonify(data)
 
 
 class TicketForm(FlaskForm):

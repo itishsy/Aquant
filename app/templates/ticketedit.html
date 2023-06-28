@@ -132,9 +132,18 @@
         let c = "{{form.code.data}}"
         if (c === "None") {
             let code = $(obj).val()
-            restTemplate("GET", "/get/id?code=" + code, null, function (obj) {
+            restTemplate("GET", '/load_ticket?code=' + code, null, function (obj) {
                 if (obj.id > 0) {
                     location.href = '{{ url_for("main.ticket_edit") }}' + '?id=' + obj.id
+                } else if (obj.id === 0){
+                    $("#name").val(obj.name)
+                    $("#freq").val(obj.freq)
+                    $("#cost").val(0.0)
+                    $("#hold").val(0)
+                    $("#dt").val(obj.dt)
+                    $(".strategy_select").val('PAB').select2();
+                    $(".buy_select").val(1).select2();
+                    $(".status_select").val(obj.status).select2();
                 }
             });
         }
