@@ -95,7 +95,7 @@
     function initPage() {
     }
     function search(){
-        location.href = '{{ url_for("main.ticket_list") }}' + '?sea=' + $("#sea").val()
+        location.href = '{{ url_for("main.tradelist") }}' + '?sea=' + $("#sea").val()
     }
 </script>
 {% endblock %}

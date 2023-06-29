@@ -84,7 +84,7 @@ def ticket_edit():
                 tic.id = id
                 tic.updated = datetime.now()
                 tic.save()
-                flash('修改成功')
+                return redirect(url_for('main.ticket_detail', id=tic.id))
             else:
                 utils.flash_errors(form)
     else:
@@ -94,7 +94,7 @@ def ticket_edit():
             utils.form_to_model(form, model)
             model.created = datetime.now()
             model.save()
-            flash('保存成功')
+            return redirect(url_for('main.ticket_detail', id=model.id))
         else:
             utils.flash_errors(form)
     return render_template('ticketedit.html', form=form, current_user=current_user)
