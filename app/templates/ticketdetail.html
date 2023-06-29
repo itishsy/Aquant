@@ -119,18 +119,23 @@
 
         <div class="box-footer">
             <div class="col-md-12">
-                <a class='btn btn-default'
-                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="del") }}'>弃用</a>
-                {% if ticket.status == 1 %}
-                <a class='btn btn-default'
-                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="wat") }}'>观察</a>
-                {% else %}
-                <a class='btn btn-default'
+                {% if ticket.status == 0 %}
+                <a class='btn btn-info'
                    href='{{ url_for("main.ticket_detail", id=ticket.id, action="tob") }}'>盯盘</a>
+                {% elif ticket.status == 1 %}
+                <a class='btn btn-danger'
+                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="trd", type="kai" )}}'>开仓</a>
+                <a class='btn btn-info'
+                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="wat") }}'>观察</a>
+                {% elif ticket.status == 2 %}
+                <a class='btn btn-danger'
+                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="trd", type="pin") }}'>平仓</a>
+                <a class='btn btn-primary'
+                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="trd", type="jia") }}'>加仓</a>
+                <a class='btn btn-primary'
+                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="trd", type="jin") }}'>减仓</a>
                 {% endif %}
-                <a class='btn btn-default'
-                   href='{{ url_for("main.ticket_detail", id=ticket.id, action="trd") }}'>交易</a>
-                <a class='btn btn-primary pull-right'
+                <a class='btn btn-default pull-right'
                    href='{{ url_for("main.ticket_edit", id=ticket.id) }}'>修改</a>
             </div>
         </div>

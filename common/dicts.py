@@ -52,6 +52,18 @@ def ticket_status(key=None):
     return 'undefined'
 
 
+def watch_freq(key=None):
+    if key is None:
+        return [(0, [15, 30.120]), (1, [5, 10, 15]), (2, [5, 10, 15])]
+    if key == 0:
+        return [15, 30.120]
+    if key == 1:
+        return [5, 10, 15]
+    if key == 2:
+        return [5, 10, 15]
+    return []
+
+
 def trade_type(key=None):
     if key is None:
         return [(0, '买入'), (1, '卖出')]
@@ -61,6 +73,23 @@ def trade_type(key=None):
         return '卖出'
     return 'undefined'
 
+
+def trade_comment(key=None):
+    if key is None:
+        return [('开仓', '开仓'), ('减仓', '减仓'), ('加仓', '加仓'), ('平仓', '平仓'), ('止损', '止损'), ('止盈', '止盈')]
+    if key == '开仓':
+        return '开仓'
+    if key == '减仓':
+        return '减仓'
+    if key == '加仓':
+        return '加仓'
+    if key == '平仓':
+        return '平仓'
+    if key == '止损':
+        return '止损'
+    if key == '止盈':
+        return '止盈'
+    return 'undefined'
 
 def trade_strategy(key=None):
     if key is None:
@@ -79,7 +108,7 @@ def trade_strategy(key=None):
 def buy_type(key=None):
     if key is None:
         return [('R60C15', 'R60C15'), ('R30C5', 'R30C5'), ('R60C10', 'R60C10'), ('R15C1', 'R15C1'),
-                ('R101C30', 'R101C30'),('ARC','ARC')]
+                ('R101C30', 'R101C30'), ('ARC', 'ARC')]
     if key == 'R60C15':
         return 'R60C15'
     if key == 'R30C5':

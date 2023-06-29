@@ -63,7 +63,7 @@
                     {% if row.notify == 1 %}
                     <label style="color: brown"><a href='{{ url_for("main.tradeedit", id=row.id) }}'>{{row.freq}}</a></label>
                     {% else %}
-                    <label><a href='{{ url_for("main.tradeedit", id=row.id) }}'>{{row.freq}}</a></label>
+                    <label><a href='{{ url_for("main.tradeedit", id=row.id) }}'>{{row.comment}}（{{row.freq}}）</a></label>
                     {% endif %}
                 </td>
             </tr>

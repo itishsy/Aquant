@@ -128,24 +128,42 @@ def ticket_detail():
             ticket.save()
             flash('票据已调为盯盘')
         if action == 'trd':
-            if not Signal.select().where(Signal.code == ticket.code).exists():
+            t = request.args.get('type', '')
+            if t == 'kai' and not Signal.select().where(Signal.code == ticket.code).exists():
                 flash('未产生任何信号，无法交易')
+            if (t == 'jia' or t == 'pin') and ticket.hold < 100:
+                flash('持有量不足，无法交易')
+
+            sis = Signal.select().where(Signal.code == ticket.code).order_by(Signal.dt.desc()).limit(1)
+            si = sis[-1]
+            tr = Trade()
+            tr.code = si.code
+            tr.name = si.name
+            tr.dt = datetime.now().strftime('%Y-%m-%d')
+            tr.freq = si.freq
+            tr.price = si.price
+            tr.volume = 100
+            tr.status = 1
+            tr.fee = 5
+            tr.created = datetime.now()
+            if t == 'kai':
+                tr.type = 0
+                tr.comment = '开仓'
+            elif t == 'jia':
+                tr.type = 0
+                tr.comment = '加仓'
+            elif t == 'jin':
+                tr.type = 1
+                tr.comment = '减仓'
+                tr.volume = ticket.hold
             else:
-                sis = Signal.select().where(Signal.code == ticket.code).order_by(Signal.dt.desc()).limit(1)
-                si = sis[-1]
-                tr = Trade()
-                tr.code = si.code
-                tr.name = si.name
-                tr.dt = datetime.now()
-                tr.type = si.type
-                tr.freq = si.freq
-                tr.price = si.price
-                tr.volume = 100
-                tr.fee = 5
-                tr.created = datetime.now()
-                tr.save()
-                tr1 = Trade.select().where(Trade.code == si.code).order_by(Trade.id.desc()).first()
-                return redirect(url_for('main.tradeedit', id=tr1.id))
+                tr.type = 1
+                tr.comment = '平仓'
+                tr.volume = ticket.hold
+            tr.save()
+            tr1 = Trade.select().where(Trade.code == si.code).order_by(Trade.id.desc()).first()
+            return redirect(url_for('main.tradeedit', id=tr1.id))
+
         if request.method == 'GET':
             utils.model_to_form(ticket, form)
             ticket.status_text = ticket_status(ticket.status)
