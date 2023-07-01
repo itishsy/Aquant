@@ -52,7 +52,10 @@ def fetch_and_save(code, freq, begin='2015-01-01'):
 def double_merge(candles):
     single_candles = candles.iloc[::2]  # 获取单行
     double_candles = candles.iloc[1::2]  # 获取双行
+    single_candles.reset_index(drop=True, inplace=True)
+    double_candles.reset_index(drop=True, inplace=True)
     for index, row in double_candles.iterrows():
+        print('===', index)
         single_row = single_candles.iloc[index]
         row.open = single_row.open
         if row.high < single_row.high:
@@ -75,7 +78,10 @@ def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
         df = double_merge(df)
     candles = []
     for i, row in df.iterrows():
-        row['freq'] = freq
+        if d_flag:
+            row['freq'] = 10
+        else:
+            row['freq'] = freq
         c = Candle(row)
         if freq == 101:
             cs = find_candles(code, freq, limit=100)
