@@ -36,8 +36,9 @@ class Ticket(BaseModel):
     name = CharField()  # 名称
     cost = DecimalField(default=0.0)  # 成本
     hold = IntegerField(default=0)  # 持有总量
-    buy = CharField()  # 交易级别
-    watch = IntegerField()  # 盯盘级别
+    strategy = CharField()  # 交易策略
+    buy = CharField()  # 买入类别
+    watch = IntegerField()  # 监控级别
     cut = DecimalField(default=0.0)  # 止损
     clean = IntegerField()  # 剔除级别
     status = IntegerField(default=0)  # 状态 0 观察中， 1 持有 2 清仓 3 弃用

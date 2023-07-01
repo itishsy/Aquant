@@ -10,7 +10,7 @@ from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
-from storage.dba import get_symbol, find_candles
+from storage.dba import find_candles
 from common.dicts import trade_type, single_source
 
 logger = get_logger(__name__)
@@ -48,20 +48,22 @@ def signallist():
 
     # 查询列表
     today = request.args.get('today')
-    if today:
+    if today and today != 'None':
         last_day = find_candles('000001', 101, limit=1)[0].dt
-        query = Signal.select().where(Signal.status > 0, Signal.created >= last_day).order_by(Signal.dt.desc())
-        total_count = Signal.select().where(Signal.status > 0, Signal.created >= last_day).count()
+        query = Signal.select().where(Signal.status > 0, Signal.created >= last_day).order_by(Signal.created.desc())
+        total_count = query.count()
     else:
-        query = Signal.select().where(Signal.status > 0).order_by(Signal.dt.desc())
-        total_count = Signal.select().where(Signal.status > 0).count()
+        query = Signal.select().where(Signal.status > 0).order_by(Signal.created.desc()).limit(180)
+        total_count = query.count()
+
+    cdt = datetime(datetime.now().year,datetime.now().month,datetime.now().day)
 
     # 处理分页
     if page: query = query.paginate(page, length)
 
     dict = {'content': utils.query_to_list(query), 'total_count': total_count,
             'total_page': math.ceil(total_count / length), 'page': page, 'length': length}
-    return render_template('signallist.html', form=dict, current_user=current_user)
+    return render_template('signallist.html', form=dict, cdt=cdt, today=today, current_user=current_user)
 
 
 @main.route('/signaledit', methods=['GET', 'POST'])

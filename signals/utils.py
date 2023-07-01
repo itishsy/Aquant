@@ -111,7 +111,7 @@ def has_trend(candles: List[Candle]):
     :return: -1 存在向下趋势，1 存在向上趋势，0 不存在趋势
     """
     if candles is None or len(candles) < 3:
-        return 0
+        return -2
     i = 2
     while i < len(candles):
         if candles[i - 2].bar() > candles[i - 1].bar() > candles[i].bar():

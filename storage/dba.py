@@ -86,6 +86,11 @@ def get_symbol(code):
 
 
 def find_candles(code, freq, begin=None, end=None, limit=100) -> List[Candle]:
+    flag10 = False
+    if freq == 10:
+        freq = 5
+        limit = limit * 2
+
     session = dba.get_session(code)
     clauses = and_(Candle.freq == freq)
     if begin is not None:
@@ -96,6 +101,9 @@ def find_candles(code, freq, begin=None, end=None, limit=100) -> List[Candle]:
         select(Candle).where(clauses).order_by(desc(Candle.dt)).limit(limit)
     ).scalars().fetchall()
     session.close()
+
+
+
     return list(reversed(cds))
 
 

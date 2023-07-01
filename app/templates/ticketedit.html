@@ -23,73 +23,13 @@
         </div>
 
         <div class="box-body">
-            {% if form.code.data%}
-            <div class="col-md-12">
-                <div class="form-group">
-                    {% if form.code.data.startswith('60') %}
-                    <a style="color: blueviolet" href="http://xueqiu.com/S/SH{{form.code.data}}">{{form.name.data}}</a>
-                    {% else %}
-                    <a style="color: blueviolet" href="http://xueqiu.com/S/SZ{{form.code.data}}">{{form.name.data}}</a>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label>信号明细</label>
-                    <table class="table table-bordered">
-                        {% if singles%}
-                            {% for row in singles %}
-                            <tr>
-                                <td>
-                                    {% if row.type == 1 %}
-                                    <label>卖出</label>
-                                    {% else %}
-                                    <label style="color: orangered">买入</label>
-                                    {% endif %}
-                                </td>
-                                <td>{{row.dt}}</td>
-                                <td>{{row.freq}}</td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                        <tr><td colspan="3">无信号</td></tr>
-                        {% endif %}
-                    </table>
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label>交易明细</label>
-                    <table class="table table-bordered">
-                        {% if trades%}
-                            {% for row in trades %}
-                            <tr>
-                                <td>
-                                    {% if row.type == 1 %}
-                                    <label>卖出</label>
-                                    {% else %}
-                                    <label style="color: orangered">买入</label>
-                                    {% endif %}
-                                </td>
-                                <td>{{row.dt}}</td>
-                                <td>{{row.price}}</td>
-                                <td>{{row.volume}}</td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                        <tr><td colspan="4">无交易</td></tr>
-                        {% endif %}
-                    </table>
-                </div>
-            </div>
-            {% endif %}
-            <div class="col-md-6" {% if form.code.data%} style="display: none" {% endif %}>
+            <div class="col-md-6" >
                 <div class="form-group">
                     <label>{{form.code.label}}</label>
                         {{form.code(class_="form-control",placeholder="请输入",onblur="check_code(this)")}}
                 </div>
             </div>
-            <div class="col-md-6" {% if form.code.data%} style="display: none" {% endif %}>
+            <div class="col-md-6">
                 <div class="form-group">
                     <label>{{form.name.label}}</label>
                     {{form.name(class_="form-control",placeholder="请输入")}}
@@ -109,8 +49,14 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
+                    <label>{{form.strategy.label}}</label>
+                    {{form.strategy(class_="form-control strategy_select",placeholder="请输入")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
                     <label>{{form.buy.label}}</label>
-                    {{form.buy(class_="form-control",placeholder="请输入")}}
+                    {{form.buy(class_="form-control buy_select",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -156,16 +102,7 @@
             <div class="col-md-12">
                 {% if form.code.data %}
                 <a class='btn btn-default'
-                   href='{{ url_for("main.ticket_edit", id=form.id.data, action="del") }}'>弃用</a>
-                {% if form.status.data == 1 %}
-                <a class='btn btn-default'
-                   href='{{ url_for("main.ticket_edit", id=form.id.data, action="wat") }}'>观察</a>
-                {% else %}
-                <a class='btn btn-default'
-                   href='{{ url_for("main.ticket_edit", id=form.id.data, action="tob") }}'>盯盘</a>
-                {% endif %}
-                <a class='btn btn-default'
-                   href='{{ url_for("main.ticket_edit", id=form.id.data, action="trd") }}'>交易</a>
+                   href='{{ url_for("main.ticket_edit", id=form.id.data, action="del") }}'>删除</a>
                 {% endif %}
                 {{form.submit(class_="btn btn-primary pull-right")}}
             </div>
@@ -177,6 +114,8 @@
 {% block scripts %}
 <script>
     function initPage() {
+        $(".strategy_select").val("{{form.strategy.data}}").select2();
+        $(".buy_select").val("{{form.buy.data}}").select2();
         $(".watch_select").val("{{form.watch.data}}").select2();
         $(".clean_select").val("{{form.clean.data}}").select2();
         $(".status_select").val("{{form.status.data}}").select2();
@@ -193,9 +132,27 @@
         let c = "{{form.code.data}}"
         if (c === "None") {
             let code = $(obj).val()
-            restTemplate("GET", "/get/id?code=" + code, null, function (obj) {
+            restTemplate("GET", '/load_ticket?code=' + code, null, function (obj) {
                 if (obj.id > 0) {
                     location.href = '{{ url_for("main.ticket_edit") }}' + '?id=' + obj.id
+                } else if (obj.id === 0){
+                    $("#name").val(obj.name)
+                    $("#freq").val(obj.freq)
+                    $("#cost").val(0.0)
+                    $("#hold").val(0)
+                    $("#dt").val(obj.dt)
+                    $("#cut").val(0)
+                    let a = new Date()
+                    let y = a.getFullYear()
+                    let m = (a.getMonth()+1) < 10?('0'+(a.getMonth()+1)): (a.getMonth()+1)
+                    let d = (a.getDate()<10)?('0'+a.getDate()):a.getDate()
+                    $("#created").val(y+'-'+m+'-'+d)
+                    $(".strategy_select").val('PAB').select2();
+                    $(".buy_select").val('R30C5').select2();
+                    $(".watch_select").val("0").select2();
+                    $(".clean_select").val("3").select2();
+                    $(".source_select").val("HOT").select2();
+                    $(".status_select").val('0').select2();
                 }
             });
         }

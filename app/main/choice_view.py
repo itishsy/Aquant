@@ -6,6 +6,7 @@ from app import utils
 from . import main
 from models.choice import Choice
 from models.ticket import Ticket
+from models.signal import Signal
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
@@ -28,17 +29,17 @@ def choice_list():
     if today:
         last_day = find_candles('000001', 101, limit=1)[0].dt
         query = Choice.select().where(Choice.status == 1, Choice.created >= last_day)
-        total_count = query.select().where(Choice.status == 1, Choice.created >= last_day).count()
+        total_count = query.count()
     else:
         query = Choice.select().where(Choice.status == 1).order_by(Choice.dt.desc(), Choice.created.desc())
-        total_count = Choice.select().where(Choice.status == 1).count()
+        total_count = query.count()
 
     # 处理分页
     if page: query = query.paginate(page, length)
 
     dict = {'content': utils.query_to_list(query), 'total_count': total_count,
             'total_page': math.ceil(total_count / length), 'page': page, 'length': length}
-    return render_template('choicelist.html', form=dict, current_user=current_user)
+    return render_template('choicelist.html', form=dict, today=today, current_user=current_user)
 
 
 @main.route('/choice_edit', methods=['GET', 'POST'])
@@ -73,12 +74,33 @@ def choice_edit():
                 tic.updated = datetime.now()
                 tic.save()
                 tic = Ticket.get(Ticket.code == cho.code)
+                sig = Signal()
+                sig.code = cho.code
+                sig.name = cho.name
+                sig.type = 0
+                sig.freq = cho.freq
+                sig.dt = cho.dt
+                sig.source = '背离'
+                sig.status = 1
+                sig.created = datetime.now()
+                sig.save()
             else:
                 tic = Ticket.get(Ticket.code == cho.code)
                 if tic.status == 0:
                     tic.status = 0
                     tic.updated = datetime.now()
                     tic.save()
+                if not Signal.select().where(Signal.code == cho.code, Signal.dt == cho.dt).exists():
+                    sig = Signal()
+                    sig.code = cho.code
+                    sig.name = cho.name
+                    sig.type = 0
+                    sig.freq = cho.freq
+                    sig.dt = cho.dt
+                    sig.source = '背离'
+                    sig.status = 1
+                    sig.created = datetime.now()
+                    sig.save()
             return redirect(url_for('main.ticket_edit', id=tic.id))
 
         # 查询
