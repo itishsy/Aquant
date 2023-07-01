@@ -1,1 +1,1 @@
-__all__ = ['strategy', 'uab.py', 'drc']
+__all__ = ['strategy', 'uab']

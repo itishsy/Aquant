@@ -29,7 +29,7 @@ def diver_top(candles: List[Candle]) -> List[Signal]:
                 high2 = utl.get_highest(up_stage1).high
                 high0 = utl.get_highest(up_stage2).high
                 if c_2.diff() > c_0.diff() and high2 < high0:
-                    signals.append(Signal(dt=c_0.dt, freq=c_0.freq, type='top_divergence', value=c_0.close))
+                    signals.append(Signal(dt=c_0.dt, freq=c_0.freq, price=c_0.low, type='top_divergence', value=c_0.close))
     return signals
 
 
@@ -59,7 +59,7 @@ def diver_bottom(candles: List[Candle]) -> List[Signal]:
                     low1 = utl.get_lowest(down_stage1).low
                     low2 = utl.get_lowest(down_stage2).low
                     if c_2.diff() < c_0.diff() and low1 > low2:
-                        signals.append(Signal(dt=c_0.dt, freq=c_0.freq, strategy='bottom_divergence', value=c_0.close))
+                        signals.append(Signal(dt=c_0.dt, freq=c_0.freq, price=c_0.low, strategy='bottom_divergence', value=c_0.close))
     return signals
 
 

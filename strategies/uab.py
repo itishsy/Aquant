@@ -15,11 +15,11 @@ class UAB(Strategy):
         cur = candles[-1]
 
         # 当前一段处在主体上方（最高-当前阶段最低）/（最高-最低）> 618
-        highest = utl.get_highest(candles).high
-        lowest = utl.get_lowest(candles).low
+        highest = utl.get_highest(candles)
+        lowest = utl.get_lowest(candles)
         cur_stage = utl.get_stage(candles, cur.dt)
         cur_lowest = utl.get_lowest(cur_stage)
-        if (highest - cur_lowest) / (highest - lowest) < 0.618:
+        if (highest.high - cur_lowest.low) / (highest.high - lowest.low) < 0.618:
             return
 
         # 主体部分在零轴上方
@@ -41,10 +41,16 @@ class UAB(Strategy):
             if len(dbs) == 0:
                 continue
             sig = dbs[-1]
+            if sig.price > cur_lowest.low:
+                continue
+            sec = utl.get_section(xcs, sig.dt, cur.dt)
+            sec_lowest = utl.get_lowest(sec)
+            if sec_lowest.low < sig.price:
+                continue
             sig.source = self.__class__.__name__
             sig.value = self.freq
             sig.code = self.code
             self.signals.append(sig)
 
-    def deal(self, tick):
-        pass
+    def flush(self, tick):
+        return False
