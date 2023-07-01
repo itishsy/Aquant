@@ -54,13 +54,13 @@ def ticket_status(key=None):
 
 def watch_freq(key=None):
     if key is None:
-        return [(0, [15, 30.120]), (1, [5, 10, 15]), (2, [5, 10, 15])]
+        return [(0, [15, 30, 60]), (1, [5, 15]), (2, [5, 10, 15, 20])]
     if key == 0:
-        return [15, 30.120]
+        return [15, 30, 60]
     if key == 1:
-        return [5, 10, 15]
+        return [5, 15]
     if key == 2:
-        return [5, 10, 15]
+        return [5, 10, 15, 20]
     return []
 
 
@@ -91,17 +91,18 @@ def trade_comment(key=None):
         return '止盈'
     return 'undefined'
 
+
 def trade_strategy(key=None):
     if key is None:
-        return [('UAB', 'UAB'), ('PAB', 'PAB'), ('PBC', 'PBC'), ('DRC', 'DRC')]
+        return [('UAB', '趋势调整'), ('PAB', '平台调整'), ('PBC', '平台突破'), ('DRC', '底部反转')]
     if key == 'UAB':
-        return 'UAB'
+        return '趋势调整'
     if key == 'PAB':
-        return 'PAB'
+        return '平台调整'
     if key == 'PBC':
-        return 'PBC'
+        return '平台突破'
     if key == 'DRC':
-        return 'DRC'
+        return '底部反转'
     return 'undefined'
 
 

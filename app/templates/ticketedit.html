@@ -141,9 +141,18 @@
                     $("#cost").val(0.0)
                     $("#hold").val(0)
                     $("#dt").val(obj.dt)
+                    $("#cut").val(0)
+                    let a = new Date()
+                    let y = a.getFullYear()
+                    let m = (a.getMonth()+1) < 10?('0'+(a.getMonth()+1)): (a.getMonth()+1)
+                    let d = (a.getDate()<10)?('0'+a.getDate()):a.getDate()
+                    $("#created").val(y+'-'+m+'-'+d)
                     $(".strategy_select").val('PAB').select2();
-                    $(".buy_select").val(1).select2();
-                    $(".status_select").val(obj.status).select2();
+                    $(".buy_select").val('R30C5').select2();
+                    $(".watch_select").val("0").select2();
+                    $(".clean_select").val("3").select2();
+                    $(".source_select").val("HOT").select2();
+                    $(".status_select").val('0').select2();
                 }
             });
         }
