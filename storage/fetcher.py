@@ -49,11 +49,29 @@ def fetch_and_save(code, freq, begin='2015-01-01'):
         remark(code, freq, beg=beg)
 
 
+def double_merge(candles):
+    single_candles = candles.iloc[::2]  # 获取单行
+    double_candles = candles.iloc[1::2]  # 获取双行
+    for index, row in double_candles.iterrows():
+        single_row = single_candles.iloc[index]
+        row.open = single_row.open
+        if row.high < single_row.high:
+            row.high = single_row.high
+        if row.low > single_row.low:
+            row.low = single_row.low
+    return double_candles
+
+
 def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
+    d_flag = False
+    if freq == 10:
+        freq = 5
     df = ef.stock.get_quote_history(code, klt=freq, beg=begin)
     df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount', 'zf', 'zdf', 'zde',
                   'turnover']
     df.drop(['name', 'code', 'zf', 'zdf', 'zde'], axis=1, inplace=True)
+    if d_flag:
+        df = double_merge(df)
     candles = []
     for i, row in df.iterrows():
         row['freq'] = freq
