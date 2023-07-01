@@ -65,6 +65,7 @@ def double_merge(candles):
 def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
     d_flag = False
     if freq == 10:
+        d_flag = True
         freq = 5
     df = ef.stock.get_quote_history(code, klt=freq, beg=begin)
     df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount', 'zf', 'zdf', 'zde',
