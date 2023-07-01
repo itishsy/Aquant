@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
 from storage.dba import find_active_symbols,find_candles, get_symbol
-from models.signal import Signal
 from models.ticket import Ticket
 from models.choice import Choice
 import traceback
@@ -20,7 +19,6 @@ def register_strategy(cls):
 
 class Strategy(ABC):
     signals = []
-    trades = []
     code = None
     begin = None
     freq = 101
@@ -37,43 +35,44 @@ class Strategy(ABC):
             i = 1
             for code in codes:
                 print('[{}] [{}] [{}] searching... {}'.format(datetime.now(), code, self.__class__.__name__, i))
-
-                self.code = code
+                # 采样最近100根
                 candles = find_candles(code, self.freq, begin=self.begin, limit=self.limit)
                 if len(candles) < self.limit:
                     continue
 
+                self.code = code
                 ldt = candles[-1].dt
                 if ldt.find(':') > 0:
                     sdt = datetime.strptime(ldt, '%Y-%m-%d %H:%M')
                 else:
                     sdt = datetime.strptime(ldt, '%Y-%m-%d')
+                # 排除停牌的票
                 if (sdt + timedelta(5)) < datetime.now():
                     continue
 
                 self.search(candles)
-                if len(self.signals) > 0:
-                    self.upset_signals()
-                    print('[{}] [{}] signals: {}'.format(datetime.now(), self.__class__.__name__, len(self.signals)))
                 i = i + 1
+            self.upset_signals()
         except Exception as e:
             traceback.print_exc()
         finally:
             self.code = None
             self.signals.clear()
 
-    def deal_all(self):
+    def flush_all(self):
         try:
             tickets = Ticket.select().where(Ticket.status < 2)
             for tick in tickets:
-                self.deal(tick)
-                if len(self.trades) > 0:
-                    self.upset_trades()
+                if self.flush(tick):
+                    tick.status = 3
+                    tick.updated = datetime.now()
+                    tick.save()
         except Exception as e:
             traceback.print_exc()
 
     def upset_signals(self):
         if len(self.signals) > 0:
+            print('[{}] [{}] results: {}'.format(datetime.now(), self.__class__.__name__, len(self.signals)))
             for signal in self.signals:
                 try:
                     if not Choice.select().where(Choice.code == signal.code, Choice.freq == signal.freq, Choice.dt == signal.dt).exists():
@@ -87,12 +86,9 @@ class Strategy(ABC):
                         cho.created = datetime.now()
                         cho.updated = datetime.now()
                         cho.save()
+                        print('[{}] add signal: {}'.format(datetime.now(), signal.code))
                 except Exception as e:
                     traceback.print_exc()
-
-    def upset_trades(self):
-        pass
-
 
     def child_freq(self, freq=None):
         if freq is None:
@@ -137,5 +133,5 @@ class Strategy(ABC):
         pass
 
     @abstractmethod
-    def deal(self, tick):
-        pass
+    def flush(self, tick):
+        return False
