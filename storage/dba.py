@@ -101,9 +101,8 @@ def find_candles(code, freq, begin=None, end=None, limit=100) -> List[Candle]:
         select(Candle).where(clauses).order_by(desc(Candle.dt)).limit(limit)
     ).scalars().fetchall()
     session.close()
-
-
-
+    if flag10:
+        cds =[]
     return list(reversed(cds))
 
 
