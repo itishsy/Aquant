@@ -38,13 +38,13 @@ def choice_status(key=None):
 
 def ticket_status(key=None):
     if key is None:
-        return [(0, '观察'), (1, '盯盘'), (2, '交易'), (3, '剔除'), (4, '弃用')]
+        return [(0, '观察'), (1, '盯盘'), (2, '持有'), (3, '等待'), (4, '弃用')]
     if key == 0:
         return '观察'
     if key == 1:
         return '盯盘'
     if key == 2:
-        return '交易'
+        return '持有'
     if key == 3:
         return '等待'
     if key == 4:
@@ -54,7 +54,8 @@ def ticket_status(key=None):
 
 def watch_freq(key=None):
     if key is None:
-        return [(0, [15, 30, 60]), (1, [5, 10, 15]), (2, [5, 10, 15, 30, 60])]
+        return [(0, [15, 30, 60]), (1, [5, 10, 15]), (2, [5, 10, 15, 30, 60]), (3, [60, 120, 101]),
+                (4, [60, 120, 101, 102])]
     if key == 0:
         return [15, 30, 60]
     if key == 1:
@@ -63,18 +64,8 @@ def watch_freq(key=None):
         return [5, 10, 15, 30, 60]
     if key == 3:
         return [60, 120, 101]
-    return []
-
-
-def watch_level(key=None):
-    if key is None:
-        return [(0, [15, 30, 60]), (1, [5, 10, 15]), (2, [5, 10, 15, 20])]
-    if key == 0:
-        return [15, 30, 60]
-    if key == 1:
-        return [5, 15]
-    if key == 2:
-        return [5, 10, 15, 20]
+    if key == 4:
+        return [60, 120, 101, 102]
     return []
 
 

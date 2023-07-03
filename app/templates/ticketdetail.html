@@ -47,6 +47,8 @@
                             <td><label>观察级别</label></td>
                             <td><span type="text" >{{ticket.watch_text}}</span></td>
                         </tr>
+
+                        {% if ticket.status_text == "持有"%}
                         <tr>
                             <td><label>成本</label></td>
                             <td><span type="text" >{{ticket.cost}}</span></td>
@@ -63,6 +65,7 @@
                             <td><label>剔除</label></td>
                             <td><span type="text" >{{ticket.clean_text}}</span></td>
                         </tr>
+                        {% endif %}
                     </table>
                 </div>
                 <div class="col-md-3">

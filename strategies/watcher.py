@@ -88,16 +88,26 @@ def watch(ti: Ticket):
 
 
 def flush(ti: Ticket):
-    pass
+    if ti.status == 2:
+        return
+
+    fqs = watch_freq(4)
+    for fq in fqs:
+        cds = find_candles(ti.code, fq)
+        dts = diver_top(cds)
+        if len(dts) > 0:
+            Ticket.status = 4
+            Ticket.updated = datetime.now()
+            Ticket.save()
 
 
 def flush_all():
     try:
-        Component.update(status=2, run_start=datetime.now()).where(Component.name == 'watcher').execute()
-        tis = Ticket.select().where(Ticket.status < 3)
+        Component.update(status=2, run_start=datetime.now()).where(Component.name == 'flusher').execute()
+        tis = Ticket.select().where(Ticket.status < 4)
         for ti in tis:
             flush(ti)
-        Component.update(status=1, run_end=datetime.now()).where(Component.name == 'watcher').execute()
+        Component.update(status=1, run_end=datetime.now()).where(Component.name == 'flusher').execute()
     except Exception as e:
         traceback.print_exc()
     finally:
@@ -118,20 +128,19 @@ def watch_all():
         print('[{}] watch all done !'.format(datetime.now()))
 
 
-def daily_watch():
-    print('[{}] watcher start'.format(datetime.now()))
-    while True:
-        now = datetime.now()
-        try:
-            Component.update(status=1, clock_time=now).where(Component.name == 'watcher').execute()
-            if is_trade_time():
-                watch_all()
-        except Exception as e:
-            print(e)
-        finally:
-            time.sleep(60 * 15)
+# def daily_watch():
+#     print('[{}] watcher start'.format(datetime.now()))
+#     while True:
+#         now = datetime.now()
+#         try:
+#             Component.update(status=1, clock_time=now).where(Component.name == 'watcher').execute()
+#             if is_trade_time():
+#                 watch_all()
+#         except Exception as e:
+#             print(e)
+#         finally:
+#             time.sleep(60 * 15)
 
 
 if __name__ == '__main__':
-    # watch_all()
-    daily_watch()
+    watch_all()
