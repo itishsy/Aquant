@@ -55,7 +55,6 @@ def double_merge(candles):
     single_candles.reset_index(drop=True, inplace=True)
     double_candles.reset_index(drop=True, inplace=True)
     for index, row in double_candles.iterrows():
-        print('===', index)
         single_row = single_candles.iloc[index]
         row.open = single_row.open
         if row.high < single_row.high:

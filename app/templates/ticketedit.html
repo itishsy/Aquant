@@ -134,7 +134,7 @@
             let code = $(obj).val()
             restTemplate("GET", '/load_ticket?code=' + code, null, function (obj) {
                 if (obj.id > 0) {
-                    location.href = '{{ url_for("main.ticket_edit") }}' + '?id=' + obj.id
+                    location.href = '{{ url_for("main.ticket_detail") }}' + '?id=' + obj.id
                 } else if (obj.id === 0){
                     $("#name").val(obj.name)
                     $("#freq").val(obj.freq)

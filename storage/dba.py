@@ -59,7 +59,7 @@ class DBA:
 
 dba = DBA()
 
-freqs = [102, 101, 60, 30]
+freqs = [102, 101, 120, 60, 30]
 
 
 def fetch_symbols():

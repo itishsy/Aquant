@@ -59,70 +59,63 @@ def now_hm():
     return hm
 
 
-def deal(ti: Ticket):
-    fqs = freq_level(ti.watch)
+def watch(ti: Ticket):
+    sta = ti.status
+    if sta > 2:
+        return
+
+    fqs = watch_freq(sta)
     for fq in fqs:
-        if fq > 100 and now_hm() < 1430:
+        fetch_and_save(ti.code, fq)
+        cds = find_candles(ti.code, fq)
+        if len(cds) < 50:
             continue
 
-        fetch_and_save(ti.code, fq)
-        cds = find_candles(ti.code, fq)
-        if len(cds) < 50:
-            return
-        ldt = dt_format(cds[-1].dt)
-        dbs = diver_bottom(cds)
-        if len(dbs) > 0:  # and sis[-1].dt >= ldt:
-            si = dbs[-1]
-            print('buy code:{} freq:{},size:{}'.format(ti.code, fq, len(dbs)))
-            if not Signal.select().where(Signal.code == ti.code, Signal.dt >= si.dt).exists():
-                Signal.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, status=1, price=si.value,
-                              created=datetime.now())
-        dts = diver_top(cds)
-        if len(dts) > 0:  # and sis[-1].dt >= ldt:
-            si = dts[-1]
-            print('sell code:{} freq:{},size:{}'.format(ti.code, fq, len(dts)))
-            if not Signal.select().where(Signal.code == ti.code, Signal.dt >= si.dt).exists():
-                Signal.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=1, status=1, price=si.value,
-                              created=datetime.now())
-
-
-def watch(ti: Ticket):
-    fqs = watch_freq(ti.status)
-    for fq in fqs:
-        fetch_and_save(ti.code, fq)
-        cds = find_candles(ti.code, fq)
-        if len(cds) < 50:
-            return
         dbs = diver_bottom(cds)
         if len(dbs) > 0:
             si = dbs[-1]
             print('buy code:{} freq:{},size:{}'.format(ti.code, fq, len(dbs)))
-            if not Signal.select().where(Signal.code == ti.code, Signal.dt >= si.dt).exists():
+            if not Signal.select().where(Signal.code == ti.code, Signal.freq == si.freq, Signal.dt == si.dt).exists():
                 Signal.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, status=1, price=si.value,
                               created=datetime.now())
         dts = diver_top(cds)
         if len(dts) > 0:
             si = dts[-1]
             print('sell code:{} freq:{},size:{}'.format(ti.code, fq, len(dts)))
-            if not Signal.select().where(Signal.code == ti.code, Signal.dt >= si.dt).exists():
+            if not Signal.select().where(Signal.code == ti.code, Signal.freq == si.freq, Signal.dt == si.dt).exists():
                 Signal.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=1, status=1, price=si.value,
                               created=datetime.now())
 
 
+def flush(ti: Ticket):
+    pass
+
+
+def flush_all():
+    try:
+        Component.update(status=2, run_start=datetime.now()).where(Component.name == 'watcher').execute()
+        tis = Ticket.select().where(Ticket.status < 3)
+        for ti in tis:
+            flush(ti)
+        Component.update(status=1, run_end=datetime.now()).where(Component.name == 'watcher').execute()
+    except Exception as e:
+        traceback.print_exc()
+    finally:
+        print('[{}] flush all done !'.format(datetime.now()))
+
 
 def watch_all():
-    tickets = []
     try:
         Component.update(status=2, run_start=datetime.now()).where(Component.name == 'watcher').execute()
         tis = Ticket.select().where(Ticket.status < 3)
         print('[{}] watch deal size:{}'.format(datetime.now(), len(tis)))
         for ti in tis:
-            deal(ti)
+            watch(ti)
         Component.update(status=1, run_end=datetime.now()).where(Component.name == 'watcher').execute()
     except Exception as e:
         traceback.print_exc()
     finally:
-        return tickets
+        print('[{}] watch all done !'.format(datetime.now()))
 
 
 def daily_watch():
