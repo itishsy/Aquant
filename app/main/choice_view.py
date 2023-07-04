@@ -13,6 +13,7 @@ from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
 from storage.dba import get_symbol, find_candles
 from common.dicts import choice_strategy, choice_status, freq_level
+from common.utils import now_ymd
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -27,7 +28,7 @@ def choice_list():
     # 查询列表
     today = request.args.get('today')
     if today:
-        last_day = find_candles('000001', 101, limit=1)[0].dt
+        last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
         query = Choice.select().where(Choice.status == 1, Choice.created >= last_day)
         total_count = query.count()
     else:

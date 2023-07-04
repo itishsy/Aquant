@@ -75,14 +75,14 @@ def watch(ti: Ticket):
         if len(dbs) > 0:
             si = dbs[-1]
             print('buy code:{} freq:{},size:{}'.format(ti.code, fq, len(dbs)))
-            if not Signal.select().where(Signal.code == ti.code, Signal.freq == si.freq, Signal.dt == si.dt).exists():
+            if not Signal.select().where(Signal.code == ti.code, Signal.freq == si.freq, Signal.dt >= si.dt).exists():
                 Signal.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=0, status=1, price=si.value,
                               created=datetime.now())
         dts = diver_top(cds)
         if len(dts) > 0:
             si = dts[-1]
             print('sell code:{} freq:{},size:{}'.format(ti.code, fq, len(dts)))
-            if not Signal.select().where(Signal.code == ti.code, Signal.freq == si.freq, Signal.dt == si.dt).exists():
+            if not Signal.select().where(Signal.code == ti.code, Signal.freq == si.freq, Signal.dt >= si.dt).exists():
                 Signal.create(code=ti.code, name=ti.name, freq=fq, dt=si.dt, type=1, status=1, price=si.value,
                               created=datetime.now())
 
@@ -96,7 +96,10 @@ def flush(ti: Ticket):
         cds = find_candles(ti.code, fq)
         dts = diver_top(cds)
         if len(dts) > 0:
-            Ticket.status = 4
+            if ti.status < 3:
+                Ticket.status = 3
+            else:
+                Ticket.status = 4
             Ticket.updated = datetime.now()
             Ticket.save()
 

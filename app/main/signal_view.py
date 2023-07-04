@@ -12,6 +12,7 @@ from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
 from storage.dba import find_candles
 from common.dicts import trade_type, single_source
+from common.utils import now_ymd
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -49,7 +50,7 @@ def signallist():
     # 查询列表
     today = request.args.get('today')
     if today and today != 'None':
-        last_day = find_candles('000001', 101, limit=1)[0].dt
+        last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
         query = Signal.select().where(Signal.status > 0, Signal.created >= last_day).order_by(Signal.created.desc())
         total_count = query.count()
     else:

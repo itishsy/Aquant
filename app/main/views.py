@@ -10,6 +10,7 @@ from models.trade import Trade
 from models.choice import Choice
 from datetime import datetime
 from storage.dba import find_candles
+from common.utils import now_ymd
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -90,10 +91,10 @@ def index():
 @login_required
 def summary():
     c_size = Choice.select().where(Choice.status == 1).count()
-    today = find_candles('000001', 101, limit=1)[0].dt
+    today = now_ymd()
     c_today_size = Choice.select().where(Choice.created >= today, Choice.status == 1).count()
-    ti_size = Ticket.select().where(Ticket.status < 3).count()
-    ti_today_size = Ticket.select().where(Ticket.status > 0, Ticket.status < 3).count()
+    ti_size = Ticket.select().where(Ticket.status < 4).count()
+    ti_today_size = Ticket.select().where(Ticket.created >= today).count()
     s_size = Signal.select().where(Signal.status == 1).count()
     s_today_size = Signal.select().where(Signal.status == 1, Signal.created >= today).count()
     tr_size = Trade.select().where(Trade.status > 0).count()

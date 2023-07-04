@@ -18,9 +18,9 @@
             <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-fuchsia">
                     <div class="inner">
-                        <a style="color: yellow" href="{{ url_for('main.ticket_list') }}"><h3 id="ti_size">0</h3></a>
-                        <p>票池（今日新增:<a style="color: yellow" href="{{ url_for('main.ticket_list',today=1 ) }}">
-                        <span id="ti_today_size">0</span>）</a></p>
+                        <a style="color: yellow" href="{{ url_for('main.ticket_list',today=1) }}"><h3 id="ti_today_size">0</h3></a>
+                        <p>今日新增（票据池:<a style="color: yellow" href="{{ url_for('main.ticket_list' ) }}">
+                        <span id="ti_size">0</span>）</a></p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-person-add"></i>
@@ -54,8 +54,9 @@
             <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-red">
                     <div class="inner">
-                        <a style="color: yellow"  href="{{ url_for('main.tradelist') }}"><h3 id="tr_size">0</h3></a>
-                        <p>已交易</p>
+                        <a style="color: yellow"  href="{{ url_for('main.tradelist',today=1) }}"><h3 id="tr_today_size">0</h3></a>
+                        <p>今日交易（已交易:<a href="{{ url_for('main.tradelist') }}">
+                        <span id="tr_size">0</span>）</a></p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-ios-gear-outline"></i>
@@ -83,6 +84,7 @@
             $("#ti_size").text(jsOutObj.ti_size);
             $("#ti_today_size").text(jsOutObj.ti_today_size);
             $("#tr_size").text(jsOutObj.tr_size);
+            $("#tr_today_size").text(jsOutObj.tr_today_size);
         });
     }
 </script>

@@ -13,6 +13,7 @@ from wtforms import StringField, SubmitField, SelectField, DecimalField, Integer
 from wtforms.validators import DataRequired, Length
 from common.dicts import freq_level, ticket_status, choice_strategy, trade_strategy, buy_type
 from storage.dba import find_candles,get_symbol
+from common.utils import now_ymd
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -42,7 +43,7 @@ def ticket_list():
     today = request.args.get('today')
     sea = request.args.get('sea')
     if today and today != 'None':
-        last_day = find_candles('000001', 101, limit=1)[0].dt
+        last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
         query = Ticket.select().where(Ticket.status < 3, Ticket.created > last_day).order_by(Ticket.hold.desc())
         total_count = query.count()
     elif sea and sea != 'None':
