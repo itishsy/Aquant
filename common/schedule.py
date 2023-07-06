@@ -19,6 +19,10 @@ def is_trade_day():
     return now.weekday() < 5
 
 
+def is_trade_time():
+    return is_trade_day() and 930 < now_val() < 1510
+
+
 def no_done_today(comp):
     fet = Component.get(Component.name == comp)
     return fet.run_end.day < datetime.now().day
@@ -44,7 +48,10 @@ def daily_task():
             print(e)
         finally:
             if is_trade_day():
-                time.sleep(60 * 5)
+                if is_trade_time():
+                    time.sleep(60 * 5)
+                else:
+                    time.sleep(60 * 60)
             else:
                 time.sleep(60 * 60 * 3)
 

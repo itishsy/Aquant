@@ -16,7 +16,7 @@ class Signal(BaseModel):
     freq = CharField()  # 信号级别
     dt = CharField()  # 发生时间
     source = CharField()  # 信号源：背离、背驰、量价背离、放量
-    status = IntegerField(default=0)  # 状态 0 未成交 1 已成交
+    status = IntegerField(default=1)  # 状态 0 忽略 1 确认
     price = DecimalField()  # 时价
     notify = IntegerField(default=0)  # 通知 0 未通知， 1 已通知
     created = DateTimeField()

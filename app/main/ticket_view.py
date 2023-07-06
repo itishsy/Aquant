@@ -135,7 +135,7 @@ def ticket_detail():
             if (t == 'jia' or t == 'pin') and ticket.hold < 100:
                 flash('持有量不足，无法交易')
 
-            sis = Signal.select().where(Signal.code == ticket.code).order_by(Signal.dt.desc()).limit(1)
+            sis = Signal.select().where(Signal.code == ticket.code, Signal.status == 1).order_by(Signal.dt.desc()).limit(1)
             si = sis[-1]
             tr = Trade()
             tr.code = si.code
@@ -170,7 +170,7 @@ def ticket_detail():
             ticket.status_text = ticket_status(ticket.status)
             ticket.watch_text = freq_level(ticket.watch)
             ticket.clean_text = freq_level(ticket.clean)
-            s_query = Signal.select().where(Signal.code == ticket.code).order_by(Signal.dt.desc()).limit(5)
+            s_query = Signal.select().where(Signal.code == ticket.code, Signal.status == 1).order_by(Signal.dt.desc()).limit(5)
             t_query = Trade.select().where(Trade.code == ticket.code).order_by(Trade.dt.desc()).limit(5)
             singles = utils.query_to_list(s_query)
             trades = utils.query_to_list(t_query)

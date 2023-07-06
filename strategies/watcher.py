@@ -97,11 +97,11 @@ def flush(ti: Ticket):
         dts = diver_top(cds)
         if len(dts) > 0:
             if ti.status < 3:
-                Ticket.status = 3
+                ti.status = 3
             else:
-                Ticket.status = 4
-            Ticket.updated = datetime.now()
-            Ticket.save()
+                ti.status = 4
+            ti.updated = datetime.now()
+            ti.save()
 
 
 def flush_all():

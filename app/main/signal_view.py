@@ -5,12 +5,10 @@ from flask_login import login_required, current_user
 from app import utils
 from . import main
 from models.signal import Signal
-from models.ticket import Ticket
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
-from storage.dba import find_candles
 from common.dicts import trade_type, single_source
 from common.utils import now_ymd
 
