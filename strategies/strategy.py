@@ -32,7 +32,7 @@ class Strategy(ABC):
                 for sym in symbols:
                     codes.append(sym.code)
 
-            i = 1
+            i = 0
             for code in codes:
                 print('[{}] [{}] [{}] searching... {}'.format(datetime.now(), code, self.__class__.__name__, i))
                 # 采样最近100根
@@ -89,6 +89,8 @@ class Strategy(ABC):
                         print('[{}] add signal: {}'.format(datetime.now(), signal.code))
                 except Exception as e:
                     traceback.print_exc()
+        else:
+            print('no signal')
 
     def child_freq(self, freq=None):
         if freq is None:

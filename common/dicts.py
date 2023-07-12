@@ -36,18 +36,26 @@ def choice_status(key=None):
     return 'undefined'
 
 
+class TICKET_ENGINE:
+    WAIT = 3
+    WATCH = 0
+    DEAL = 1
+    HOLD = 2
+    KICK = 4
+
+
 def ticket_status(key=None):
     if key is None:
-        return [(0, '观察'), (1, '盯盘'), (2, '持有'), (3, '等待'), (4, '弃用')]
-    if key == 0:
+        return [(TICKET_ENGINE.WATCH, '观察'), (TICKET_ENGINE.DEAL, '操作'), (TICKET_ENGINE.HOLD, '持有'), (TICKET_ENGINE.WAIT, '等待'), (TICKET_ENGINE.KICK, '弃用')]
+    if key == TICKET_ENGINE.WATCH:
         return '观察'
-    if key == 1:
-        return '盯盘'
-    if key == 2:
+    if key == TICKET_ENGINE.DEAL:
+        return '操作'
+    if key == TICKET_ENGINE.HOLD:
         return '持有'
-    if key == 3:
+    if key == TICKET_ENGINE.WAIT:
         return '等待'
-    if key == 4:
+    if key == TICKET_ENGINE.KICK:
         return '弃用'
     return 'undefined'
 
