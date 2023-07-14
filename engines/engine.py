@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
-from storage.dba import find_active_symbols, find_candles, get_symbol
 from models.ticket import Ticket
 from models.signal import Signal
 from common.dicts import TICKET_ENGINE
+from signals.bs_signal import find_b_signal, find_s_signal
 import traceback
 
 factory = {}
@@ -26,12 +26,15 @@ class Engine(ABC):
         for tick in bss:
             self.ticket = tick
             try:
-                status = tick.status
-                self.goto_watch()
-                self.goto_deal()
-                self.goto_wait()
-                self.goto_kick()
-                if status != self.ticket.status:
+                if tick.status == TICKET_ENGINE.WAIT:
+                    self.do_wait()
+                    self.do_kick()
+                elif tick.status == TICKET_ENGINE.WATCH:
+                    self.do_watch()
+                elif tick.status == TICKET_ENGINE.DEAL or tick.status == TICKET_ENGINE.HOLD:
+                    self.do_deal()
+
+                if tick.status != self.ticket.status:
                     self.ticket.updated = datetime.now()
                     self.ticket.save()
             except Exception as e:
@@ -65,6 +68,20 @@ class Engine(ABC):
         if self.ticket.status == TICKET_ENGINE.WAIT:
             if self.is_kick():
                 self.ticket.status = TICKET_ENGINE.KICK
+
+    def do_wait(self):
+        bs= find_b_signal(self.ticket.code, self.get_freq())
+
+        pass
+
+    def do_watch(self):
+        pass
+
+    def do_deal(self):
+        pass
+
+    def do_kick(self):
+        pass
 
     @abstractmethod
     def get_freq(self):
