@@ -24,8 +24,8 @@ class Engine(ABC):
     def start(self):
         bss = Ticket.select().where(Ticket.status != TICKET_ENGINE.KICK)
         for tick in bss:
-            self.ticket = tick
             try:
+                self.ticket = tick
                 if tick.status == TICKET_ENGINE.WAIT:
                     self.do_wait()
                     self.do_kick()
@@ -33,46 +33,36 @@ class Engine(ABC):
                     self.do_watch()
                 elif tick.status == TICKET_ENGINE.DEAL or tick.status == TICKET_ENGINE.HOLD:
                     self.do_deal()
-
-                if tick.status != self.ticket.status:
-                    self.ticket.updated = datetime.now()
-                    self.ticket.save()
+                self.ticket = None
             except Exception as e:
                 traceback.print_exc()
             finally:
-                ticket = None
-
-    def goto_watch(self):
-        if self.ticket.status == TICKET_ENGINE.WAIT:
-            signal = self.find_buy_signal()
-            if signal is not None:
-                self.ticket.status = TICKET_ENGINE.WATCH
-
-    def goto_wait(self):
-        if self.ticket.status == TICKET_ENGINE.WATCH:
-            signal = self.find_sell_signal()
-            if signal is not None:
-                self.ticket.status = TICKET_ENGINE.WAIT
-        elif self.ticket.status == TICKET_ENGINE.DEAL:
-            signal = self.find_sell_point()
-            if signal is not None:
-                self.ticket.status = TICKET_ENGINE.WAIT
-
-    def goto_deal(self):
-        if self.ticket.status == TICKET_ENGINE.WATCH:
-            signal = self.find_buy_point()
-            if signal is not None:
-                self.ticket.status = TICKET_ENGINE.DEAL
-
-    def goto_kick(self):
-        if self.ticket.status == TICKET_ENGINE.WAIT:
-            if self.is_kick():
-                self.ticket.status = TICKET_ENGINE.KICK
+                self.ticket = None
 
     def do_wait(self):
-        bs= find_b_signal(self.ticket.code, self.get_freq())
-
-        pass
+        freq = self.get_freq()
+        bs = find_b_signal(self.ticket.code, freq)
+        if bs:
+            sis = Signal.select().where(Signal.code == self.ticket.code).order_by(
+                Signal.dt.desc()).limit(1)
+            if sis:
+                si = sis[-1]
+                if bs.dt > si.dt:
+                    self.ticket.strategy = self.get_strategy()
+                    self.ticket.buy = freq
+                    self.ticket.status = TICKET_ENGINE.WATCH
+                    self.ticket.cut = bs.price
+                    self.ticket.updated = datetime.now()
+                    self.ticket.save()
+            else:
+                bs.type = 0
+                bs.code = self.ticket.code
+                bs.name = self.ticket.name
+                bs.created = datetime.now()
+                bs.save()
+        ss = find_s_signal(self.ticket.code, freq)
+        if ss:
+            self.ticket.status = TICKET_ENGINE.KICK
 
     def do_watch(self):
         pass

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
-from storage.dba import find_active_symbols,find_candles, get_symbol
+from storage.dba import find_active_symbols, find_candles, get_symbol
 from models.ticket import Ticket
 from models.choice import Choice
 import traceback
@@ -75,7 +75,8 @@ class Strategy(ABC):
             print('[{}] [{}] results: {}'.format(datetime.now(), self.__class__.__name__, len(self.signals)))
             for signal in self.signals:
                 try:
-                    if not Choice.select().where(Choice.code == signal.code, Choice.freq == signal.freq, Choice.dt == signal.dt).exists():
+                    if not Choice.select().where(Choice.code == signal.code, Choice.freq == signal.freq,
+                                                 Choice.dt == signal.dt).exists():
                         cho = Choice()
                         cho.code = signal.code
                         cho.freq = signal.freq

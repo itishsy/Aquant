@@ -29,7 +29,8 @@ def diver_top(candles: List[Candle]) -> List[Signal]:
                 high2 = utl.get_highest(up_stage1).high
                 high0 = utl.get_highest(up_stage2).high
                 if c_2.diff() > c_0.diff() and high2 < high0:
-                    signals.append(Signal(dt=c_0.dt, freq=c_0.freq, price=c_0.low, type='top_divergence', value=c_0.close))
+                    signals.append(
+                        Signal(dt=c_0.dt, freq=c_0.freq, price=c_0.low, source='diver_bottom', value=c_0.close))
     return signals
 
 
@@ -59,7 +60,8 @@ def diver_bottom(candles: List[Candle]) -> List[Signal]:
                     low1 = utl.get_lowest(down_stage1).low
                     low2 = utl.get_lowest(down_stage2).low
                     if c_2.diff() < c_0.diff() and low1 > low2:
-                        signals.append(Signal(dt=c_0.dt, freq=c_0.freq, price=c_0.low, strategy='bottom_divergence', value=c_0.close))
+                        signals.append(
+                            Signal(dt=c_0.dt, freq=c_0.freq, source='diver_bottom', price=c_0.low, value=c_0.close))
     return signals
 
 
@@ -74,10 +76,10 @@ def shape_top(candles: List[Candle]) -> List[Signal]:
     size = len(candles)
     for i in range(1, size):
         if candles[i].dt == highest.dt:
-            if i+1 < size:
+            if i + 1 < size:
                 top = candles[i]
-                l1 = candles[i-1]
-                r1 = candles[i+1]
+                l1 = candles[i - 1]
+                r1 = candles[i + 1]
                 if l1.high < top.high < r1.high and l1.low < top.low < r1.low:
                     signals.append(Signal(dt=top.dt, freq=top.freq, type='shape_top', value=top.mark))
             break
