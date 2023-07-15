@@ -1,7 +1,5 @@
 from storage.candle import Candle
 from typing import List
-from storage.fetcher import fetch_data
-from storage.marker import mark
 
 
 def get_top_bottom(candles: List[Candle]):
@@ -17,6 +15,30 @@ def get_top_bottom(candles: List[Candle]):
         if abs(cd.mark) == 3:
             tbc.append(cd)
     return tbc
+
+
+def get_next_top(candles: List[Candle], dt):
+    flag = False
+    for cd in candles:
+        if cd.mark is None:
+            return None
+        if cd.dt == dt:
+            flag = True
+        if flag and cd.mark == 3:
+            return cd
+    return None
+
+
+def get_next_bottom(candles: List[Candle], dt):
+    flag = False
+    for cd in candles:
+        if cd.mark is None:
+            return None
+        if cd.dt == dt:
+            flag = True
+        if flag and cd.mark == -3:
+            return cd
+    return None
 
 
 def get_lowest(candles: List[Candle]):
@@ -230,5 +252,5 @@ def average(candles: List[Candle]):
 #     sis = diver_bottom(cds)
 #     for si in sis:
 #         print(si.dt)
-    # for cd in cds:
-    #     print(cd)
+# for cd in cds:
+#     print(cd)
