@@ -41,54 +41,76 @@ class Engine(ABC):
             finally:
                 self.ticket = None
 
+    def save_signal(self, signal):
+        signal.code = self.ticket.code
+        signal.name = self.ticket.name
+        signal.type = 0  # 买入
+        signal.stage = 0  # 买入信号
+        signal.status = signal.status if signal.status > 0 else 0  # 待确定
+        signal.updated = datetime.now()
+        signal.save()
+
     def do_wait(self):
         freq = self.get_freq()
         b_signal = find_b_signal(self.ticket.code, freq)
-        if b_signal:
+        if b_signal is not None:
             sis = Signal.select().where(Signal.code == self.ticket.code, Signal.stage == 0).order_by(
                 Signal.dt.desc()).limit(1)
-            if len(sis) > 0:
-                si = sis[-1]
-                if b_signal.dt == si.dt and b_signal.freq == freq:
-                    # 信号已保存过，检查有效性，更新有效性
-                    if si.status == 0:
+            # 获取上一个信号
+            pre_signal = sis[-1] if len(sis) > 0 else None
+            if pre_signal is None:
+                # 上一个信号不存在，直接新建一个信号，状态为“待定”
+                b_signal.created = datetime.now()
+                self.save_signal(b_signal)
+            elif pre_signal.type == 1:
+                #  上一个是卖出信号，比买入信号的级别大，且买入信号处在卖出信号后的向下阶段，则认为是无效的
+                if pre_signal.freq > b_signal.freq:
+                    candles = find_candles(self.ticket.code, pre_signal.freq)
+                    p_bottom = get_next_bottom(candles, pre_signal.dt)
+                    if p_bottom.dt > b_signal.dt:
+                        b_signal.effect = 0
+                        b_signal.status = 1
+                b_signal.created = datetime.now()
+                self.save_signal(b_signal)
+            else:
+                if b_signal.dt == pre_signal.dt and b_signal.freq == freq:
+                    # 如果信号已保存过，status未确认（0），则需要更新有效性
+                    if pre_signal.status == 0:
+                        # 信号发出后，检查向上反弹的一段，如果上穿突破0轴，则认为信号是有效的。
                         candles = find_candles(self.ticket.code, freq)
-                        # 获取信号发出后一段的顶部
                         top = get_next_top(candles, b_signal.dt)
-                        can = candles[-1]
-                        if top:
-                            # 顶部突破0轴，认为是有效的
+                        if top is not None:
                             if top.diff() > 0:
-                                si.effect = 1
-                                si.status = 1
+                                pre_signal.effect = 1
+                                pre_signal.status = 1
+                                self.save_signal(pre_signal)
                             else:
-                                si.effect = 0
-                                si.status = 1
+                                # 如果顶部拐点未突破0轴，且向下破前低，表示信号破坏
+                                bottom = get_next_bottom(candles, top.dt)
+                                lowest = get_lowest(get_stage(candles, bottom.dt))
+                                if lowest.low < pre_signal.price:
+                                    pre_signal.effect = 2  # 破坏
+                                    pre_signal.status = 1
+                                    self.save_signal(pre_signal)
                         else:
-                            # 反弹未见顶，拿最后一根来判断
+                            # 未出现顶部拐点，可能还处在上升期，拿最后一根来判断
+                            can = candles[-1]
                             if can.diff() > 0:
-                                si.effect = 1
-                                si.status = 1
-
-
-
-                elif b_signal.dt > si.dt:
+                                last_b_signal.effect = 1
+                                last_b_signal.status = 1
+                                last_b_signal.updated = datetime.now()
+                                last_b_signal.save()
+                elif b_signal.dt > last_b_signal.dt:
+                    candles = find_candles(self.ticket.code, freq)
+                    # 跟最新存的信息比较。先取两者之间的candles
+                    section = get_section(candles, si.dt, b_signal.dt)
                     # 保存新信号
                     self.ticket.strategy = self.get_strategy()
                     self.ticket.buy = freq
                     self.ticket.status = TICKET_ENGINE.WATCH
-                    self.ticket.cut = bs.price
+                    self.ticket.cut = b_signal.price
                     self.ticket.updated = datetime.now()
                     self.ticket.save()
-            else:
-                bs.type = 0
-                bs.code = self.ticket.code
-                bs.name = self.ticket.name
-                bs.created = datetime.now()
-                bs.save()
-        ss = find_s_signal(self.ticket.code, freq)
-        if ss:
-            self.ticket.status = TICKET_ENGINE.KICK
 
     def do_watch(self):
         pass
@@ -97,7 +119,10 @@ class Engine(ABC):
         pass
 
     def do_kick(self):
-        pass
+        freq = self.get_freq()
+        ss = find_s_signal(self.ticket.code, freq)
+        if ss:
+            self.ticket.status = TICKET_ENGINE.KICK
 
     @abstractmethod
     def get_freq(self):
