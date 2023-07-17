@@ -12,6 +12,7 @@ from decimal import Decimal
 @register_strategy
 class UAB15(Strategy):
 
+
     def search(self, candles: List[Candle]):
         size = len(candles)
         if size < 80:
