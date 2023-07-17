@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
-from storage.dba import find_active_symbols,find_candles, get_symbol
+from storage.dba import find_active_symbols, find_candles, get_symbol
 from models.ticket import Ticket
 from models.choice import Choice
 import traceback
@@ -59,23 +59,13 @@ class Strategy(ABC):
             self.code = None
             self.signals.clear()
 
-    def flush_all(self):
-        try:
-            tickets = Ticket.select().where(Ticket.status < 2)
-            for tick in tickets:
-                if self.flush(tick):
-                    tick.status = 3
-                    tick.updated = datetime.now()
-                    tick.save()
-        except Exception as e:
-            traceback.print_exc()
-
     def upset_signals(self):
         if len(self.signals) > 0:
             print('[{}] [{}] results: {}'.format(datetime.now(), self.__class__.__name__, len(self.signals)))
             for signal in self.signals:
                 try:
-                    if not Choice.select().where(Choice.code == signal.code, Choice.freq == signal.freq, Choice.dt == signal.dt).exists():
+                    if not Choice.select().where(Choice.code == signal.code, Choice.freq == signal.freq,
+                                                 Choice.dt == signal.dt).exists():
                         cho = Choice()
                         cho.code = signal.code
                         cho.freq = signal.freq
@@ -134,6 +124,3 @@ class Strategy(ABC):
     def search(self, candles):
         pass
 
-    @abstractmethod
-    def flush(self, tick):
-        return False
