@@ -59,17 +59,6 @@ class Strategy(ABC):
             self.code = None
             self.signals.clear()
 
-    def flush_all(self):
-        try:
-            tickets = Ticket.select().where(Ticket.status < 2)
-            for tick in tickets:
-                if self.flush(tick):
-                    tick.status = 3
-                    tick.updated = datetime.now()
-                    tick.save()
-        except Exception as e:
-            traceback.print_exc()
-
     def upset_signals(self):
         if len(self.signals) > 0:
             print('[{}] [{}] results: {}'.format(datetime.now(), self.__class__.__name__, len(self.signals)))
@@ -135,6 +124,3 @@ class Strategy(ABC):
     def search(self, candles):
         pass
 
-    @abstractmethod
-    def flush(self, tick):
-        return False
