@@ -167,5 +167,5 @@ def fetch_daily():
 
 
 if __name__ == '__main__':
-    fetch_daily()
-    # fetch_all(freq=101)
+    # fetch_daily()
+    fetch_all()
