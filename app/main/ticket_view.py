@@ -136,7 +136,14 @@ def ticket_detail():
                 flash('持有量不足，无法交易')
 
             sis = Signal.select().where(Signal.code == ticket.code, Signal.status == 1).order_by(Signal.dt.desc()).limit(1)
-            si = sis[-1]
+            if len(sis) > 0:
+                si = sis[-1]
+            else:
+                si = Signal()
+                si.code = ticket.code
+                si.name = ticket.name
+                si.freq = 1
+                si.price = 1
             tr = Trade()
             tr.code = si.code
             tr.name = si.name

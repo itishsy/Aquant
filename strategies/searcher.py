@@ -40,5 +40,5 @@ def search_all(sta=None):
 
 
 if __name__ == '__main__':
-    daily_search()
-    # search_all()
+    # daily_search()
+    search_all()

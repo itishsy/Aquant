@@ -37,21 +37,18 @@ def daily_task():
                 nv = now_val()
                 if 930 < nv < 1530:
                     watch_all()
-                elif 1600 < nv < 1800 and no_done_today('fetcher'):
+                elif 1531 < nv < 1800 and no_done_today('fetcher'):
                     fetch_all()
-                elif 1800 < nv < 2000 and no_done_today('searcher'):
+                elif 1801 < nv < 2100 and no_done_today('searcher'):
                     search_all()
-                elif 2100 < nv < 2300 and no_done_today('flusher'):
-                    flush_all()
-            do_send()
         except Exception as e:
             print(e)
         finally:
             if is_trade_day():
                 if is_trade_time():
-                    time.sleep(60 * 5)
+                    time.sleep(60 * 10)
                 else:
-                    time.sleep(60 * 60)
+                    time.sleep(60 * 30)
             else:
                 time.sleep(60 * 60 * 3)
 
