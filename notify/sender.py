@@ -40,4 +40,4 @@ if __name__ == '__main__':
         except Exception:
             traceback.print_exc()
         finally:
-            time.sleep(60 * 5)
+            time.sleep(60 * 15)

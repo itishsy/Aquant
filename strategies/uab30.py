@@ -5,7 +5,7 @@ from signals.divergence import diver_bottom, diver_top
 from storage.candle import Candle
 from models.choice import Choice
 from typing import List
-from decimal import Decimal
+from signals.utils import get_stage, get_lowest
 
 
 @register_strategy
@@ -34,13 +34,13 @@ class UAB15(Strategy):
 
         # 最近的50根出现过涨停
         j = len(candles) - 50
-        flag = True
+        counter = 0
         while j < len(candles):
             if (candles[j].close - candles[j - 1].close) / candles[j - 1].close > 0.095:
-                flag = False
-                break
+                counter = counter + 1
             j = j + 1
-        if flag:
+
+        if counter < 2:
             return
 
         # 发生30分钟低背离
@@ -49,6 +49,10 @@ class UAB15(Strategy):
         if len(s30) > 0:
             # 30分钟回调中
             sig = s30[-1]
+            low = get_lowest(get_stage(candles, cur.dt)).low
+            if low < sig.price:
+                return
+
             if not Choice.select().where(Choice.code == sig.code, Choice.freq == 30,
                                          Choice.dt == sig.dt).exists():
                 cur_time = datetime.strptime(cur.dt, '%Y-%m-%d')

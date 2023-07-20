@@ -2,8 +2,6 @@ from datetime import datetime
 from storage.fetcher import fetch_all
 from strategies.watcher import watch_all
 from strategies.searcher import search_all
-from strategies.watcher import flush_all
-from notify.sender import do_send
 from models.component import Component
 import time
 
@@ -35,12 +33,16 @@ def daily_task():
             Component.update(status=1, clock_time=datetime.now()).execute()
             if is_trade_day():
                 nv = now_val()
-                if 930 < nv < 1530:
-                    watch_all()
-                elif 1531 < nv < 1800 and no_done_today('fetcher'):
-                    fetch_all()
-                elif 1801 < nv < 2100 and no_done_today('searcher'):
-                    search_all()
+                if nv > 930:
+                    if nv < 1530:
+                        watch_all()
+                    else:
+                        if no_done_today('fetcher'):
+                            fetch_all()
+                        elif no_done_today('searcher'):
+                            search_all()
+                        else:
+                            watch_all()
         except Exception as e:
             print(e)
         finally:
