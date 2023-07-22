@@ -18,7 +18,7 @@ class Signal(BaseModel):
     stage = IntegerField()  # 阶段： 0 b/s signal 1 b/s point
     source = CharField()  # 信号源：背离、背驰、量价背离、放量
     strength = IntegerField()  # 强度： 0 弱 1 中 2 强
-    effect = IntegerField()  # 有效性：0 无效 1 有效 2 破坏
+    effect = IntegerField(default=0)  # 有效性：0 无效 1 有效 2 破坏
     status = IntegerField(default=0)  # 状态 0 待定 1 确认
     price = DecimalField()  # 时价
     notify = IntegerField(default=0)  # 通知 0 未通知， 1 已通知
