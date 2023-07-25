@@ -65,12 +65,13 @@ def choice_edit():
                 tic.name = cho.name
                 tic.cost = 0.0
                 tic.hold = 0
-                tic.buy = "{}{}".format(cho.strategy[1:3], cho.freq)
+                tic.buy = 'R30C5'
+                tic.strategy = 'PAB'
                 tic.watch = 0
                 tic.cut = 0.0
                 tic.clean = 3
                 tic.status = 0
-                tic.source = cho.strategy
+                tic.source = 'UAR'
                 tic.created = datetime.now()
                 tic.updated = datetime.now()
                 tic.save()
