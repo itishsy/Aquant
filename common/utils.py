@@ -19,3 +19,18 @@ def now_ymd_str():
     ymd = now_ymd()
     return ymd.strftime('%Y-%m-%d')
 
+
+def now_val():
+    now = datetime.now()
+    hm = now.hour * 100 + now.minute
+    return hm
+
+
+def is_trade_day():
+    now = datetime.now()
+    return now.weekday() < 5
+
+
+def is_trade_time():
+    return is_trade_day() and 930 < now_val() < 1510
+

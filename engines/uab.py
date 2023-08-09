@@ -18,7 +18,7 @@ class UAB15(Engine):
     def get_strategy(self):
         return 'UAB'
 
-    def find_buy_signal(self) -> Signal:
+    def do_search(self) -> Signal:
         pass
 
     def find_sell_signal(self) -> Signal:

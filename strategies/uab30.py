@@ -9,27 +9,21 @@ from signals.utils import get_stage, get_lowest
 
 
 @register_strategy
-class UAB15(Strategy):
+class UAB30(Strategy):
 
     def search(self, candles: List[Candle]):
         size = len(candles)
-        if size < 80:
+        if size < 100:
             return
 
-        cur = candles[-1]
-        if cur.bar() > 0:
-            return
-
-        # 最近的30根站在ma30
-        i = len(candles) - 30
+        # 不能超过618落在0轴下方
         counter = 0
-        while i < len(candles):
-            if candles[i].ma30 is None:
-                return
-            if candles[i].close > candles[i].ma30:
+        i = 0
+        while i < size:
+            if candles[i].diff() < 0:
                 counter = counter + 1
             i = i + 1
-        if counter < 25:
+        if counter/size > 0.618:
             return
 
         # 最近的50根出现过涨停
