@@ -37,11 +37,11 @@ def choice_status(key=None):
 
 
 class TICKET_ENGINE:
-    ZERO = 0
-    WATCH = 1
-    DEAL = 2
-    HOLD = 3
-    KICK = 4
+    ZERO = 0  # 待定
+    WATCH = 1  # 观察买点
+    DEAL = 2  # 已出买点
+    HOLD = 3  # 持有
+    KICK = 4  # 剔除
 
 
 def ticket_status(key=None):
@@ -90,7 +90,8 @@ def trade_type(key=None):
 
 def trade_comment(key=None):
     if key is None:
-        return [('开仓', '开仓'), ('减仓', '减仓'), ('加仓', '加仓'), ('平仓', '平仓'), ('止损', '止损'), ('止盈', '止盈')]
+        return [('开仓', '开仓'), ('减仓', '减仓'), ('加仓', '加仓'), ('平仓', '平仓'), ('止损', '止损'),
+                ('止盈', '止盈')]
     if key == '开仓':
         return '开仓'
     if key == '减仓':

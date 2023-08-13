@@ -6,10 +6,12 @@ from signals.utils import *
 from common.utils import *
 from common.dicts import TICKET_ENGINE
 from models.component import Component
+from storage.candle import Candle
 from storage.fetcher import fetch_all
+from storage.dba import find_active_symbols, find_candles, get_symbol
+
 import traceback
 import time
-
 
 factory = {}
 
@@ -28,61 +30,81 @@ class Engine(ABC):
 
     def start(self):
         while True:
-            if is_trade_day():
-                if is_trade_time():
-                    bss = Ticket.select().where(Ticket.status != TICKET_ENGINE.ZERO)
-                    for tick in bss:
-                        try:
-                            self.ticket = tick
-                            if tick.status == TICKET_ENGINE.WAIT:
-                                self.do_watch()
-                            elif tick.status == TICKET_ENGINE.DEAL or tick.status == TICKET_ENGINE.HOLD:
-                                self.do_deal()
-                            self.do_flush()
-                        except Exception as e:
-                            traceback.print_exc()
-                        finally:
-                            self.ticket = None
-                elif is_need_fetch():
+            if not is_trade_day():
+                time.sleep(60 * 60 * 4)
+                continue
+
+            if is_trade_time():
+                bss = Ticket.select().where(Ticket.status != TICKET_ENGINE.ZERO, Ticket.status != TICKET_ENGINE.KICK)
+                for tick in bss:
+                    self.ticket = tick
+                    if tick.status == TICKET_ENGINE.WATCH:
+                        sig = self.watch()
+                    elif tick.status == TICKET_ENGINE.DEAL:
+                        self.deal()
+                    elif tick.status == TICKET_ENGINE.HOLD:
+                        self.hold()
+                    self.flush()
+                    self.ticket = None
+                time.sleep(60 * 10)
+            else:
+                if is_need_fetch():
                     fetch_all()
                 elif is_need_search():
-                    self.do_search()
-            else:
-                time.sleep(60 * 60 * 4)
+                    self.search_new_ticket()
+                time.sleep(60 * 30)
+
+    def search_new_ticket(self):
+        symbols = find_active_symbols()
+        for sym in symbols:
+            sig = self.search(sym.code)
+            if sig:
+                ti = Ticket()
+                ti.code = sig.code
+                ti.name = sig.name
+                ti.strategy = self.__class__.__name__
+                ti.cut = sig.price
+                ti.status = TICKET_ENGINE.ZERO
+                ti.created = datetime.now()
+                ti.save()
 
     @abstractmethod
-    def do_search(self) -> List[Ticket]:
+    def search(self, code) -> Signal:
         pass
 
     @abstractmethod
-    def do_watch(self) -> Signal:
+    def watch(self) -> Signal:
         pass
 
     @abstractmethod
-    def do_flush(self) -> Signal:
+    def flush(self):
         pass
 
     @abstractmethod
-    def do_deal(self) -> Signal:
+    def deal(self) -> Signal:
+        pass
+
+    @abstractmethod
+    def hold(self) -> Signal:
         pass
 
 
-def is_need_fetch(self):
+def is_need_fetch():
     now = datetime.now()
     if now.weekday() < 5 and now.hour > 15:
         fet = Component.get(Component.name == 'fetcher')
-        if fet.run_end.day < now.day or fet.run_end.hour < 15:
+        if fet.run_end.day < now.day or fet.run_end.hour < 16:
             return True
     return False
 
 
-def is_need_search(self):
+def is_need_search():
     now = datetime.now()
     if now.weekday() < 5 and now.hour > 15:
         fet = Component.get(Component.name == 'fetcher')
-        if fet.run_end.day < now.day or fet.run_end.hour < 15:
+        if fet.run_end.day < now.day or fet.run_end.hour < 16:
             return False
         sea = Component.get(Component.name == 'searcher')
-        if sea.run_end.day < now.day or sea.run_end.hour < 15:
+        if sea.run_end.day < now.day or sea.run_end.hour < 16:
             return True
     return False
