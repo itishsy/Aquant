@@ -85,7 +85,7 @@ def get_symbol(code):
     return sbs
 
 
-def find_candles(code, freq, begin=None, end=None, limit=100) -> List[Candle]:
+def find_candles(code, freq=101, begin=None, end=None, limit=100) -> List[Candle]:
     session = dba.get_session(code)
     clauses = and_(Candle.freq == freq)
     if begin is not None:

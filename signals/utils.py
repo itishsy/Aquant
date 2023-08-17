@@ -169,7 +169,7 @@ def has_cross(candles: List[Candle]):
     return 0
 
 
-def get_section(candles: List[Candle], sdt, edt):
+def get_section(candles: List[Candle], sdt, edt=None):
     """
     获取起始区间的部分
     :param candles:

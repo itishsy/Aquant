@@ -13,14 +13,14 @@ from storage.dba import find_active_symbols, find_candles, get_symbol
 import traceback
 import time
 
-factory = {}
+strategy = {}
 
 
-def register_engine(cls):
+def strategy_engine(cls):
     cls_name = cls.__name__
 
     def register(clz):
-        factory[cls_name] = clz
+        strategy[cls_name] = clz
 
     return register(cls)
 
@@ -50,7 +50,7 @@ class Engine(ABC):
             else:
                 if is_need_fetch():
                     fetch_all()
-                elif is_need_search():
+                if is_need_search(self.__class__.__name__):
                     self.search_new_ticket()
                 time.sleep(60 * 30)
 
@@ -59,14 +59,7 @@ class Engine(ABC):
         for sym in symbols:
             sig = self.search(sym.code)
             if sig:
-                ti = Ticket()
-                ti.code = sig.code
-                ti.name = sig.name
-                ti.strategy = self.__class__.__name__
-                ti.cut = sig.price
-                ti.status = TICKET_ENGINE.ZERO
-                ti.created = datetime.now()
-                ti.save()
+                add_ticket(sig, self.__class__.__name__)
 
     @abstractmethod
     def search(self, code) -> Signal:
@@ -93,18 +86,34 @@ def is_need_fetch():
     now = datetime.now()
     if now.weekday() < 5 and now.hour > 15:
         fet = Component.get(Component.name == 'fetcher')
-        if fet.run_end.day < now.day or fet.run_end.hour < 16:
+        if fet.run_end.month < now.month or fet.run_end.day < now.day or fet.run_end.hour < 16:
             return True
     return False
 
 
-def is_need_search():
+def is_need_search(s):
     now = datetime.now()
-    if now.weekday() < 5 and now.hour > 15:
+    if now.weekday() < 5 and (now.hour > 15 or now.hour < 9):
         fet = Component.get(Component.name == 'fetcher')
-        if fet.run_end.day < now.day or fet.run_end.hour < 16:
+        if fet.run_end.month < now.month or fet.run_end.day < now.day or fet.run_end.hour < 16:
             return False
-        sea = Component.get(Component.name == 'searcher')
-        if sea.run_end.day < now.day or sea.run_end.hour < 16:
+        sea = Component.get(Component.name == 'search:{0}'.format(s))
+        if sea.run_end.month < now.month or sea.run_end.day < now.day or sea.run_end.hour < 16:
             return True
     return False
+
+
+def add_ticket(sig: Signal, strategy):
+    if Ticket.select().where(Ticket.code == sig.code).exists():
+        ti = Ticket.get(Ticket.code == sig.code)
+        ti.updated = datetime.now()
+    else:
+        ti = Ticket()
+        ti.created = datetime.now()
+    ti.code = sig.code
+    ti.name = sig.name
+    ti.strategy = strategy
+    ti.cut = sig.price
+    ti.status = TICKET_ENGINE.ZERO
+    ti.source = 'strategy engine'
+    ti.save()
