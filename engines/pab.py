@@ -35,22 +35,24 @@ class PAB(Engine):
             return
 
         # 发生30分钟低背离
-        fc30 = find_candles(self.code, 30)
+        fc30 = find_candles(code, 30)
         s30 = diver_bottom(fc30)
-        if len(s30) > 0:
+        if len(s30) < 1:
+            return
+        sig = s30[-1]
+
+        # 没有保存过
+        if Signal.select().where(Signal.code == code, Signal.dt >= sig.dt).exists():
             return
 
-        sig = s30[-1]
+        # 低背离的最低价不能破
         dt = dt_format(sig.dt)
         sec = get_section(candles, dt)
         if get_lowest(sec).low < sig.price:
             return
 
-        if Signal.select().where(Signal.code == code, Signal.dt >= sig.dt).exists():
-            return
-
         sig.code = code
-        sig.name = get_symbol(self.code).name
+        sig.name = get_symbol(code).name
         sig.save()
         return sig
 

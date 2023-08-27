@@ -30,10 +30,6 @@ class Engine(ABC):
 
     def start(self):
         while True:
-            if not is_trade_day():
-                time.sleep(60 * 60 * 4)
-                continue
-
             if is_trade_time():
                 bss = Ticket.select().where(Ticket.status != TICKET_ENGINE.ZERO, Ticket.status != TICKET_ENGINE.KICK)
                 for tick in bss:
@@ -53,13 +49,20 @@ class Engine(ABC):
                 if is_need_search(self.__class__.__name__):
                     self.search_new_ticket()
                 time.sleep(60 * 30)
+            if not is_trade_day():
+                time.sleep(60 * 60 * 4)
 
     def search_new_ticket(self):
         symbols = find_active_symbols()
+        count = 0
         for sym in symbols:
+            count = count + 1
+            print('[{0}] start searching... {1}({2}) '.format(datetime.now(), sym.code, count))
             sig = self.search(sym.code)
             if sig:
                 add_ticket(sig, self.__class__.__name__)
+        if count > 0:
+            print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.__class__.__name__, count))
 
     @abstractmethod
     def search(self, code) -> Signal:
@@ -83,27 +86,29 @@ class Engine(ABC):
 
 
 def is_need_fetch():
+    fet = Component.get(Component.name == 'fetcher')
+    ltm = fet.run_end
     now = datetime.now()
-    if now.weekday() < 5 and now.hour > 15:
-        fet = Component.get(Component.name == 'fetcher')
-        if fet.run_end.month < now.month or fet.run_end.day < now.day or fet.run_end.hour < 16:
+    if now.weekday() < 5:
+        if now.hour > 15 and (ltm.month < now.month or ltm.day < now.day or ltm.hour < 16):
             return True
+    elif ltm.weekday() < 4:
+        return True
     return False
 
 
 def is_need_search(s):
-    now = datetime.now()
-    if now.weekday() < 5 and (now.hour > 15 or now.hour < 9):
-        fet = Component.get(Component.name == 'fetcher')
-        if fet.run_end.month < now.month or fet.run_end.day < now.day or fet.run_end.hour < 16:
-            return False
+    if is_need_fetch():
+        return False
+    else:
+        now = datetime.now()
         sea = Component.get(Component.name == 'search:{0}'.format(s))
-        if sea.run_end.month < now.month or sea.run_end.day < now.day or sea.run_end.hour < 16:
+        if sea.run_end.month < now.month or sea.run_end.day < now.day:
             return True
     return False
 
 
-def add_ticket(sig: Signal, strategy):
+def add_ticket(sig: Signal, str):
     if Ticket.select().where(Ticket.code == sig.code).exists():
         ti = Ticket.get(Ticket.code == sig.code)
         ti.updated = datetime.now()
@@ -112,8 +117,10 @@ def add_ticket(sig: Signal, strategy):
         ti.created = datetime.now()
     ti.code = sig.code
     ti.name = sig.name
-    ti.strategy = strategy
+    ti.strategy = str
     ti.cut = sig.price
     ti.status = TICKET_ENGINE.ZERO
     ti.source = 'strategy engine'
     ti.save()
+    print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(), sig.code, str))
+
