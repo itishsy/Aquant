@@ -108,7 +108,7 @@ def is_need_search(s):
     return False
 
 
-def add_ticket(sig: Signal, str):
+def add_ticket(sig: Signal, name):
     if Ticket.select().where(Ticket.code == sig.code).exists():
         ti = Ticket.get(Ticket.code == sig.code)
         ti.updated = datetime.now()
@@ -117,10 +117,10 @@ def add_ticket(sig: Signal, str):
         ti.created = datetime.now()
     ti.code = sig.code
     ti.name = sig.name
-    ti.strategy = str
+    ti.strategy = name
     ti.cut = sig.price
     ti.status = TICKET_ENGINE.ZERO
     ti.source = 'strategy engine'
     ti.save()
-    print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(), sig.code, str))
+    print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(), sig.code, name))
 
