@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
 from models.ticket import Ticket
+from models.choice import Choice
 from models.signal import Signal
 from signals.utils import *
 from common.utils import *
@@ -59,10 +60,25 @@ class Engine(ABC):
             count = count + 1
             print('[{0}] start searching... {1}({2}) '.format(datetime.now(), sym.code, count))
             sig = self.search(sym.code)
-            if sig:
-                add_ticket(sig, self.__class__.__name__)
+            self.add_choice(sig)
         if count > 0:
             print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.__class__.__name__, count))
+
+    def add_choice(self, sig: Signal):
+        if sig is None:
+            return
+        if Choice.select().where(Choice.code == sig.code, Choice.dt == sig.dt, Choice.freq == sig.freq).exists():
+            return
+
+        cho = Choice()
+        cho.code = sig.code
+        cho.name = sig.name
+        cho.strategy = self.__class__.__name__
+        cho.cut = sig.price
+        cho.status = TICKET_ENGINE.ZERO
+        cho.source = 'strategy engine'
+        cho.save()
+        print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(), sig.code, self.__class__.__name__))
 
     @abstractmethod
     def search(self, code) -> Signal:
@@ -108,19 +124,4 @@ def is_need_search(s):
     return False
 
 
-def add_ticket(sig: Signal, name):
-    if Ticket.select().where(Ticket.code == sig.code).exists():
-        ti = Ticket.get(Ticket.code == sig.code)
-        ti.updated = datetime.now()
-    else:
-        ti = Ticket()
-        ti.created = datetime.now()
-    ti.code = sig.code
-    ti.name = sig.name
-    ti.strategy = name
-    ti.cut = sig.price
-    ti.status = TICKET_ENGINE.ZERO
-    ti.source = 'strategy engine'
-    ti.save()
-    print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(), sig.code, name))
 

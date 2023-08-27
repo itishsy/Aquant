@@ -1,3 +1,5 @@
+import datetime
+
 from engines.engine import strategy_engine, Engine
 from storage.dba import get_symbol, find_candles
 from models.signal import Signal
@@ -8,6 +10,9 @@ from common.utils import dt_format
 
 @strategy_engine
 class PAB(Engine):
+    bs_freq = 30
+    bp_freq = 5
+
     def search(self, code) -> Signal:
         candles = find_candles(code)
         size = len(candles)
@@ -34,14 +39,14 @@ class PAB(Engine):
         if counter < 1:
             return
 
-        # 发生30分钟低背离
-        fc30 = find_candles(code, 30)
-        s30 = diver_bottom(fc30)
-        if len(s30) < 1:
+        # 发生bs_freq(30分钟)底背离
+        fcs = find_candles(code, self.bs_freq)
+        dbs = diver_bottom(fcs)
+        if len(dbs) < 1:
             return
-        sig = s30[-1]
 
-        # 没有保存过
+        # 最后一个信号未存储过
+        sig = dbs[-1]
         if Signal.select().where(Signal.code == code, Signal.dt >= sig.dt).exists():
             return
 
@@ -51,12 +56,17 @@ class PAB(Engine):
         if get_lowest(sec).low < sig.price:
             return
 
+        # 生成一个买入信号
         sig.code = code
         sig.name = get_symbol(code).name
+        sig.created = datetime.datetime.now()
+        sig.type = 0
+        sig.status = 0
         sig.save()
         return sig
 
     def watch(self) -> Signal:
+
         pass
 
     def flush(self):
