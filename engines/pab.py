@@ -3,6 +3,7 @@ import datetime
 from engines.engine import strategy_engine, Engine
 from storage.dba import get_symbol, find_candles
 from models.signal import Signal
+from models.ticket import Ticket
 from signals.divergence import diver_bottom
 from signals.utils import get_section, get_lowest
 from common.utils import dt_format
@@ -56,7 +57,7 @@ class PAB(Engine):
         if get_lowest(sec).low < sig.price:
             return
 
-        # 生成一个买入信号
+        # 生成一个b-signal
         sig.code = code
         sig.name = get_symbol(code).name
         sig.created = datetime.datetime.now()
@@ -66,8 +67,16 @@ class PAB(Engine):
         return sig
 
     def watch(self) -> Signal:
-
-        pass
+        fcs = find_candles(self.ticket.code, self.bp_freq)
+        dbs = diver_bottom(fcs)
+        if len(dbs) < 1:
+            return
+        sig = dbs[-1]
+        if sig.price < self.ticket.cost:
+            self.ticket.status = self.TICKET_ENGINE.KICK
+        else:
+            self.ticket.status = self.TICKET_ENGINE.DEAL
+            return sig
 
     def flush(self):
         pass

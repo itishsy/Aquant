@@ -48,12 +48,12 @@ class Engine(ABC):
                 if is_need_fetch():
                     fetch_all()
                 if is_need_search(self.__class__.__name__):
-                    self.search_new_ticket()
+                    self.search_all()
                 time.sleep(60 * 30)
             if not is_trade_day():
                 time.sleep(60 * 60 * 4)
 
-    def search_new_ticket(self):
+    def search_all(self):
         symbols = find_active_symbols()
         count = 0
         for sym in symbols:
