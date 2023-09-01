@@ -137,6 +137,7 @@ def fetch_all(freq=None):
     count = 0
     for sb in sbs:
         try:
+            print('[{}] {} fetch candles [{}] start!'.format(datetime.now(), count, sb.code))
             for k in ks:
                 fetch_and_save(sb.code, k)
             print('[{}] {} fetch candles [{}] done!'.format(datetime.now(), count, sb.code))
