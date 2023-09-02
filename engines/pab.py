@@ -1,9 +1,8 @@
-import datetime
-
+from datetime import datetime
 from engines.engine import strategy_engine, Engine
 from storage.dba import get_symbol, find_candles
 from models.signal import Signal
-from models.ticket import Ticket
+from models.ticket import Ticket, TICKET_STATUS
 from signals.divergence import diver_bottom
 from signals.utils import get_section, get_lowest
 from common.utils import dt_format
@@ -53,10 +52,10 @@ class PAB(Engine):
             self.add_signal(dbs[-1])
 
     def flush(self):
-        pass
+        dt = self.ticket.bs_dt
+        lowest = get_lowest(find_candles(self.ticket.code, begin=dt_format(dt)))
+        if lowest.low < self.ticket.bs_price:
+            self.ticket.status = TICKET_STATUS.KICK
 
-    def deal(self) -> Signal:
-        pass
-
-    def hold(self) -> Signal:
+    def hold(self):
         pass

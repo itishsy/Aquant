@@ -58,8 +58,12 @@ class Engine(ABC):
                                 self.ticket.save()
                             else:
                                 self.flush()
+                                if self.ticket.status == TICKET_STATUS.KICK:
+                                    Ticket.delete_by_id(tick.get_id())
                         elif tick.status == TICKET_STATUS.DEAL:
                             self.flush()
+                            if self.ticket.status == TICKET_STATUS.KICK:
+                                Ticket.delete_by_id(tick.get_id())
                         elif tick.status == TICKET_STATUS.HOLD:
                             self.deal()
                     except Exception as e:
@@ -167,7 +171,7 @@ class Engine(ABC):
         pass
 
     @abstractmethod
-    def deal(self):
+    def hold(self):
         pass
 
 
