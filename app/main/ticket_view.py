@@ -4,15 +4,15 @@ from flask import render_template, flash, request, jsonify, redirect, url_for
 from flask_login import login_required, current_user
 from app import utils
 from . import main
-from models.ticket import Ticket
+from models.ticket import Ticket, TICKET_STATUS
 from models.signal import Signal
 from models.trade import Trade
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length
-from common.dicts import freq_level, ticket_status, choice_strategy, trade_strategy, buy_type
-from storage.dba import find_candles,get_symbol
+from common.dicts import freq_level, choice_strategy, trade_strategy, buy_type
+from storage.dba import find_candles, get_symbol
 from common.utils import now_ymd
 
 logger = get_logger(__name__)
@@ -58,7 +58,7 @@ def ticket_list():
 
     dict = {'content': utils.query_to_list(query), 'total_count': total_count,
             'total_page': math.ceil(total_count / length), 'page': page, 'length': length}
-    return render_template('ticketlist.html', form=dict, fel=ticket_status, today=today, current_user=current_user)
+    return render_template('ticketlist.html', form=dict, today=today)
 
 
 @main.route('/ticket_edit', methods=['GET', 'POST'])
@@ -174,7 +174,7 @@ def ticket_detail():
 
         if request.method == 'GET':
             utils.model_to_form(ticket, form)
-            ticket.status_text = ticket_status(ticket.status)
+            ticket.status_text = TICKET_STATUS.get(ticket.status)
             ticket.watch_text = freq_level(ticket.watch)
             ticket.clean_text = freq_level(ticket.clean)
             s_query = Signal.select().where(Signal.code == ticket.code, Signal.status == 1).order_by(Signal.dt.desc()).limit(5)
@@ -219,7 +219,7 @@ class TicketForm(FlaskForm):
     watch = SelectField('监控级别', choices=freq_level())
     cut = DecimalField('止损')
     clean = SelectField('剔除', choices=freq_level())
-    status = SelectField('状态', choices=ticket_status())
+    status = SelectField('状态', choices=TICKET_STATUS.all())
     source = SelectField('来源于', choices=choice_strategy())
     created = StringField('创建时间')
     submit = SubmitField('提交')

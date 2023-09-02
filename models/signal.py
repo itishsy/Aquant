@@ -14,16 +14,51 @@ class Signal(BaseModel):
     name = CharField()  # 名称
     freq = CharField()  # 信号级别
     dt = CharField()  # 发生时间
-    type = IntegerField()  # 类型： 0 buy 1 sell
-    stage = IntegerField()  # 阶段： 0 b/s signal 1 b/s point
-    source = CharField()  # 信号源：背离、背驰、量价背离、放量
+    price = DecimalField()  # 信号价格
+    type = IntegerField()  # 信號類別： 0 底背离 1 頂背离
     strength = IntegerField()  # 强度： 0 弱 1 中 2 强
-    effect = IntegerField(default=0)  # 有效性：0 无效 1 有效 2 破坏
-    status = IntegerField(default=0)  # 状态 0 待定 1 确认
-    price = DecimalField()  # 时价
-    notify = IntegerField(default=0)  # 通知 0 未通知， 1 已通知
+    effect = IntegerField()  # 有效性：0 無效 1 有效 2 破坏
+    notify = IntegerField()  # 通知 0 待通知， 1 已通知
     created = DateTimeField()
     updated = DateTimeField()
+
+
+class SIGNAL_TYPE:
+    BOTTOM_DIVERGENCE = 0
+    TOP_DIVERGENCE = 1
+    TREND_SUPPORT = 2
+    PLATFORM_SUPPORT = 3
+
+    def all(self):
+        return [(self.BOTTOM_DIVERGENCE, '底背離'), (self.TOP_DIVERGENCE, '頂背離'), (self.TREND_SUPPORT, '趨勢綫支撐'),
+                (self.PLATFORM_SUPPORT, '平臺支撐')]
+
+    def get(self, key):
+        if key == self.BOTTOM_DIVERGENCE:
+            return '底背離'
+        if key == self.TOP_DIVERGENCE:
+            return '頂背離'
+        if key == self.TREND_SUPPORT:
+            return '趨勢綫支撐'
+        if key == self.PLATFORM_SUPPORT:
+            return '平臺支撐'
+
+
+class SIGNAL_STRENGTH:
+    WEAK = 0
+    AVERAGE = 1
+    STRONG = 2
+
+    def all(self):
+        return [(self.WEAK, '弱'), (self.AVERAGE, '中'), (self.STRONG, '強')]
+
+    def get(self, key):
+        if key == self.WEAK:
+            return '弱'
+        if key == self.AVERAGE:
+            return '中'
+        if key == self.STRONG:
+            return '強'
 
 #
 # def find_signals(watch=None) -> List[Signal]:

@@ -69,7 +69,8 @@ def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
     if freq == 10:
         d_flag = True
         freq = 5
-    df = ef.stock.get_quote_history(code, klt=freq, beg=begin)
+
+    df = ef.stock.get_quote_history(code, klt=freq, beg=dt_format(begin, '%Y%m%d'))
     df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount', 'zf', 'zdf', 'zde',
                   'turnover']
     df.drop(['name', 'code', 'zf', 'zdf', 'zde'], axis=1, inplace=True)
@@ -127,7 +128,6 @@ def get_ma(candles: List[Candle], seq, val=None, att='close'):
 
 def fetch_all(freq=None):
     start_time = datetime.now()
-    Component.update(run_start=start_time).where(Component.name == 'fetcher').execute()
     ks = []
     if freq is not None:
         ks.append(freq)
@@ -137,7 +137,7 @@ def fetch_all(freq=None):
     count = 0
     for sb in sbs:
         try:
-            print('[{}] {} fetch candles [{}] start!'.format(datetime.now(), count, sb.code))
+            print('[{}] {} fetch candles [{}] start!'.format(start_time, count, sb.code))
             for k in ks:
                 fetch_and_save(sb.code, k)
             print('[{}] {} fetch candles [{}] done!'.format(datetime.now(), count, sb.code))
@@ -145,7 +145,6 @@ def fetch_all(freq=None):
         except Exception as ex:
             print('fetch candles [{}] error!'.format(sb.code))
             logging.error('fetch candles [{}] error!'.format(sb.code), ex)
-    Component.update(run_end=datetime.now()).where(Component.name == 'fetcher').execute()
     print('[{}] fetch all done! elapsed time:'.format(datetime.now(), datetime.now() - start_time))
 
 
@@ -157,7 +156,7 @@ def fetch_daily():
             Component.update(clock_time=now).where(Component.name == 'fetcher').execute()
             if now.weekday() < 5 and now.hour > 15:
                 fet = Component.get(Component.name == 'fetcher')
-                fet_time = fet.run_end #datetime.p(fet.run_time, '%Y-%m-%d %H:%M:%S')
+                fet_time = fet.run_end  # datetime.p(fet.run_time, '%Y-%m-%d %H:%M:%S')
                 if fet_time.day < now.day or fet_time.hour < 15:
                     fetch_all()
                     print("==============用時：{}=================".format(datetime.now() - now))

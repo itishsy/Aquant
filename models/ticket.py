@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-# from models.signal import Signal
+from models.signal import Signal
+from models.choice import Choice
 # from sqlalchemy import select, desc, and_, text
 from models.base import BaseModel, db
 from flask_peewee.db import CharField, BooleanField, IntegerField, DateTimeField, DecimalField
@@ -34,17 +35,56 @@ from datetime import datetime, timedelta
 class Ticket(BaseModel):
     code = CharField()  # 编码
     name = CharField()  # 名称
+    status = IntegerField(default=0)  # 状态
+    strategy = CharField()  # 策略
+    cid = IntegerField()  # choice id
+    bs_freq = CharField()  # 信號級別
+    bs_dt = CharField()  # 信號時間
+    bs_price = DecimalField()  # 信號價格
+    bs_strength = IntegerField()  # 信號强度
+    bp_freq = CharField()  # 買點級別
+    bp_dt = CharField()  # 買點時間
+    bp_price = DecimalField()  # 買點價格
+    hold = IntegerField(default=0)  # 持有量
     cost = DecimalField(default=0.0)  # 成本
-    hold = IntegerField(default=0)  # 持有总量
-    strategy = CharField()  # 交易策略
-    buy = CharField()  # 买入类别
-    watch = IntegerField()  # 监控级别
-    cut = DecimalField(default=0.0)  # 止损
-    clean = IntegerField()  # 剔除级别
-    status = IntegerField(default=0)  # 状态 dicts.ticket_status
-    source = CharField()  # 来源
     created = DateTimeField()
     updated = DateTimeField()
+
+    def add_by_choice(self, cho: Choice):
+        self.code = cho.code
+        self.name = cho.name
+        self.cid = cho.get_id()
+        self.status = TICKET_STATUS.WATCH
+        sig = Signal.get_by_id(cho.sid)
+        self.bs_freq = sig.freq
+        self.bs_dt = sig.dt
+        self.bs_price = sig.price
+        self.created = datetime.now()
+        self.save()
+
+
+class TICKET_STATUS:
+    ZERO = 0
+    WATCH = 1
+    DEAL = 2
+    HOLD = 3
+    KICK = 4
+
+    def all(self):
+        return [(self.ZERO, '待定'), (self.WATCH, '观察'), (self.DEAL, '操作'), (self.HOLD, '持有'),
+                (self.KICK, '剔除')]
+
+    def get(self, key):
+        if key == self.ZERO:
+            return '待定'
+        if key == self.WATCH:
+            return '观察'
+        if key == self.DEAL:
+            return '操作'
+        if key == self.HOLD:
+            return '持有'
+        if key == self.KICK:
+            return '弃用'
 
 
 #

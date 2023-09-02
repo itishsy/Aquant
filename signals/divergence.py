@@ -1,5 +1,5 @@
 from storage.candle import Candle
-from models.signal import Signal
+from models.signal import Signal, SIGNAL_TYPE
 from typing import List
 import signals.utils as utl
 
@@ -30,7 +30,7 @@ def diver_top(candles: List[Candle]) -> List[Signal]:
                 high0 = utl.get_highest(up_stage2).high
                 if c_2.diff() > c_0.diff() and high2 < high0:
                     signals.append(
-                        Signal(dt=c_0.dt, freq=c_0.freq, price=c_0.low, source='diver_bottom', value=c_0.close))
+                        Signal(freq=c_0.freq, dt=c_0.dt, price=c_0.high, type=SIGNAL_TYPE.TOP_DIVERGENCE))
     return signals
 
 
@@ -61,7 +61,7 @@ def diver_bottom(candles: List[Candle]) -> List[Signal]:
                     low2 = utl.get_lowest(down_stage2).low
                     if c_2.diff() < c_0.diff() and low1 > low2:
                         signals.append(
-                            Signal(dt=c_0.dt, freq=c_0.freq, source='diver_bottom', price=c_0.low, value=c_0.close))
+                            Signal(freq=c_0.freq, dt=c_0.dt, price=c_0.low, type=SIGNAL_TYPE.BOTTOM_DIVERGENCE))
     return signals
 
 

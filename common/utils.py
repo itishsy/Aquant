@@ -2,11 +2,14 @@ from datetime import datetime
 
 
 def dt_format(dt, fm='%Y-%m-%d'):
-    if dt.find(':') > 0:
-        sdt = datetime.strptime(dt, '%Y-%m-%d %H:%M')
-    else:
-        sdt = datetime.strptime(dt, '%Y-%m-%d')
-    return sdt.strftime(fm)
+    try:
+        if dt.find(':') > 0:
+            sdt = datetime.strptime(dt, '%Y-%m-%d %H:%M')
+        else:
+            sdt = datetime.strptime(dt, '%Y-%m-%d')
+        return sdt.strftime(fm)
+    except:
+        return dt
 
 
 def now_ymd():
@@ -33,4 +36,3 @@ def is_trade_day():
 
 def is_trade_time():
     return is_trade_day() and 930 < now_val() < 1510
-

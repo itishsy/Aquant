@@ -10,3 +10,8 @@ class Component(BaseModel):
     run_end = DateTimeField()  # 最近执行时间
     status = IntegerField(default=0)  # 状态
 
+
+class COMPONENT_TYPE:
+    FETCHER = 'fetcher'
+    SENDER = 'sender'
+    SEARCHER = 'search:{0}'

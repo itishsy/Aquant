@@ -1,3 +1,6 @@
+from models.ticket import TICKET_STATUS
+
+
 def freq_level(ts=None):
     if ts is None:
         return [(0, [15, 30, 60]), (1, [5, 10, 15]), (2, [5, 10, 15, 30, 60]), (3, [101]), (4, [])]
@@ -33,31 +36,6 @@ def choice_status(key=None):
         return '失效'
     if key == 1:
         return '有效'
-    return 'undefined'
-
-
-class TICKET_ENGINE:
-    ZERO = 0  # 待定
-    WATCH = 1  # 观察买点
-    DEAL = 2  # 已出买点
-    HOLD = 3  # 持有
-    KICK = 4  # 剔除
-
-
-def ticket_status(key=None):
-    if key is None:
-        return [(TICKET_ENGINE.ZERO, '待定'), (TICKET_ENGINE.WATCH, '观察'), (TICKET_ENGINE.DEAL, '操作'),
-                (TICKET_ENGINE.HOLD, '持有')]
-    if key == TICKET_ENGINE.ZERO:
-        return '待定'
-    if key == TICKET_ENGINE.WATCH:
-        return '观察'
-    if key == TICKET_ENGINE.DEAL:
-        return '操作'
-    if key == TICKET_ENGINE.HOLD:
-        return '持有'
-    if key == TICKET_ENGINE.KICK:
-        return '弃用'
     return 'undefined'
 
 

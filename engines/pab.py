@@ -40,43 +40,17 @@ class PAB(Engine):
         if counter < 1:
             return
 
-        # 发生bs_freq(30分钟)底背离
+        # 发生bs_freq底背离
         fcs = find_candles(code, self.bs_freq)
         dbs = diver_bottom(fcs)
-        if len(dbs) < 1:
-            return
+        if len(dbs) > 0:
+            self.add_signal(dbs[-1])
 
-        # 最后一个信号未存储过
-        sig = dbs[-1]
-        if Signal.select().where(Signal.code == code, Signal.dt >= sig.dt).exists():
-            return
-
-        # 低背离的最低价不能破
-        dt = dt_format(sig.dt)
-        sec = get_section(candles, dt)
-        if get_lowest(sec).low < sig.price:
-            return
-
-        # 生成一个b-signal
-        sig.code = code
-        sig.name = get_symbol(code).name
-        sig.created = datetime.datetime.now()
-        sig.type = 0
-        sig.status = 0
-        sig.save()
-        return sig
-
-    def watch(self) -> Signal:
+    def watch(self):
         fcs = find_candles(self.ticket.code, self.bp_freq)
         dbs = diver_bottom(fcs)
-        if len(dbs) < 1:
-            return
-        sig = dbs[-1]
-        if sig.price < self.ticket.cost:
-            self.ticket.status = self.TICKET_ENGINE.KICK
-        else:
-            self.ticket.status = self.TICKET_ENGINE.DEAL
-            return sig
+        if len(dbs) > 0:
+            self.add_signal(dbs[-1])
 
     def flush(self):
         pass
