@@ -51,11 +51,7 @@ class Engine(ABC):
                             self.watch()
                             if self.signal:
                                 self.ticket.status = TICKET_STATUS.DEAL
-                                self.ticket.bp_freq = self.signal.freq
-                                self.ticket.bp_dt = self.signal.dt
-                                self.ticket.bp_price = self.signal.price
-                                self.ticket.updated = datetime.now()
-                                self.ticket.save()
+                                self.ticket.update_bp(self.signal)
                             else:
                                 self.flush()
                                 if self.ticket.status == TICKET_STATUS.KICK:
@@ -65,7 +61,7 @@ class Engine(ABC):
                             if self.ticket.status == TICKET_STATUS.KICK:
                                 Ticket.delete_by_id(tick.get_id())
                         elif tick.status == TICKET_STATUS.HOLD:
-                            self.deal()
+                            self.hold()
                     except Exception as e:
                         print(e)
                     finally:
@@ -84,41 +80,36 @@ class Engine(ABC):
                 time.sleep(60 * 60 * 4)
 
     def search_all(self):
-        now = datetime.now()
         sea = Component.get(Component.name == COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower()))
-        # 当天未检索过
-        if sea.run_end.month < now.month or sea.run_end.day < now.day:
+        # 当天未搜索过買入信號
+        if sea.run_end.month < datetime.now().month or sea.run_end.day < datetime.now().day:
             count = 0
             try:
-                Component.update(status=1, run_start=now).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
+                Component.update(status=1, run_start=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
                 symbols = find_active_symbols()
                 for sym in symbols:
                     count = count + 1
-                    print('[{0}] start searching... {1}({2}) '.format(now, sym.code, count))
+                    print('[{0}] searching... {1}({2}) '.format(datetime.now(), sym.code, count))
                     self.search(sym.code)
                     if self.signal:
                         self.add_choice()
+                        self.signal = None
+                Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
             except Exception as e:
-                Component.update(status=0, run_end=now).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
+                Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
                 print(e)
-            else:
-                Component.update(status=0).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
             finally:
-                print('[{0}] search {1} done! ({2}) '.format(now, self.__class__.__name__, count))
+                self.signal = None
+                print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.__class__.__name__, count))
 
     def add_choice(self):
-        if Choice.select().where(Choice.code == self.signal.code, Choice.dt == self.signal.dt, Choice.freq == self.signal.freq).exists():
-            return
-
-        cho = Choice()
-        cho.code = self.signal.code
-        cho.name = self.signal.name
-        cho.source = 'strategy'
-        cho.strategy = self.__class__.__name__
-        cho.sid = self.signal.get_id()
-        cho.created = datetime.now()
-        cho.save()
-        print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(), self.signal.code, self.__class__.__name__))
+        if not Choice.select().where(Choice.code == self.signal.code,
+                                     Choice.dt == self.signal.dt,
+                                     Choice.freq == self.signal.freq).exists():
+            Choice.add_by_signal(self.signal, self.__class__.__name__)
+            print('[{0}] add a choice({1}) by strategy {2}'.format(datetime.now(),
+                                                                   self.signal.code,
+                                                                   self.__class__.__name__))
 
     def add_signal(self, sig: Signal):
         if Signal.select().where(Signal.code == sig.code, Signal.freq == sig.freq, Signal.dt == sig.dt, Signal.effect is None).exists():

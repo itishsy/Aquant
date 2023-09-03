@@ -55,11 +55,19 @@ class Ticket(BaseModel):
         self.name = cho.name
         self.cid = cho.get_id()
         self.status = TICKET_STATUS.WATCH
+        self.cid = cho.sid
         sig = Signal.get_by_id(cho.sid)
         self.bs_freq = sig.freq
         self.bs_dt = sig.dt
         self.bs_price = sig.price
         self.created = datetime.now()
+        self.save()
+
+    def update_bp(self, sig: Signal):
+        self.bp_freq = sig.freq
+        self.bp_dt = sig.dt
+        self.bp_price = sig.price
+        self.updated = datetime.now()
         self.save()
 
 

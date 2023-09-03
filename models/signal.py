@@ -1,5 +1,5 @@
-from models.base import BaseModel
-from flask_peewee.db import CharField, DecimalField, IntegerField, DateTimeField
+from models.base import BaseModel, db
+from flask_peewee.db import CharField, DecimalField, IntegerField, DateTimeField, AutoField
 
 
 # from sqlalchemy import select, desc, and_, text
@@ -10,6 +10,7 @@ from flask_peewee.db import CharField, DecimalField, IntegerField, DateTimeField
 
 # 信号
 class Signal(BaseModel):
+    id = AutoField()
     code = CharField()  # 票据
     name = CharField()  # 名称
     freq = CharField()  # 信号级别
@@ -104,3 +105,7 @@ class SIGNAL_STRENGTH:
 #     except:
 #         session.rollback()
 
+
+if __name__ == '__main__':
+    db.connect()
+    db.create_tables([Signal])
