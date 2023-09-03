@@ -30,18 +30,22 @@ class SIGNAL_TYPE:
     TREND_SUPPORT = 2
     PLATFORM_SUPPORT = 3
 
-    def all(self):
-        return [(self.BOTTOM_DIVERGENCE, '底背離'), (self.TOP_DIVERGENCE, '頂背離'), (self.TREND_SUPPORT, '趨勢綫支撐'),
-                (self.PLATFORM_SUPPORT, '平臺支撐')]
+    @staticmethod
+    def all():
+        return [(SIGNAL_TYPE.BOTTOM_DIVERGENCE, '底背離'),
+                (SIGNAL_TYPE.TOP_DIVERGENCE, '頂背離'),
+                (SIGNAL_TYPE.TREND_SUPPORT, '趨勢綫支撐'),
+                (SIGNAL_TYPE.PLATFORM_SUPPORT, '平臺支撐')]
 
-    def get(self, key):
-        if key == self.BOTTOM_DIVERGENCE:
+    @staticmethod
+    def get(key):
+        if key == SIGNAL_TYPE.BOTTOM_DIVERGENCE:
             return '底背離'
-        if key == self.TOP_DIVERGENCE:
+        if key == SIGNAL_TYPE.TOP_DIVERGENCE:
             return '頂背離'
-        if key == self.TREND_SUPPORT:
+        if key == SIGNAL_TYPE.TREND_SUPPORT:
             return '趨勢綫支撐'
-        if key == self.PLATFORM_SUPPORT:
+        if key == SIGNAL_TYPE.PLATFORM_SUPPORT:
             return '平臺支撐'
 
 
@@ -50,15 +54,19 @@ class SIGNAL_STRENGTH:
     AVERAGE = 1
     STRONG = 2
 
-    def all(self):
-        return [(self.WEAK, '弱'), (self.AVERAGE, '中'), (self.STRONG, '強')]
+    @staticmethod
+    def all():
+        return [(SIGNAL_STRENGTH.WEAK, '弱'),
+                (SIGNAL_STRENGTH.AVERAGE, '中'),
+                (SIGNAL_STRENGTH.STRONG, '強')]
 
-    def get(self, key):
-        if key == self.WEAK:
+    @staticmethod
+    def get(key):
+        if key == SIGNAL_STRENGTH.WEAK:
             return '弱'
-        if key == self.AVERAGE:
+        if key == SIGNAL_STRENGTH.AVERAGE:
             return '中'
-        if key == self.STRONG:
+        if key == SIGNAL_STRENGTH.STRONG:
             return '強'
 
 #

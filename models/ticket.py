@@ -78,20 +78,22 @@ class TICKET_STATUS:
     HOLD = 3
     KICK = 4
 
-    def all(self):
-        return [(self.ZERO, '待定'), (self.WATCH, '观察'), (self.DEAL, '操作'), (self.HOLD, '持有'),
-                (self.KICK, '剔除')]
+    @staticmethod
+    def all():
+        return [(TICKET_STATUS.ZERO, '待定'), (TICKET_STATUS.WATCH, '观察'), (TICKET_STATUS.DEAL, '操作'),
+                (TICKET_STATUS.HOLD, '持有'), (TICKET_STATUS.KICK, '剔除')]
 
-    def get(self, key):
-        if key == self.ZERO:
+    @staticmethod
+    def get(key):
+        if key == TICKET_STATUS.ZERO:
             return '待定'
-        if key == self.WATCH:
+        if key == TICKET_STATUS.WATCH:
             return '观察'
-        if key == self.DEAL:
+        if key == TICKET_STATUS.DEAL:
             return '操作'
-        if key == self.HOLD:
+        if key == TICKET_STATUS.HOLD:
             return '持有'
-        if key == self.KICK:
+        if key == TICKET_STATUS.KICK:
             return '弃用'
 
 
