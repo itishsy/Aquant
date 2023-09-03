@@ -36,16 +36,24 @@
                             <td><span type="text" >{{ticket.status_text}}</span></td>
                         </tr>
                         <tr>
-                            <td><label>操作策略</label></td>
+                            <td><label>策略</label></td>
                             <td><span type="text" >{{ticket.strategy}}</span></td>
                         </tr>
                         <tr>
-                            <td><label>买点</label></td>
-                            <td><span type="text" >{{ticket.buy}}</span></td>
+                            <td><label>信號級別</label></td>
+                            <td><span type="text" >{{ticket.bs_freq}}</span></td>
                         </tr>
                         <tr>
-                            <td><label>观察级别</label></td>
-                            <td><span type="text" >{{ticket.watch_text}}</span></td>
+                            <td><label>信號時間</label></td>
+                            <td><span type="text" >{{ticket.bs_dt}}</span></td>
+                        </tr>
+                        <tr>
+                            <td><label>信號價格</label></td>
+                            <td><span type="text" >{{ticket.bs_price}}</span></td>
+                        </tr>
+                        <tr>
+                            <td><label>信號强度</label></td>
+                            <td><span type="text" >{{ticket.bs_strength}}</span></td>
                         </tr>
 
                         {% if ticket.status_text == "持有"%}

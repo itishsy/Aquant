@@ -135,7 +135,8 @@ def ticket_detail():
             if (t == 'jia' or t == 'pin') and ticket.hold < 100:
                 flash('持有量不足，无法交易')
 
-            sis = Signal.select().where(Signal.code == ticket.code, Signal.status == 1).order_by(Signal.dt.desc()).limit(1)
+            sis = Signal.select().where(Signal.code == ticket.code, Signal.status == 1).order_by(
+                Signal.dt.desc()).limit(1)
             if len(sis) > 0:
                 si = sis[-1]
             else:
@@ -175,15 +176,14 @@ def ticket_detail():
         if request.method == 'GET':
             utils.model_to_form(ticket, form)
             ticket.status_text = TICKET_STATUS.get(ticket.status)
-            ticket.watch_text = freq_level(ticket.watch)
-            ticket.clean_text = freq_level(ticket.clean)
-            s_query = Signal.select().where(Signal.code == ticket.code, Signal.status == 1).order_by(Signal.dt.desc()).limit(5)
+            s_query = Signal.select().where(Signal.code == ticket.code).order_by(Signal.dt.desc()).limit(5)
             t_query = Trade.select().where(Trade.code == ticket.code).order_by(Trade.dt.desc()).limit(5)
             singles = utils.query_to_list(s_query)
-            trades = utils.query_to_list(t_query)
+            # trades = utils.query_to_list(t_query)
     else:
         flash('参数错误')
-    return render_template('ticketdetail.html',  ticket= ticket, form= form, singles=singles, trades=trades, current_user=current_user)
+    return render_template('ticketdetail.html', ticket=ticket, form=form, singles=singles, trades=trades,
+                           current_user=current_user)
 
 
 @main.route('/api/load_ticket', methods=['GET'])
@@ -212,14 +212,16 @@ class TicketForm(FlaskForm):
     id = IntegerField('id')
     name = StringField('名称', validators=[DataRequired(message='不能为空'), Length(0, 6, message='长度不正确')])
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 6, message='长度不正确')])
+    status = SelectField('状态', choices=TICKET_STATUS.all())
+    strategy = StringField('策略')
+    bs_freq = StringField('信號級別')
+    bs_dt = StringField('信號時間')
+    bs_price = StringField('信號價格')
+    bs_strength = StringField('信號强度')
+    bp_freq = StringField('買點級別')
+    bp_dt = StringField('買點時間')
+    bp_price = StringField('買點價格')
     cost = DecimalField('成本')
     hold = IntegerField('持有量')
-    strategy = SelectField('交易策略', choices=trade_strategy())
-    buy = SelectField('买入类型', choices=buy_type())
-    watch = SelectField('监控级别', choices=freq_level())
-    cut = DecimalField('止损')
-    clean = SelectField('剔除', choices=freq_level())
-    status = SelectField('状态', choices=TICKET_STATUS.all())
-    source = SelectField('来源于', choices=choice_strategy())
     created = StringField('创建时间')
     submit = SubmitField('提交')

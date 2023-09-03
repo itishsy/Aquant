@@ -45,8 +45,8 @@ class Ticket(BaseModel):
     bp_freq = CharField()  # 買點級別
     bp_dt = CharField()  # 買點時間
     bp_price = DecimalField()  # 買點價格
-    hold = IntegerField(default=0)  # 持有量
-    cost = DecimalField(default=0.0)  # 成本
+    hold = IntegerField()  # 持有量
+    cost = DecimalField()  # 成本
     created = DateTimeField()
     updated = DateTimeField()
 
@@ -55,6 +55,7 @@ class Ticket(BaseModel):
         self.name = cho.name
         self.cid = cho.get_id()
         self.status = TICKET_STATUS.WATCH
+        self.strategy = cho.strategy
         self.cid = cho.s_id
         sig = Signal.get_by_id(cho.s_id)
         self.bs_freq = sig.freq
