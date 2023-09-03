@@ -49,7 +49,9 @@ class PAB(Engine):
         fcs = find_candles(self.ticket.code, self.bp_freq)
         dbs = diver_bottom(fcs)
         if len(dbs) > 0:
-            self.add_signal(dbs[-1])
+            sig = dbs[-1]
+            if sig.dt > self.ticket.bs_dt and sig.price > self.ticket.bs_price:
+                self.add_signal(sig)
 
     def flush(self):
         dt = self.ticket.bs_dt
