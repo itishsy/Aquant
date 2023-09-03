@@ -90,23 +90,29 @@ class Engine(ABC):
                 for sym in symbols:
                     count = count + 1
                     print('[{0}] searching... {1}({2}) '.format(datetime.now(), sym.code, count))
+                    self.ticket = Ticket(code=sym.code, name=sym.name)
                     self.search(sym.code)
                     if self.signal:
                         self.add_choice()
-                        self.signal = None
+                    self.signal = None
+                    self.ticket = None
                 Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
             except Exception as e:
                 Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
                 print(e)
             finally:
                 self.signal = None
+                self.ticket = None
                 print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.__class__.__name__, count))
 
     def add_choice(self):
         if not Choice.select().where(Choice.code == self.signal.code,
-                                     Choice.dt == self.signal.dt,
-                                     Choice.freq == self.signal.freq).exists():
-            Choice.add_by_signal(self.signal, self.__class__.__name__)
+                                     Choice.s_dt == self.signal.dt,
+                                     Choice.s_freq == self.signal.freq).exists():
+            cho = Choice()
+            cho.source = 'engine'
+            cho.strategy = self.__class__.__name__
+            cho.add_by_signal(sig=self.signal)
             print('[{0}] add a choice({1}) by strategy {2}'.format(datetime.now(),
                                                                    self.signal.code,
                                                                    self.__class__.__name__))

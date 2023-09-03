@@ -137,14 +137,13 @@ def fetch_all(freq=None):
     count = 0
     for sb in sbs:
         try:
-            print('[{}] {} fetch candles [{}] start!'.format(start_time, count, sb.code))
+            print('[{}] {} fetch candles [{}] start!'.format(datetime.now(), count, sb.code))
             for k in ks:
                 fetch_and_save(sb.code, k)
             print('[{}] {} fetch candles [{}] done!'.format(datetime.now(), count, sb.code))
             count = count + 1
         except Exception as ex:
-            print('fetch candles [{}] error!'.format(sb.code))
-            logging.error('fetch candles [{}] error!'.format(sb.code), ex)
+            print('fetch candles [{}] error!'.format(sb.code), ex)
     print('[{}] fetch all done! elapsed time:'.format(datetime.now(), datetime.now() - start_time))
 
 

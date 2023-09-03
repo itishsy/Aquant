@@ -16,11 +16,9 @@ class Choice(BaseModel):
     s_dt = CharField()  # 信號時間
     created = DateTimeField()
 
-    def add_by_signal(self, sig: Signal, strategy):
+    def add_by_signal(self, sig: Signal):
         self.code = sig.code
         self.name = sig.name
-        self.source = 'engine'
-        self.strategy = strategy
         self.s_id = sig.id
         self.s_freq = sig.freq
         self.s_dt = sig.dt
