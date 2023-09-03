@@ -19,13 +19,25 @@ def freq_level(ts=None):
 
 def choice_strategy(key=None):
     if key is None:
-        return [('UAR', 'UAR'), ('DRC', 'DRC'), ('HOT', 'HOT')]
+        return [('UAR', 'UAR'), ('DRC', 'DRC'), ('PAB', 'PAB'), ('HOT', 'HOT')]
     if key == 'UAR':
         return 'UAR'
     if key == 'DRC':
         return 'DRC'
+    if key == 'PAB':
+        return 'PAB'
     if key == 'HOT':
         return 'HOT'
+    return 'undefined'
+
+
+def choice_source(key=None):
+    if key is None:
+        return [('ENGINE', 'ENGINE'), ('HOT', 'HOT')]
+    if key == 'ENGINE':
+        return 'ENGINE'
+    if key == 'MANUAL':
+        return 'MANUAL'
     return 'undefined'
 
 

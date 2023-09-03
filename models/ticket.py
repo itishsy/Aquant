@@ -55,8 +55,8 @@ class Ticket(BaseModel):
         self.name = cho.name
         self.cid = cho.get_id()
         self.status = TICKET_STATUS.WATCH
-        self.cid = cho.sid
-        sig = Signal.get_by_id(cho.sid)
+        self.cid = cho.s_id
+        sig = Signal.get_by_id(cho.s_id)
         self.bs_freq = sig.freq
         self.bs_dt = sig.dt
         self.bs_price = sig.price

@@ -12,7 +12,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
 from storage.dba import get_symbol, find_candles
-from common.dicts import choice_strategy, choice_status, freq_level
+from common.dicts import choice_strategy, choice_source, freq_level
 from common.utils import now_ymd
 
 logger = get_logger(__name__)
@@ -29,18 +29,19 @@ def choice_list():
     today = request.args.get('today')
     if today:
         last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
-        query = Choice.select().where(Choice.status == 1, Choice.created >= last_day)
+        query = Choice.select().where(Choice.created >= last_day)
         total_count = query.count()
     else:
-        query = Choice.select().where(Choice.status == 1).order_by(Choice.dt.desc(), Choice.created.desc())
+        query = Choice.select().order_by(Choice.created.desc())
         total_count = query.count()
 
     # 处理分页
-    if page: query = query.paginate(page, length)
+    if page:
+        query = query.paginate(page, length)
 
-    dict = {'content': utils.query_to_list(query), 'total_count': total_count,
-            'total_page': math.ceil(total_count / length), 'page': page, 'length': length}
-    return render_template('choicelist.html', form=dict, today=today, current_user=current_user)
+    lis = {'content': utils.query_to_list(query), 'total_count': total_count,
+           'total_page': math.ceil(total_count / length), 'page': page, 'length': length}
+    return render_template('choicelist.html', form=lis, today=today, current_user=current_user)
 
 
 @main.route('/choice_edit', methods=['GET', 'POST'])
@@ -57,57 +58,21 @@ def choice_edit():
             cho.save()
             flash('操作成功')
         if action == 'tick':
-            cho.updated = datetime.now()
-            cho.save()
             if not Ticket.select().where(Ticket.code == cho.code).exists():
                 tic = Ticket()
-                tic.code = cho.code
-                tic.name = cho.name
-                tic.cost = 0.0
-                tic.hold = 0
-                tic.buy = 'R30C5'
-                tic.strategy = 'PAB'
-                tic.watch = 0
-                tic.cut = 0.0
-                tic.clean = 3
-                tic.status = 0
-                tic.source = 'UAR'
-                tic.created = datetime.now()
-                tic.updated = datetime.now()
-                tic.save()
-                tic = Ticket.get(Ticket.code == cho.code)
-                sig = Signal()
-                sig.code = cho.code
-                sig.name = cho.name
-                sig.type = 0
-                sig.freq = cho.freq
-                sig.dt = cho.dt
-                sig.source = '背离'
-                sig.status = 1
-                sig.created = datetime.now()
-                sig.save()
+                tic.add_by_choice(cho)
+                flash('操作成功')
             else:
                 tic = Ticket.get(Ticket.code == cho.code)
-                if tic.status == 0:
-                    tic.status = 0
-                    tic.updated = datetime.now()
-                    tic.save()
-                if not Signal.select().where(Signal.code == cho.code, Signal.dt == cho.dt).exists():
-                    sig = Signal()
-                    sig.code = cho.code
-                    sig.name = cho.name
-                    sig.type = 0
-                    sig.freq = cho.freq
-                    sig.dt = cho.dt
-                    sig.source = '背离'
-                    sig.status = 1
-                    sig.created = datetime.now()
-                    sig.save()
-            return redirect(url_for('main.ticket_edit', id=tic.id))
+                flash('操作成功')
+                return redirect(url_for('main.ticket_edit', id=tic.id))
 
         # 查询
         if request.method == 'GET':
             utils.model_to_form(cho, form)
+            if Ticket.select().where(Ticket.code == cho.code).exists():
+                tic = Ticket.get(Ticket.code == cho.code)
+                form.__setattr__('tid', tic.id)
         # 修改
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -156,9 +121,8 @@ class ChoiceForm(FlaskForm):
     id = IntegerField('id')
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     name = StringField('名称', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    dt = StringField('发出时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    s_dt = StringField('发出时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    s_freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     strategy = SelectField('策略', choices=choice_strategy(), default='hot')
-    status = SelectField('状态', choices=choice_status(), default='hot')
-    value = StringField('策略值', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    source = SelectField('來源', choices=choice_source(), default='MANUAL')
     submit = SubmitField('提交')

@@ -110,7 +110,7 @@ class Engine(ABC):
                                      Choice.s_dt == self.signal.dt,
                                      Choice.s_freq == self.signal.freq).exists():
             cho = Choice()
-            cho.source = 'engine'
+            cho.source = 'ENGINE'
             cho.strategy = self.__class__.__name__
             cho.add_by_signal(sig=self.signal)
             print('[{0}] add a choice({1}) by strategy {2}'.format(datetime.now(),

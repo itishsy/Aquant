@@ -22,8 +22,8 @@
             <tr>
                 <th style="display: none" >ID</th>
                 <th>编码</th>
-                <th>发生时间</th>
-                <th>级别</th>
+                <th>信號時間</th>
+                <th>信號級別</th>
                 <th>策略</th>
             </tr>
             {% for row in form.content %}
@@ -40,8 +40,8 @@
                     <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>
                     {% endif %}
                 </td>
-                <td>{{row.dt}}</td>
-                <td>{{row.freq}}</td>
+                <td>{{row.s_dt}}</td>
+                <td>{{row.s_freq}}</td>
                 <td>
                 <a href='{{ url_for("main.choice_edit", id=row.id) }}'>{{row.strategy}}</a>
                 </td>
