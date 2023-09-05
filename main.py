@@ -31,6 +31,9 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 if __name__ == '__main__':
-    for name in engine.strategy:
-        st = engine.strategy[name]()
-        st.start()
+    while True:
+        for name in engine.strategy:
+            st = engine.strategy[name]()
+            st.start()
+        time.sleep(60 * 10)
+

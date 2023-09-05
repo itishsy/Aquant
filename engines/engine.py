@@ -55,45 +55,40 @@ class Engine(ABC):
     signal = None
 
     def start(self):
-        while True:
-            if is_trade_time():
-                bss = Ticket.select().where(Ticket.status != TICKET_STATUS.ZERO, Ticket.status != TICKET_STATUS.KICK)
-                for tick in bss:
-                    try:
-                        self.ticket = tick
-                        if tick.status == TICKET_STATUS.WATCH:
-                            self.watch()
-                            if self.signal:
-                                self.ticket.status = TICKET_STATUS.DEAL
-                                self.ticket.update_bp(self.signal)
-                            else:
-                                self.flush()
-                                if self.ticket.status == TICKET_STATUS.KICK:
-                                    Ticket.delete_by_id(tick.get_id())
-                        elif tick.status == TICKET_STATUS.DEAL:
+        if is_trade_time():
+            bss = Ticket.select().where(Ticket.status != TICKET_STATUS.ZERO, Ticket.status != TICKET_STATUS.KICK)
+            for tick in bss:
+                try:
+                    self.ticket = tick
+                    if tick.status == TICKET_STATUS.WATCH:
+                        self.watch()
+                        if self.signal:
+                            self.ticket.status = TICKET_STATUS.DEAL
+                            self.ticket.update_bp(self.signal)
+                        else:
                             self.flush()
                             if self.ticket.status == TICKET_STATUS.KICK:
                                 Ticket.delete_by_id(tick.get_id())
-                        elif tick.status == TICKET_STATUS.HOLD:
-                            self.hold()
-                    except Exception as e:
-                        print(e)
-                    finally:
-                        self.ticket = None
-                        self.signal = None
-                time.sleep(60 * 10)
-            else:
-                if is_need_fetch():
-                    Component.update(status=1, run_start=datetime.now()).where(Component.name == COMPONENT_TYPE.FETCHER).execute()
-                    fet.fetch_all()
-                    Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.FETCHER).execute()
-                if is_need_search():
-                    Component.update(status=1, run_start=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
-                    self.search_all()
-                    Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
-                time.sleep(60 * 30)
-            if not is_trade_day():
-                time.sleep(60 * 60 * 4)
+                    elif tick.status == TICKET_STATUS.DEAL:
+                        self.flush()
+                        if self.ticket.status == TICKET_STATUS.KICK:
+                            Ticket.delete_by_id(tick.get_id())
+                    elif tick.status == TICKET_STATUS.HOLD:
+                        self.hold()
+                except Exception as e:
+                    print(e)
+                finally:
+                    self.ticket = None
+                    self.signal = None
+        else:
+            if is_need_fetch():
+                Component.update(status=1, run_start=datetime.now()).where(Component.name == COMPONENT_TYPE.FETCHER).execute()
+                fet.fetch_all()
+                Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.FETCHER).execute()
+            if is_need_search():
+                Component.update(status=1, run_start=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
+                self.search_all()
+                Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
 
     def search_all(self):
         count = 0
