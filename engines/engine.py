@@ -36,20 +36,6 @@ def is_need_fetch():
     return False
 
 
-def is_need_search():
-    sea = Component.get(Component.name == COMPONENT_TYPE.SEARCHER)
-    if is_trade_time():
-        # 交易时间不搜索
-        return False
-    if sea.run_end.day < datetime.now().day:
-        # 当天没搜索过，需要搜索
-        return True
-    elif sea.run_end.day == datetime.now().day:
-        # 当天已搜索过，搜索结束时间是在工作日的16点前，仍要搜索
-        return sea.run_end.weekday() < 5 and sea.run_end.hour < 16
-    return False
-
-
 class Engine(ABC):
     ticket = None
     signal = None
@@ -82,13 +68,30 @@ class Engine(ABC):
                     self.signal = None
         else:
             if is_need_fetch():
-                Component.update(status=1, run_start=datetime.now()).where(Component.name == COMPONENT_TYPE.FETCHER).execute()
+                Component.update(status=1, run_start=datetime.now()).where(
+                    Component.name == COMPONENT_TYPE.FETCHER).execute()
                 fet.fetch_all()
-                Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.FETCHER).execute()
-            if is_need_search():
-                Component.update(status=1, run_start=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
+                Component.update(status=0, run_end=datetime.now()).where(
+                    Component.name == COMPONENT_TYPE.FETCHER).execute()
+            if self.is_need_search():
+                Component.update(status=1, run_start=datetime.now()).where(
+                    Component.name == COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower())).execute()
                 self.search_all()
-                Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
+                Component.update(status=0, run_end=datetime.now()).where(
+                    Component.name == COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower())).execute()
+
+    def is_need_search(self):
+        sea = Component.get(Component.name == COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower()))
+        if is_trade_time():
+            # 交易时间不搜索
+            return False
+        if sea.run_end.day < datetime.now().day:
+            # 当天没搜索过，需要搜索
+            return True
+        elif sea.run_end.day == datetime.now().day:
+            # 当天已搜索过，搜索结束时间是在工作日的16点前，仍要搜索
+            return sea.run_end.weekday() < 5 and sea.run_end.hour < 16
+        return False
 
     def search_all(self):
         count = 0
@@ -123,7 +126,8 @@ class Engine(ABC):
                                                                    self.__class__.__name__))
 
     def add_signal(self, sig: Signal):
-        if Signal.select().where(Signal.code == sig.code, Signal.freq == sig.freq, Signal.dt == sig.dt, Signal.effect is None).exists():
+        if Signal.select().where(Signal.code == sig.code, Signal.freq == sig.freq, Signal.dt == sig.dt,
+                                 Signal.effect is None).exists():
             si = Signal.get(Signal.code == sig.code, Signal.freq == sig.freq, Signal.dt == sig.dt)
             lowest = get_lowest(find_candles(self.ticket.code, begin=dt_format(sig.dt)))
             if lowest.low < sig.price:
@@ -175,5 +179,3 @@ class Engine(ABC):
     @abstractmethod
     def hold(self):
         pass
-
-
