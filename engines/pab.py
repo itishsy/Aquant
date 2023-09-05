@@ -3,14 +3,14 @@ from engines.engine import strategy_engine, Engine
 from storage.dba import get_symbol, find_candles
 from models.signal import Signal
 from models.ticket import Ticket, TICKET_STATUS
-from signals.divergence import diver_bottom
+from signals.divergence import diver_bottom, diver_top
 from signals.utils import get_section, get_lowest
 from common.utils import dt_format
 
 
 @strategy_engine
 class PAB(Engine):
-    bs_freq = 30
+    bs_freq = 101
     bp_freq = 5
 
     def search(self, code) -> Signal:
@@ -37,6 +37,10 @@ class PAB(Engine):
                 counter = counter + 1
             j = j + 1
         if counter < 1:
+            return
+
+        dts = diver_top(candles)
+        if len(dts) > 0:
             return
 
         # 发生bs_freq底背离

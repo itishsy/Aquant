@@ -36,6 +36,20 @@ def is_need_fetch():
     return False
 
 
+def is_need_search():
+    sea = Component.get(Component.name == COMPONENT_TYPE.SEARCHER)
+    if is_trade_time():
+        # 交易时间不搜索
+        return False
+    if sea.run_end.day < datetime.now().day:
+        # 当天没搜索过，需要搜索
+        return True
+    elif sea.run_end.day == datetime.now().day:
+        # 当天已搜索过，搜索结束时间是在工作日的16点前，仍要搜索
+        return sea.run_end.weekday() < 5 and sea.run_end.hour < 16
+    return False
+
+
 class Engine(ABC):
     ticket = None
     signal = None
@@ -73,37 +87,33 @@ class Engine(ABC):
                     Component.update(status=1, run_start=datetime.now()).where(Component.name == COMPONENT_TYPE.FETCHER).execute()
                     fet.fetch_all()
                     Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.FETCHER).execute()
-                else:
+                if is_need_search():
+                    Component.update(status=1, run_start=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
                     self.search_all()
+                    Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
                 time.sleep(60 * 30)
             if not is_trade_day():
                 time.sleep(60 * 60 * 4)
 
     def search_all(self):
-        sea = Component.get(Component.name == COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower()))
-        # 当天未搜索过買入信號
-        if sea.run_end.month < datetime.now().month or sea.run_end.day < datetime.now().day:
-            count = 0
-            try:
-                Component.update(status=1, run_start=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
-                symbols = find_active_symbols()
-                for sym in symbols:
-                    count = count + 1
-                    print('[{0}] searching... {1}({2}) '.format(datetime.now(), sym.code, count))
-                    self.ticket = Ticket(code=sym.code, name=sym.name)
-                    self.search(sym.code)
-                    if self.signal:
-                        self.add_choice()
-                    self.signal = None
-                    self.ticket = None
-                Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
-            except Exception as e:
-                Component.update(status=0, run_end=datetime.now()).where(Component.name == COMPONENT_TYPE.SEARCHER).execute()
-                print(e)
-            finally:
+        count = 0
+        try:
+            symbols = find_active_symbols()
+            for sym in symbols:
+                count = count + 1
+                print('[{0}] searching... {1}({2}) '.format(datetime.now(), sym.code, count))
+                self.ticket = Ticket(code=sym.code, name=sym.name)
+                self.search(sym.code)
+                if self.signal:
+                    self.add_choice()
                 self.signal = None
                 self.ticket = None
-                print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.__class__.__name__, count))
+        except Exception as e:
+            print(e)
+        finally:
+            self.signal = None
+            self.ticket = None
+            print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.__class__.__name__, count))
 
     def add_choice(self):
         if not Choice.select().where(Choice.code == self.signal.code,
