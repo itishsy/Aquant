@@ -14,4 +14,5 @@ class Component(BaseModel):
 class COMPONENT_TYPE:
     FETCHER = 'fetcher'
     SENDER = 'sender'
-    SEARCHER = 'search:{0}'
+    SEARCHER = '{0}_searcher'
+    WATCHER = '{0}_watcher'
