@@ -35,5 +35,6 @@ if __name__ == '__main__':
         for name in engine.strategy:
             st = engine.strategy[name]()
             st.start()
+        print("engine working：{}".format(datetime.now()))
         time.sleep(60 * 10)
 

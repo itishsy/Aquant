@@ -25,14 +25,31 @@ def strategy_engine(cls):
 
 
 def is_need_fetch():
+    if is_trade_time():
+        # 交易时间不搜索
+        return False
     co = Component.get(Component.name == COMPONENT_TYPE.FETCHER)
     ltm = co.run_end
     now = datetime.now()
     if now.weekday() < 5:
-        if now.hour > 15 and (ltm.month < now.month or ltm.day < now.day or ltm.hour < 16):
+        if (now.hour > 15 or now.hour < 7) and (ltm.month < now.month or ltm.day < now.day or ltm.hour < 16):
             return True
     elif ltm.weekday() < 4:
         return True
+    return False
+
+
+def is_need_start(comp):
+    sea = Component.get(Component.name == comp)
+    if is_trade_time():
+        # 交易时间不搜索
+        return False
+    if sea.run_end.month < datetime.now().month or sea.run_end.day < datetime.now().day:
+        # 当天没搜索过，需要搜索
+        return True
+    elif sea.run_end.day == datetime.now().day:
+        # 当天已搜索过，搜索结束时间是在工作日的16点前，仍要搜索
+        return sea.run_end.weekday() < 5 and sea.run_end.hour < 16
     return False
 
 
@@ -67,31 +84,18 @@ class Engine(ABC):
                     self.ticket = None
                     self.signal = None
         else:
-            if is_need_fetch():
+            if is_need_start(COMPONENT_TYPE.FETCHER):
                 Component.update(status=1, run_start=datetime.now()).where(
                     Component.name == COMPONENT_TYPE.FETCHER).execute()
                 fet.fetch_all()
                 Component.update(status=0, run_end=datetime.now()).where(
                     Component.name == COMPONENT_TYPE.FETCHER).execute()
-            if self.is_need_search():
+            if is_need_start(COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower())):
                 Component.update(status=1, run_start=datetime.now()).where(
                     Component.name == COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower())).execute()
                 self.search_all()
                 Component.update(status=0, run_end=datetime.now()).where(
                     Component.name == COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower())).execute()
-
-    def is_need_search(self):
-        sea = Component.get(Component.name == COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower()))
-        if is_trade_time():
-            # 交易时间不搜索
-            return False
-        if sea.run_end.day < datetime.now().day:
-            # 当天没搜索过，需要搜索
-            return True
-        elif sea.run_end.day == datetime.now().day:
-            # 当天已搜索过，搜索结束时间是在工作日的16点前，仍要搜索
-            return sea.run_end.weekday() < 5 and sea.run_end.hour < 16
-        return False
 
     def search_all(self):
         count = 0
