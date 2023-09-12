@@ -16,3 +16,9 @@ class COMPONENT_TYPE:
     SENDER = 'sender'
     SEARCHER = '{0}_searcher'
     WATCHER = '{0}_watcher'
+
+
+class COMPONENT_STATUS:
+    STOP = '停用'
+    READY = '就绪'
+    RUNNING = '运行中'
