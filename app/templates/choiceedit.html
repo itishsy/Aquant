@@ -64,11 +64,11 @@
         <div class="box-footer">
             <div class="col-md-12">
                 {% if form.code.data %}
-                    <a class='btn btn-danger' href='{{ url_for("main.choice_edit", id=form.id.data, action="del") }}'>删除</a>
+                    <a class='btn btn-danger' href='{{ url_for("main.choice_edit", id=form.id.data, action="del") }}'>DELETE</a>
                     {% if form.tid %}
                     <a class='btn btn-default' href='{{ url_for("main.ticket_detail", id=form.tid) }}'>查看票据</a>
                     {% else %}
-                    <a class='btn btn-default' href='{{ url_for("main.choice_edit", id=form.id.data, action="tick") }}'>生成票据</a>
+                    <a class='btn btn-default' href='{{ url_for("main.choice_edit", id=form.id.data, action="watch") }}'>WATCH</a>
                     {% endif %}
                 {% endif %}
                 {{form.submit(class_="btn btn-primary pull-right")}}

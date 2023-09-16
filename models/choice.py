@@ -14,6 +14,7 @@ class Choice(BaseModel):
     s_id = IntegerField()  # 信號ID
     s_freq = CharField()  # 級別
     s_dt = CharField()  # 信號時間
+    status = IntegerField(default=0)  # 状态
     created = DateTimeField()
 
     def add_by_signal(self, sig: Signal):
@@ -24,6 +25,25 @@ class Choice(BaseModel):
         self.s_dt = sig.dt
         self.created = datetime.now()
         self.save()
+
+
+class CHOICE_STATUS:
+    CREATED = 0
+    USED = 1
+    REMOVE = 2
+
+    @staticmethod
+    def all():
+        return [(CHOICE_STATUS.CREATED, '新建'), (CHOICE_STATUS.USED, '使用'), (CHOICE_STATUS.REMOVE, '移除')]
+
+    @staticmethod
+    def get(key):
+        if key == CHOICE_STATUS.CREATED:
+            return '待定'
+        if key == CHOICE_STATUS.USED:
+            return '观察'
+        if key == CHOICE_STATUS.REMOVE:
+            return '操作'
 
 
 if __name__ == '__main__':

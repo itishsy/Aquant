@@ -23,8 +23,8 @@
                 <th style="display: none" >ID</th>
                 <th>编码</th>
                 <th>信號時間</th>
-                <th>信號級別</th>
                 <th>策略</th>
+                <th>操作</th>
             </tr>
             {% for row in form.content %}
             {% if row.tick %}
@@ -41,9 +41,16 @@
                     {% endif %}
                 </td>
                 <td>{{row.s_dt}}</td>
-                <td>{{row.s_freq}}</td>
+                <td>{{row.strategy}}-{{row.s_freq}}</td>
                 <td>
-                <a href='{{ url_for("main.choice_edit", id=row.id) }}'>{{row.strategy}}</a>
+                    {% if row.status==0 %}
+                    <a  class='btn btn-primary' href='{{ url_for("main.choice_edit", id=row.id, action="sta1") }}'>使用</a>
+                    <a  class='btn btn-default' href='{{ url_for("main.choice_edit", id=row.id, action="sta2") }}'>弃用</a>
+                    {% elif row.status==1 %}
+                    <a href="{{ url_for("main.choice_edit", id=row.id) }}">使用</a>
+                    {% else %}
+                    <a href="{{ url_for("main.choice_edit", id=row.id) }}">已弃用</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

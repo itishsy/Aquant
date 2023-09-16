@@ -2,12 +2,6 @@ from models.base import BaseModel, db
 from flask_peewee.db import CharField, DecimalField, IntegerField, DateTimeField, AutoField
 
 
-# from sqlalchemy import select, desc, and_, text
-# from storage.dba import dba
-# from typing import List
-# from datetime import datetime, timedelta
-
-
 # 信号
 class Signal(BaseModel):
     id = AutoField()
@@ -17,11 +11,11 @@ class Signal(BaseModel):
     dt = CharField()  # 发生时间
     price = DecimalField()  # 信号价格
     type = IntegerField()  # 信號類別： 0 底背离 1 頂背离
-    strength = IntegerField()  # 强度： 0 弱 1 中 2 强
-    effect = IntegerField()  # 有效性：0 無效 1 有效 2 破坏
-    notify = IntegerField()  # 通知 0 待通知， 1 已通知
+    strength = IntegerField(null=True)
+    effect = IntegerField(null=True)
+    notify = IntegerField(null=True)  # 通知 0 待通知， 1 已通知
     created = DateTimeField()
-    updated = DateTimeField()
+    updated = DateTimeField(null=True)
 
 
 class SIGNAL_TYPE:
@@ -49,6 +43,29 @@ class SIGNAL_TYPE:
             return '平臺支撐'
 
 
+# 信号的有效性，在产生信号后需要验证。0 無效 1 有效 2 破坏
+class SIGNAL_EFFECT:
+    INVALID = 0
+    EFFECTIVE = 1
+    DESTROY = 2
+
+    @staticmethod
+    def all():
+        return [(SIGNAL_EFFECT.INVALID, '無效'),
+                (SIGNAL_EFFECT.EFFECTIVE, '有效'),
+                (SIGNAL_EFFECT.DESTROY, '破坏')]
+
+    @staticmethod
+    def get(key):
+        if key == SIGNAL_EFFECT.INVALID:
+            return '無效'
+        if key == SIGNAL_EFFECT.EFFECTIVE:
+            return '有效'
+        if key == SIGNAL_EFFECT.DESTROY:
+            return '破坏'
+
+
+# 信号的强度，在信号产生时通过它的结构判断。 0 弱 1 中 2 强
 class SIGNAL_STRENGTH:
     WEAK = 0
     AVERAGE = 1
@@ -68,50 +85,6 @@ class SIGNAL_STRENGTH:
             return '中'
         if key == SIGNAL_STRENGTH.STRONG:
             return '強'
-
-#
-# def find_signals(watch=None) -> List[Signal]:
-#     session = dba.get_session()
-#     if watch is None:
-#         clauses = and_(1 == 1)
-#     else:
-#         clauses = and_(Signal.watch == watch)
-#     sgs = session.execute(
-#         select(Signal).where(clauses)
-#     ).scalars().fetchall()
-#     session.close()
-#     return sgs
-
-#
-# def get_signal(id) -> Signal:
-#     session = dba.get_session()
-#     sig = session.execute(
-#         select(Signal).where(Signal.id == id)
-#     ).scalar()
-#     session.close()
-#     return sig
-
-#
-# def count_signals(today=False):
-#     session = dba.get_session()
-#     if today:
-#         dt = datetime.now().strftime('%Y-%m-%d')
-#         count = session.query(Signal).filter(Signal.created >= dt).count()
-#     else:
-#         count = session.query(Signal).count()
-#     session.close()
-#     return count
-
-#
-# def update_signal_watch(ident, watch):
-#     session = dba.get_session()
-#     try:
-#         mappings = [{'id': ident, 'watch': watch}]
-#         session.bulk_update_mappings(Signal, mappings)
-#         session.flush()
-#         session.commit()
-#     except:
-#         session.rollback()
 
 
 if __name__ == '__main__':

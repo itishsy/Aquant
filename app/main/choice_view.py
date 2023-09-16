@@ -4,7 +4,7 @@ from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app import utils
 from . import main
-from models.choice import Choice
+from models.choice import Choice, CHOICE_STATUS
 from models.ticket import Ticket
 from models.signal import Signal
 from datetime import datetime
@@ -27,7 +27,7 @@ def choice_list():
 
     # 查询列表
     today = request.args.get('today')
-    if today:
+    if today and today != 'None':
         last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
         query = Choice.select().where(Choice.created >= last_day)
         total_count = query.count()
@@ -57,7 +57,7 @@ def choice_edit():
             cho.updated = datetime.now()
             cho.save()
             flash('操作成功')
-        if action == 'tick':
+        if action == 'watch':
             if not Ticket.select().where(Ticket.code == cho.code).exists():
                 tic = Ticket()
                 tic.add_by_choice(cho)
@@ -66,7 +66,17 @@ def choice_edit():
                 tic = Ticket.get(Ticket.code == cho.code)
                 flash('操作成功')
                 return redirect(url_for('main.ticket_edit', id=tic.id))
-
+        if action == 'sta1':
+            cho.status = CHOICE_STATUS.USED
+            cho.save()
+            if not Ticket.select().where(Ticket.code == cho.code).exists():
+                tic = Ticket()
+                tic.add_by_choice(cho)
+            return redirect(url_for('main.choice_list'))
+        if action == 'sta2':
+            cho.status = CHOICE_STATUS.REMOVE
+            cho.save()
+            return redirect(url_for('main.choice_list'))
         # 查询
         if request.method == 'GET':
             utils.model_to_form(cho, form)

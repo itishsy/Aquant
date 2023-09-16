@@ -11,7 +11,14 @@ from common.utils import dt_format
 @strategy_engine
 class PAB(Engine):
     bs_freq = 101
-    bp_freq = 5
+
+    def get_bp_freq(self):
+        if self.bs_freq == 101:
+            return 30
+        elif self.bs_freq == 60:
+            return 15
+        elif self.bs_freq == 30:
+            return 5
 
     def search(self, code) -> Signal:
         candles = find_candles(code)
@@ -47,10 +54,14 @@ class PAB(Engine):
         fcs = find_candles(code, self.bs_freq)
         dbs = diver_bottom(fcs)
         if len(dbs) > 0:
-            self.add_signal(dbs[-1])
+            sig = dbs[-1]
+            lowest = get_lowest(get_section(fcs, sdt=sig.dt))
+            # 剔除无效的信號
+            if lowest.dt == sig.dt or lowest.low > sig.price:
+                self.add_signal(sig)
 
     def watch(self):
-        fcs = find_candles(self.ticket.code, self.bp_freq)
+        fcs = find_candles(self.ticket.code, self.get_bp_freq())
         dbs = diver_bottom(fcs)
         if len(dbs) > 0:
             sig = dbs[-1]
