@@ -52,12 +52,17 @@ def choice_edit():
     if id:
         cho = Choice.get(Choice.id == id)
         action = request.args.get('action')
-        if action == 'del':
-            cho.status = 0
+        if action == 'disuse':
+            cho.status = CHOICE_STATUS.DISUSE
             cho.updated = datetime.now()
             cho.save()
             flash('操作成功')
         if action == 'watch':
+            cho.status = CHOICE_STATUS.WATCH
+            cho.updated = datetime.now()
+            cho.save()
+            flash('操作成功')
+            """ 
             if not Ticket.select().where(Ticket.code == cho.code).exists():
                 tic = Ticket()
                 tic.add_by_choice(cho)
@@ -66,17 +71,7 @@ def choice_edit():
                 tic = Ticket.get(Ticket.code == cho.code)
                 flash('操作成功')
                 return redirect(url_for('main.ticket_edit', id=tic.id))
-        if action == 'sta1':
-            cho.status = CHOICE_STATUS.USED
-            cho.save()
-            if not Ticket.select().where(Ticket.code == cho.code).exists():
-                tic = Ticket()
-                tic.add_by_choice(cho)
-            return redirect(url_for('main.choice_list'))
-        if action == 'sta2':
-            cho.status = CHOICE_STATUS.REMOVE
-            cho.save()
-            return redirect(url_for('main.choice_list'))
+            """
         # 查询
         if request.method == 'GET':
             utils.model_to_form(cho, form)
@@ -131,8 +126,8 @@ class ChoiceForm(FlaskForm):
     id = IntegerField('id')
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     name = StringField('名称', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    s_dt = StringField('发出时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    s_freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    dt = StringField('发出时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
+    freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     strategy = SelectField('策略', choices=choice_strategy(), default='hot')
     source = SelectField('來源', choices=choice_source(), default='MANUAL')
     submit = SubmitField('提交')

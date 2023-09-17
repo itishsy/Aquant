@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
 from models.ticket import Ticket, TICKET_STATUS
-from models.choice import Choice
+from models.choice import Choice, CHOICE_STATUS
 from models.signal import Signal, SIGNAL_TYPE, SIGNAL_STRENGTH, SIGNAL_EFFECT
 from common.utils import *
 from models.component import Component, COMPONENT_TYPE
@@ -53,6 +53,7 @@ def is_need_start(comp):
 
 class Engine(ABC):
     ticket = None
+    choice = None
     signal = None
 
     def start(self):
@@ -60,12 +61,14 @@ class Engine(ABC):
         if is_need_watch(COMPONENT_TYPE.WATCHER.format(strategy_name)):
             Component.update(status=1, run_start=datetime.now()).where(
                 Component.name == COMPONENT_TYPE.WATCHER.format(strategy_name)).execute()
-            bss = Ticket.select().where(Ticket.status != TICKET_STATUS.ZERO, Ticket.status != TICKET_STATUS.KICK)
-            for tick in bss:
-                self.ticket = tick
+            chs = Choice.select().where(Choice.status == CHOICE_STATUS.WATCH)
+            for ch in chs:
+                self.choice = ch
                 self.do_watch()
-                self.ticket = None
-                self.signal = None
+            tis = Ticket.select().where(Ticket.status == TICKET_STATUS.DEAL)
+            for ti in tis:
+                self.ticket = ti
+                self.do_deal()
             Component.update(status=0, run_end=datetime.now()).where(
                 Component.name == COMPONENT_TYPE.WATCHER.format(strategy_name)).execute()
         else:
@@ -79,8 +82,6 @@ class Engine(ABC):
                 Component.update(status=1, run_start=datetime.now()).where(
                     Component.name == COMPONENT_TYPE.SEARCHER.format(strategy_name)).execute()
                 self.search_all()
-                Component.update(status=0, run_end=datetime.now()).where(
-                    Component.name == COMPONENT_TYPE.SEARCHER.format(strategy_name)).execute()
 
     def search_all(self):
         count = 0
@@ -90,50 +91,84 @@ class Engine(ABC):
                 count = count + 1
                 print('[{0}] {1} searching by strategy -- {2} ({3}) '.format(datetime.now(), sym.code,
                                                                              self.__class__.__name__.lower(), count))
-                self.ticket = Ticket(code=sym.code, name=sym.name)
                 self.search(sym.code)
                 if self.signal:
                     self.add_choice()
                 self.signal = None
-                self.ticket = None
+            Component.update(status=0, run_end=datetime.now()).where(
+                Component.name == COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower())).execute()
         except Exception as e:
             print(e)
         finally:
             self.signal = None
-            self.ticket = None
             print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.__class__.__name__, count))
 
     def do_watch(self):
         try:
-            if self.ticket.status == TICKET_STATUS.WATCH or self.ticket.status == TICKET_STATUS.DEAL:
-                print('[{0}] {1} watching by strategy -- {2} '.format(datetime.now(), self.ticket.code,
-                                                                      self.__class__.__name__.lower()))
-                self.flush()
-                if self.ticket.status == TICKET_STATUS.KICK:
-                    Ticket.delete_by_id(self.ticket.get_id())
-                if self.ticket.status == TICKET_STATUS.WATCH:
-                    self.watch()
-                    if self.signal:
-                        self.ticket.status = TICKET_STATUS.DEAL
-                        self.ticket.update_bp(self.signal)
-            elif self.ticket.status == TICKET_STATUS.HOLD:
-                self.hold()
+            print('[{0}] {1} watching by strategy -- {2} '.format(datetime.now(), self.choice.code,
+                                                                  self.__class__.__name__.lower()))
+            self.watch()
+            if self.signal:
+                self.choice.status = CHOICE_STATUS.DEAL
+                self.choice.updated = datetime.now()
+                self.choice.save()
+                self.add_ticket()
+            elif self.choice.status == CHOICE_STATUS.REMOVE:
+                self.choice.updated = datetime.now()
+                self.choice.save()
+                sig = Signal.get_by_id(self.choice.sid)
+                sig.effect = SIGNAL_EFFECT.DESTROY
+                sig.updated = datetime.now()
+                sig.save()
         except Exception as e:
             print(e)
+        finally:
+            print('[{0}] {1} watch done by strategy -- {2} '.format(datetime.now(), self.choice.code,
+                                                                    self.__class__.__name__.lower()))
+            self.choice = None
+            self.signal = None
+
+    def do_deal(self):
+        try:
+            print('[{0}] {1} dealing by strategy -- {2} '.format(datetime.now(), self.ticket.code,
+                                                                 self.__class__.__name__.lower()))
+            self.deal()
+            if self.ticket.status == TICKET_STATUS.KICK:
+                self.ticket.updated = datetime.now()
+                self.ticket.save()
+            if self.signal:
+                self.ticket.add_ticket_signal(self.signal)
+        except Exception as e:
+            print(e)
+        finally:
+            print('[{0}] {1} deal done by strategy -- {2} '.format(datetime.now(), self.ticket.code,
+                                                                   self.__class__.__name__.lower()))
+            self.ticket = None
+            self.signal = None
 
     def add_choice(self):
         if not Choice.select().where(Choice.code == self.signal.code,
-                                     Choice.s_dt == self.signal.dt,
-                                     Choice.s_freq == self.signal.freq).exists():
+                                     Choice.dt == self.signal.dt,
+                                     Choice.freq == self.signal.freq).exists():
             cho = Choice()
             cho.source = 'ENGINE'
             cho.strategy = self.__class__.__name__
+            cho.status = CHOICE_STATUS.WATCH
             cho.add_by_signal(sig=self.signal)
             print('[{0}] add a choice({1}) by strategy {2}'.format(datetime.now(),
                                                                    self.signal.code,
                                                                    self.__class__.__name__))
 
-    def add_signal(self, sig: Signal):
+    def add_ticket(self):
+        if not Ticket.select().where(Ticket.cid == self.choice.id).exists():
+            tic = Ticket()
+            tic.status = TICKET_STATUS.DEAL
+            tic.add_by_choice(self.choice, self.signal)
+            print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(),
+                                                                   self.signal.code,
+                                                                   self.__class__.__name__))
+
+    def upset_signal(self, sig: Signal):
         # 信号已经存在
         if Signal.select().where(Signal.code == sig.code, Signal.freq == sig.freq, Signal.dt == sig.dt).exists():
             si = Signal.get(Signal.code == sig.code, Signal.freq == sig.freq, Signal.dt == sig.dt)
@@ -141,13 +176,13 @@ class Engine(ABC):
             if si.effect:
                 return
 
-            lowest = get_lowest(find_candles(self.ticket.code, begin=dt_format(sig.dt)))
+            lowest = get_lowest(find_candles(sig.code, begin=dt_format(sig.dt)))
             if lowest.low < sig.price:
                 si.effect = SIGNAL_EFFECT.INVALID
                 si.updated = datetime.now()
                 si.save()
             elif sig.type == SIGNAL_TYPE.BOTTOM_DIVERGENCE:
-                cds = find_candles(self.ticket.code, freq=sig.freq)
+                cds = find_candles(sig.code, freq=sig.freq)
                 d, a, b, r, c = get_dabrc(cds, sig.dt)
                 r_high = get_highest(r)
                 if r_high.diff() > 0:
@@ -165,14 +200,13 @@ class Engine(ABC):
                         si.strength = SIGNAL_STRENGTH.AVERAGE
                         si.save()
         else:
-            lowest = get_lowest(find_candles(self.ticket.code, begin=dt_format(sig.dt)))
+            lowest = get_lowest(find_candles(sig.code, begin=dt_format(sig.dt)))
             # 信號价不能破
             if lowest.low < sig.price:
                 return
 
             self.signal = sig
-            self.signal.code = self.ticket.code
-            self.signal.name = self.ticket.name
+            self.signal.name = get_symbol(self.signal.code).name
             self.signal.created = datetime.now()
             self.signal.save()
 
@@ -185,9 +219,5 @@ class Engine(ABC):
         pass
 
     @abstractmethod
-    def flush(self):
-        pass
-
-    @abstractmethod
-    def hold(self):
+    def deal(self):
         pass

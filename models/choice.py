@@ -1,6 +1,6 @@
 from models.base import BaseModel, db
 from models.signal import Signal
-from flask_peewee.db import CharField, IntegerField, DateTimeField, AutoField
+from flask_peewee.db import CharField, IntegerField, DateTimeField, AutoField, DecimalField
 from datetime import datetime
 
 
@@ -10,40 +10,46 @@ class Choice(BaseModel):
     code = CharField()  # 编码
     name = CharField()  # 名称
     source = CharField()  # 來源
+    freq = CharField()  # 級別
+    dt = CharField()  # 信號時間
+    price = DecimalField()  # 信号价格
     strategy = CharField()  # 策略值
-    s_id = IntegerField()  # 信號ID
-    s_freq = CharField()  # 級別
-    s_dt = CharField()  # 信號時間
-    status = IntegerField(default=0)  # 状态
+    sid = IntegerField()  # 信號ID
+    status = IntegerField(default=1)  # 状态
     created = DateTimeField()
+    updated = DateTimeField(null=True)
 
     def add_by_signal(self, sig: Signal):
         self.code = sig.code
         self.name = sig.name
-        self.s_id = sig.id
-        self.s_freq = sig.freq
-        self.s_dt = sig.dt
+        self.freq = sig.freq
+        self.dt = sig.dt
+        self.sid = sig.id
+        self.price = sig.price
         self.created = datetime.now()
         self.save()
 
 
 class CHOICE_STATUS:
-    CREATED = 0
-    USED = 1
-    REMOVE = 2
+    DISUSE = 0
+    WATCH = 1
+    DEAL = 2
+    REMOVE = 3
 
     @staticmethod
     def all():
-        return [(CHOICE_STATUS.CREATED, '新建'), (CHOICE_STATUS.USED, '使用'), (CHOICE_STATUS.REMOVE, '移除')]
+        return [(CHOICE_STATUS.DISUSE, '弃用'), (CHOICE_STATUS.WATCH, '观察'), (CHOICE_STATUS.DEAL, '交易'), (CHOICE_STATUS.REMOVE, '移除')]
 
     @staticmethod
     def get(key):
-        if key == CHOICE_STATUS.CREATED:
-            return '待定'
-        if key == CHOICE_STATUS.USED:
+        if key == CHOICE_STATUS.DISUSE:
+            return '弃用'
+        if key == CHOICE_STATUS.WATCH:
             return '观察'
+        if key == CHOICE_STATUS.DEAL:
+            return '交易'
         if key == CHOICE_STATUS.REMOVE:
-            return '操作'
+            return '移除'
 
 
 if __name__ == '__main__':

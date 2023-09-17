@@ -40,16 +40,17 @@
                     <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>
                     {% endif %}
                 </td>
-                <td>{{row.s_dt}}</td>
-                <td>{{row.strategy}}-{{row.s_freq}}</td>
+                <td>{{row.dt}}</td>
+                <td>{{row.strategy}}-{{row.freq}}</td>
                 <td>
                     {% if row.status==0 %}
-                    <a  class='btn btn-primary' href='{{ url_for("main.choice_edit", id=row.id, action="sta1") }}'>使用</a>
-                    <a  class='btn btn-default' href='{{ url_for("main.choice_edit", id=row.id, action="sta2") }}'>弃用</a>
+                    <span class="bg-gray">已弃用</span>
                     {% elif row.status==1 %}
-                    <a href="{{ url_for("main.choice_edit", id=row.id) }}">使用</a>
+                    <span class="bg-primary">观察中</span>
+                    {% elif row.status==2 %}
+                    <span class="bg-info">交易中</span>
                     {% else %}
-                    <a href="{{ url_for("main.choice_edit", id=row.id) }}">已弃用</a>
+                    <span class="bg-warning">移除</span>
                     {% endif %}
                 </td>
             </tr>

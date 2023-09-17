@@ -2,6 +2,7 @@ from datetime import datetime
 from engines.engine import strategy_engine, Engine
 from storage.dba import get_symbol, find_candles
 from models.signal import Signal
+from models.choice import Choice, CHOICE_STATUS
 from models.ticket import Ticket, TICKET_STATUS
 from signals.divergence import diver_bottom, diver_top
 from signals.utils import get_section, get_lowest
@@ -20,7 +21,7 @@ class PAB(Engine):
         elif self.bs_freq == 30:
             return 5
 
-    def search(self, code) -> Signal:
+    def search(self, code):
         candles = find_candles(code)
         size = len(candles)
         if size < 50:
@@ -58,21 +59,26 @@ class PAB(Engine):
             lowest = get_lowest(get_section(fcs, sdt=sig.dt))
             # 剔除无效的信號
             if lowest.dt == sig.dt or lowest.low > sig.price:
-                self.add_signal(sig)
+                sig.code = code
+                self.upset_signal(sig)
 
     def watch(self):
-        fcs = find_candles(self.ticket.code, self.get_bp_freq())
-        dbs = diver_bottom(fcs)
-        if len(dbs) > 0:
-            sig = dbs[-1]
-            if sig.dt > self.ticket.bs_dt and sig.price > self.ticket.bs_price:
-                self.add_signal(sig)
+        cho = self.choice
+        lowest = get_lowest(find_candles(cho.code, begin=dt_format(cho.dt)))
+        sig = Signal.get_by_id(cho.sid)
+        if lowest.low > sig.price:
+            fcs = find_candles(cho.code, self.get_bp_freq())
+            dbs = diver_bottom(fcs)
+            if len(dbs) > 0:
+                sig = dbs[-1]
+                if sig.dt > cho.dt and sig.price > cho.price:
+                    sig.code = cho.code
+                    self.upset_signal(sig)
+        else:
+            self.choice.status = CHOICE_STATUS.REMOVE
 
-    def flush(self):
+    def deal(self):
         dt = self.ticket.bs_dt
         lowest = get_lowest(find_candles(self.ticket.code, begin=dt_format(dt)))
         if lowest.low < self.ticket.bs_price:
             self.ticket.status = TICKET_STATUS.KICK
-
-    def hold(self):
-        pass

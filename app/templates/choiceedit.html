@@ -37,14 +37,14 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.s_dt.label}}</label>
+                    <label>{{form.dt.label}}</label>
                     {{form.s_dt(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>{{form.s_freq.label}}</label>
-                    {{form.s_freq(class_="form-control",placeholder="请输入")}}
+                    <label>{{form.freq.label}}</label>
+                    {{form.freq(class_="form-control",placeholder="请输入")}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -64,11 +64,14 @@
         <div class="box-footer">
             <div class="col-md-12">
                 {% if form.code.data %}
-                    <a class='btn btn-danger' href='{{ url_for("main.choice_edit", id=form.id.data, action="del") }}'>DELETE</a>
+                    {% if form.status.data == 0 %}
+                    <a class='btn btn-default' href='{{ url_for("main.choice_edit", id=form.id.data, action="watch") }}'>WATCH</a>
+                    {% else %}
+                    <a class='btn btn-danger' href='{{ url_for("main.choice_edit", id=form.id.data, action="disuse") }}'>DISUSE</a>
+                    {% endif %}
+
                     {% if form.tid %}
                     <a class='btn btn-default' href='{{ url_for("main.ticket_detail", id=form.tid) }}'>查看票据</a>
-                    {% else %}
-                    <a class='btn btn-default' href='{{ url_for("main.choice_edit", id=form.id.data, action="watch") }}'>WATCH</a>
                     {% endif %}
                 {% endif %}
                 {{form.submit(class_="btn btn-primary pull-right")}}
@@ -100,8 +103,8 @@
                     location.href = '{{ url_for("main.choice_edit") }}' + '?id=' + obj.id
                 } else if (obj.id === 0){
                     $("#name").val(obj.name)
-                    $("#freq").val(obj.s_freq)
-                    $("#dt").val(obj.s_dt)
+                    $("#freq").val(obj.freq)
+                    $("#dt").val(obj.dt)
                     $(".source_select").val(obj.source).select2();
                     $(".strategy_select").val(obj.strategy).select2();
                 }
