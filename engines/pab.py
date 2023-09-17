@@ -11,13 +11,13 @@ from common.utils import dt_format
 
 @strategy_engine
 class PAB(Engine):
-    bs_freq = 101
+    bs_freq = 30
 
     def get_bp_freq(self):
         if self.bs_freq == 101:
             return 30
         elif self.bs_freq == 60:
-            return 15
+            return 10
         elif self.bs_freq == 30:
             return 5
 
@@ -66,7 +66,7 @@ class PAB(Engine):
         cho = self.choice
         lowest = get_lowest(find_candles(cho.code, begin=dt_format(cho.dt)))
         sig = Signal.get_by_id(cho.sid)
-        if lowest.low > sig.price:
+        if lowest.dt != sig.dt and lowest.low > sig.price:
             fcs = find_candles(cho.code, self.get_bp_freq())
             dbs = diver_bottom(fcs)
             if len(dbs) > 0:
