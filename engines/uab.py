@@ -1,6 +1,6 @@
 from datetime import datetime
 from engines.engine import strategy_engine, Engine
-from storage.dba import get_symbol, find_stage_candles, find_candles
+from storage.dba import get_symbol, find_candles
 from models.signal import Signal
 from models.choice import Choice, CHOICE_STATUS
 from models.ticket import Ticket, TICKET_STATUS
@@ -11,35 +11,22 @@ from common.utils import dt_format
 
 @strategy_engine
 class PAB(Engine):
-    parent_freq = 102
-    bs_freq = 101
-    bp_freq = 30
+    bs_freq = 30
+    bp_freq = 5
 
     def search(self, code):
-        """ 平台调整突破
-        #01. 周线级别的快慢线向下交叉发生在0轴上方
-        #02. 日线不能处在下跌趋势中。DIFF不能全在0轴下方。
-        #03. 具有一定的活跃性，最近30交易日出现过大涨
-        #04. 近期的日线，未发生过顶背底信号
-        #05. 出现日线级别底背底信号
+        """ 上涨调整突破
+        1. 日线别的快慢线向下交叉发生在0轴上方
+        2. 调整回落的幅度不能超过上涨幅度的黄金分割线
+        3. 调整过程中，出现次某级别的背驰买点
         :param code:
         """
-
-        # 不少于100根k线
         candles = find_candles(code)
         size = len(candles)
-        if size < 100:
+        if size < 50:
             return
 
-        # 取最新的一根
-        cur_candle = candles[-1]
-
-        # 父級別的一段起點在0轴上方
-        psc = find_stage_candles(code, self.parent_freq, cur_candle.dt)
-        if len(psc) < 2 or psc[0].diff() < 0:
-            return
-
-        #  日线diff不要超过618落在0轴下方
+        # 不能超过618落在0轴下方
         counter = 0
         i = 0
         while i < size:
@@ -59,12 +46,11 @@ class PAB(Engine):
         if counter < 1:
             return
 
-        # 近期没有出现顶背离
         dts = diver_top(candles)
         if len(dts) > 0:
             return
 
-        # 发生了日线底背离
+        # 发生bs_freq底背离
         fcs = find_candles(code, self.bs_freq)
         dbs = diver_bottom(fcs)
         if len(dbs) > 0:
@@ -80,7 +66,7 @@ class PAB(Engine):
         lowest = get_lowest(find_candles(cho.code, begin=dt_format(cho.dt)))
         sig = Signal.get_by_id(cho.sid)
         if lowest.dt != sig.dt and lowest.low > sig.price:
-            fcs = find_candles(cho.code, self.get_bp_freq())
+            fcs = find_candles(cho.code, self.bp_freq)
             dbs = diver_bottom(fcs)
             if len(dbs) > 0:
                 sig = dbs[-1]
