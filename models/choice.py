@@ -10,11 +10,11 @@ class Choice(BaseModel):
     code = CharField()  # 编码
     name = CharField()  # 名称
     source = CharField()  # 來源
+    sid = IntegerField()  # 信號ID
     freq = CharField()  # 級別
     dt = CharField()  # 信號時間
     price = DecimalField()  # 信号价格
     strategy = CharField()  # 策略值
-    sid = IntegerField()  # 信號ID
     status = IntegerField(default=1)  # 状态
     created = DateTimeField()
     updated = DateTimeField(null=True)
