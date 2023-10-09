@@ -1,13 +1,11 @@
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
-from models.ticket import Ticket, TicketSignal, TICKET_STATUS
+from models.ticket import Ticket, TicketSignal
 from models.choice import Choice
-from models.signal import Signal, SIGNAL_TYPE, SIGNAL_STRENGTH, SIGNAL_EFFECT
 from common.utils import *
 from models.component import Component, COMPONENT_TYPE
 import storage.fetcher as fet
-from storage.dba import find_active_symbols, find_candles, get_symbol
-from signals.utils import *
+from storage.dba import find_active_symbols
 
 import traceback
 import time
@@ -107,11 +105,13 @@ class Engine(ABC):
         for sym in symbols:
             try:
                 count = count + 1
-                cod = sym.code
-                print('[{0}] {1} searching by strategy -- {2} ({3}) '.format(datetime.now(), cod,
+                co = sym.code
+                print('[{0}] {1} searching by strategy -- {2} ({3}) '.format(datetime.now(), co,
                                                                              self.strategy, count))
-                sig = self.search(cod)
+                sig = self.search(co)
                 if sig:
+                    sig.code = co
+                    sig.upset()
                     Choice(source='ENGINE', strategy=self.strategy).add_by_signal(sig)
             except Exception as e:
                 print(e)
@@ -124,8 +124,10 @@ class Engine(ABC):
                 print('[{0}] {1} watching by strategy -- {2} '.format(datetime.now(), cho.code, self.strategy))
                 sig = self.watch(cho)
                 if sig:
+                    sig.code = cho.code
+                    sig.upset()
                     tic = Ticket()
-                    tic.status = TICKET_STATUS.DEAL
+                    tic.status = Ticket.Status.DEAL
                     tic.add_by_choice(cho, sig)
                     print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy))
             except Exception as e:
@@ -134,69 +136,28 @@ class Engine(ABC):
                 print('[{0}] {1} watch done by strategy -- {2} '.format(datetime.now(), cho.code, self.strategy))
 
     def do_deal(self):
-        tis = Ticket.select().where(Ticket.status == TICKET_STATUS.DEAL)
+        tis = Ticket.select().where(Ticket.status == Ticket.Status.DEAL)
         for tic in tis:
             try:
                 print('[{0}] {1} dealing by strategy -- {2} '.format(datetime.now(), tic.code, self.strategy))
                 sig = self.deal(tic)
                 if sig:
+                    sig.code = tic.code
+                    sig.upset()
                     TicketSignal(tid=tic.id, sid=sig.id, created=datetime.now()).save()
             except Exception as e:
                 print(e)
             finally:
                 print('[{0}] {1} deal done by strategy -- {2} '.format(datetime.now(), tic.code, self.strategy))
 
-
-    def upset_signal(self, sig: Signal):
-        # 信号已经存在
-        if Signal.select().where(Signal.code == sig.code, Signal.freq == sig.freq, Signal.dt == sig.dt).exists():
-            si = Signal.get(Signal.code == sig.code, Signal.freq == sig.freq, Signal.dt == sig.dt)
-            # 信号有效性已经验证，返回
-            if si.effect:
-                return
-
-            lowest = get_lowest(find_candles(sig.code, begin=dt_format(sig.dt)))
-            if lowest.low < sig.price:
-                si.effect = SIGNAL_EFFECT.INVALID
-                si.updated = datetime.now()
-                si.save()
-            elif sig.type == SIGNAL_TYPE.BOTTOM_DIVERGENCE:
-                cds = find_candles(sig.code, freq=sig.freq)
-                d, a, b, r, c = get_dabrc(cds, sig.dt)
-                r_high = get_highest(r)
-                if r_high.diff() > 0:
-                    si.effect = SIGNAL_EFFECT.EFFECTIVE
-                    si.strength = SIGNAL_STRENGTH.STRONG
-                    si.save()
-                else:
-                    a_high = get_highest(a)
-                    a_low = get_lowest(a)
-                    if r_high.high > a_high.high:
-                        si.effect = SIGNAL_EFFECT.EFFECTIVE
-                        si.strength = SIGNAL_STRENGTH.STRONG
-                        si.save()
-                    elif r_high.high > (a_high.high + a_low.low) / 2:
-                        si.strength = SIGNAL_STRENGTH.AVERAGE
-                        si.save()
-        else:
-            lowest = get_lowest(find_candles(sig.code, begin=dt_format(sig.dt)))
-            # 信號价不能破
-            if lowest.low < sig.price:
-                return
-
-            self.signal = sig
-            self.signal.name = get_symbol(self.signal.code).name
-            self.signal.created = datetime.now()
-            self.signal.save()
-
     @abstractmethod
-    def search(self, code) -> Signal:
+    def search(self, code):
         pass
 
     @abstractmethod
-    def watch(self, cho: Choice) -> Signal:
+    def watch(self, cho: Choice):
         pass
 
     @abstractmethod
-    def deal(self, tic: Ticket) -> Signal:
+    def deal(self, tic: Ticket):
         pass

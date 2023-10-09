@@ -59,7 +59,7 @@ class PAB(Engine):
             # 剔除无效的信號
             if lowest.dt == sig.dt or lowest.low > sig.price:
                 sig.code = code
-                self.upset_signal(sig)
+                upset_signal(sig)
 
     def watch(self):
         cho = self.choice
@@ -72,7 +72,7 @@ class PAB(Engine):
                 sig = dbs[-1]
                 if sig.dt > cho.dt and sig.price > cho.price:
                     sig.code = cho.code
-                    self.upset_signal(sig)
+                    upset_signal(sig)
         else:
             self.choice.status = CHOICE_STATUS.REMOVE
 

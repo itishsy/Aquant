@@ -1,9 +1,9 @@
 from datetime import datetime
 from engines.engine import strategy_engine, Engine
-from storage.dba import get_symbol, find_stage_candles, find_candles
+from storage.dba import find_stage_candles, find_candles
 from models.signal import Signal
-from models.choice import Choice, CHOICE_STATUS
-from models.ticket import Ticket, TICKET_STATUS
+from models.choice import Choice
+from models.ticket import Ticket
 from signals.divergence import diver_bottom, diver_top
 from signals.utils import get_section, get_lowest
 from common.utils import dt_format
@@ -72,10 +72,9 @@ class PAB(Engine):
             lowest = get_lowest(get_section(fcs, sdt=sig.dt))
             # 剔除无效的信號
             if lowest.dt == sig.dt or lowest.low > sig.price:
-                sig.code = code
-                self.upset_signal(sig)
+                return sig
 
-    def watch(self, cho) -> Signal:
+    def watch(self, cho):
         lowest = get_lowest(find_candles(cho.code, begin=dt_format(cho.dt)))
         sig = Signal.get_by_id(cho.sid)
         if lowest.dt != sig.dt and lowest.low > sig.price:
@@ -94,10 +93,10 @@ class PAB(Engine):
             cho.updated = datetime.now()
             cho.save()
 
-    def deal(self, tic) -> Signal:
+    def deal(self, tic):
         lowest = get_lowest(find_candles(self.ticket.code, begin=dt_format(tic.dt)))
         if lowest.low < self.ticket.bs_price:
-            tic.status = TICKET_STATUS.KICK
+            tic.status = Ticket.Status.KICK
             tic.updated = datetime.now()
             tic.save()
         else:

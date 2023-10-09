@@ -45,12 +45,23 @@ class Ticket(BaseModel):
             self.created = datetime.now()
             self.save()
 
-    def add_ticket_signal(self, sig: Signal):
-        ts = Ticket_Signal()
-        ts.tid = self.get_id()
-        ts.sid = sig.id
-        ts.created = datetime.now()
-        ts.save()
+    class Status:
+        DEAL = 0
+        HOLD = 1
+        KICK = 2
+
+        @staticmethod
+        def all():
+            return [(Ticket.Status.DEAL, '交易'), (Ticket.Status.HOLD, '持有'), (Ticket.Status.KICK, '剔除')]
+
+        @staticmethod
+        def get(key):
+            if key == Ticket.Status.DEAL:
+                return '交易'
+            if key == Ticket.Status.HOLD:
+                return '持有'
+            if key == Ticket.Status.KICK:
+                return '剔除'
 
 
 class TicketSignal(BaseModel):
@@ -59,25 +70,6 @@ class TicketSignal(BaseModel):
     created = DateTimeField()
 
 
-class TICKET_STATUS:
-    DEAL = 0
-    HOLD = 1
-    KICK = 2
-
-    @staticmethod
-    def all():
-        return [(TICKET_STATUS.DEAL, '交易'), (TICKET_STATUS.HOLD, '持有'), (TICKET_STATUS.KICK, '剔除')]
-
-    @staticmethod
-    def get(key):
-        if key == TICKET_STATUS.DEAL:
-            return '交易'
-        if key == TICKET_STATUS.HOLD:
-            return '持有'
-        if key == TICKET_STATUS.KICK:
-            return '剔除'
-
-
 if __name__ == '__main__':
     db.connect()
-    db.create_tables([Ticket, Ticket_Signal])
+    db.create_tables([Ticket, TicketSignal])

@@ -1,5 +1,9 @@
+from datetime import datetime
 from models.base import BaseModel, db
 from flask_peewee.db import CharField, DecimalField, IntegerField, DateTimeField, AutoField
+from storage.dba import find_candles, get_symbol
+from signals.utils import *
+from common.utils import dt_format
 
 
 # 信号
@@ -16,6 +20,42 @@ class Signal(BaseModel):
     notify = IntegerField(null=True)  # 通知 0 待通知， 1 已通知
     created = DateTimeField()
     updated = DateTimeField(null=True)
+
+    def upset(self):
+        # 信号已经存在
+        if Signal.select().where(Signal.code == self.code, Signal.freq == self.freq, Signal.dt == self.dt).exists():
+            si = Signal.get(Signal.code == self.code, Signal.freq == self.freq, Signal.dt == self.dt)
+            # 信号有效性已经验证，返回
+            if si.effect:
+                return
+
+            lowest = get_lowest(find_candles(self.code, begin=dt_format(self.dt)))
+            if lowest.low < self.price:
+                si.effect = SIGNAL_EFFECT.INVALID
+                si.updated = datetime.now()
+                si.save()
+            elif self.type == SIGNAL_TYPE.BOTTOM_DIVERGENCE:
+                cds = find_candles(self.code, freq=self.freq)
+                d, a, b, r, c = get_dabrc(cds, self.dt)
+                r_high = get_highest(r)
+                if r_high.diff() > 0:
+                    si.effect = SIGNAL_EFFECT.EFFECTIVE
+                    si.strength = SIGNAL_STRENGTH.STRONG
+                    si.save()
+                else:
+                    a_high = get_highest(a)
+                    a_low = get_lowest(a)
+                    if r_high.high > a_high.high:
+                        si.effect = SIGNAL_EFFECT.EFFECTIVE
+                        si.strength = SIGNAL_STRENGTH.STRONG
+                        si.save()
+                    elif r_high.high > (a_high.high + a_low.low) / 2:
+                        si.strength = SIGNAL_STRENGTH.AVERAGE
+                        si.save()
+        else:
+            self.name = get_symbol(self.code).name
+            self.created = datetime.now()
+            self.save()
 
 
 class SIGNAL_TYPE:
