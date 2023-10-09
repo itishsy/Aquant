@@ -11,6 +11,11 @@ class Component(BaseModel):
     frequency = IntegerField()  # 执行频率（分钟）
     status = IntegerField(default=0)  # 状态
 
+    class Status:
+        STOP = 0  # 停用
+        READY = 1  # 就绪
+        RUNNING = 2  # 运行中
+
 
 class COMPONENT_TYPE:
     FETCHER = 'fetcher'
@@ -19,10 +24,6 @@ class COMPONENT_TYPE:
     WATCHER = '{0}_watcher'
 
 
-class COMPONENT_STATUS:
-    STOP = '停用'
-    READY = '就绪'
-    RUNNING = '运行中'
 
 
 def start_watch(comp):

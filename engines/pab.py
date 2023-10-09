@@ -75,23 +75,36 @@ class PAB(Engine):
                 sig.code = code
                 self.upset_signal(sig)
 
-    def watch(self):
-        cho = self.choice
+    def watch(self, cho) -> Signal:
         lowest = get_lowest(find_candles(cho.code, begin=dt_format(cho.dt)))
         sig = Signal.get_by_id(cho.sid)
         if lowest.dt != sig.dt and lowest.low > sig.price:
-            fcs = find_candles(cho.code, self.get_bp_freq())
+            fcs = find_candles(cho.code, self.bp_freq)
             dbs = diver_bottom(fcs)
             if len(dbs) > 0:
                 sig = dbs[-1]
                 if sig.dt > cho.dt and sig.price > cho.price:
                     sig.code = cho.code
-                    self.upset_signal(sig)
+                    cho.status = Choice.Status.DEAL
+                    cho.updated = datetime.now()
+                    cho.save()
+                    return sig
         else:
-            self.choice.status = CHOICE_STATUS.REMOVE
+            cho.status = Choice.Status.KICK
+            cho.updated = datetime.now()
+            cho.save()
 
-    def deal(self):
-        dt = self.ticket.bs_dt
-        lowest = get_lowest(find_candles(self.ticket.code, begin=dt_format(dt)))
+    def deal(self, tic) -> Signal:
+        lowest = get_lowest(find_candles(self.ticket.code, begin=dt_format(tic.dt)))
         if lowest.low < self.ticket.bs_price:
-            self.ticket.status = TICKET_STATUS.KICK
+            tic.status = TICKET_STATUS.KICK
+            tic.updated = datetime.now()
+            tic.save()
+        else:
+            fcs = find_candles(tic.code, self.bp_freq)
+            dbs = diver_top(fcs)
+            if len(dbs) > 0:
+                sig = dbs[-1]
+                if sig.dt > tic.dt and sig.price > tic.price:
+                    sig.code = tic.code
+                    return sig

@@ -20,36 +20,39 @@ class Choice(BaseModel):
     updated = DateTimeField(null=True)
 
     def add_by_signal(self, sig: Signal):
-        self.code = sig.code
-        self.name = sig.name
-        self.freq = sig.freq
-        self.dt = sig.dt
-        self.sid = sig.id
-        self.price = sig.price
-        self.created = datetime.now()
-        self.save()
+        if not Choice.select().where(Choice.code == sig.code,
+                                     Choice.dt == sig.dt,
+                                     Choice.freq == sig.freq).exists():
+            self.code = sig.code
+            self.name = sig.name
+            self.freq = sig.freq
+            self.status = Choice.Status.WATCH
+            self.dt = sig.dt
+            self.sid = sig.id
+            self.price = sig.price
+            self.created = datetime.now()
+            self.save()
 
+    class Status:
+        DISUSE = 0
+        WATCH = 1
+        DEAL = 2
+        KICK = 3
 
-class CHOICE_STATUS:
-    DISUSE = 0
-    WATCH = 1
-    DEAL = 2
-    REMOVE = 3
+        @staticmethod
+        def all():
+            return [(Choice.Status.DISUSE, '弃用'), (Choice.Status.WATCH, '观察'), (Choice.Status.DEAL, '交易'), (Choice.Status.KICK, '剔除')]
 
-    @staticmethod
-    def all():
-        return [(CHOICE_STATUS.DISUSE, '弃用'), (CHOICE_STATUS.WATCH, '观察'), (CHOICE_STATUS.DEAL, '交易'), (CHOICE_STATUS.REMOVE, '移除')]
-
-    @staticmethod
-    def get(key):
-        if key == CHOICE_STATUS.DISUSE:
-            return '弃用'
-        if key == CHOICE_STATUS.WATCH:
-            return '观察'
-        if key == CHOICE_STATUS.DEAL:
-            return '交易'
-        if key == CHOICE_STATUS.REMOVE:
-            return '移除'
+        @staticmethod
+        def get(key):
+            if key == Choice.Status.DISUSE:
+                return '弃用'
+            if key == Choice.Status.WATCH:
+                return '观察'
+            if key == Choice.Status.DEAL:
+                return '交易'
+            if key == Choice.Status.KICK:
+                return '剔除'
 
 
 if __name__ == '__main__':

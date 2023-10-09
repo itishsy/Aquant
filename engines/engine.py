@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
-from models.ticket import Ticket, TICKET_STATUS
-from models.choice import Choice, CHOICE_STATUS
+from models.ticket import Ticket, TicketSignal, TICKET_STATUS
+from models.choice import Choice
 from models.signal import Signal, SIGNAL_TYPE, SIGNAL_STRENGTH, SIGNAL_EFFECT
 from common.utils import *
 from models.component import Component, COMPONENT_TYPE
@@ -52,121 +52,100 @@ def is_need_start(comp):
 
 
 class Engine(ABC):
-    ticket = None
-    choice = None
-    signal = None
+    strategy = 'engine'
 
     def start(self):
-        strategy_name = self.__class__.__name__.lower()
-        if is_need_watch(COMPONENT_TYPE.WATCHER.format(strategy_name)):
-            Component.update(status=1, run_start=datetime.now()).where(
-                Component.name == COMPONENT_TYPE.WATCHER.format(strategy_name)).execute()
-            chs = Choice.select().where(Choice.status == CHOICE_STATUS.WATCH)
-            for ch in chs:
-                self.choice = ch
-                self.do_watch()
-            tis = Ticket.select().where(Ticket.status == TICKET_STATUS.DEAL)
-            for ti in tis:
-                self.ticket = ti
-                self.do_deal()
-            Component.update(status=0, run_end=datetime.now()).where(
-                Component.name == COMPONENT_TYPE.WATCHER.format(strategy_name)).execute()
-        else:
-            if is_need_start(COMPONENT_TYPE.FETCHER):
-                Component.update(status=1, run_start=datetime.now()).where(
-                    Component.name == COMPONENT_TYPE.FETCHER).execute()
-                fet.fetch_all()
-                Component.update(status=0, run_end=datetime.now()).where(
-                    Component.name == COMPONENT_TYPE.FETCHER).execute()
-            if is_need_start(COMPONENT_TYPE.SEARCHER.format(strategy_name)):
-                Component.update(status=1, run_start=datetime.now()).where(
-                    Component.name == COMPONENT_TYPE.SEARCHER.format(strategy_name)).execute()
-                self.search_all()
+        self.strategy = self.__class__.__name__.lower()
+        flag = False
 
-    def search_all(self):
-        count = 0
         try:
-            symbols = find_active_symbols()
-            for sym in symbols:
-                count = count + 1
-                print('[{0}] {1} searching by strategy -- {2} ({3}) '.format(datetime.now(), sym.code,
-                                                                             self.__class__.__name__.lower(), count))
-                self.search(sym.code)
-                if self.signal:
-                    self.add_choice()
-                self.signal = None
-            Component.update(status=0, run_end=datetime.now()).where(
-                Component.name == COMPONENT_TYPE.SEARCHER.format(self.__class__.__name__.lower())).execute()
+            if self.need_to_start(COMPONENT_TYPE.WATCHER):
+                flag = True
+                self.do_watch()
+            if self.need_to_start(COMPONENT_TYPE.FETCHER):
+                flag = True
+                fet.fetch_all()
+            if self.need_to_start(COMPONENT_TYPE.SEARCHER):
+                flag = True
+                self.do_search()
         except Exception as e:
             print(e)
         finally:
-            self.signal = None
-            print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.__class__.__name__, count))
+            if flag:
+                Component.update(status=Component.Status.READY, run_end=datetime.now()).where(
+                    Component.status == Component.Status.RUNNING).execute()
+
+    def need_to_start(self, comp_type):
+        now = datetime.now()
+        n_val = now.hour * 100 + now.minute
+        flag = False
+
+        comp = Component.get(Component.name == comp_type.format(self.strategy))
+        if comp.status == Component.Status.READY:
+            # 交易时间段，只启动watcher
+            if now.weekday() < 5 and 930 < n_val < 1510:
+                flag = comp_type == COMPONENT_TYPE.WATCHER
+            else:
+                # 当天没执行过，需要执行一次
+                if comp.run_end.month < now.month or comp.run_end.day < now.day:
+                    flag = True
+
+                # 工作日当天已执行过，结束时间在16点前，也要执行一次
+                if comp_type != COMPONENT_TYPE.WATCHER and comp.run_end.weekday() < 5 and comp.run_end.hour < 16:
+                    flag = True
+
+        if flag:
+            comp.status = Component.Status.RUNNING
+            comp.run_start = datetime.now()
+            comp.save()
+
+        return flag
+
+    def do_search(self):
+        count = 0
+        symbols = find_active_symbols()
+        for sym in symbols:
+            try:
+                count = count + 1
+                cod = sym.code
+                print('[{0}] {1} searching by strategy -- {2} ({3}) '.format(datetime.now(), cod,
+                                                                             self.strategy, count))
+                sig = self.search(cod)
+                if sig:
+                    Choice(source='ENGINE', strategy=self.strategy).add_by_signal(sig)
+            except Exception as e:
+                print(e)
+        print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))
 
     def do_watch(self):
-        try:
-            print('[{0}] {1} watching by strategy -- {2} '.format(datetime.now(), self.choice.code,
-                                                                  self.__class__.__name__.lower()))
-            self.watch()
-            if self.signal:
-                self.choice.status = CHOICE_STATUS.DEAL
-                self.choice.updated = datetime.now()
-                self.choice.save()
-                self.add_ticket()
-            elif self.choice.status == CHOICE_STATUS.REMOVE:
-                self.choice.updated = datetime.now()
-                self.choice.save()
-                sig = Signal.get_by_id(self.choice.sid)
-                sig.effect = SIGNAL_EFFECT.DESTROY
-                sig.updated = datetime.now()
-                sig.save()
-        except Exception as e:
-            print(e)
-        finally:
-            print('[{0}] {1} watch done by strategy -- {2} '.format(datetime.now(), self.choice.code,
-                                                                    self.__class__.__name__.lower()))
-            self.choice = None
-            self.signal = None
+        chs = Choice.select().where(Choice.status == Choice.Status.WATCH)
+        for cho in chs:
+            try:
+                print('[{0}] {1} watching by strategy -- {2} '.format(datetime.now(), cho.code, self.strategy))
+                sig = self.watch(cho)
+                if sig:
+                    tic = Ticket()
+                    tic.status = TICKET_STATUS.DEAL
+                    tic.add_by_choice(cho, sig)
+                    print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy))
+            except Exception as e:
+                print(e)
+            finally:
+                print('[{0}] {1} watch done by strategy -- {2} '.format(datetime.now(), cho.code, self.strategy))
 
     def do_deal(self):
-        try:
-            print('[{0}] {1} dealing by strategy -- {2} '.format(datetime.now(), self.ticket.code,
-                                                                 self.__class__.__name__.lower()))
-            self.deal()
-            if self.ticket.status == TICKET_STATUS.KICK:
-                self.ticket.updated = datetime.now()
-                self.ticket.save()
-            if self.signal:
-                self.ticket.add_ticket_signal(self.signal)
-        except Exception as e:
-            print(e)
-        finally:
-            print('[{0}] {1} deal done by strategy -- {2} '.format(datetime.now(), self.ticket.code,
-                                                                   self.__class__.__name__.lower()))
-            self.ticket = None
-            self.signal = None
+        tis = Ticket.select().where(Ticket.status == TICKET_STATUS.DEAL)
+        for tic in tis:
+            try:
+                print('[{0}] {1} dealing by strategy -- {2} '.format(datetime.now(), tic.code, self.strategy))
+                sig = self.deal(tic)
+                if sig:
+                    TicketSignal(tid=tic.id, sid=sig.id, created=datetime.now()).save()
+            except Exception as e:
+                print(e)
+            finally:
+                print('[{0}] {1} deal done by strategy -- {2} '.format(datetime.now(), tic.code, self.strategy))
 
-    def add_choice(self):
-        if not Choice.select().where(Choice.code == self.signal.code,
-                                     Choice.dt == self.signal.dt,
-                                     Choice.freq == self.signal.freq).exists():
-            cho = Choice()
-            cho.source = 'ENGINE'
-            cho.strategy = self.__class__.__name__
-            cho.status = CHOICE_STATUS.WATCH
-            cho.add_by_signal(sig=self.signal)
-            print('[{0}] add a choice({1}) by strategy {2}'.format(datetime.now(),
-                                                                   self.signal.code,
-                                                                   self.__class__.__name__))
-
-    def add_ticket(self):
-        if not Ticket.select().where(Ticket.cid == self.choice.id).exists():
-            tic = Ticket()
-            tic.status = TICKET_STATUS.DEAL
-            tic.add_by_choice(self.choice, self.signal)
-            print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(),
-                                                                   self.signal.code,
-                                                                   self.__class__.__name__))
 
     def upset_signal(self, sig: Signal):
         # 信号已经存在
@@ -211,13 +190,13 @@ class Engine(ABC):
             self.signal.save()
 
     @abstractmethod
-    def search(self, code):
+    def search(self, code) -> Signal:
         pass
 
     @abstractmethod
-    def watch(self):
+    def watch(self, cho: Choice) -> Signal:
         pass
 
     @abstractmethod
-    def deal(self):
+    def deal(self, tic: Ticket) -> Signal:
         pass
