@@ -1,11 +1,11 @@
 import efinance as ef
-from datetime import datetime
+from datetime import datetime, timedelta
 from storage.candle import Candle
 from decimal import Decimal
 from storage.dba import dba, freqs, find_candles
 from sqlalchemy import select, desc, delete, and_
 from storage.marker import remark
-from storage.dba import find_active_symbols
+from storage.dba import find_active_symbols, clean_data
 from typing import List
 from common.utils import dt_format
 from models.component import Component
@@ -30,7 +30,7 @@ def get_last_candle(code, freq, l_candle: Candle):
     return l_candle, begin
 
 
-def fetch_and_save(code, freq, begin='2015-01-01'):
+def fetch_and_save(code, freq, begin=None):
     session = dba.get_session(code)
     a_candles = session.execute(
         select(Candle).where(Candle.freq == freq).order_by(desc('id')).limit(100)
@@ -69,8 +69,12 @@ def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
     if freq == 10:
         d_flag = True
         freq = 5
+    if begin:
+        beg = dt_format(begin, '%Y%m%d')
+    else:
+        beg = cal_fetch_beg(freq)
 
-    df = ef.stock.get_quote_history(code, klt=freq, beg=dt_format(begin, '%Y%m%d'))
+    df = ef.stock.get_quote_history(code, klt=freq, beg=beg)
     df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount', 'zf', 'zdf', 'zde',
                   'turnover']
     df.drop(['name', 'code', 'zf', 'zdf', 'zde'], axis=1, inplace=True)
@@ -126,7 +130,7 @@ def get_ma(candles: List[Candle], seq, val=None, att='close'):
     return res
 
 
-def fetch_all(freq=None):
+def fetch_all(freq=None, clean=False):
     start_time = datetime.now()
     ks = []
     if freq is not None:
@@ -138,6 +142,8 @@ def fetch_all(freq=None):
     for sb in sbs:
         try:
             print('[{}] {} fetch candles [{}] start!'.format(datetime.now(), count, sb.code))
+            if clean:
+                clean_data(sb.code)
             for k in ks:
                 fetch_and_save(sb.code, k)
             print('[{}] {} fetch candles [{}] done!'.format(datetime.now(), count, sb.code))
@@ -145,6 +151,26 @@ def fetch_all(freq=None):
         except Exception as ex:
             print('fetch candles [{}] error!'.format(sb.code), ex)
     print('[{}] fetch all done! elapsed time:'.format(datetime.now(), datetime.now() - start_time))
+
+
+def cal_fetch_beg(freq):
+    now = datetime.now()
+    beg = ''
+    if freq == 102:
+        beg = (now - timedelta(1000)).strftime('%Y%m%d')
+    if freq == 101:
+        beg = (now - timedelta(200)).strftime('%Y%m%d')
+    elif freq == 120:
+        beg = (now - timedelta(100)).strftime('%Y%m%d')
+    elif freq == 60:
+        beg = (now - timedelta(50)).strftime('%Y%m%d')
+    elif freq == 30:
+        beg = (now - timedelta(25)).strftime('%Y%m%d')
+    elif freq == 15:
+        beg = (now - timedelta(13)).strftime('%Y%m%d')
+    elif freq == 5:
+        beg = (now - timedelta(4)).strftime('%Y%m%d')
+    return beg
 
 
 def fetch_daily():
@@ -167,4 +193,5 @@ def fetch_daily():
 
 if __name__ == '__main__':
     # fetch_daily()
-    fetch_all()
+    # fetch_all()
+    fetch_and_save('600895', 101, clean=True)

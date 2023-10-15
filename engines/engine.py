@@ -22,33 +22,6 @@ def strategy_engine(cls):
     return register(cls)
 
 
-def is_need_watch(comp):
-    # 交易时间开启
-    if is_trade_day():
-        return True
-
-    # 当天没watch过，需要执行一次
-    com = Component.get(Component.name == comp)
-    if com.run_end.month < datetime.now().month or com.run_end.day < datetime.now().day:
-        return True
-
-    return False
-
-
-def is_need_start(comp):
-    sea = Component.get(Component.name == comp)
-    if is_trade_day() and now_val() < 1600:
-        # 交易时间不搜索
-        return False
-    if sea.run_end.month < datetime.now().month or sea.run_end.day < datetime.now().day:
-        # 当天没搜索过，需要搜索
-        return True
-    elif sea.run_end.day == datetime.now().day:
-        # 当天已搜索过，搜索结束时间是在工作日的16点前，仍要搜索
-        return sea.run_end.weekday() < 5 and sea.run_end.hour < 16
-    return False
-
-
 class Engine(ABC):
     strategy = 'engine'
 
@@ -62,7 +35,7 @@ class Engine(ABC):
                 self.do_watch()
             if self.need_to_start(COMPONENT_TYPE.FETCHER):
                 flag = True
-                fet.fetch_all()
+                fet.fetch_all(clean=(datetime.now().weekday() == 5))
             if self.need_to_start(COMPONENT_TYPE.SEARCHER):
                 flag = True
                 self.do_search()

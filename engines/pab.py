@@ -31,12 +31,26 @@ class PAB(Engine):
         if size < 100:
             return
 
-        # 取最新的一根
-        cur_candle = candles[-1]
+        # 父級別换手大于10
+        p_cds = find_candles(code, self.parent_freq)
+        p_size = len(p_cds)
+        p_j = p_size - 10
+        p_counter = 0
+        while p_j < len(p_cds):
+            if p_cds[p_j].turnover < 10:
+                p_counter = p_counter + 1
+            p_j = p_j + 1
+        if p_counter / p_size > 0.6:
+            return
 
         # 父級別的一段起點在0轴上方
-        psc = find_stage_candles(code, self.parent_freq, cur_candle.dt)
-        if len(psc) < 2 or psc[0].diff() < 0:
+        # psc = find_stage_candles(code, self.parent_freq, p_cds[-1])
+        # if len(psc) < 2 or psc[0].diff() < 0:
+        #     return
+
+        # 父級別未发生顶背离
+        pdt = diver_top(p_cds)
+        if len(pdt) > 0:
             return
 
         #  日线diff不要超过618落在0轴下方
@@ -46,18 +60,18 @@ class PAB(Engine):
             if candles[i].diff() < 0:
                 counter = counter + 1
             i = i + 1
-        if counter / size > 0.618:
+        if counter / size > 0.8:
             return
 
         # 最近的30根出现过大涨
-        j = len(candles) - 30
-        counter = 0
-        while j < len(candles):
-            if (candles[j].close - candles[j - 1].close) / candles[j - 1].close > 0.095:
-                counter = counter + 1
-            j = j + 1
-        if counter < 1:
-            return
+        # j = len(candles) - 30
+        # counter = 0
+        # while j < len(candles):
+        #     if (candles[j].close - candles[j - 1].close) / candles[j - 1].close > 0.095:
+        #         counter = counter + 1
+        #     j = j + 1
+        # if counter < 1:
+        #     return
 
         # 近期没有出现顶背离
         dts = diver_top(candles)
@@ -71,7 +85,7 @@ class PAB(Engine):
             sig = dbs[-1]
             lowest = get_lowest(get_section(fcs, sdt=sig.dt))
             # 剔除无效的信號
-            if lowest.dt == sig.dt or lowest.low > sig.price:
+            if lowest.low >= sig.price:
                 return sig
 
     def watch(self, cho):

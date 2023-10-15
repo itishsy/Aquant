@@ -143,6 +143,12 @@ def find_stage_candles(code, freq, candle) -> List[Candle]:
     return cds
 
 
+def clean_data(code):
+    session = dba.get_session(code)
+    session.execute(text('TRUNCATE TABLE `{}`'.format(code)))
+    session.close()
+
+
 def find_active_symbols() -> List[Symbol]:
     session = dba.get_session('symbol')
     sbs = session.execute(
