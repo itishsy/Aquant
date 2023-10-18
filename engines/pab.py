@@ -5,7 +5,7 @@ from models.signal import Signal
 from models.choice import Choice
 from models.ticket import Ticket
 from signals.divergence import diver_bottom, diver_top
-from signals.utils import get_section, get_lowest
+from signals.utils import get_section, get_lowest, get_highest, get_dabrc
 from common.utils import dt_format
 
 
@@ -63,16 +63,6 @@ class PAB(Engine):
         if counter / size > 0.8:
             return
 
-        # 最近的30根出现过大涨
-        # j = len(candles) - 30
-        # counter = 0
-        # while j < len(candles):
-        #     if (candles[j].close - candles[j - 1].close) / candles[j - 1].close > 0.095:
-        #         counter = counter + 1
-        #     j = j + 1
-        # if counter < 1:
-        #     return
-
         # 近期没有出现顶背离
         dts = diver_top(candles)
         if len(dts) > 0:
@@ -86,7 +76,9 @@ class PAB(Engine):
             lowest = get_lowest(get_section(fcs, sdt=sig.dt))
             # 剔除无效的信號
             if lowest.low >= sig.price:
-                return sig
+                d, a, b, r, c = get_dabrc(candles, sig.dt)
+                if get_highest(r).diff() > -0.1:
+                    return sig
 
     def watch(self, cho):
         lowest = get_lowest(find_candles(cho.code, begin=dt_format(cho.dt)))

@@ -4,9 +4,8 @@ from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app import utils
 from . import main
-from models.choice import Choice, CHOICE_STATUS
+from models.choice import Choice
 from models.ticket import Ticket
-from models.signal import Signal
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
@@ -53,7 +52,7 @@ def choice_edit():
         cho = Choice.get(Choice.id == id)
         action = request.args.get('action')
         if action == 'disuse':
-            cho.status = CHOICE_STATUS.DISUSE
+            cho.status = Choice.Status.DISUSE
             cho.updated = datetime.now()
             cho.save()
             flash('操作成功')

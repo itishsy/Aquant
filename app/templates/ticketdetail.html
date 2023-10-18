@@ -79,8 +79,14 @@
                 <div class="col-md-3">
                     <label>信号明细</label>
                 </div>
-                <div class="col-md-9">
+                <div class="col-md-12">
                     <table class="table table-bordered">
+                        <tr>
+                            <th>信号</th>
+                            <th>时间</th>
+                            <th>级别</th>
+                            <th>价格</th>
+                        </tr>
                         {% if singles%}
                             {% for row in singles %}
                             <tr>
@@ -104,8 +110,14 @@
                 <div class="col-md-3">
                     <label>成交记录</label>
                 </div>
-                <div class="col-md-9">
+                <div class="col-md-12">
                     <table class="table table-bordered">
+                            <tr>
+                                <th>类型</th>
+                                <th>时间</th>
+                                <th>价格</th>
+                                <th>成交</th>
+                            </tr>
                         {% if trades%}
                             {% for row in trades %}
                             <tr>

@@ -1,12 +1,8 @@
-from dataclasses import dataclass
 from models.signal import Signal
 from models.choice import Choice
-# from sqlalchemy import select, desc, and_, text
 from models.base import BaseModel, db
 from flask_peewee.db import CharField, AutoField, IntegerField, DateTimeField, DecimalField
-# from storage.dba import dba
-# from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 # 票据

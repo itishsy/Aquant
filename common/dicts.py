@@ -1,5 +1,3 @@
-from models.ticket import TICKET_STATUS
-
 
 def freq_level(ts=None):
     if ts is None:

@@ -4,7 +4,7 @@ from flask import render_template, flash, request, jsonify, redirect, url_for
 from flask_login import login_required, current_user
 from app import utils
 from . import main
-from models.ticket import Ticket, TICKET_STATUS
+from models.ticket import Ticket
 from models.signal import Signal
 from models.trade import Trade
 from datetime import datetime
@@ -175,7 +175,7 @@ def ticket_detail():
 
         if request.method == 'GET':
             utils.model_to_form(ticket, form)
-            ticket.status_text = TICKET_STATUS.get(ticket.status)
+            ticket.status_text = Ticket.Status.get(ticket.status)
             s_query = Signal.select().where(Signal.code == ticket.code).order_by(Signal.dt.desc()).limit(5)
             t_query = Trade.select().where(Trade.code == ticket.code).order_by(Trade.dt.desc()).limit(5)
             singles = utils.query_to_list(s_query)
@@ -212,7 +212,7 @@ class TicketForm(FlaskForm):
     id = IntegerField('id')
     name = StringField('名称', validators=[DataRequired(message='不能为空'), Length(0, 6, message='长度不正确')])
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 6, message='长度不正确')])
-    status = SelectField('状态', choices=TICKET_STATUS.all())
+    status = SelectField('状态', choices=Ticket.Status.all())
     strategy = StringField('策略')
     bs_freq = StringField('信號級別')
     bs_dt = StringField('信號時間')

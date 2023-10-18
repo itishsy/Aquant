@@ -3,7 +3,7 @@ from engines.engine import strategy_engine, Engine
 from storage.dba import get_symbol, find_candles
 from models.signal import Signal
 from models.choice import Choice, CHOICE_STATUS
-from models.ticket import Ticket, TICKET_STATUS
+from models.ticket import Ticket
 from signals.divergence import diver_bottom, diver_top
 from signals.utils import get_section, get_lowest
 from common.utils import dt_format
@@ -57,9 +57,8 @@ class PAB(Engine):
             sig = dbs[-1]
             lowest = get_lowest(get_section(fcs, sdt=sig.dt))
             # 剔除无效的信號
-            if lowest.dt == sig.dt or lowest.low > sig.price:
-                sig.code = code
-                upset_signal(sig)
+            if lowest.low >= sig.price:
+                return sig
 
     def watch(self):
         cho = self.choice
@@ -70,14 +69,15 @@ class PAB(Engine):
             dbs = diver_bottom(fcs)
             if len(dbs) > 0:
                 sig = dbs[-1]
-                if sig.dt > cho.dt and sig.price > cho.price:
-                    sig.code = cho.code
-                    upset_signal(sig)
+                lowest = get_lowest(get_section(fcs, sdt=sig.dt))
+                # 剔除无效的信號
+                if lowest.low >= sig.price:
+                    return sig
         else:
-            self.choice.status = CHOICE_STATUS.REMOVE
+            self.choice.status = Choice.Status.REMOVE
 
     def deal(self):
         dt = self.ticket.bs_dt
         lowest = get_lowest(find_candles(self.ticket.code, begin=dt_format(dt)))
         if lowest.low < self.ticket.bs_price:
-            self.ticket.status = TICKET_STATUS.KICK
+            self.ticket.status = Ticket.Status.KICK
