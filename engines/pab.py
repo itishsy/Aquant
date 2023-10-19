@@ -77,13 +77,13 @@ class PAB(Engine):
             # 剔除无效的信號
             if lowest.low >= sig.price:
                 d, a, b, r, c = get_dabrc(candles, sig.dt)
-                if get_highest(r).diff() > -0.1:
+                if get_highest(r).diff() > 0:
                     return sig
 
     def watch(self, cho):
         lowest = get_lowest(find_candles(cho.code, begin=dt_format(cho.dt)))
         sig = Signal.get_by_id(cho.sid)
-        if lowest.dt != sig.dt and lowest.low > sig.price:
+        if lowest.dt == sig.dt or lowest.low > sig.price:
             fcs = find_candles(cho.code, self.bp_freq)
             dbs = diver_bottom(fcs)
             if len(dbs) > 0:
