@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from engines.engine import strategy_engine, Engine
 from storage.dba import find_stage_candles, find_candles
 from models.signal import Signal
 from models.choice import Choice
 from models.ticket import Ticket
 from signals.divergence import diver_bottom, diver_top
-from signals.utils import get_section, get_lowest, get_highest, get_dabrc
+from signals.utils import get_section, get_lowest, get_highest, get_next_top
 from common.utils import dt_format
 
 
@@ -74,16 +74,17 @@ class PAB(Engine):
         if len(dbs) > 0:
             sig = dbs[-1]
             lowest = get_lowest(get_section(fcs, sdt=sig.dt))
-            # 剔除无效的信號
+            # 信號发出后不可再创新低
             if lowest.low >= sig.price:
-                d, a, b, r, c = get_dabrc(candles, sig.dt)
-                if get_highest(r).diff() > 0:
+                top = get_next_top(candles, sig.dt)
+                if top and top.diff() > 0:
                     return sig
 
     def watch(self, cho):
-        lowest = get_lowest(find_candles(cho.code, begin=dt_format(cho.dt)))
-        sig = Signal.get_by_id(cho.sid)
-        if lowest.dt == sig.dt or lowest.low > sig.price:
+        cho_dt = datetime.strptime(cho.dt, '%Y-%m-%d')
+        nex_dt = (cho_dt + timedelta(1)).strftime('%Y-%m-%d')
+        nex_lowest = get_lowest(find_candles(cho.code, begin=nex_dt))
+        if nex_lowest.low > cho.price and cho_dt + timedelta(90) > datetime.now():
             fcs = find_candles(cho.code, self.bp_freq)
             dbs = diver_bottom(fcs)
             if len(dbs) > 0:
