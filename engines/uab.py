@@ -10,7 +10,7 @@ from common.utils import dt_format
 
 
 @strategy_engine
-class PAB(Engine):
+class UAB(Engine):
     bs_freq = 30
     bp_freq = 5
 

@@ -90,10 +90,10 @@ def index():
 @main.route('/api/stats/summary', methods=['GET'])
 @login_required
 def summary():
-    c_size = Choice.select().count()
+    c_size = Choice.select().where(Choice.Status.DISUSE < Choice.status < Choice.Status.KICK).count()
     today = now_ymd()
     c_today_size = Choice.select().where(Choice.created >= today).count()
-    ti_size = Ticket.select().where(Ticket.status < 4).count()
+    ti_size = Ticket.select().where(Ticket.status < Ticket.Status.KICK).count()
     ti_today_size = Ticket.select().where(Ticket.created >= today).count()
     s_size = Signal.select().count()
     s_today_size = Signal.select().where(Signal.created >= today).count()

@@ -84,7 +84,7 @@ class PAB(Engine):
         cho_dt = datetime.strptime(cho.dt, '%Y-%m-%d')
         nex_dt = (cho_dt + timedelta(1)).strftime('%Y-%m-%d')
         nex_lowest = get_lowest(find_candles(cho.code, begin=nex_dt))
-        if nex_lowest.low > cho.price and cho_dt + timedelta(90) > datetime.now():
+        if nex_lowest.low >= cho.price and cho_dt + timedelta(90) > datetime.now():
             fcs = find_candles(cho.code, self.bp_freq)
             dbs = diver_bottom(fcs)
             if len(dbs) > 0:

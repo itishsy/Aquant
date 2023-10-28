@@ -31,7 +31,7 @@ def choice_list():
         query = Choice.select().where(Choice.created >= last_day)
         total_count = query.count()
     else:
-        query = Choice.select().order_by(Choice.created.desc())
+        query = Choice.select().where(Choice.Status.DISUSE < Choice.status < Choice.Status.KICK).order_by(Choice.created.desc())
         total_count = query.count()
 
     # 处理分页
