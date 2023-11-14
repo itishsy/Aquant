@@ -11,7 +11,7 @@ from common.utils import dt_format
 
 @strategy_engine
 class UAB(Engine):
-    bs_freq = [15, 30, 60]
+    bs_freq = [30, 60]
     bp_freq = [5, 10, 15]
 
     def search(self, code):
@@ -28,38 +28,6 @@ class UAB(Engine):
         if size < 100:
             return
 
-        # REQ01
-        cs = get_cross(candles)
-        if cs[0].diff() < 0 or cs[1].diff() < 0 or cs[1].bar() < 0 or cs[0].dea9 < 0:
-            print('REQ01 return')
-            return
-
-        # REQ02
-        j = len(candles) - 20
-        turnover = 0
-        while j < len(candles):
-            turnover = turnover + candles[j].turnover
-            j = j + 1
-        if turnover / 20 < 1.5:
-            print('REQ02 return')
-            return
-
-        # REQ03
-        dts = diver_top(candles)
-        if len(dts) > 0 and dts[-1].dt > candles[50].dt:
-            print('REQ03 return')
-            return
-
-        # REQ04
-        tbs = get_top_bottom(candles)
-        glb = get_lowest_bottom(tbs, -1)  # 启动低点
-        lowest = get_lowest(get_stage(candles, glb.dt))
-        highest = get_highest(get_section(candles, lowest.dt))  # 高点
-        adjust = get_lowest(get_section(candles, highest.dt))  # 调整低点
-        if (highest.high - adjust.low) / (highest.high - lowest.low) > 0.618:
-            print('REQ04 return')
-            return
-
         # REQ05
         for freq in self.bs_freq:
             fcs = find_candles(code, freq)
@@ -70,7 +38,6 @@ class UAB(Engine):
                 # 剔除无效的信號
                 if lowest.low >= sig.price:
                     return sig
-        print('REQ05 return')
 
     def watch(self, cho):
         cho = self.choice
