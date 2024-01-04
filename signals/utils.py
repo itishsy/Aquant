@@ -17,6 +17,16 @@ def get_top_bottom(candles: List[Candle]):
     return tbc
 
 
+def get_lowest_bottom(tbc: List[Candle], idx):
+    if abs(idx) > len(tbc):
+        return
+    elif tbc[idx].mark == -3 and tbc[idx].dea9 < 0:
+        return tbc[idx]
+    else:
+        idx = idx - 1
+        return get_lowest_bottom(tbc, idx)
+
+
 def get_next_top(candles: List[Candle], dt):
     flag = False
     for cd in candles:
@@ -125,6 +135,42 @@ def get_stage(candles: List[Candle], dt) -> List[Candle]:
         i = i + 1
     return stage
 
+def get_section(candles: List[Candle], sdt, edt=None):
+    """
+    获取起始区间的部分
+    :param candles:
+    :param sdt: 开始时间
+    :param edt: 结束时间
+    :return: candle集合，包含起止两根
+    """
+    cs = []
+    if candles is None:
+        return cs
+    flag = False
+    for c in candles:
+        if c.dt == sdt:
+            flag = True
+        if flag:
+            cs.append(c)
+        if c.dt == edt:
+            break
+    return cs
+
+
+def get_cross(candles: List[Candle]):
+    """ 获取形成交叉的Candle """
+    cs = []
+    if candles is None:
+        return cs
+    i = len(candles) - 1
+    while i > 1:
+        if candles[i].mark == 1 and candles[i-1].mark == -1:
+            cs.append(candles[i])
+        elif candles[i].mark == -1 and candles[i-1].mark == 1:
+            cs.append(candles[i])
+        i = i - 1
+    return cs
+
 
 def has_trend(candles: List[Candle]):
     """
@@ -168,27 +214,6 @@ def has_cross(candles: List[Candle]):
         return -1
     return 0
 
-
-def get_section(candles: List[Candle], sdt, edt=None):
-    """
-    获取起始区间的部分
-    :param candles:
-    :param sdt: 开始时间
-    :param edt: 结束时间
-    :return: candle集合，包含起止两根
-    """
-    cs = []
-    if candles is None:
-        return cs
-    flag = False
-    for c in candles:
-        if c.dt == sdt:
-            flag = True
-        if flag:
-            cs.append(c)
-        if c.dt == edt:
-            break
-    return cs
 
 
 def get_dabrc(candles: List[Candle], b3_dt):
