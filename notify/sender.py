@@ -1,6 +1,6 @@
 from models.signal import Signal
 from datetime import datetime
-from notify.qywx import send_msg
+from notify.qywx import send_qywx
 from models.component import Component
 import time
 import traceback
@@ -26,7 +26,7 @@ def update_notify_status():
 
 def do_send():
     message = find_notify_content()
-    if send_msg(message):
+    if send_qywx(message):
         Component.update(status=2, run_start=datetime.now()).where(Component.name == 'sender').execute()
         update_notify_status()
         Component.update(status=1, run_end=datetime.now()).where(Component.name == 'sender').execute()

@@ -54,5 +54,4 @@ def exists(by, name, timeout):
             return True
         return False
     except Exception as e:
-        traceback.print_exc()
         return False
