@@ -15,8 +15,9 @@ class HotStock(RPA):
         json_data = json.loads(txt)
         idx = 1
         for item in json_data['data']['items']:
-            Hot.add(item['code'], item['name'], "雪球", idx)
-            print(idx, item['code'], item['name'])
+            cod = item['code'][2:]
+            Hot.add(cod, item['name'], "雪球", idx)
+            print(idx, cod, item['name'])
             idx = idx + 1
             if idx > 20:
                 return
@@ -27,8 +28,22 @@ class HotStock(RPA):
         json_data = json.loads(txt)
         idx = 1
         for item in json_data['dto']:
-            Hot.add(item['fullCode'], item['stockName'], "淘股吧", idx)
-            print(idx, item['fullCode'], item['stockName'])
+            cod = item['fullCode'][2:]
+            Hot.add(cod, item['stockName'], "淘股吧", idx)
+            print(idx, cod, item['stockName'])
+            idx = idx + 1
+            if idx > 20:
+                return
+
+    def guba(self):
+        self.access("https://guba.eastmoney.com/rank/")
+        els = self.driver.find_elements(By.CLASS_NAME, "nametd_box")
+        idx = 1
+        for el in els:
+            a = el.find_element(By.TAG_NAME, "a")
+            cod = a.get_attribute("class").replace("stock_name_", "")
+            Hot.add(cod, a.text, "东方财富", idx)
+            print(cod, a.text)
             idx = idx + 1
             if idx > 20:
                 return
@@ -36,6 +51,7 @@ class HotStock(RPA):
     def fetch_all(self):
         self.xueqiu()
         self.taoguba()
+        self.guba()
 
 
 if __name__ == '__main__':
