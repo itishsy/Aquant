@@ -8,7 +8,7 @@ class Hot(BaseModel):
     code = CharField()  # 票据
     name = CharField()  # 名称
     source = CharField()  # 来源
-    ranking = IntegerField()  # 排名
+    rank = IntegerField()  # 排名
     created = CharField()
 
     @staticmethod
@@ -19,6 +19,6 @@ class Hot(BaseModel):
             hot.code = cod
             hot.name = nam
             hot.source = sou
-            hot.ranking = ran
+            hot.rank = ran
             hot.created = cre
             hot.save()
