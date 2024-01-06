@@ -93,6 +93,7 @@ def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
             c.ma10 = get_ma(cs, 10, c.close)
             c.ma20 = get_ma(cs, 20, c.close)
             c.ma30 = get_ma(cs, 30, c.close)
+            c.ma60 = get_ma(cs, 60, c.close)
             c.mav5 = get_ma(cs, 5, c.volume, att='volume')
         if i == 0:
             if l_candle is not None and l_candle.ema12 is not None:

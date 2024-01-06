@@ -7,13 +7,34 @@ from models.ticket import Ticket
 from signals.divergence import diver_bottom, diver_top
 from signals.utils import *
 from common.utils import dt_format
+from models.hot import Hot
 
 
 @strategy_engine
-class HOT(Engine):
+class HAB(Engine):
 
-    def do_search(self):
-        pass
+    def search(self, code):
+        """ 热门个股
+        #01. 10、20、60日线附近
+        #02. 日线不能有顶背离。
+        #03. 不可有效跌破60日线
+        :param code:
+        """
+        if not Hot.select().where(Hot.code == code).exists():
+            return
+
+        # 不少于100根k线
+        candles = find_candles(code)
+        size = len(candles)
+        if size < 100:
+            return
+
+        # REQ03
+        dts = diver_top(candles)
+        if len(dts) > 0 and dts[-1].dt > candles[50].dt:
+            print('REQ03 return')
+            return
+
 
     def watch(self, cho):
         cho = self.choice

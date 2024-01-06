@@ -10,12 +10,12 @@ from common.utils import dt_format
 
 
 @strategy_engine
-class UAB(Engine):
+class MAB(Engine):
     bs_freq = [30, 60]
     bp_freq = [5, 10, 15]
 
     def search(self, code):
-        """ 上涨趋势中的调整出现背离后突破
+        """ 日均线支撑
         REQ01. 日线发生金叉后，回落到0轴前。
         REQ02. 活跃性要求，近20交易日均换手大于2%
         REQ03. 日线近期50日未发生顶背离
