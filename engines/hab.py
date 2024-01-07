@@ -9,17 +9,22 @@ from signals.utils import *
 from common.utils import dt_format
 from models.hot import Hot
 
-
+"""
+ 热门Top20
+入选条件
+#I1. 最近30日超过5次上Top20榜
+#I2. 日线不能有顶背离。
+#I3. 未有效跌破30日均线
+观察信号
+5、15、30底背离
+剔除条件
+#O1. 破30日线
+#O2. 最近20日未上榜
+"""
 @strategy_engine
 class HAB(Engine):
 
     def search(self, code):
-        """ 热门个股
-        #01. 10、20、60日线附近
-        #02. 日线不能有顶背离。
-        #03. 不可有效跌破60日线
-        :param code:
-        """
         if not Hot.select().where(Hot.code == code).exists():
             return
 
