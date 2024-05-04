@@ -53,28 +53,45 @@ class DBA:
                 if key != table_name:
                     self.meta.remove(self.meta.tables.get(key))
                     break
-        do_mapping(engine, self.meta, table_name)
+        if table_name != '':
+            do_mapping(engine, self.meta, table_name)
         return sessionmaker(bind=engine)()
 
 
 dba = DBA()
 
-freqs = [102, 101, 120, 60, 30]
-
 
 def fetch_symbols():
-    session = dba.get_session()
+    session = dba.get_session('symbol')
     sbs = session.query(Symbol).all()
     if len(sbs) == 0:
-        df = ef.stock.get_realtime_quotes(['沪A', '深A', 'ETF'])
+        df = ef.stock.get_realtime_quotes(['沪A', '深A'])
         df = df.iloc[:, 0:2]
         df.columns = ['code', 'name']
-        # df = df[df['name'].str.contains('ST') is False]
         symbols = []
         for i, row in df.iterrows():
-            s = Symbol(row)
-            s.status = 1
-            symbols.append(s)
+            if 'ST' in row['name'] or str(row['code']).startswith('688'):
+                continue
+                # s = Symbol(row)
+                # s.status = 0
+                # s.comment = 'st or 688'
+            else:
+                base_info = ef.stock.get_base_info(row['code'])
+                print(base_info)
+                s = Symbol(base_info)
+                if s.industry == '银行':
+                    s.status = 0
+                    s.comment = '银行'
+                elif s.total < 5000000000 or s.circulating<3000000000:
+                    s.status = 0
+                    s.comment = '小市值'
+                else:
+                    s.status = 1
+                s.created = datetime.now().strftime('%Y-%m-%d')
+                print("=====>", i, ' ', s)
+                symbols.append(s)
+                if i > 2:
+                    break
         session.add_all(symbols)
         session.commit()
 
@@ -210,7 +227,17 @@ class Mapper:
             Column('code', String(50)),
             Column('name', String(50)),
             Column('status', Integer),
-            Column('comment', String(500))
+            Column('comment', String(500)),
+            Column('profit', DECIMAL(18, 2), default=None),
+            Column('total', DECIMAL(18, 2), default=None),
+            Column('circulating', DECIMAL(18, 2), default=None),
+            Column('industry', String(500)),
+            Column('pe', DECIMAL(18, 2), default=None),
+            Column('pb', DECIMAL(18, 2), default=None),
+            Column('roe', DECIMAL(18, 2), default=None),
+            Column('gross', DECIMAL(18, 2), default=None),
+            Column('net', DECIMAL(18, 2), default=None),
+            Column('sector', String(500))
         ))
     #
     # def signal_table(self, meta):
@@ -252,8 +279,8 @@ def do_mapping(engine, meta, table_name):
 
 
 if __name__ == '__main__':
-    pass
-    # fetch_symbols()
+    # pass
+    fetch_symbols()
     # mark('300223', 101)
     # fetch_data('300223', 30)
     # candles = find_candles('300223', 101, begin='2023-01-01', limit=100)
