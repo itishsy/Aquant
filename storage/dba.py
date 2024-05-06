@@ -19,6 +19,7 @@ from sqlalchemy import (
     text
 )
 
+freqs = [102, 101, 120, 60, 30]
 
 class DBA:
     meta = MetaData()
@@ -90,8 +91,6 @@ def fetch_symbols():
                 s.created = datetime.now().strftime('%Y-%m-%d')
                 print("=====>", i, ' ', s)
                 symbols.append(s)
-                if i > 2:
-                    break
         session.add_all(symbols)
         session.commit()
 

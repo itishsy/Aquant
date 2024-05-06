@@ -194,5 +194,5 @@ def fetch_daily():
 
 if __name__ == '__main__':
     # fetch_daily()
-    # fetch_all()
-    fetch_and_save('600895', 101, clean=True)
+    fetch_all()
+    # fetch_and_save('600895', 101, clean=True)
