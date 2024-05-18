@@ -54,7 +54,7 @@ class Signal(BaseModel):
                         si.strength = SIGNAL_STRENGTH.AVERAGE
                         si.save()
         else:
-            self.name = Symbol.select().where(Symbol.code == self.code).name
+            self.name = Symbol.get(Symbol.code == self.code).name
             self.created = datetime.now()
             self.save()
 

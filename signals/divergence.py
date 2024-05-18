@@ -1,6 +1,3 @@
-from abc import ABC
-
-from models.choice import Choice
 from candles.candle import Candle
 from models.signal import Signal, SIGNAL_TYPE
 from typing import List
@@ -11,8 +8,44 @@ from signals.signaler import Signaler
 class Divergence(Signaler):
 
     def search(self, candles: List[Candle]) -> List[Signal]:
-        sis = diver_bottom(candles)
-        return sis
+        signals = []
+        tbs = utl.get_top_bottom(candles)
+        size = len(tbs)
+        for i in range(2, size):
+            c_2 = tbs[i - 2]
+            c_1 = tbs[i - 1]
+            c_0 = tbs[i]
+            if c_2.mark == 3 and c_1.mark == -3 and c_0.mark == 3 and c_2.diff() > 0 and c_1.diff() > 0 and c_0.diff() > 0:
+                is_cross = True
+                if i + 1 == size:
+                    cs = utl.get_section(candles, c_0.dt, candles[-1])
+                    if utl.has_cross(cs) != -1:
+                        is_cross = False
+                if is_cross:
+                    up_stage1 = utl.get_stage(candles, c_2.dt)
+                    up_stage2 = utl.get_stage(candles, c_0.dt)
+                    high2 = utl.get_highest(up_stage1).high
+                    high0 = utl.get_highest(up_stage2).high
+                    if c_2.diff() > c_0.diff() and high2 < high0:
+                        signals.append(
+                            Signal(freq=c_0.freq, dt=c_0.dt, price=c_0.high, type=SIGNAL_TYPE.TOP_DIVERGENCE))
+            elif c_2.mark == -3 and c_1.mark == 3 and c_0.mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
+                is_cross = True
+                if i + 1 == size:
+                    cs = utl.get_section(candles, c_0.dt, candles[-1].dt)
+                    if utl.has_cross(cs) != 1:
+                        is_cross = False
+                if is_cross:
+                    down_stage1 = utl.get_stage(candles, c_2.dt)
+                    down_stage2 = utl.get_stage(candles, c_0.dt)
+                    if utl.has_trend(down_stage1) > -2 and utl.has_trend(down_stage2) > -2:
+                        low1 = utl.get_lowest(down_stage1)
+                        low2 = utl.get_lowest(down_stage2)
+                        lowest = utl.get_lowest(utl.get_section(candles, low1.dt))
+                        if c_2.diff() < c_0.diff() and low1.low > low2.low == lowest.low:
+                            signals.append(
+                                Signal(freq=c_0.freq, dt=low2.dt, price=low2.low, type=SIGNAL_TYPE.BOTTOM_DIVERGENCE))
+        return signals
 
     def analyze(self, sig: Signal) -> Signal:
         return sig

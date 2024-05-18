@@ -1,4 +1,4 @@
-from models.base import BaseModel
+from models.base import BaseModel, db
 from werkzeug.security import check_password_hash
 from flask_login import UserMixin
 from flask_peewee.db import CharField, BooleanField
@@ -21,3 +21,8 @@ class User(UserMixin, BaseModel):
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(User.id == int(user_id))
+
+
+if __name__ == '__main__':
+    db.connect()
+    db.create_tables([User])

@@ -1,6 +1,6 @@
 from datetime import datetime
 from engines.engine import strategy_engine, Engine
-from candles.storage import get_symbol, find_candles
+from candles.storage import find_candles
 from models.signal import Signal
 from models.choice import Choice
 from models.ticket import Ticket

@@ -1,4 +1,4 @@
-from models.base import BaseModel
+from models.base import BaseModel, db
 from flask_peewee.db import CharField, IntegerField, DateTimeField
 
 
@@ -21,3 +21,8 @@ class COMPONENT_TYPE:
     SENDER = 'sender'
     SEARCHER = '{0}_searcher'
     WATCHER = '{0}_watcher'
+
+
+if __name__ == '__main__':
+    db.connect()
+    db.create_tables([Component])

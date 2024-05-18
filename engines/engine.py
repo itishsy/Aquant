@@ -4,6 +4,7 @@ from models.ticket import Ticket, TicketSignal
 from models.choice import Choice
 from models.symbol import Symbol
 from common.utils import *
+from common.config import Config
 from models.component import Component, COMPONENT_TYPE
 import candles.fetcher as fet
 
@@ -27,50 +28,45 @@ class Engine(ABC):
 
     def start(self):
         self.strategy = self.__class__.__name__.lower()
-        flag = False
-
-        try:
-            if self.need_to_start(COMPONENT_TYPE.WATCHER):
-                flag = True
-                self.do_watch()
-            if self.need_to_start(COMPONENT_TYPE.FETCHER):
-                flag = True
-                fet.fetch_all(clean=(datetime.now().weekday() == 5))
-            if self.need_to_start(COMPONENT_TYPE.SEARCHER):
-                flag = True
-                self.do_search()
-        except Exception as e:
-            print(e)
-        finally:
-            if flag:
-                Component.update(status=Component.Status.READY, run_end=datetime.now()).where(
-                    Component.status == Component.Status.RUNNING).execute()
-
-    def need_to_start(self, comp_type):
         now = datetime.now()
         n_val = now.hour * 100 + now.minute
-        flag = False
-
-        comp = Component.get(Component.name == comp_type.format(self.strategy))
-        if comp.status == Component.Status.READY:
-            # 交易时间段，只启动watcher
-            if now.weekday() < 5 and 930 < n_val < 1510:
-                flag = comp_type == COMPONENT_TYPE.WATCHER
+        try:
+            if now.weekday() < 5:
+                if 1130 < n_val < 1300 or 1530 < n_val < 1700:
+                    freq = [30, 60] if 1130 < n_val < 1300 else [101, 120, 60, 30]
+                    limit_time = 1130 if 1130 < n_val < 1300 else 1530
+                    self.start_component('fetcher', limit_time=limit_time, freq=freq)
+                    self.start_component(self.strategy, limit_time=limit_time)
+                elif 930 < n_val < 1130 or 1300 < n_val < 1500:
+                    self.do_watch()
             else:
-                # 当天没执行过，需要执行一次
-                if comp.run_end.month < now.month or comp.run_end.day < now.day:
-                    flag = True
+                self.start_component('fetcher')
+                self.start_component(self.strategy)
+        except Exception as e:
+            print(e)
 
-                # 工作日当天已执行过，结束时间在16点前，也要执行一次
-                if comp_type != COMPONENT_TYPE.WATCHER and comp.run_end.weekday() < 5 and comp.run_end.hour < 16:
-                    flag = True
+    def start_component(self, comp_name, limit_time=1, freq=Config.FREQ, clean=False):
+        now = datetime.now()
+        comp = Component.get(Component.name == comp_name)
+        flag = False
+        if isinstance(comp.run_end, str) or isinstance(comp.run_start, str):
+            flag = True
+        else:
+            run_end = comp.run_end.hour * 100 + comp.run_end.minute
+            if comp.status == Component.Status.READY and (comp.run_end.day < now.day or run_end < limit_time):
+                flag = True
 
         if flag:
             comp.status = Component.Status.RUNNING
             comp.run_start = datetime.now()
             comp.save()
-
-        return flag
+            if comp_name == 'fetcher':
+                fet.fetch_all(freq, clean)
+            else:
+                self.do_search()
+            comp.status = Component.Status.READY
+            comp.run_end = datetime.now()
+            comp.save()
 
     def do_search(self):
         count = 0
@@ -85,7 +81,7 @@ class Engine(ABC):
                 if sig:
                     sig.code = co
                     sig.upset()
-                    Choice(source='ENGINE', strategy=self.strategy).add_by_signal(sig)
+                    # Choice(source='ENGINE', strategy=self.strategy).add_by_signal(sig)
             except Exception as e:
                 print(e)
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))

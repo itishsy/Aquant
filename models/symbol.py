@@ -24,7 +24,6 @@ class Symbol(BaseModel):
 
     @staticmethod
     def upset(code, name, series):
-        print('upset symbol code=', code, ',name=', name)
         if Symbol.select().where(Symbol.code == code).exists():
             symbol = Symbol.get(Symbol.code == code)
         else:
@@ -79,6 +78,7 @@ class Symbol(BaseModel):
                 continue
             else:
                 info = ef.stock.get_base_info(row['code'])
+                print('upset symbol code =', row['code'], ',name =', row['name'], i)
                 Symbol.upset(row['code'], row['name'], info)
 
 
