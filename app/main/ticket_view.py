@@ -12,7 +12,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length
 from common.dicts import freq_level, choice_strategy, trade_strategy, buy_type
-from storage.dba import find_candles, get_symbol
+from candles.storage import find_candles, get_symbol
 from common.utils import now_ymd
 
 logger = get_logger(__name__)

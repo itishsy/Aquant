@@ -10,7 +10,7 @@ from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
-from storage.dba import get_symbol, find_candles
+from candles.storage import get_symbol, find_candles
 from common.dicts import choice_strategy, choice_source, freq_level
 from common.utils import now_ymd
 

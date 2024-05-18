@@ -119,7 +119,7 @@
 # 
 # USHORT  format               // Format selector (=0).
 # USHORT  count                // Number of name records.
-# USHORT  stringOffset         // Offset to start of string storage (from start of table).
+# USHORT  stringOffset         // Offset to start of string candles (from start of table).
 # 
 # Name Record
 # 
@@ -128,7 +128,7 @@
 # USHORT  languageID           // Language ID.
 # USHORT  nameID               // Name ID.
 # USHORT  length               // String length (in bytes).
-# USHORT  offset               // String offset from start of storage area (in bytes).
+# USHORT  offset               // String offset from start of candles area (in bytes).
 # 
 # head Table
 # 

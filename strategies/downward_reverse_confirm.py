@@ -1,11 +1,12 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.dba import freqs, find_stage_candles, find_candles
+from candles.storage import find_stage_candles, find_candles
+from common.config import Config
 import signals.utils as sig
 from models.signal import Signal
 from datetime import datetime, timedelta
 from decimal import Decimal
 from signals.divergence import diver_bottom
-from storage.candle import Candle
+from candles.candle import Candle
 from typing import List
 
 
@@ -57,7 +58,7 @@ class DRC(Strategy):
             if sig.get_highest(c).diff() > 0:
                 # 高点在0轴之上,找子级别的背离
                 for fre in self.child_freq():
-                    if fre in freqs:
+                    if fre in Config.FREQ:
                         ccs = find_candles(self.code, fre, begin=c[0].dt, end=c[-1].dt)
                         dbs = diver_bottom(ccs)
                         for cs in dbs:

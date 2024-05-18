@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from signals.divergence import diver_top, diver_bottom
-from storage.fetcher import fetch_and_save
-from storage.dba import find_candles
+from candles.fetcher import fetch_and_save
+from candles.storage import find_candles
 from models.ticket import Ticket
 from models.trade import Trade
 from models.signal import Signal

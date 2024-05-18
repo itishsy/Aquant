@@ -3,8 +3,8 @@ from sqlalchemy.orm import sessionmaker, registry
 from common.config import Config
 from typing import List
 from datetime import datetime, timedelta
-from storage.candle import Candle
-from storage.symbol import Symbol
+from candles.candle import Candle
+# from candles.symbol import Symbol
 from sqlalchemy import (
     create_engine,
     MetaData,
@@ -19,22 +19,19 @@ from sqlalchemy import (
     text
 )
 
-freqs = [102, 101, 120, 60, 30]
 
-class DBA:
+class Storage:
     meta = MetaData()
 
-    def get_engine(self, code=''):
-        dbname = Config.DB_DATABASE
-        if code[0:2] in Config.PREFIX:
-            dbname = 'aq_{}'.format(code[0:2])
+    @staticmethod
+    def get_engine():
         engine = create_engine(
             'mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(
                 Config.DB_USER,
                 Config.DB_PASSWD,
                 Config.DB_HOST,
                 Config.DB_PORT,
-                dbname),
+                Config.DB_CANDLE),
             # 超过链接池大小外最多创建的链接
             max_overflow=100,
             # 链接池大小
@@ -47,58 +44,62 @@ class DBA:
             echo=False)
         return engine
 
-    def get_session(self, table_name=''):
-        engine = self.get_engine(table_name)
+    def get_session(self, code):
+        engine = self.get_engine()
         for key in self.meta.tables.keys():
             if key[0:2] in Config.PREFIX:
-                if key != table_name:
+                if key != code:
                     self.meta.remove(self.meta.tables.get(key))
                     break
-        if table_name != '':
-            do_mapping(engine, self.meta, table_name)
+        if self.meta.tables.get(code) is None:
+            mapper = Mapper()
+            mapper.candle_table(self.meta, code)
+        self.meta.tables.get(code).create(engine, checkfirst=True)
         return sessionmaker(bind=engine)()
 
 
-dba = DBA()
+dba = Storage()
 
-
-def fetch_symbols():
-    session = dba.get_session('symbol')
-    sbs = session.query(Symbol).all()
-    if len(sbs) == 0:
-        df = ef.stock.get_realtime_quotes(['沪A', '深A'])
-        df = df.iloc[:, 0:2]
-        df.columns = ['code', 'name']
-        symbols = []
-        for i, row in df.iterrows():
-            if 'ST' in row['name'] or str(row['code']).startswith('688'):
-                continue
-                # s = Symbol(row)
-                # s.status = 0
-                # s.comment = 'st or 688'
-            else:
-                base_info = ef.stock.get_base_info(row['code'])
-                print(base_info)
-                s = Symbol(base_info)
-                if s.industry == '银行':
-                    s.status = 0
-                    s.comment = '银行'
-                elif s.total < 5000000000 or s.circulating<3000000000:
-                    s.status = 0
-                    s.comment = '小市值'
-                else:
-                    s.status = 1
-                s.created = datetime.now().strftime('%Y-%m-%d')
-                print("=====>", i, ' ', s)
-                symbols.append(s)
-        session.add_all(symbols)
-        session.commit()
-
-
-def get_symbol(code):
-    session = dba.get_session('symbol')
-    sbs = session.query(Symbol).filter(Symbol.code == code).first()
-    return sbs
+#
+# def fetch_symbols():
+#     session = dba.get_session('symbol')
+#     sbs = session.query(Symbol).all()
+#     if len(sbs) == 0:
+#         df = ef.stock.get_realtime_quotes(['沪A', '深A'])
+#         df = df.iloc[:, 0:2]
+#         df.columns = ['code', 'name']
+#         symbols = []
+#         for i, row in df.iterrows():
+#             if 'ST' in row['name'] or str(row['code']).startswith('688'):
+#                 continue
+#                 # s = Symbol(row)
+#                 # s.status = 0
+#                 # s.comment = 'st or 688'
+#             else:
+#                 base_info = ef.stock.get_base_info(row['code'])
+#                 print(base_info)
+#                 s = Symbol(base_info)
+#                 if s.industry == '银行':
+#                     s.status = 0
+#                     s.comment = '银行'
+#                 elif s.total < 5000000000 or s.circulating<3000000000:
+#                     s.status = 0
+#                     s.comment = '小市值'
+#                 else:
+#                     s.status = 1
+#                 s.created = datetime.now().strftime('%Y-%m-%d')
+#                 print("=====>", i, ' ', s)
+#                 symbols.append(s)
+#
+#         if len(symbols) > 4000:
+#             session.add_all(symbols)
+#             session.commit()
+#
+#
+# def get_symbol(code):
+#     session = dba.get_session('symbol')
+#     sbs = session.query(Symbol).filter(Symbol.code == code).first()
+#     return sbs
 
 
 def find_candles(code, freq=101, begin=None, end=None, limit=100) -> List[Candle]:
@@ -164,32 +165,23 @@ def clean_data(code):
     session.execute(text('TRUNCATE TABLE `{}`'.format(code)))
     session.close()
 
-
-def find_active_symbols() -> List[Symbol]:
-    session = dba.get_session('symbol')
-    sbs = session.execute(
-        select(Symbol).where(and_(Symbol.status == 1))
-    ).scalars().fetchall()
-    session.close()
-    return sbs
-
-
-def update_all_symbols(status=0, beyond=None):
-    session = dba.get_session('symbol')
-    try:
-        update_sql = "UPDATE `symbol` SET `status` = {}".format(status)
-        if status == 1:
-            update_sql = "{} WHERE `code` LIKE '60%' OR `code` LIKE '30%' OR `code` LIKE '00%'".format(update_sql)
-        session.execute(text(update_sql))
-        # session.commit()
-        if beyond is not None:
-            b_status = 1 if status == 0 else 0
-            update_sql2 = "UPDATE `symbol` SET `status` = {} WHERE `code` IN ({})".format(b_status, beyond)
-            session.execute(text(update_sql2))
-        session.flush()
-        session.commit()
-    except:
-        session.rollback()
+#
+# def update_all_symbols(status=0, beyond=None):
+#     session = dba.get_session('symbol')
+#     try:
+#         update_sql = "UPDATE `symbol` SET `status` = {}".format(status)
+#         if status == 1:
+#             update_sql = "{} WHERE `code` LIKE '60%' OR `code` LIKE '30%' OR `code` LIKE '00%'".format(update_sql)
+#         session.execute(text(update_sql))
+#         # session.commit()
+#         if beyond is not None:
+#             b_status = 1 if status == 0 else 0
+#             update_sql2 = "UPDATE `symbol` SET `status` = {} WHERE `code` IN ({})".format(b_status, beyond)
+#             session.execute(text(update_sql2))
+#         session.flush()
+#         session.commit()
+#     except:
+#         session.rollback()
 
 
 class Mapper:
@@ -219,25 +211,26 @@ class Mapper:
             Column('mark', Integer)
         ))
 
-    def symbol_table(self, meta):
-        registry().map_imperatively(Symbol, Table(
-            'symbol', meta,
-            Column('id', Integer, autoincrement=True, primary_key=True),
-            Column('code', String(50)),
-            Column('name', String(50)),
-            Column('status', Integer),
-            Column('comment', String(500)),
-            Column('profit', DECIMAL(18, 2), default=None),
-            Column('total', DECIMAL(18, 2), default=None),
-            Column('circulating', DECIMAL(18, 2), default=None),
-            Column('industry', String(500)),
-            Column('pe', DECIMAL(18, 2), default=None),
-            Column('pb', DECIMAL(18, 2), default=None),
-            Column('roe', DECIMAL(18, 2), default=None),
-            Column('gross', DECIMAL(18, 2), default=None),
-            Column('net', DECIMAL(18, 2), default=None),
-            Column('sector', String(500))
-        ))
+    # def symbol_table(self, meta):
+    #     registry().map_imperatively(Symbol, Table(
+    #         'symbol', meta,
+    #         Column('id', Integer, autoincrement=True, primary_key=True),
+    #         Column('code', String(50)),
+    #         Column('name', String(50)),
+    #         Column('status', Integer),
+    #         Column('comment', String(500)),
+    #         Column('profit', DECIMAL(18, 2), default=None),
+    #         Column('total', DECIMAL(18, 2), default=None),
+    #         Column('circulating', DECIMAL(18, 2), default=None),
+    #         Column('industry', String(500)),
+    #         Column('pe', DECIMAL(18, 2), default=None),
+    #         Column('pb', DECIMAL(18, 2), default=None),
+    #         Column('roe', DECIMAL(18, 2), default=None),
+    #         Column('gross', DECIMAL(18, 2), default=None),
+    #         Column('net', DECIMAL(18, 2), default=None),
+    #         Column('sector', String(500)),
+    #         Column('created', String(500))
+    #     ))
     #
     # def signal_table(self, meta):
     #     registry().map_imperatively(Signal, Table(
@@ -273,6 +266,7 @@ def do_mapping(engine, meta, table_name):
         if table_name[0:2] in Config.PREFIX:
             mapper.candle_table(meta, table_name)
         else:
+            mapper.symbol_table(meta)
             eval('mapper.{}_table'.format(table_name))(meta)
         meta.tables.get(table_name).create(engine, checkfirst=True)
 

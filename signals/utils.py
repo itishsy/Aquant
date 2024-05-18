@@ -1,4 +1,4 @@
-from storage.candle import Candle
+from candles.candle import Candle
 from typing import List
 
 

@@ -9,10 +9,12 @@ class Config:
     DB_PORT = 3306
     DB_USER = 'root'
     DB_PASSWD = 'root'
-    DB_DATABASE = 'aq'
+    DB_DATABASE = 'a_quent'
+    DB_CANDLE = 'a_candle'
     ITEMS_PER_PAGE = 20
     JWT_AUTH_URL_RULE = '/api/auth'
     PREFIX = ['00', '60', '30', '51']
+    FREQ = [102, 101, 120, 60, 30]
     URL_PREFIX = '/69f2aeb7fa0e11edad01f46b8c05cf04'
 
     @staticmethod

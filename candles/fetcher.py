@@ -1,11 +1,13 @@
 import efinance as ef
 from datetime import datetime, timedelta
-from storage.candle import Candle
+from candles.candle import Candle
+from models.symbol import Symbol
 from decimal import Decimal
-from storage.dba import dba, freqs, find_candles
+from candles.storage import dba, find_candles
+from common.config import Config
 from sqlalchemy import select, desc, delete, and_
-from storage.marker import remark
-from storage.dba import find_active_symbols, clean_data
+from candles.marker import remark
+from candles.storage import clean_data
 from typing import List
 from common.utils import dt_format
 from models.component import Component
@@ -137,8 +139,8 @@ def fetch_all(freq=None, clean=False):
     if freq is not None:
         ks.append(freq)
     else:
-        ks = freqs
-    sbs = find_active_symbols()
+        ks = Config.FREQ
+    sbs = Symbol.actives()
     count = 0
     for sb in sbs:
         try:
@@ -194,5 +196,5 @@ def fetch_daily():
 
 if __name__ == '__main__':
     # fetch_daily()
-    fetch_all()
-    # fetch_and_save('600895', 101, clean=True)
+    # fetch_all(clean=True)
+    fetch_and_save('600895', 101)

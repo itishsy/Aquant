@@ -1,11 +1,11 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.dba import freqs, find_stage_candles, find_candles
+from candles.storage import find_stage_candles, find_candles
 import signals.utils as sig
 from models.signal import Signal
 from datetime import datetime, timedelta
 from decimal import Decimal
 from signals.divergence import diver_bottom
-from storage.candle import Candle
+from candles.candle import Candle
 from typing import List
 
 

@@ -2,10 +2,10 @@ from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
 from models.ticket import Ticket, TicketSignal
 from models.choice import Choice
+from models.symbol import Symbol
 from common.utils import *
 from models.component import Component, COMPONENT_TYPE
-import storage.fetcher as fet
-from storage.dba import find_active_symbols
+import candles.fetcher as fet
 
 import traceback
 import time
@@ -74,7 +74,7 @@ class Engine(ABC):
 
     def do_search(self):
         count = 0
-        symbols = find_active_symbols()
+        symbols = Symbol.actives()
         for sym in symbols:
             try:
                 count = count + 1

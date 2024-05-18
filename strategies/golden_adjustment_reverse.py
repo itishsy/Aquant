@@ -1,8 +1,9 @@
 from strategies.strategy import register_strategy, Strategy
-from storage.dba import freqs, find_candles
+from candles.storage import find_candles
+from common.config import Config
 import signals.utils as sig
 from signals.divergence import diver_bottom
-from storage.candle import Candle
+from candles.candle import Candle
 from typing import List
 from datetime import datetime
 
@@ -63,7 +64,7 @@ class GAR(Strategy):
 
         ss = []
         for fre in self.child_freq():
-            if fre in freqs:
+            if fre in Config.FREQ:
                 css = find_candles(self.code, fre, begin=sdt)
                 cds = diver_bottom(css)
                 for cs in cds:

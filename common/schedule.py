@@ -1,5 +1,5 @@
 from datetime import datetime
-from storage.fetcher import fetch_all
+from candles.fetcher import fetch_all
 from strategies.watcher import watch_all
 from strategies.searcher import search_all
 from models.component import Component

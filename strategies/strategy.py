@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
-from storage.dba import find_active_symbols, find_candles, get_symbol
+from candles.storage import find_active_symbols, find_candles, get_symbol
 from models.ticket import Ticket
 from models.choice import Choice
 import traceback

@@ -1,4 +1,4 @@
-from storage.dba import find_candles
+from candles.storage import find_candles
 from signals.divergence import diver_bottom, diver_top
 from models.signal import Signal
 

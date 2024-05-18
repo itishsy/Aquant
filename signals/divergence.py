@@ -1,7 +1,21 @@
-from storage.candle import Candle
+from abc import ABC
+
+from models.choice import Choice
+from candles.candle import Candle
 from models.signal import Signal, SIGNAL_TYPE
 from typing import List
 import signals.utils as utl
+from signals.signaler import Signaler
+
+
+class Divergence(Signaler):
+
+    def search(self, candles: List[Candle]) -> List[Signal]:
+        sis = diver_bottom(candles)
+        return sis
+
+    def analyze(self, sig: Signal) -> Signal:
+        return sig
 
 
 def diver_top(candles: List[Candle]) -> List[Signal]:
@@ -106,3 +120,5 @@ def shape_bottom(candles: List[Candle]) -> List[Signal]:
                     signals.append(Signal(dt=bot.dt, freq=bot.freq, type='shape_bottom', value=bot.mark))
             break
     return signals
+
+

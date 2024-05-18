@@ -9,7 +9,7 @@ from models.ticket import Ticket
 from models.trade import Trade
 from models.choice import Choice
 from datetime import datetime
-from storage.dba import find_candles
+from candles.storage import find_candles
 from common.utils import now_ymd
 
 logger = get_logger(__name__)

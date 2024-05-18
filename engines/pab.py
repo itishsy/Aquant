@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from engines.engine import strategy_engine, Engine
-from storage.dba import find_stage_candles, find_candles
+from candles.storage import find_stage_candles, find_candles
 from models.signal import Signal
 from models.choice import Choice
 from models.ticket import Ticket

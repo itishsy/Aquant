@@ -1,5 +1,19 @@
 from dataclasses import dataclass
-
+from storage import dba
+import efinance as ef
+from datetime import datetime
+from typing import List
+from sqlalchemy import (
+    select,
+    desc,
+    and_,
+    Table,
+    Column,
+    Integer,
+    String,
+    DECIMAL,
+    text
+)
 
 @dataclass
 class Symbol:
@@ -48,6 +62,9 @@ class Symbol:
     sector: str
     created: str
     comment: str
+
+
+
 
 
 
