@@ -122,3 +122,5 @@ def shape_bottom(candles: List[Candle]) -> List[Signal]:
     return signals
 
 
+if __name__ == '__main__':
+    Divergence().start()

@@ -1,7 +1,8 @@
 from datetime import datetime
 from models.base import BaseModel, db
 from flask_peewee.db import CharField, DecimalField, IntegerField, DateTimeField, AutoField
-from candles.storage import find_candles, get_symbol
+from candles.storage import find_candles
+from models.symbol import Symbol
 from signals.utils import *
 from common.utils import dt_format
 
@@ -53,7 +54,7 @@ class Signal(BaseModel):
                         si.strength = SIGNAL_STRENGTH.AVERAGE
                         si.save()
         else:
-            self.name = get_symbol(self.code).name
+            self.name = Symbol.select().where(Symbol.code == self.code).name
             self.created = datetime.now()
             self.save()
 

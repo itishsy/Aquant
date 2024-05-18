@@ -35,6 +35,7 @@ class Signaler(ABC):
             try:
                 candles = find_candles(sym.code)
                 sis = self.search(candles)
+                print('search single code=', sym.code, 'result:',len(sis))
                 if len(sis) > 0:
                     for si in sis:
                         si = self.analyze(si)
