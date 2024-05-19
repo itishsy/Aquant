@@ -15,6 +15,7 @@ class Signal(BaseModel):
     freq = CharField()  # 信号级别
     dt = CharField()  # 发生时间
     price = DecimalField()  # 信号价格
+    strategy = CharField()  # 策略
     type = IntegerField()  # 信號類別： 0 底背离 1 頂背离
     strength = IntegerField(null=True)
     effect = IntegerField(null=True)
@@ -30,10 +31,10 @@ class Signal(BaseModel):
             if si.effect:
                 return
 
+            si.updated = datetime.now()
             lowest = get_lowest(find_candles(self.code, begin=dt_format(self.dt)))
             if lowest.low < self.price:
                 si.effect = SIGNAL_EFFECT.INVALID
-                si.updated = datetime.now()
                 si.save()
             elif self.type == SIGNAL_TYPE.BOTTOM_DIVERGENCE:
                 cds = find_candles(self.code, freq=self.freq)

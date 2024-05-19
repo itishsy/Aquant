@@ -80,8 +80,8 @@ class Engine(ABC):
                 sig = self.search(co)
                 if sig:
                     sig.code = co
+                    sig.strategy = self.strategy
                     sig.upset()
-                    # Choice(source='ENGINE', strategy=self.strategy).add_by_signal(sig)
             except Exception as e:
                 print(e)
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))

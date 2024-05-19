@@ -14,18 +14,36 @@ class D163(Engine):
         if size < 100:
             return
 
+        dts = diver_top(candles)
+        if len(dts) > 0:
+            return
+
         dbs = diver_bottom(candles)
         if len(dbs) > 0:
-            sig = dbs[-1]
-            sub_candles = find_candles(code, freq=60, begin=sig.dt)
+            s1 = dbs[-1]
+            sub_candles = find_candles(code, freq=60, begin=s1.dt)
             sub_abs = diver_bottom(sub_candles)
             if len(sub_abs) > 0:
-                return sub_abs[-1]
+                s6 = sub_abs[-1]
+                if s6.price > s1.price:
+                    sub_dts = diver_top(sub_candles)
+                    if len(sub_dts) > 0:
+                        return
+                    else:
+                        s6.strategy = 'd163'
+                        return s6
             else:
-                sub_candles = find_candles(code, freq=30, begin=sig.dt)
+                sub_candles = find_candles(code, freq=30, begin=s1.dt)
                 sub_abs = diver_bottom(sub_candles)
                 if len(sub_abs) > 0:
-                    return sub_abs[-1]
+                    s3 = sub_abs[-1]
+                    if s3.price > s1.price:
+                        sub_dts = diver_top(sub_candles)
+                        if len(sub_dts) > 0:
+                            return
+                        else:
+                            s3.strategy = 'd163'
+                            return s3
 
     def watch(self, cho):
         pass

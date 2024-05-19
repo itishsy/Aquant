@@ -204,6 +204,7 @@ class Mapper:
             Column('ma10', DECIMAL(12, 4), default=None),
             Column('ma20', DECIMAL(12, 4), default=None),
             Column('ma30', DECIMAL(12, 4), default=None),
+            Column('ma60', DECIMAL(12, 4), default=None),
             Column('mav5', DECIMAL(12, 4), default=None),
             Column('ema12', DECIMAL(12, 4), default=None),
             Column('ema26', DECIMAL(12, 4), default=None),

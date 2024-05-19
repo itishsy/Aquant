@@ -137,7 +137,10 @@ def fetch_all(freq=None, clean=False):
     start_time = datetime.now()
     ks = []
     if freq is not None:
-        ks.append(freq)
+        if isinstance(freq, list):
+            ks = freq
+        else:
+            ks.append(freq)
     else:
         ks = Config.FREQ
     sbs = Symbol.actives()
