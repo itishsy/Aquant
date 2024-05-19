@@ -48,6 +48,7 @@ class Engine(ABC):
     def start_component(self, comp_name, limit_time=1, freq=Config.FREQ, clean=False):
         now = datetime.now()
         comp = Component.get(Component.name == comp_name)
+        is_fetcher = comp_name == 'fetcher'
         flag = False
         if isinstance(comp.run_end, str) or isinstance(comp.run_start, str):
             flag = True
@@ -60,8 +61,9 @@ class Engine(ABC):
             comp.status = Component.Status.RUNNING
             comp.run_start = datetime.now()
             comp.save()
-            if comp_name == 'fetcher':
-                fet.fetch_all(freq, clean)
+            if is_fetcher:
+                if now.weekday() < 5 or comp.run_end.day > (now.day - 2):
+                    fet.fetch_all(freq, clean)
             else:
                 self.do_search()
             comp.status = Component.Status.READY
