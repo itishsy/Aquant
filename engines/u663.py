@@ -9,7 +9,29 @@ class U663(Engine):
       appear 60/30 bottom divergence in ma60 upward trend
     """
     def search(self, code):
-        pass
+        candles = find_candles(code)
+        last_60s = candles[-60:]
+        idx = 0
+        for c in last_60s:
+            if c.ma60 <= c.close:
+                idx = idx + 1
+
+        if idx < 55:
+            return
+
+        dts = diver_top(candles)
+        if len(dts) > 0:
+            return
+
+        c60 = find_candles(code, freq=60)
+        dbs = diver_bottom(c60)
+        if len(dbs) > 0:
+            return dbs[-1]
+        else:
+            c30 = find_candles(code, freq=30)
+            dbs = diver_bottom(c30)
+            if len(dbs) > 0:
+                return dbs[-1]
 
     def watch(self, cho):
         pass

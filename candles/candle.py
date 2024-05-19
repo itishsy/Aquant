@@ -1,5 +1,6 @@
 from decimal import Decimal
 from dataclasses import dataclass
+import math
 
 
 @dataclass
@@ -7,7 +8,10 @@ class Candle:
     def __init__(self, series=None):
         if series is not None:
             for key in series.keys():
-                setattr(self, key, series[key])
+                val = series[key]
+                if isinstance(val, float) and math.isnan(val):
+                    val = None
+                setattr(self, key, val)
 
     id: int
     dt: str

@@ -9,7 +9,29 @@ class U235(Engine):
       appear 30/15min bottom divergence in ma20 upward trend
     """
     def search(self, code):
-        pass
+        candles = find_candles(code)
+        last_50s = candles[-50:]
+        idx = 0
+        for c in last_50s:
+            if c.ma20 <= c.close:
+                idx = idx + 1
+
+        if idx < 40:
+            return
+
+        dts = diver_top(candles)
+        if len(dts) > 0:
+            return
+
+        c30 = find_candles(code, freq=30)
+        dbs = diver_bottom(c30)
+        if len(dbs) > 0:
+            return dbs[-1]
+        else:
+            c15 = find_candles(code, freq=15)
+            dbs = diver_bottom(c15)
+            if len(dbs) > 0:
+                return dbs[-1]
 
     def watch(self, cho):
         pass

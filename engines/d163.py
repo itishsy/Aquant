@@ -30,7 +30,6 @@ class D163(Engine):
                     if len(sub_dts) > 0:
                         return
                     else:
-                        s6.strategy = 'd163'
                         return s6
             else:
                 sub_candles = find_candles(code, freq=30, begin=s1.dt)
