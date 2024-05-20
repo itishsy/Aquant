@@ -33,13 +33,20 @@ class Engine(ABC):
         try:
             if now.weekday() < 5:
                 if 1130 < n_val < 1300 or 1530 < n_val < 1700:
+                    # 盘后检索
                     freq = [30, 60] if 1130 < n_val < 1300 else [101, 120, 60, 30]
                     limit_time = 1130 if 1130 < n_val < 1300 else 1530
                     self.start_component('fetcher', limit_time=limit_time, freq=freq)
                     self.start_component(self.strategy, limit_time=limit_time)
                 elif 930 < n_val < 1130 or 1300 < n_val < 1500:
+                    # 盘中观察
                     self.do_watch()
+                else:
+                    # 当天跑一次
+                    self.start_component('fetcher')
+                    self.start_component(self.strategy)
             else:
+                # 当天跑一次
                 self.start_component('fetcher')
                 self.start_component(self.strategy)
         except Exception as e:
