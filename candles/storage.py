@@ -159,13 +159,6 @@ def find_stage_candles(code, freq, candle) -> List[Candle]:
     session.close()
     return cds
 
-def update_ma(code, row):
-    session = dba.get_session(code)
-    update_sql = text("update `{}` set ma5={},ma10={},ma20={},ma30={},ma60={} where freq=101 and dt='{}'"
-                      .format(code, round(row['ma5'], 4), round(row['ma10'], 4), round(row['ma20'], 4), round(row['ma30'], 4), round(row['ma60'], 4), row['dt']))
-    session.execute(update_sql)
-    session.close()
-
 def clean_data(code):
     session = dba.get_session(code)
     session.execute(text('TRUNCATE TABLE `{}`'.format(code)))
