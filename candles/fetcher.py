@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 from candles.candle import Candle
 from models.symbol import Symbol
 from decimal import Decimal
-from candles.storage import dba, find_candles
+from candles.storage import dba
 from common.config import Config
-from sqlalchemy import select, desc, delete, and_
+from sqlalchemy import select, desc, delete, and_, text
 from candles.marker import remark
 from candles.storage import clean_data
 from typing import List
@@ -13,6 +13,8 @@ from common.utils import dt_format
 from models.component import Component
 import logging
 import time
+import pandas as pd
+import math
 
 
 def get_last_candle(code, freq, l_candle: Candle):
@@ -41,6 +43,7 @@ def fetch_and_save(code, freq, begin=None):
         candles = fetch_data(code, freq, begin)
         session.add_all(candles)
         session.commit()
+        update_ma(code)
         remark(code, freq)
     else:
         l_candle, begin = get_last_candle(code, freq, a_candles[0])
@@ -48,6 +51,7 @@ def fetch_and_save(code, freq, begin=None):
         candles = fetch_data(code, freq, begin, l_candle=l_candle)
         session.add_all(candles)
         session.commit()
+        update_ma(code)
         remark(code, freq, beg=beg)
 
 
@@ -82,13 +86,13 @@ def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
     df.drop(['name', 'code', 'zf', 'zdf', 'zde'], axis=1, inplace=True)
     if d_flag:
         df = double_merge(df)
-    if freq == 101:
-        df['ma5'] = df['close'].rolling(5).mean()
-        df['ma10'] = df['close'].rolling(10).mean()
-        df['ma20'] = df['close'].rolling(20).mean()
-        df['ma30'] = df['close'].rolling(30).mean()
-        df['ma60'] = df['close'].rolling(60).mean()
-        df.fillna(0)
+    # if freq == 101:
+    #     df['ma5'] = df['close'].rolling(5).mean()
+    #     df['ma10'] = df['close'].rolling(10).mean()
+    #     df['ma20'] = df['close'].rolling(20).mean()
+    #     df['ma30'] = df['close'].rolling(30).mean()
+    #     df['ma60'] = df['close'].rolling(60).mean()
+    #     df.fillna(0)
 
     candles = []
     for i, row in df.iterrows():
@@ -134,11 +138,24 @@ def get_ma(candles: List[Candle], seq, val=None, att='close'):
 
 
 def update_ma(code):
-    beg = cal_fetch_beg(101)
-    df = ef.stock.get_quote_history(code, klt=101, beg=beg)
-    df['ma5'] = df['收盘'].rolling(5).mean()
-
-    print(df)
+    sen = dba.get_session(code)
+    query = text("select * from `{}` where freq=101 order by dt desc limit 120;".format(code))
+    result_proxy = sen.execute(query)
+    df = pd.DataFrame(result_proxy.fetchall(), columns=result_proxy.keys())
+    df = df[::-1]
+    df['ma5'] = df['close'].rolling(5).mean()
+    df['ma10'] = df['close'].rolling(10).mean()
+    df['ma20'] = df['close'].rolling(20).mean()
+    df['ma30'] = df['close'].rolling(30).mean()
+    df['ma60'] = df['close'].rolling(60).mean()
+    for index, row in df.iterrows():
+        if isinstance(row['ma60'], float) and not math.isnan(row['ma60']):
+            update_sql = text("update `{}` set ma5={},ma10={},ma20={},ma30={},ma60={} where freq=101 and dt='{}'"
+                              .format(code, round(row['ma5'], 4), round(row['ma10'], 4), round(row['ma20'], 4),
+                                      round(row['ma30'], 4), round(row['ma60'], 4), row['dt']))
+            sen.execute(update_sql)
+            sen.commit()
+    sen.close()
 
 
 def fetch_all(freq=None, clean=False):
@@ -208,12 +225,12 @@ def fetch_daily():
 if __name__ == '__main__':
     # fetch_daily()
     # fetch_all(clean=True)
-    # update_ma('600876')
-    idx = 0
-    for symbol in Symbol.actives():
-        idx = idx + 1
-        print('update candle', symbol.code, idx)
-        session = dba.get_session(symbol.code)
-        session.execute(delete(Candle).where(Candle.freq == 101))
-        session.commit()
-        fetch_and_save(symbol.code, 101)
+    update_ma('000030')
+    # idx = 0
+    # for symbol in Symbol.actives():
+    #     idx = idx + 1
+    #     print('update candle', symbol.code, idx)
+    #     session = dba.get_session(symbol.code)
+    #     session.execute(delete(Candle).where(Candle.freq == 101))
+    #     session.commit()
+    #     fetch_and_save(symbol.code, 101)
