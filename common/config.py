@@ -9,7 +9,7 @@ class Config:
     DB_PORT = 3306
     DB_USER = 'root'
     DB_PASSWD = 'root'
-    DB_DATABASE = 'a_quent'
+    DB_DATABASE = 'a_quant'
     DB_CANDLE = 'a_candle'
     ITEMS_PER_PAGE = 20
     JWT_AUTH_URL_RULE = '/api/auth'
