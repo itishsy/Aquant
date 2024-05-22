@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from candles.candle import Candle
 from models.symbol import Symbol
 from decimal import Decimal
-from candles.storage import dba, find_candles
+from candles.storage import dba, update_ma
 from common.config import Config
 from sqlalchemy import select, desc, delete, and_, text
 from candles.marker import remark
@@ -43,7 +43,7 @@ def fetch_and_save(code, freq, begin=None):
         candles = fetch_data(code, freq, begin)
         session.add_all(candles)
         session.commit()
-        update_ma(code)
+        setma(code)
         remark(code, freq)
     else:
         l_candle, begin = get_last_candle(code, freq, a_candles[0])
@@ -51,7 +51,7 @@ def fetch_and_save(code, freq, begin=None):
         candles = fetch_data(code, freq, begin, l_candle=l_candle)
         session.add_all(candles)
         session.commit()
-        update_ma(code)
+        setma(code)
         remark(code, freq, beg=beg)
 
 
@@ -137,12 +137,10 @@ def get_ma(candles: List[Candle], seq, val=None, att='close'):
     return res
 
 
-def update_ma(code):
+def setma(code):
     sen = dba.get_session(code)
     query = text("select * from `{}` where freq=101 order by dt desc limit 120;".format(code))
     result_proxy = sen.execute(query)
-    # select(Candle).where(and_(Candle.freq == 101)).order_by(desc(Candle.dt)).limit(120)
-    # )
     df = pd.DataFrame(result_proxy.fetchall(), columns=result_proxy.keys())
     df = df[::-1]
     df['ma5'] = df['close'].rolling(5).mean()
@@ -151,11 +149,8 @@ def update_ma(code):
     df['ma30'] = df['close'].rolling(30).mean()
     df['ma60'] = df['close'].rolling(60).mean()
     for index, row in df.iterrows():
-        if isinstance(row['ma60'], float) and math.isnan(row['ma60']):
-            continue
-        update_sql = text("update `{}` set ma5={},ma10={},ma20={},ma30={},ma60={} where freq=101 and dt='{}'"
-                          .format(code, row['ma5'], row['ma10'], row['ma20'], row['ma30'], row['ma60'], row['dt']))
-        sen.execute(update_sql)
+        if isinstance(row['ma60'], float) and not math.isnan(row['ma60']):
+            update_ma(code, row)
     sen.close()
 
 
@@ -226,12 +221,12 @@ def fetch_daily():
 if __name__ == '__main__':
     # fetch_daily()
     # fetch_all(clean=True)
-    # update_ma('600876')
-    idx = 0
-    for symbol in Symbol.actives():
-        idx = idx + 1
-        print('update candle', symbol.code, idx)
-        session = dba.get_session(symbol.code)
-        session.execute(delete(Candle).where(Candle.freq == 101))
-        session.commit()
-        fetch_and_save(symbol.code, 101)
+    setma('000027')
+    # idx = 0
+    # for symbol in Symbol.actives():
+    #     idx = idx + 1
+    #     print('update candle', symbol.code, idx)
+    #     session = dba.get_session(symbol.code)
+    #     session.execute(delete(Candle).where(Candle.freq == 101))
+    #     session.commit()
+    #     fetch_and_save(symbol.code, 101)
