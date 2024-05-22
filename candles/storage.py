@@ -1,4 +1,3 @@
-import efinance as ef
 from sqlalchemy.orm import sessionmaker, registry
 from common.config import Config
 from typing import List
