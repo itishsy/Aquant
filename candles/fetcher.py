@@ -139,6 +139,10 @@ def get_ma(candles: List[Candle], seq, val=None, att='close'):
 
 def update_ma(code):
     sen = dba.get_session(code)
+    query_dt = text("select dt from `{}` where freq=101 and ma60 is not null order by dt desc limit 1;".format(code))
+    dt = sen.execute(query_dt).scalar_one_or_none()
+    if dt == datetime.now().strftime('%Y-%m-%d'):
+        return
     query = text("select * from `{}` where freq=101 order by dt desc limit 120;".format(code))
     result_proxy = sen.execute(query)
     df = pd.DataFrame(result_proxy.fetchall(), columns=result_proxy.keys())
@@ -148,6 +152,8 @@ def update_ma(code):
     df['ma20'] = df['close'].rolling(20).mean()
     df['ma30'] = df['close'].rolling(30).mean()
     df['ma60'] = df['close'].rolling(60).mean()
+    if dt is not None:
+        df = df[df['dt'] > dt]
     for index, row in df.iterrows():
         if isinstance(row['ma60'], float) and not math.isnan(row['ma60']):
             update_sql = text("update `{}` set ma5={},ma10={},ma20={},ma30={},ma60={} where freq=101 and dt='{}'"

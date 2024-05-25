@@ -12,8 +12,9 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length
 from common.dicts import freq_level, choice_strategy, trade_strategy, buy_type
-from candles.storage import find_candles, get_symbol
+from candles.storage import find_candles
 from common.utils import now_ymd
+from models.symbol import Symbol
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -196,7 +197,7 @@ def load_ticket():
             chi = Ticket.get(Ticket.code == code)
             data = chi.__data__
         else:
-            sym = get_symbol(code)
+            sym = Symbol.get(Symbol.code == code)
             if sym is not None:
                 data = {'id': 0,
                         'code': code,

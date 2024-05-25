@@ -1,0 +1,22 @@
+from engines import *
+from datetime import datetime
+from models.user import generate_pwd
+
+
+def test_engine(eng_name):
+    eng = engine.strategy[eng_name]()
+    print("[{}] {} start...".format(datetime.now(), eng_name))
+    eng.do_search()
+    print("[{}] {} end".format(datetime.now(), eng_name))
+
+
+def test_model():
+    generate_pwd('')
+    print('done!')
+    # db.connect()
+    # db.create_tables([Choice])
+
+
+if __name__ == '__main__':
+    # test_engine('D163')
+    test_model()

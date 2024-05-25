@@ -1,5 +1,5 @@
 from models.base import BaseModel, db
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import UserMixin
 from flask_peewee.db import CharField, BooleanField
 from app import login_manager
@@ -21,6 +21,10 @@ class User(UserMixin, BaseModel):
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(User.id == int(user_id))
+
+
+def generate_pwd(ori_password):
+    print(generate_password_hash(ori_password))
 
 
 if __name__ == '__main__':

@@ -40,20 +40,21 @@ class Signal(BaseModel):
                 cds = find_candles(self.code, freq=self.freq)
                 d, a, b, r, c = get_dabrc(cds, self.dt)
                 r_high = get_highest(r)
-                if r_high.diff() > 0:
+                if r_high is not None and r_high.diff() > 0:
                     si.effect = SIGNAL_EFFECT.EFFECTIVE
                     si.strength = SIGNAL_STRENGTH.STRONG
                     si.save()
                 else:
                     a_high = get_highest(a)
                     a_low = get_lowest(a)
-                    if r_high.high > a_high.high:
-                        si.effect = SIGNAL_EFFECT.EFFECTIVE
-                        si.strength = SIGNAL_STRENGTH.STRONG
-                        si.save()
-                    elif r_high.high > (a_high.high + a_low.low) / 2:
-                        si.strength = SIGNAL_STRENGTH.AVERAGE
-                        si.save()
+                    if a_low is not None and a_high is not None and r_high is not None:
+                        if r_high.high > a_high.high:
+                            si.effect = SIGNAL_EFFECT.EFFECTIVE
+                            si.strength = SIGNAL_STRENGTH.STRONG
+                            si.save()
+                        elif r_high.high > (a_high.high + a_low.low) / 2:
+                            si.strength = SIGNAL_STRENGTH.AVERAGE
+                            si.save()
         else:
             self.name = Symbol.get(Symbol.code == self.code).name
             self.created = datetime.now()

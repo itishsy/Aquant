@@ -10,7 +10,8 @@ from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
-from candles.storage import get_symbol, find_candles
+from candles.storage import find_candles
+from models.symbol import Symbol
 from common.dicts import choice_strategy, choice_source, freq_level
 from common.utils import now_ymd
 
@@ -108,7 +109,7 @@ def load_choice():
             chi = Choice.get(Choice.code == code)
             data = chi.__data__
         else:
-            sym = get_symbol(code)
+            sym = Symbol.get(Symbol.code == code)
             if sym is not None:
                 data = {'id': 0,
                         'code': code,

@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
 from strategies.strategy import register_strategy, Strategy
-from candles.storage import find_candles, get_symbol
+from candles.storage import find_candles
 from signals.divergence import diver_bottom, diver_top
 from candles.candle import Candle
 from models.choice import Choice
+from models.symbol import Symbol
 from typing import List
 from signals.utils import get_stage, get_lowest
 
@@ -54,7 +55,7 @@ class UAB30(Strategy):
                 if sig_time + timedelta(8) > cur_time:
                     choice = Choice()
                     choice.code = self.code
-                    choice.name = get_symbol(self.code).name
+                    choice.name = Symbol.get(Symbol.code == self.code).name
                     choice.freq = 30
                     choice.dt = sig.dt
                     choice.strategy = 'uab'

@@ -271,8 +271,8 @@ def do_mapping(engine, meta, table_name):
 
 
 if __name__ == '__main__':
-    # pass
-    fetch_symbols()
+    pass
+    # fetch_symbols()
     # mark('300223', 101)
     # fetch_data('300223', 30)
     # candles = find_candles('300223', 101, begin='2023-01-01', limit=100)

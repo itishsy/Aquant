@@ -49,10 +49,10 @@ def signallist():
     today = request.args.get('today')
     if today and today != 'None':
         last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
-        query = Signal.select().where(Signal.status > 0, Signal.created >= last_day).order_by(Signal.created.desc())
+        query = Signal.select().where(Signal.created >= last_day).order_by(Signal.created.desc())
         total_count = query.count()
     else:
-        query = Signal.select().where(Signal.status > 0).order_by(Signal.created.desc()).limit(180)
+        query = Signal.select().order_by(Signal.created.desc()).limit(180)
         total_count = query.count()
 
     cdt = datetime(datetime.now().year,datetime.now().month,datetime.now().day)
