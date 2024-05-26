@@ -128,6 +128,21 @@ class Engine(ABC):
             finally:
                 print('[{0}] {1} deal done by strategy -- {2} '.format(datetime.now(), tic.code, self.strategy))
 
+    @staticmethod
+    def common_filter(candles):
+        candle_size = len(candles)
+        if candle_size < 100:
+            return
+
+        turnover_size = 0
+        for candle in candles:
+            if candle.turnover > 1:
+                turnover_size = turnover_size + 1
+
+        if turnover_size/candle_size < 0.6:
+            return False
+        return True
+
     @abstractmethod
     def search(self, code):
         pass

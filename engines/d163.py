@@ -10,8 +10,8 @@ class D163(Engine):
     """
     def search(self, code):
         candles = find_candles(code)
-        size = len(candles)
-        if size < 100:
+
+        if not self.common_filter(candles):
             return
 
         dts = diver_top(candles)

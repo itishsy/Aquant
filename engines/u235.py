@@ -10,6 +10,10 @@ class U235(Engine):
     """
     def search(self, code):
         candles = find_candles(code)
+
+        if not self.common_filter(candles):
+            return
+
         last_50s = candles[-50:]
         idx = 0
         for c in last_50s:

@@ -10,6 +10,10 @@ class U663(Engine):
     """
     def search(self, code):
         candles = find_candles(code)
+
+        if not self.common_filter(candles):
+            return
+
         last_60s = candles[-60:]
         idx = 0
         for c in last_60s:
