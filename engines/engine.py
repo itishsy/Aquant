@@ -7,6 +7,7 @@ from common.utils import *
 from common.config import Config
 from models.component import Component, COMPONENT_TYPE
 import candles.fetcher as fet
+from signals.divergence import diver_top
 
 import traceback
 import time
@@ -141,6 +142,11 @@ class Engine(ABC):
 
         if turnover_size/candle_size < 0.6:
             return False
+
+        dts = diver_top(candles)
+        if len(dts) > 0:
+            return False
+
         return True
 
     @abstractmethod

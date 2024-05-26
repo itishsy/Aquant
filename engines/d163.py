@@ -14,10 +14,6 @@ class D163(Engine):
         if not self.common_filter(candles):
             return
 
-        dts = diver_top(candles)
-        if len(dts) > 0:
-            return
-
         dbs = diver_bottom(candles)
         if len(dbs) > 0:
             s1 = dbs[-1]
