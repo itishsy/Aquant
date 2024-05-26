@@ -52,17 +52,18 @@ def signallist():
         query = Signal.select().where(Signal.created >= last_day).order_by(Signal.created.desc())
         total_count = query.count()
     else:
-        query = Signal.select().order_by(Signal.created.desc()).limit(180)
+        query = Signal.select().order_by(Signal.dt.desc()).limit(180)
         total_count = query.count()
 
-    cdt = datetime(datetime.now().year,datetime.now().month,datetime.now().day)
+    cdt = datetime(datetime.now().year, datetime.now().month, datetime.now().day)
 
     # 处理分页
-    if page: query = query.paginate(page, length)
+    if page:
+        query = query.paginate(page, length)
 
-    dict = {'content': utils.query_to_list(query), 'total_count': total_count,
+    dic = {'content': utils.query_to_list(query), 'total_count': total_count,
             'total_page': math.ceil(total_count / length), 'page': page, 'length': length}
-    return render_template('signallist.html', form=dict, cdt=cdt, today=today, current_user=current_user)
+    return render_template('signallist.html', form=dic, cdt=cdt, today=today, current_user=current_user)
 
 
 @main.route('/signaledit', methods=['GET', 'POST'])
