@@ -138,7 +138,7 @@ class Engine(ABC):
         t_size = 30
         turnover_size = 0
         for i in range(t_size):
-            if candles[candle_size-i].turnover > 0.9:
+            if candles[candle_size-i-1].turnover > 0.9:
                 turnover_size = turnover_size + 1
 
         if turnover_size < 21:
