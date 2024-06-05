@@ -14,13 +14,13 @@ class U663(Engine):
         if not self.common_filter(candles):
             return
 
-        last_60s = candles[-60:]
+        last_30s = candles[-30:]
         idx = 0
-        for c in last_60s:
+        for c in last_30s:
             if c.ma60 <= c.close:
                 idx = idx + 1
 
-        if idx < 55:
+        if idx < 27:
             return
 
         dts = diver_top(candles)
@@ -28,14 +28,13 @@ class U663(Engine):
             return
 
         c60 = find_candles(code, freq=60)
+        d60 = diver_top(c60)
+        if len(d60) > 0:
+            return
+
         dbs = diver_bottom(c60)
         if len(dbs) > 0:
             return dbs[-1]
-        else:
-            c30 = find_candles(code, freq=30)
-            dbs = diver_bottom(c30)
-            if len(dbs) > 0:
-                return dbs[-1]
 
     def watch(self, cho):
         pass
