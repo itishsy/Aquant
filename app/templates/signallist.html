@@ -24,7 +24,6 @@
                 <th style="display: none" >ID</th>
                 <th>编码</th>
                 <th>信号</th>
-<!--                <th>级别</th>-->
                 <th>时间</th>
             </tr>
             {% for row in form.content %}
@@ -36,22 +35,9 @@
             {% endif %}
                 <td style="display: none">{{row.id}}</td>
                 <td>
-                    {% if row.code.startswith('60') %}
-                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{row.name}}</a>
-                    {% else %}
-                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{row.name}}</a>
-                    {% endif %}
+                    <a href='{{ url_for("main.signaldetail", id=row.id) }}'>{{row.name}}</a>
                 </td>
-                <td>
-                    <a href='{{ url_for("main.signaledit", id=row.id) }}'>
-                    {% if row.type == 1 %}
-                    <label style="color: darkgray">S-{{row.strategy}}-{{row.freq}}</label>
-                    {% else %}
-                    <label style="color: red">B-{{row.strategy}}-{{row.freq}}</label>
-                    {% endif %}
-                    </a>
-                </td>
-<!--                <td>{{row.freq}}</td>-->
+                <td>{{row.strategy}}-{{row.freq}}</td>
                 <td>{{row.dt}}</td>
             </tr>
             {% endfor %}

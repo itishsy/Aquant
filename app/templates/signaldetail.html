@@ -25,7 +25,11 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>编码</label>
-                    <span>{{signal.code}}</span>
+                    {% if signal.code.startswith('60') %}
+                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{signal.code}}</a>
+                    {% else %}
+                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{signal.code}}</a>
+                    {% endif %}
                 </div>
             </div>
              <div class="col-md-6">
