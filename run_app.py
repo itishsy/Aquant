@@ -8,3 +8,4 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
 if __name__ == '__main__':
     app.run(port=5000, host='172.172.4.101', debug=True)
+    # app.run(port=5000, host='localhost', debug=True)
