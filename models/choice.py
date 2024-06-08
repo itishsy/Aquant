@@ -30,6 +30,7 @@ class Choice(BaseModel):
             self.dt = sig.dt
             self.sid = sig.id
             self.price = sig.price
+            self.strategy = sig.strategy
             self.created = datetime.now()
             self.save()
 
