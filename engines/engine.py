@@ -138,10 +138,10 @@ class Engine(ABC):
         t_size = 30
         turnover_size = 0
         for i in range(t_size):
-            if candles[candle_size-i-1].turnover > 0.9:
+            if candles[candle_size-i-1].turnover > 0.8:
                 turnover_size = turnover_size + 1
 
-        if turnover_size < 21:
+        if turnover_size < 15:
             return False
 
         dts = diver_top(candles)
