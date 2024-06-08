@@ -27,7 +27,7 @@ def signallist():
     if id:
         sig = Signal.get(Signal.id == id)
         try:
-            # 删除操作
+            # 作废
             if action == 'del':
                 sig.status = 0
                 sig.updated = datetime.now()

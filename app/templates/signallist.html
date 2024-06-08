@@ -43,7 +43,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href='{{ url_for("main.ticket_detail", id=row.code) }}'>
+                    <a href='{{ url_for("main.signaledit", id=row.id) }}'>
                     {% if row.type == 1 %}
                     <label style="color: darkgray">S-{{row.strategy}}-{{row.freq}}</label>
                     {% else %}
