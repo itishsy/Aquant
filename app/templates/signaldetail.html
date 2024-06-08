@@ -26,9 +26,9 @@
                 <div class="form-group">
                     <label>编码</label>
                     {% if signal.code.startswith('60') %}
-                    <a href="http://xueqiu.com/S/SH{{row.code}}">{{signal.code}}</a>
+                    <a href="http://xueqiu.com/S/SH{{signal.code}}">{{signal.code}}</a>
                     {% else %}
-                    <a href="http://xueqiu.com/S/SZ{{row.code}}">{{signal.code}}</a>
+                    <a href="http://xueqiu.com/S/SZ{{signal.code}}">{{signal.code}}</a>
                     {% endif %}
                 </div>
             </div>
@@ -47,7 +47,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>时间</label>
-                    <span>{{signal.time}}</span>
+                    <span>{{signal.dt}}</span>
                 </div>
             </div>
             <div class="col-md-6">
@@ -72,9 +72,10 @@
 
         <div class="box-footer">
             <div class="col-md-12">
-                {% if form.id.data %}
-                <a class='btn btn-danger' href='{{ url_for("main.signallist", id=form.id.data, action="unused") }}'>弃用</a>
-                <a class='btn btn-primary pull-right' href='{{ url_for("main.signallist", id=form.id.data, action="watch") }}'>观察</a>
+                {% if signal.id %}
+                <a class='btn btn-default' href='{{ url_for("main.signallist") }}'>返回</a>
+                <a class='btn btn-danger' href='{{ url_for("main.signallist", id=signal.id, action="unused") }}'>弃用</a>
+                <a class='btn btn-primary pull-right' href='{{ url_for("main.signallist", id=signal.id, action="watch") }}'>观察</a>
                 {% endif %}
             </div>
         </div>

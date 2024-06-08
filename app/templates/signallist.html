@@ -35,7 +35,7 @@
             {% endif %}
                 <td style="display: none">{{row.id}}</td>
                 <td>
-                    <a href='{{ url_for("main.signaldetail", id=row.id) }}'>{{row.name}}</a>
+                    <a href='{{ url_for("main.signaledit", id=row.id) }}'>{{row.name}}</a>
                 </td>
                 <td>{{row.strategy}}-{{row.freq}}</td>
                 <td>{{row.dt}}</td>
