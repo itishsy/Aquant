@@ -16,7 +16,7 @@ class Signal(BaseModel):
     dt = CharField()  # 发生时间
     price = DecimalField()  # 信号价格
     strategy = CharField()  # 策略
-    type = IntegerField()  # 信號類別： 0 底背离 1 頂背离
+    status = IntegerField()  # 状态： 0 New 1 Choice 2 Unused 3 Invalid
     strength = IntegerField(null=True)
     effect = IntegerField(null=True)
     notify = IntegerField(null=True)  # 通知 0 待通知， 1 已通知

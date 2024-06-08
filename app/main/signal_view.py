@@ -28,11 +28,15 @@ def signallist():
         sig = Signal.get(Signal.id == id)
         try:
             # 作废
-            if action == 'del':
-                sig.status = 0
+            if action == 'unused':
+                sig.status = 2
                 sig.updated = datetime.now()
                 sig.save()
-            # elif action == 'tick':
+            elif action == 'watch':
+                sig.status = 1
+                sig.updated = datetime.now()
+                sig.save()
+
             #     sig.tick = True
             #     sig.updated = datetime.now()
             #     sig.save()

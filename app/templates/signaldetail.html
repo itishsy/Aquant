@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}通知方式配置{% endblock %}
+
+
+{% block navbar %}
+<section class="content-header">
+    <ol class="breadcrumb">
+        <li><i class="fa fa-dashboard"></i> <a href="{{ url_for('main.index') }}">首页</a></li>
+        <li class="active"><a href="{{ url_for('main.signallist') }}">信号管理</a></li>
+        <li class="active">信号明细</li>
+    </ol>
+</section>
+{% endblock %}
+
+
+{% block content %}
+<div class="box box-primary">
+    <form method="post">
+        <div class="box-header with-border">
+            {% include 'message.html' %}
+        </div>
+
+        <div class="box-body">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>编码</label>
+                    <span>{{signal.code}}</span>
+                </div>
+            </div>
+             <div class="col-md-6">
+                <div class="form-group">
+                    <label>名称</label>
+                    <span>{{signal.name}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>级别</label>
+                    <span>{{signal.freq}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>时间</label>
+                    <span>{{signal.time}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>价格</label>
+                    <span>{{signal.price}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>策略</label>
+                    <span>{{signal.strategy}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>状态</label>
+                    <span>{{signal.status}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-footer">
+            <div class="col-md-12">
+                {% if form.id.data %}
+                <a class='btn btn-danger' href='{{ url_for("main.signallist", id=form.id.data, action="unused") }}'>弃用</a>
+                <a class='btn btn-primary pull-right' href='{{ url_for("main.signallist", id=form.id.data, action="watch") }}'>观察</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function initPage() {
+         $(".type_select").val("{{form.type.data}}").select2();
+         $(".source_select").val("{{form.source.data}}").select2();
+    }
+</script>
+{% endblock %}
