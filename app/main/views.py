@@ -11,6 +11,7 @@ from models.choice import Choice
 from datetime import datetime
 from candles.storage import find_candles
 from common.utils import now_ymd
+from datetime import timedelta
 
 logger = get_logger(__name__)
 cfg = get_config()
@@ -92,6 +93,10 @@ def index():
 def summary():
     c_size = Choice.select().where(Choice.Status.DISUSE < Choice.status < Choice.Status.KICK).count()
     today = now_ymd()
+    if today.weekday() == 5:
+        today = today - timedelta(days=1)
+    elif today.weekday() == 6:
+        today = today - timedelta(days=2)
     c_today_size = Choice.select().where(Choice.created >= today).count()
     ti_size = Ticket.select().where(Ticket.status < Ticket.Status.KICK).count()
     ti_today_size = Ticket.select().where(Ticket.created >= today).count()
