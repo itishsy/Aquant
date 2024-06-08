@@ -5,11 +5,12 @@ from flask_login import login_required, current_user
 from app import utils
 from . import main
 from models.signal import Signal
+from models.choice import Choice
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
-from common.dicts import trade_type, single_source
+from common.dicts import single_status, single_source
 from common.utils import now_ymd
 
 logger = get_logger(__name__)
@@ -36,16 +37,8 @@ def signallist():
                 sig.status = 1
                 sig.updated = datetime.now()
                 sig.save()
-
-            #     sig.tick = True
-            #     sig.updated = datetime.now()
-            #     sig.save()
-            #     if not Ticket.select().where(Ticket.code == sig.code).exists():
-            #         Ticket.create(code=sig.code, name=sig.name, status=0, created=datetime.now())
-            # elif action == 'untick':
-            #     sig.tick = False
-            #     sig.updated = datetime.now()
-            #     sig.save()
+                if not Choice.select().where(Choice.sid == sig.id).exists():
+                    Choice.create(code=sig.code, name=sig.name, sid=sig.id, created=datetime.now())
         except:
             flash('操作失败')
 
@@ -73,13 +66,13 @@ def signallist():
 @main.route('/signaledit', methods=['GET', 'POST'])
 @login_required
 def signaledit():
-    id = request.args.get('id', '')
+    sid = request.args.get('id', '')
     form = SignalForm()
-    if id:
+    if sid:
         # 查询
-        model = Signal.get(Signal.id == id)
+        model = Signal.get(Signal.id == sid)
         if request.method == 'GET':
-            utils.model_to_form(model, form)
+            return render_template('signaldetail.html', signal=model, current_user=current_user)
         # 修改
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -104,8 +97,8 @@ class SignalForm(FlaskForm):
     id = IntegerField('id')
     code = StringField('编码', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     name = StringField('名称', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
-    type = SelectField('信号', choices=trade_type())
     dt = StringField('发出时间', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     freq = StringField('级别', validators=[DataRequired(message='不能为空'), Length(0, 64, message='长度不正确')])
     source = SelectField('信号源', choices=single_source())
+    status = SelectField('状态', choices=single_status())
     submit = SubmitField('提交')

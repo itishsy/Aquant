@@ -89,15 +89,11 @@
                         <span>首页</span>
                     </a>
                 </li>
-                <li class="treeview">
-                    <a href="#">
-                        <i class="fa fa-user"></i>
-                        <span>系统管理</span>
-                        <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+                <li>
+                    <a href="{{ url_for('main.component') }}">
+                        <i class="fa fa-circle-o"></i>
+                        <span>引擎</span>
                     </a>
-                    <ul class="treeview-menu">
-                        <li><a href="{{ url_for('main.component') }}"><i class="fa fa-circle-o"></i> 组件</a></li>
-                    </ul>
                 </li>
                 <li class="treeview">
                     <a href="#">

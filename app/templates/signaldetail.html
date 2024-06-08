@@ -77,12 +77,3 @@
     </form>
 </div>
 {% endblock %}
-
-{% block scripts %}
-<script>
-    function initPage() {
-         $(".type_select").val("{{form.type.data}}").select2();
-         $(".source_select").val("{{form.source.data}}").select2();
-    }
-</script>
-{% endblock %}

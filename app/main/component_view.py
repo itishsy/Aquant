@@ -5,6 +5,7 @@ from models.component import Component
 from strategies.searcher import search_all
 from strategies.watcher import watch_all
 from threading import Thread
+from app import utils
 
 
 @main.route('/component', methods=['GET'])
@@ -21,6 +22,13 @@ def component():
             dic[co.name] = '运行中'
         dic["{}_time".format(co.name)] = co.run_end
     return render_template('component.html', dic=dic, current_user=current_user)
+
+@main.route('/componentlist', methods=['GET', 'POST'])
+@login_required
+def componentlist():
+    query = Component.select()
+    dic = {'content': utils.query_to_list(query)}
+    return render_template('componentlist.html', form=dic)
 
 
 @main.route('/searchtask', methods=['GET'])

@@ -152,3 +152,18 @@ def single_source(key=None):
     if key == 4:
         return '量能'
     return 'undefined'
+
+
+def single_status(key=None):
+    if key is None:
+        return [(0, 'New'), (1, 'Choice'), (2, 'Unused'), (3, 'Invalid')]
+    if key == 0:
+        return 'New'
+    if key == 1:
+        return 'Choice'
+    if key == 2:
+        return 'Unused'
+    if key == 3:
+        return 'Invalid'
+    return 'undefined'
+

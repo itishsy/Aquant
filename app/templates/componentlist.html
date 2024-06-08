@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}组件管理{% endblock %}
+
+
+{% block navbar %}
+<section class="content-header">
+    <ol class="breadcrumb">
+        <li><i class="fa fa-dashboard"></i> 当前位置</li>
+        <li class="active">组件管理</li>
+        <li class="active">组件列表</li>
+    </ol>
+</section>
+{% endblock %}
+
+
+{% block content %}
+<div class="box box-primary">
+    <form method="post"><div class="box-header with-border">
+            {% include 'message.html' %}
+        </div>
+
+    <div class="box-body">
+        {% if form%}
+        <table class="table table-bordered">
+            <tr>
+                <th>名称</th>
+                <th>状态</th>
+                <th>开始运行</th>
+                <th>结束运行</th>
+            </tr>
+            {% for row in form.content %}
+            <tr>
+                <td>{{row.name}}</td>
+                <td>{{row.status}}</td>
+                <td>{{row.run_start}}</td>
+                <td>{{row.run_end}}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function initPage() {
+        setInterval(function(){
+           location.reload();
+        }, 10000);
+    }
+</script>
+{% endblock %}
