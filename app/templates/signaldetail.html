@@ -73,9 +73,12 @@
         <div class="box-footer">
             <div class="col-md-12">
                 {% if signal.id %}
-                <a class='btn btn-default' href='{{ url_for("main.signallist") }}'>返回</a>
                 <a class='btn btn-danger' href='{{ url_for("main.signallist", id=signal.id, action="unused") }}'>弃用</a>
+
+                {% if signal.status != 1 %}
                 <a class='btn btn-primary pull-right' href='{{ url_for("main.signallist", id=signal.id, action="watch") }}'>观察</a>
+                {% endif %}
+                <a class='btn btn-default pull-right' href='javascript:history.back()'>返回</a>
                 {% endif %}
             </div>
         </div>
