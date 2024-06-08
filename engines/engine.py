@@ -7,6 +7,7 @@ from common.utils import *
 from common.config import Config
 from models.component import Component, COMPONENT_TYPE
 import candles.fetcher as fet
+import candles.marker as mar
 from signals.divergence import diver_top
 
 import traceback
@@ -97,22 +98,21 @@ class Engine(ABC):
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))
 
     def do_watch(self):
-        chs = Choice.select().where(Choice.status == Choice.Status.WATCH)
+        chs = Choice.select().where(Choice.status == Choice.Status.WATCH, Choice.strategy == self.strategy)
         for cho in chs:
             try:
                 print('[{0}] {1} watching by strategy -- {2} '.format(datetime.now(), cho.code, self.strategy))
                 sig = self.watch(cho)
                 if sig:
                     sig.code = cho.code
+                    sig.strategy = self.strategy
                     sig.upset()
-                    tic = Ticket()
-                    tic.status = Ticket.Status.DEAL
-                    tic.add_by_choice(cho, sig)
-                    print('[{0}] add a ticket({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy))
+                    # tic = Ticket()
+                    # tic.status = Ticket.Status.DEAL
+                    # tic.add_by_choice(cho, sig)
+                    print('[{0}] add a watch signal({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy))
             except Exception as e:
-                print(e)
-            finally:
-                print('[{0}] {1} watch done by strategy -- {2} '.format(datetime.now(), cho.code, self.strategy))
+                print('[{0}] {1} watch error -- {2} '.format(datetime.now(), cho.code, e))
 
     def do_deal(self):
         tis = Ticket.select().where(Ticket.status == Ticket.Status.DEAL)
@@ -128,6 +128,12 @@ class Engine(ABC):
                 print(e)
             finally:
                 print('[{0}] {1} deal done by strategy -- {2} '.format(datetime.now(), tic.code, self.strategy))
+
+    @staticmethod
+    def fetch_candles(code, freq, begin):
+        candles = fet.fetch_data(code, freq, begin)
+        candles = mar.mark(candles=candles)
+        return candles
 
     @staticmethod
     def common_filter(candles):

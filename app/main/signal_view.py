@@ -38,10 +38,11 @@ def signallist():
                 sig.updated = datetime.now()
                 sig.save()
                 if not Choice.select().where(Choice.sid == sig.id).exists():
-                    Choice.create(code=sig.code, name=sig.name, sid=sig.id, created=datetime.now())
+                    Choice.create(code=sig.code, name=sig.name, sid=sig.id, strategy=sig.strategy, created=datetime.now())
         except:
             flash('操作失败')
-
+        finally:
+            return render_template('signaldetail.html', signal=sig, current_user=current_user)
     # 查询列表
     today = request.args.get('today')
     if today and today != 'None':
