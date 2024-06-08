@@ -22,9 +22,9 @@
             <tr>
                 <th style="display: none" >ID</th>
                 <th>编码</th>
-                <th>信號時間</th>
                 <th>策略</th>
-                <th>操作</th>
+                <th>创建時間</th>
+                <th>状态</th>
             </tr>
             {% for row in form.content %}
             {% if row.tick %}
@@ -44,13 +44,13 @@
                 <td>{{row.strategy}}-{{row.freq}}</td>
                 <td>
                     {% if row.status==0 %}
-                    <span class="bg-gray">已弃用</span>
+                    <span>已弃用</span>
                     {% elif row.status==1 %}
-                    <span class="bg-primary">观察中</span>
+                    <span>观察中</span>
                     {% elif row.status==2 %}
-                    <span class="bg-info">交易中</span>
+                    <span>交易中</span>
                     {% else %}
-                    <span class="bg-warning">移除</span>
+                    <span>移除</span>
                     {% endif %}
                 </td>
             </tr>

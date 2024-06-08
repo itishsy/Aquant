@@ -39,7 +39,7 @@ def signallist():
                 sig.save()
                 if not Choice.select().where(Choice.sid == sig.id).exists():
                     print('add a choice ', sig.code, sig.id, sig.strategy)
-                    Choice.create(code=sig.code, name=sig.name, sid=sig.id, strategy=sig.strategy, created=datetime.now())
+                    Choice.create(code=sig.code, name=sig.name, sid=sig.id, strategy="{}-{}".format(sig.strategy, sig.freq), created=datetime.now())
         except:
             flash('操作失败')
         finally:
