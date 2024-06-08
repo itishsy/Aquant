@@ -103,8 +103,8 @@ def summary():
     ti_today_size = 0   # Ticket.select().where(Ticket.created >= today).count()
     s_size = Signal.select(Signal.created >= (today - timedelta(days=7))).count()
     s_today_size = Signal.select().where(Signal.created >= today).count()
-    tr_size = 0 # Trade.select().where(Trade.status > 0).count()
-    tr_today_size = 0 # Trade.select().where(Trade.status > 0, Trade.created > today).count()
+    tr_size = 0     # Trade.select().where(Trade.status > 0).count()
+    tr_today_size = 0   # Trade.select().where(Trade.status > 0, Trade.created > today).count()
 
     data = {'c_size': c_size,
             'c_today_size': c_today_size,
