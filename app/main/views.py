@@ -97,11 +97,11 @@ def summary():
         today = today - timedelta(days=1)
     elif today.weekday() == 6:
         today = today - timedelta(days=2)
-    print('==========', today)
+
     c_today_size = Choice.select().where(Choice.created >= today).count()
-    ti_size = 0 # Ticket.select().where(Ticket.status < Ticket.Status.KICK).count()
-    ti_today_size = 0 # Ticket.select().where(Ticket.created >= today).count()
-    s_size = Signal.select().count()
+    ti_size = 0     # Ticket.select().where(Ticket.status < Ticket.Status.KICK).count()
+    ti_today_size = 0   # Ticket.select().where(Ticket.created >= today).count()
+    s_size = Signal.select(Signal.created >= (today - timedelta(days=7))).count()
     s_today_size = Signal.select().where(Signal.created >= today).count()
     tr_size = 0 # Trade.select().where(Trade.status > 0).count()
     tr_today_size = 0 # Trade.select().where(Trade.status > 0, Trade.created > today).count()
