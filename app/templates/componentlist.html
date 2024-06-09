@@ -26,15 +26,21 @@
             <tr>
                 <th>名称</th>
                 <th>状态</th>
-                <th>开始运行</th>
                 <th>结束运行</th>
+                <th>操作</th>
             </tr>
             {% for row in form.content %}
             <tr>
                 <td>{{row.name}}</td>
                 <td>{{row.status}}</td>
-                <td>{{row.run_start}}</td>
                 <td>{{row.run_end}}
+                <td>
+            {% if row.name == 'fetcher' %}
+                <a class='btn btn-sm btn-primary' href='{{ url_for("main.fetch") }}'>fetch</a>
+            {% else %}
+                <a class='btn btn-sm btn-primary' href='{{ url_for("main.search", eng=row.name) }}'>search</a>
+                <a class='btn btn-sm btn-primary' href='{{ url_for("main.watch", eng=row.name) }}'>watch</a>
+            {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -42,6 +48,14 @@
         {% endif %}
     </div>
 
+
+<!--        <div class="box-footer">-->
+<!--            <div class="col-md-12">-->
+<!--                <a class='btn btn-primary' href='{{ url_for("main.fetch") }}'>fetch</a>-->
+<!--                <a class='btn btn-primary' href='{{ url_for("main.search") }}'>search</a>-->
+<!--                <a class='btn btn-primary' href='{{ url_for("main.watch") }}'>watch</a>-->
+<!--            </div>-->
+<!--        </div>-->
     </form>
 </div>
 {% endblock %}

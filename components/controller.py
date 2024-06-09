@@ -1,7 +1,26 @@
 from datetime import datetime
-from strategies import *
 from models.component import Component
 import time
+
+import candles.fetcher as fet
+from engines import *
+
+
+def start_component(name, act):
+    comp = Component.get(Component.name == name)
+    comp.run_start = datetime.now()
+    comp.save()
+    if act == 'fetch':
+        fet.fetch_all()
+    else:
+        eng = engine.strategy[name]()
+        if act == 'search':
+            eng.do_search()
+        elif act == 'watch':
+            eng.do_watch()
+    comp.status = Component.Status.READY
+    comp.run_end = datetime.now()
+    comp.save()
 
 
 def daily_search():

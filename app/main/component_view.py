@@ -2,8 +2,7 @@ from flask import render_template, flash, redirect, url_for
 from flask_login import login_required, current_user
 from . import main
 from models.component import Component
-from strategies.searcher import search_all
-from strategies.watcher import watch_all
+from components.controller import start_component
 from threading import Thread
 from app import utils
 
@@ -23,6 +22,7 @@ def component():
         dic["{}_time".format(co.name)] = co.run_end
     return render_template('component.html', dic=dic, current_user=current_user)
 
+
 @main.route('/componentlist', methods=['GET', 'POST'])
 @login_required
 def componentlist():
@@ -31,19 +31,28 @@ def componentlist():
     return render_template('componentlist.html', form=dic)
 
 
-@main.route('/searchtask', methods=['GET'])
+@main.route('/fetch', methods=['GET'])
 @login_required
-def searchtask():
-    th=Thread(target=search_all)
-    th.setDaemon(True)
+def search():
+    th = Thread(target=start_component, args=('fetcher', 'fetch'))
+    # th.daemon = True
     th.start()
-    return redirect(url_for('main.component'))
+    return redirect(url_for('main.componentlist'))
 
 
-@main.route('/watchtask', methods=['GET'])
+@main.route('/search', methods=['GET'])
 @login_required
-def watchtask():
-    th=Thread(target=watch_all)
-    th.setDaemon(True)
+def search(eng):
+    th = Thread(target=start_component, args=(eng, 'search'))
+    # th.daemon = True
     th.start()
-    return redirect(url_for('main.component'))
+    return redirect(url_for('main.componentlist'))
+
+
+@main.route('/watch', methods=['GET'])
+@login_required
+def watch(eng):
+    th = Thread(target=start_component, args=(eng, 'watch'))
+    # th.daemon = True
+    th.start()
+    return redirect(url_for('main.componentlist'))
