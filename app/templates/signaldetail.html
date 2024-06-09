@@ -65,7 +65,13 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>状态</label>
-                    <span>{{signal.status}}</span>
+                {% if signal.status == 0 %}
+                    <span>{{signal.status}} - 未处理</span>
+                {% elif signal.status == 1 %}
+                    <span>{{signal.status}} - 观察中</span>
+                {% else %}
+                    <span>{{signal.status}} - 弃用</span>
+                {% endif %}
                 </div>
             </div>
         </div>

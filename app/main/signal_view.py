@@ -6,7 +6,7 @@ from app import utils
 from . import main
 from models.signal import Signal
 from models.choice import Choice
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
@@ -48,6 +48,10 @@ def signallist():
     today = request.args.get('today')
     if today and today != 'None':
         last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
+        if last_day.weekday() == 5:
+            last_day = last_day - timedelta(days=1)
+        elif last_day.weekday() == 6:
+            last_day = last_day - timedelta(days=2)
         query = Signal.select().where(Signal.created >= last_day).order_by(Signal.created.desc())
         total_count = query.count()
     else:
@@ -74,6 +78,7 @@ def signaledit():
         # 查询
         model = Signal.get(Signal.id == sid)
         if request.method == 'GET':
+            model.price = round(model.price, 2)
             return render_template('signaldetail.html', signal=model, current_user=current_user)
         # 修改
         if request.method == 'POST':
