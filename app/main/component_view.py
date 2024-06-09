@@ -37,7 +37,7 @@ def start_engine():
     name = request.args.get('name')
     act = request.args.get('act')
     th = Thread(target=start_component, args=(name, act))
-    # th.daemon = True
+    th.daemon = True
     th.start()
     return redirect(url_for('main.componentlist'))
 
