@@ -43,22 +43,22 @@
                 </td>
                 <td>
             {% if row.status == 2 %}
-                    <span>{{row.run_start.strftime("%m/%d")}} ({{row.run_start.time()}} -) </span>
+                    <span>{{row.run_start.strftime("%m/%d")}}({{row.run_start.strftime("%H:%M")}}~)</span>
             {% else %}
-                    <span>{{row.run_start.strftime("%m/%d")}} ({{row.run_start.time()}} - {{row.run_end.time()}}) </span>
+                    <span>{{row.run_start.strftime("%m/%d")}}({{row.run_start.strftime("%H:%M")}}~{{row.run_end.strftime("%H:%m")}})</span>
             {% endif %}
                 <td>
             {% if row.name == 'fetcher' %}
-                <a class='btn btn-default' href='{{ url_for("main.start_engine", name=row.name, act="fetch") }}'>start</a>
+                <a class='btn btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="fetch") }}'>start</a>
             {% else %}
-                <div class="btn-group">
-                    <a class='btn btn-default' href='{{ url_for("main.start_engine", name=row.name, act="all") }}'>start</a>
+                <div class="btn-group btn-group-sm d-inline">
                     <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="caret"></span>
+                        start <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="search") }}'>search</a></li>
                         <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="watch") }}'>watch</a></li>
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="all") }}'>all</a></li>
                     </ul>
                 </div>
             {% endif %}
