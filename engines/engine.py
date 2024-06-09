@@ -130,7 +130,9 @@ class Engine(ABC):
                 print('[{0}] {1} deal done by strategy -- {2} '.format(datetime.now(), tic.code, self.strategy))
 
     @staticmethod
-    def fetch_candles(code, freq, begin):
+    def fetch_candles(code, freq, begin=None):
+        if begin is None:
+            begin = fet.cal_fetch_beg(freq)
         candles = fet.fetch_data(code, freq, begin)
         candles = mar.mark(candles=candles)
         return candles

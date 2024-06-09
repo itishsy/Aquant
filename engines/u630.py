@@ -46,20 +46,18 @@ class U630(Engine):
             price = sig.price
             freq = sig.freq
             if freq == '30':
-                print('==========', cho.code, freq)
-                cs5 = self.fetch_candles(code=cho.code, freq=5, begin=dt)
-                print('==========', cs5)
+                cs5 = self.fetch_candles(code=cho.code, freq=5)
                 db5 = diver_bottom(cs5)
-                if len(db5) > 0 and db5[-1].price > price:
+                if len(db5) > 0 and db5[-1].dt > dt and db5[-1].price > price:
                     return db5[-1]
             elif freq == 60:
-                cs15 = self.fetch_candles(code=cho.code, freq=15, begin=dt)
+                cs15 = self.fetch_candles(code=cho.code, freq=15)
                 db15 = diver_bottom(cs15)
-                if len(db15) > 0 and db15[-1].price > price:
+                if len(db15) > 0 and db15[-1].dt > dt and db15[-1].price > price:
                     return db15[-1]
-                cs10 = self.fetch_candles(code=cho.code, freq=10, begin=dt)
+                cs10 = self.fetch_candles(code=cho.code, freq=10)
                 db10 = diver_bottom(cs10)
-                if len(db10) > 0 and db10[-1].price > price:
+                if len(db10) > 0 and db10[-1].dt > dt and db10[-1].price > price:
                     return db10[-1]
 
     def deal(self, tic):
