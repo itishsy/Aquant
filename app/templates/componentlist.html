@@ -44,10 +44,10 @@
                 <td>{{row.run_end}}
                 <td>
             {% if row.name == 'fetcher' %}
-                <a class='btn-sm btn-default' href='{{ url_for("main.start_component", name="fetcher", act="fetch") }}'>start</a>
+                <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name="fetcher", act="fetch") }}'>start</a>
             {% else %}
-                <a class='btn-sm btn-default' href='{{ url_for("main.start_component", name=row.name, act="search") }}'>search</a>
-                <a class='btn-sm btn-default' href='{{ url_for("main.start_component", name=row.name, act="watch") }}'>watch</a>
+                <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="search") }}'>search</a>
+                <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="watch") }}'>watch</a>
             {% endif %}
                 </td>
             </tr>
