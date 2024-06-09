@@ -26,7 +26,7 @@
             <tr>
                 <th>名称</th>
                 <th>状态</th>
-                <th>结束运行</th>
+                <th>运行时间</th>
                 <th>操作</th>
             </tr>
             {% for row in form.content %}
@@ -44,10 +44,10 @@
                 <td>{{row.run_end}}
                 <td>
             {% if row.name == 'fetcher' %}
-                <a class='btn-sm btn-default' href='{{ url_for("main.fetch") }}'>start</a>
+                <a class='btn-sm btn-default' href='{{ url_for("main.start_component", name="fetcher", act="fetch") }}'>start</a>
             {% else %}
-                <a class='btn-sm btn-default' href='{{ url_for("main.search", eng=row.name) }}'>search</a>
-                <a class='btn-sm btn-default' href='{{ url_for("main.watch", eng=row.name) }}'>watch</a>
+                <a class='btn-sm btn-default' href='{{ url_for("main.start_component", name=row.name, act="search") }}'>search</a>
+                <a class='btn-sm btn-default' href='{{ url_for("main.start_component", name=row.name, act="watch") }}'>watch</a>
             {% endif %}
                 </td>
             </tr>

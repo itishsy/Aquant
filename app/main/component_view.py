@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, request, redirect, url_for
 from flask_login import login_required, current_user
 from . import main
 from models.component import Component
@@ -31,10 +31,12 @@ def componentlist():
     return render_template('componentlist.html', form=dic)
 
 
-@main.route('/fetch', methods=['GET'])
+@main.route('/start_engine', methods=['GET', 'POST'])
 @login_required
-def fetch():
-    th = Thread(target=start_component, args=('fetcher', 'fetch'))
+def start_engine():
+    name = request.args.get('name')
+    act = request.args.get('act')
+    th = Thread(target=start_component, args=(name, act))
     # th.daemon = True
     th.start()
     return redirect(url_for('main.componentlist'))
