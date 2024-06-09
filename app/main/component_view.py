@@ -33,7 +33,7 @@ def componentlist():
 
 @main.route('/fetch', methods=['GET'])
 @login_required
-def search():
+def fetch():
     th = Thread(target=start_component, args=('fetcher', 'fetch'))
     # th.daemon = True
     th.start()
