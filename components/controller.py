@@ -12,7 +12,7 @@ def start_component(name, act):
     if act == 'fetch':
         fet.fetch_all()
     else:
-        eng = engine.strategy[name]()
+        eng = engine.strategy[name.capitalize()]()
         if act == 'search':
             eng.do_search()
         elif act == 'watch':
