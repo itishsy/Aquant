@@ -32,7 +32,15 @@
             {% for row in form.content %}
             <tr>
                 <td>{{row.name}}</td>
-                <td>{{row.status}}</td>
+                <td>
+            {% if row.status == 1 %}
+                    <span>Ready</span>
+            {% elif row.status == 2 %}
+                    <span>Running</span>
+            {% else %}
+                    <span>Stop</span>
+            {% endif %}
+                </td>
                 <td>{{row.run_end}}
                 <td>
             {% if row.name == 'fetcher' %}
