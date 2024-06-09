@@ -1,4 +1,4 @@
-from components.rpa import *
+from components.sender import *
 from models.hot import Hot
 import json
 
