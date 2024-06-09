@@ -44,7 +44,7 @@
                 <td>{{row.run_end}}
                 <td>
             {% if row.name == 'fetcher' %}
-                <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name="fetcher", act="fetch") }}'>start</a>
+                <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="fetch") }}'>start</a>
             {% else %}
                 <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="search") }}'>search</a>
                 <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="watch") }}'>watch</a>
@@ -59,9 +59,9 @@
 
 <!--        <div class="box-footer">-->
 <!--            <div class="col-md-12">-->
-<!--                <a class='btn btn-primary' href='{{ url_for("main.fetch") }}'>fetch</a>-->
-<!--                <a class='btn btn-primary' href='{{ url_for("main.search") }}'>search</a>-->
-<!--                <a class='btn btn-primary' href='{{ url_for("main.watch") }}'>watch</a>-->
+<!--                <a class='btn btn-primary' href='{{ url_for("main.start_engine") }}'>fetch</a>-->
+<!--                <a class='btn btn-primary' href='{{ url_for("main.start_engine") }}'>search</a>-->
+<!--                <a class='btn btn-primary' href='{{ url_for("main.start_engine") }}'>watch</a>-->
 <!--            </div>-->
 <!--        </div>-->
     </form>
