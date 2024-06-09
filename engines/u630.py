@@ -39,13 +39,16 @@ class U630(Engine):
                 return dbs[-1]
 
     def watch(self, cho):
-        sig = Signal.get(Signal.id == cho.sid)
+        sid = cho.sid
+        sig = Signal.get(Signal.id == sid)
         if sig:
             dt = sig.dt
             price = sig.price
             freq = sig.freq
-            if freq == 30:
+            if freq == '30':
+                print('==========', cho.code, freq)
                 cs5 = self.fetch_candles(code=cho.code, freq=5, begin=dt)
+                print('==========', cs5)
                 db5 = diver_bottom(cs5)
                 if len(db5) > 0 and db5[-1].price > price:
                     return db5[-1]

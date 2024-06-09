@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}通知方式配置{% endblock %}
+
+
+{% block navbar %}
+<section class="content-header">
+    <ol class="breadcrumb">
+        <li><i class="fa fa-dashboard"></i> <a href="{{ url_for('main.index') }}">首页</a></li>
+        <li class="active"><a href="{{ url_for('main.signallist') }}">入选池</a></li>
+        <li class="active">入选明细</li>
+    </ol>
+</section>
+{% endblock %}
+
+
+{% block content %}
+<div class="box box-primary">
+        <div class="box-header with-border">
+            {% include 'message.html' %}
+        </div>
+
+        <div class="box-body">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>编码</label>
+                    {% if choice.code.startswith('60') %}
+                    <a href="http://xueqiu.com/S/SH{{choice.code}}">{{choice.code}}</a>
+                    {% else %}
+                    <a href="http://xueqiu.com/S/SZ{{choice.code}}">{{choice.code}}</a>
+                    {% endif %}
+                </div>
+            </div>
+             <div class="col-md-6">
+                <div class="form-group">
+                    <label>名称</label>
+                    <span>{{choice.name}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>状态</label>
+                {% if choice.status == 0 %}
+                    <span>弃用</span>
+                {% elif choice.status == 1 %}
+                    <span>等待买点</span>
+                {% elif choice.status == 2 %}
+                    <span>交易</span>
+                {% else %}
+                    <span>结束交易</span>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    <div class="mb-4">
+      <h4 class="display-4">入选信号</h4>
+      <hr>
+    </div>
+        <div class="box-body">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>信号</label>
+                    <span>{{s_signal.strategy}} - {{s_signal.freq}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>时间</label>
+                    <span>{{s_signal.dt}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>价格</label>
+                    <span>{{s_signal.price}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-footer">
+            <div class="col-md-12">
+                {% if choice.id %}
+                <a class='btn btn-danger' href='{{ url_for("main.choice_list", id=choice.id, action="disuse") }}'>弃用</a>
+
+                {% if choice.status != 1 %}
+                <a class='btn btn-primary pull-right' href='{{ url_for("main.choice_list", id=choice.id, action="deal") }}'>交易</a>
+                {% endif %}
+                {% endif %}
+                <a class='btn btn-default pull-right' href='javascript:history.back()'>返回</a>
+            </div>
+        </div>
+</div>
+{% endblock %}

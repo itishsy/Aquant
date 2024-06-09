@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from app import utils
 from . import main
 from models.choice import Choice
-from models.ticket import Ticket
+from models.signal import Signal
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
@@ -57,8 +57,8 @@ def choice_edit():
             cho.updated = datetime.now()
             cho.save()
             flash('操作成功')
-        if action == 'watch':
-            cho.status = CHOICE_STATUS.WATCH
+        if action == 'deal':
+            cho.status = Choice.Status.DEAL
             cho.updated = datetime.now()
             cho.save()
             flash('操作成功')
@@ -74,10 +74,16 @@ def choice_edit():
             """
         # 查询
         if request.method == 'GET':
-            utils.model_to_form(cho, form)
-            if Ticket.select().where(Ticket.code == cho.code).exists():
-                tic = Ticket.get(Ticket.code == cho.code)
-                form.__setattr__('tid', tic.id)
+            ss = Signal.get(id=cho.sid)
+            ws = None
+            if cho.wid:
+                ws = Signal.get(id=cho.wid)
+            return render_template('choicedetail.html', choice=cho, s_signal=ss, w_signal=ws, current_user=current_user)
+
+            # utils.model_to_form(cho, form)
+            # if Ticket.select().where(Ticket.code == cho.code).exists():
+            #     tic = Ticket.get(Ticket.code == cho.code)
+            #     form.__setattr__('tid', tic.id)
         # 修改
         if request.method == 'POST':
             if form.validate_on_submit():
