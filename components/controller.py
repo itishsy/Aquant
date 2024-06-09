@@ -8,6 +8,7 @@ from engines import *
 
 def start_component(name, act):
     comp = Component.get(Component.name == name)
+    comp.status = Component.Status.RUNNING
     comp.run_start = datetime.now()
     comp.save()
     if act == 'fetch':
