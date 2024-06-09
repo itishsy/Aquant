@@ -5,7 +5,7 @@ from models.signal import Signal
 
 
 @strategy_engine
-class U663(Engine):
+class U630(Engine):
     """
       appear 60/30 bottom divergence in ma60 upward trend
     """

@@ -9,12 +9,13 @@ class Choice(BaseModel):
     id = AutoField()
     code = CharField()  # 编码
     name = CharField()  # 名称
-    source = CharField()  # 來源
+    strategy = CharField()  # 策略
     sid = IntegerField()  # 信號ID
-    freq = CharField()  # 級別
-    dt = CharField()  # 信號時間
-    price = DecimalField()  # 信号价格
-    strategy = CharField()  # 策略值
+    wid = IntegerField(null=True)  # 信號ID
+    freq = CharField(null=True)  # 級別
+    dt = CharField(null=True)  # 信號時間
+    price = DecimalField(null=True)  # 信号价格
+    source = CharField(null=True)  # 來源
     status = IntegerField(default=1)  # 状态
     created = DateTimeField()
     updated = DateTimeField(null=True)
