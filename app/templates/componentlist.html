@@ -41,7 +41,12 @@
                     <span>Stop</span>
             {% endif %}
                 </td>
-                <td>{{row.run_end}}
+                <td>
+            {% if row.status == 1 %}
+                    <span>{{row.run_start.month}}/{{row.run_start.date()}} {{row.run_start.time()}} - </span>
+            {% else %}
+                    <span>{{row.run_start.month}}/{{row.run_start.date()}} {{row.run_start.time()}} - {{row.run_end.time()}} </span>
+            {% endif %}
                 <td>
             {% if row.name == 'fetcher' %}
                 <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="fetch") }}'>start</a>
