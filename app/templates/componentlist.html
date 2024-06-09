@@ -42,17 +42,25 @@
             {% endif %}
                 </td>
                 <td>
-            {% if row.status == 1 %}
-                    <span>{{row.run_start.month}}/{{row.run_start.date()}} {{row.run_start.time()}} - </span>
+            {% if row.status == 2 %}
+                    <span>{{row.run_start.strftime("%m/%d")}} ({{row.run_start.time()}} -) </span>
             {% else %}
-                    <span>{{row.run_start.month}}/{{row.run_start.date()}} {{row.run_start.time()}} - {{row.run_end.time()}} </span>
+                    <span>{{row.run_start.strftime("%m/%d")}} ({{row.run_start.time()}} - {{row.run_end.time()}}) </span>
             {% endif %}
                 <td>
             {% if row.name == 'fetcher' %}
-                <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="fetch") }}'>start</a>
+                <a class='btn btn-default' href='{{ url_for("main.start_engine", name=row.name, act="fetch") }}'>start</a>
             {% else %}
-                <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="search") }}'>search</a>
-                <a class='btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="watch") }}'>watch</a>
+                <div class="btn-group">
+                    <a class='btn btn-default' href='{{ url_for("main.start_engine", name=row.name, act="all") }}'>start</a>
+                    <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="search") }}'>search</a></li>
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="watch") }}'>watch</a></li>
+                    </ul>
+                </div>
             {% endif %}
                 </td>
             </tr>
@@ -74,11 +82,14 @@
 {% endblock %}
 
 {% block scripts %}
+    {% if form.reload == 1 %}
 <script>
+
     function initPage() {
         setInterval(function(){
            location.reload();
         }, 10000);
     }
 </script>
+        {% endif %}
 {% endblock %}

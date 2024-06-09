@@ -98,7 +98,7 @@ class Engine(ABC):
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))
 
     def do_watch(self):
-        chs = Choice.select().where(Choice.status == Choice.Status.WATCH, Choice.strategy == self.strategy)
+        chs = Choice.select().where(Choice.status == Choice.Status.WATCH, Choice.strategy ** '{}%'.format(self.strategy))
         for cho in chs:
             try:
                 print('[{0}] {1} watching by strategy -- {2} '.format(datetime.now(), cho.code, self.strategy))

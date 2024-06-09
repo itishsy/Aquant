@@ -27,7 +27,12 @@ def component():
 @login_required
 def componentlist():
     query = Component.select()
-    dic = {'content': utils.query_to_list(query)}
+    content = utils.query_to_list(query)
+    reload = 0
+    for row in content:
+        if row['status'] == 2:
+            reload = 1
+    dic = {'content': utils.query_to_list(query), 'reload': reload}
     return render_template('componentlist.html', form=dic)
 
 
