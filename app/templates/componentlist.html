@@ -36,7 +36,7 @@
                 <td>{{row.run_end}}
                 <td>
             {% if row.name == 'fetcher' %}
-                <a class='btn-sm btn-default' href='{{ url_for("main.fetch") }}'>fetch</a>
+                <a class='btn-sm btn-default' href='{{ url_for("main.fetch") }}'>start</a>
             {% else %}
                 <a class='btn-sm btn-default' href='{{ url_for("main.search", eng=row.name) }}'>search</a>
                 <a class='btn-sm btn-default' href='{{ url_for("main.watch", eng=row.name) }}'>watch</a>
