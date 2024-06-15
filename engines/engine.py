@@ -89,7 +89,7 @@ class Engine(ABC):
                 count = count + 1
                 co = sym.code
                 print('[{0}] {1} searching by strategy -- {2} ({3}) '.format(datetime.now(), co, self.strategy, count))
-                sig = self.search(co)
+                sig = self.find_choice_signal(co)
                 if sig:
                     sig.code = co
                     sig.strategy = self.strategy
@@ -169,7 +169,7 @@ class Engine(ABC):
         return True
 
     @abstractmethod
-    def search(self, code):
+    def find_choice_signal(self, code):
         pass
 
     @abstractmethod

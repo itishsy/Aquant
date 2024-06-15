@@ -118,6 +118,18 @@ def get_average_volume(candles: List[Candle]):
     return s/size
 
 
+def is_upper_shadow(candle: Candle):
+    """
+    长上影线
+    """
+    if candle.open > candle.close:
+        if (candle.high - candle.open) / (candle.high - candle.low) > 0.4:
+            return True
+    else:
+        if (candle.high - candle.close) / (candle.high - candle.low) > 0.6:
+            return True
+    return False
+
 
 def get_highest_close(candles: List[Candle]):
     """

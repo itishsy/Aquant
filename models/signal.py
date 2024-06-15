@@ -61,7 +61,6 @@ class Signal(BaseModel):
             self.created = datetime.now()
             self.save()
 
-
 class SIGNAL_TYPE:
     BOTTOM_DIVERGENCE = 0
     TOP_DIVERGENCE = 1
