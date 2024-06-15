@@ -28,18 +28,18 @@ class Engine(ABC):
         self.strategy = self.__class__.__name__.lower()
         now = datetime.now()
         try:
-            self.do_fetch()
+            self.start_fetch()
             if now.weekday() < 5:
                 n_val = now.hour * 100 + now.minute
                 if 930 < n_val < 1130 or 1300 < n_val < 1530:
                     self.do_watch()
                 if 1130 < n_val < 1300 or n_val > 1600:
-                    self.do_search()
+                    self.start_search()
         except Exception as e:
             print(e)
 
     @staticmethod
-    def do_fetch():
+    def start_fetch():
         freq = [101, 120, 60, 30]
         now = datetime.now()
         fetcher = Component.get(Component.name == 'fetcher')
@@ -62,7 +62,7 @@ class Engine(ABC):
             fetcher.run_end = datetime.now()
             fetcher.save()
 
-    def do_search(self):
+    def start_search(self):
         now = datetime.now()
         eng = Component.get(Component.name == self.strategy)
         need_search = False
@@ -81,7 +81,12 @@ class Engine(ABC):
         eng.status = Component.Status.RUNNING
         eng.run_start = datetime.now()
         eng.save()
+        self.do_search()
+        eng.status = Component.Status.READY
+        eng.run_end = datetime.now()
+        eng.save()
 
+    def do_search(self):
         count = 0
         symbols = Symbol.actives()
         for sym in symbols:
@@ -96,10 +101,6 @@ class Engine(ABC):
                     sig.upset()
             except Exception as e:
                 print(e)
-
-        eng.status = Component.Status.READY
-        eng.run_end = datetime.now()
-        eng.save()
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))
 
     def do_watch(self):
