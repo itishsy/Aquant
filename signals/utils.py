@@ -85,6 +85,57 @@ def get_highest(candles: List[Candle]):
     return highest
 
 
+def get_highest_volume(candles: List[Candle]):
+    """
+    集合同取最高的那一根
+    :param candles:
+    :return: 最高点的一根
+    """
+    if candles is None or len(candles) == 0:
+        return None
+    highest = candles[0]
+    i = 1
+    while i < len(candles):
+        if candles[i].volume > highest.volume:
+            highest = candles[i]
+        i = i + 1
+    return highest
+
+
+def get_average_volume(candles: List[Candle]):
+    """
+    集合同取最高的那一根
+    :param candles:
+    :return: 最高点的一根
+    """
+    size = len(candles)
+    if candles is None or size == 0:
+        return None
+    i = 0
+    s = 0
+    while i < len(candles):
+        s = s + candles[i].volume
+    return s/size
+
+
+
+def get_highest_close(candles: List[Candle]):
+    """
+    集合同取最高的那一根
+    :param candles:
+    :return: 最高点的一根
+    """
+    if candles is None or len(candles) == 0:
+        return None
+    highest = candles[0]
+    i = 1
+    while i < len(candles):
+        if candles[i].close > highest.close:
+            highest = candles[i]
+        i = i + 1
+    return highest
+
+
 def get_candle(candles: List[Candle], dt):
     """
     集合中获取一根candle
