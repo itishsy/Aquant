@@ -10,30 +10,13 @@ class Choice(BaseModel):
     code = CharField()  # 编码
     name = CharField()  # 名称
     strategy = CharField()  # 策略
-    sid = IntegerField()  # 信號ID
-    wid = IntegerField(null=True)  # 信號ID
-    freq = CharField(null=True)  # 級別
-    dt = CharField(null=True)  # 信號時間
-    price = DecimalField(null=True)  # 信号价格
-    source = CharField(null=True)  # 來源
+    cid = IntegerField()  # 信號ID
+    bid = IntegerField(null=True)  # 信號ID
+    sid = IntegerField(null=True)  # 信號ID
+    oid = IntegerField(null=True)  # 信號ID
     status = IntegerField(default=1)  # 状态
     created = DateTimeField()
     updated = DateTimeField(null=True)
-
-    def add_by_signal(self, sig: Signal):
-        if not Choice.select().where(Choice.code == sig.code,
-                                     Choice.dt == sig.dt,
-                                     Choice.freq == sig.freq).exists():
-            self.code = sig.code
-            self.name = sig.name
-            self.freq = sig.freq
-            self.status = Choice.Status.WATCH
-            self.dt = sig.dt
-            self.sid = sig.id
-            self.price = sig.price
-            self.strategy = sig.strategy
-            self.created = datetime.now()
-            self.save()
 
     class Status:
         DISUSE = 0

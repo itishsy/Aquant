@@ -7,8 +7,7 @@ from typing import List
 from decimal import Decimal
 
 
-@register_strategy
-class UAB(Strategy):
+class UAB:
 
     def search(self, candles: List[Candle]):
         size = len(candles)

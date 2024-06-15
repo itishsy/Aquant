@@ -2,6 +2,7 @@ from engines.engine import strategy_engine, Engine
 from candles.storage import find_candles
 from signals.divergence import diver_bottom, diver_top
 from models.signal import Signal
+from models.choice import Choice
 
 
 @strategy_engine
@@ -38,13 +39,13 @@ class U630(Engine):
             if len(dbs) > 0:
                 return dbs[-1]
 
-    def watch(self, cho):
-        sid = cho.sid
-        sig = Signal.get(Signal.id == sid)
-        if sig:
-            dt = sig.dt
-            price = sig.price
-            freq = sig.freq
+    def find_buy_signal(self, cho):
+        cid = cho.cid
+        cs = Signal.get(Signal.id == cid)
+        if cs:
+            dt = cs.dt
+            price = cs.price
+            freq = cs.freq
             if freq == '30':
                 cs5 = self.fetch_candles(code=cho.code, freq=5)
                 db5 = diver_bottom(cs5)
@@ -60,5 +61,8 @@ class U630(Engine):
                 if len(db10) > 0 and db10[-1].dt > dt and db10[-1].price > price:
                     return db10[-1]
 
-    def deal(self, tic):
+    def find_out_signal(self, cho: Choice):
+        pass
+
+    def find_sell_signal(self, tic):
         pass

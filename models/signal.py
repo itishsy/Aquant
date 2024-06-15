@@ -12,10 +12,11 @@ class Signal(BaseModel):
     id = AutoField()
     code = CharField()  # 票据
     name = CharField()  # 名称
-    freq = CharField()  # 信号级别
-    dt = CharField()  # 发生时间
-    price = DecimalField()  # 信号价格
+    freq = CharField()  # 级别
+    dt = CharField()  # 时间
+    price = DecimalField()  # 价格
     strategy = CharField()  # 策略
+    type = IntegerField()  # 类别
     status = IntegerField()  # 状态： 0 New 1 Choice 2 Unused 3 Invalid
     strength = IntegerField(null=True)
     effect = IntegerField(null=True)

@@ -1,17 +1,13 @@
-from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
-from models.ticket import Ticket, TicketSignal
 from models.choice import Choice
 from models.symbol import Symbol
+from models.signal import Signal
 from common.utils import *
-from common.config import Config
 from models.component import Component, COMPONENT_TYPE
 import candles.fetcher as fet
 import candles.marker as mar
 from signals.divergence import diver_top
 
-import traceback
-import time
 
 strategy = {}
 
@@ -31,63 +27,68 @@ class Engine(ABC):
     def start(self):
         self.strategy = self.__class__.__name__.lower()
         now = datetime.now()
-        n_val = now.hour * 100 + now.minute
         try:
+            self.do_fetch()
             if now.weekday() < 5:
-                if 1130 < n_val < 1300 or 1530 < n_val < 1700:
-                    # 盘后检索
-                    freq = [30, 60] if 1130 < n_val < 1300 else [101, 120, 60, 30]
-                    limit_time = 1130 if 1130 < n_val < 1300 else 1530
-                    self.start_component('fetcher', limit_time=limit_time, freq=freq)
-                    self.start_component(self.strategy, limit_time=limit_time)
-                elif 930 < n_val < 1130 or 1300 < n_val < 1500:
-                    # 盘中观察
+                n_val = now.hour * 100 + now.minute
+                if 930 < n_val < 1130 or 1300 < n_val < 1530:
                     self.do_watch()
-                else:
-                    # 当天跑一次
-                    self.start_component('fetcher')
-                    self.start_component(self.strategy)
-            else:
-                # 当天跑一次
-                self.start_component('fetcher')
-                self.start_component(self.strategy)
+                if 1130 < n_val < 1300 or n_val > 1600:
+                    self.do_search()
         except Exception as e:
             print(e)
 
-    def start_component(self, comp_name, limit_time=1, freq=Config.FREQ, clean=False):
+    @staticmethod
+    def do_fetch():
+        freq = [101, 120, 60, 30]
         now = datetime.now()
-        comp = Component.get(Component.name == comp_name)
-        is_fetcher = comp_name == 'fetcher'
-        flag = False
-        if isinstance(comp.run_end, str) or isinstance(comp.run_start, str):
-            flag = True
-        else:
-            run_end = comp.run_end.hour * 100 + comp.run_end.minute
-            if comp.status == Component.Status.READY and (comp.run_end.day < now.day or run_end < limit_time):
-                flag = True
-
-        if flag:
-            comp.status = Component.Status.RUNNING
-            comp.run_start = datetime.now()
-            comp.save()
-            if is_fetcher:
-                if now.weekday() < 5 or comp.run_end.day > (now.day - 2):
-                    fet.fetch_all(freq, clean)
-            else:
-                self.do_search()
-            comp.status = Component.Status.READY
-            comp.run_end = datetime.now()
-            comp.save()
+        fetcher = Component.get(Component.name == 'fetcher')
+        need_start = False
+        if fetcher.status == Component.Status.READY:
+            run_end_time = fetcher.run_end
+            if run_end_time is None or not isinstance(run_end_time, datetime):
+                need_start = True
+            elif run_end_time.year != now.year or run_end_time.month != now.month or run_end_time.day != now.day:
+                need_start = True
+            elif now.weekday() < 5 and run_end_time.hour < 16:
+                freq = [30, 60]
+                need_start = True
+        if need_start:
+            fetcher.status = Component.Status.RUNNING
+            fetcher.run_start = datetime.now()
+            fetcher.save()
+            fet.fetch_all(freq=freq)
+            fetcher.status = Component.Status.READY
+            fetcher.run_end = datetime.now()
+            fetcher.save()
 
     def do_search(self):
+        now = datetime.now()
+        eng = Component.get(Component.name == self.strategy)
+        need_search = False
+        if eng.status == Component.Status.READY:
+            run_end_time = eng.run_end
+            if run_end_time is None or not isinstance(run_end_time, datetime):
+                need_search = True
+            elif run_end_time.year != now.year or run_end_time.month != now.month or run_end_time.day != now.day:
+                need_search = True
+            elif now.weekday() < 5 and run_end_time.hour < 16:
+                need_search = True
+
+        if not need_search:
+            return
+
+        eng.status = Component.Status.RUNNING
+        eng.run_start = datetime.now()
+        eng.save()
+
         count = 0
         symbols = Symbol.actives()
         for sym in symbols:
             try:
                 count = count + 1
                 co = sym.code
-                print('[{0}] {1} searching by strategy -- {2} ({3}) '.format(datetime.now(), co,
-                                                                             self.strategy, count))
+                print('[{0}] {1} searching by strategy -- {2} ({3}) '.format(datetime.now(), co, self.strategy, count))
                 sig = self.search(co)
                 if sig:
                     sig.code = co
@@ -95,39 +96,48 @@ class Engine(ABC):
                     sig.upset()
             except Exception as e:
                 print(e)
+
+        eng.status = Component.Status.READY
+        eng.run_end = datetime.now()
+        eng.save()
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))
 
     def do_watch(self):
-        chs = Choice.select().where(Choice.status == Choice.Status.WATCH, Choice.strategy ** '{}%'.format(self.strategy))
+        chs = Choice.select().where(Choice.status << [Choice.Status.WATCH, Choice.Status.DEAL], Choice.strategy ** '{}%'.format(self.strategy))
         for cho in chs:
             try:
-                print('[{0}] {1} watching by strategy -- {2} '.format(datetime.now(), cho.code, self.strategy))
-                sig = self.watch(cho)
-                if sig:
+                new_status = None
+                if cho.status == Choice.Status.DEAL:
+                    sig = self.find_sell_signal(cho)
+                    if sig:
+                        new_status = Choice.Status.KICK
+                else:
+                    sig = self.find_out_signal(cho)
+                    if sig:
+                        new_status = Choice.Status.DISUSE
+                    else:
+                        print('[{0}] {1} find buy signal by strategy -- {2} '.format(datetime.now(), cho.code, self.strategy))
+                        sig = self.find_buy_signal(cho)
+                        if sig:
+                            new_status = Choice.Status.DEAL
+                if sig and not Signal.select().where(Signal.code == cho.code, Signal.freq == sig.freq, Signal.dt == sig.dt).exists():
                     sig.code = cho.code
+                    sig.name = Symbol.get(Symbol.code == cho.code).name
                     sig.strategy = self.strategy
-                    sig.upset()
-                    # tic = Ticket()
-                    # tic.status = Ticket.Status.DEAL
-                    # tic.add_by_choice(cho, sig)
-                    print('[{0}] add a watch signal({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy))
+                    sig.created = datetime.now()
+                    save_sig = sig.save()
+                    if new_status == Choice.Status.DEAL:
+                        cho.bid = save_sig.get_id()
+                    elif new_status == Choice.Status.KICK:
+                        cho.sid = save_sig.get_id()
+                    else:
+                        cho.oid = save_sig.get_id()
+                    cho.status = new_status
+                    cho.updated = datetime.now()
+                    cho.save()
+                    print('[{0}] add a buy signal({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy))
             except Exception as e:
                 print('[{0}] {1} watch error -- {2} '.format(datetime.now(), cho.code, e))
-
-    def do_deal(self):
-        tis = Ticket.select().where(Ticket.status == Ticket.Status.DEAL)
-        for tic in tis:
-            try:
-                print('[{0}] {1} dealing by strategy -- {2} '.format(datetime.now(), tic.code, self.strategy))
-                sig = self.deal(tic)
-                if sig:
-                    sig.code = tic.code
-                    sig.upset()
-                    TicketSignal(tid=tic.id, sid=sig.id, created=datetime.now()).save()
-            except Exception as e:
-                print(e)
-            finally:
-                print('[{0}] {1} deal done by strategy -- {2} '.format(datetime.now(), tic.code, self.strategy))
 
     @staticmethod
     def fetch_candles(code, freq, begin=None):
@@ -163,9 +173,13 @@ class Engine(ABC):
         pass
 
     @abstractmethod
-    def watch(self, cho: Choice):
+    def find_buy_signal(self, cho: Choice):
         pass
 
     @abstractmethod
-    def deal(self, tic: Ticket):
+    def find_out_signal(self, cho: Choice):
+        pass
+
+    @abstractmethod
+    def find_sell_signal(self, cho: Choice):
         pass
