@@ -98,6 +98,17 @@
                 <li class="treeview">
                     <a href="#">
                         <i class="fa fa-bug"></i>
+                        <span>GPT4</span>
+                        <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="{{ url_for('main.gpt_edit') }}"><i class="fa fa-circle-o"></i>添加</a></li>
+                        <li><a href="{{ url_for('main.gpt_list') }}"><i class="fa fa-circle-o"></i>查询</a></li>
+                    </ul>
+                </li>
+                <li class="treeview">
+                    <a href="#">
+                        <i class="fa fa-bug"></i>
                         <span>入选池</span>
                         <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
                     </a>
