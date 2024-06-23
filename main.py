@@ -1,5 +1,6 @@
 from datetime import datetime
 from engines import *
+from models.component import Component
 import logging
 import time
 
@@ -9,10 +10,14 @@ logging.getLogger().setLevel(logging.INFO)
 
 if __name__ == '__main__':
     while True:
+        Component.update(run_start=datetime.now(), status=Component.Status.RUNNING).where(
+            Component.name == 'engine').execute()
         for name in engine.strategy:
             st = engine.strategy[name]()
             print("[{}] {} start...".format(datetime.now(), name))
             st.start()
         print("[{}] sleep {} min".format(datetime.now(), 5))
+        Component.update(run_start=datetime.now(), status=Component.Status.READY).where(
+            Component.name == 'engine').execute()
         time.sleep(60 * 5)
 
