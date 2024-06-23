@@ -72,7 +72,6 @@ def double_merge(candles, freq):
 
 
 def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
-    d_flag = False
     if begin:
         beg = dt_format(begin, '%Y%m%d')
     else:
@@ -91,6 +90,7 @@ def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
     candles = []
     for i, row in df.iterrows():
         c = Candle(row)
+        c.freq = freq
         if i == 0:
             if l_candle is not None and l_candle.ema12 is not None:
                 c.ema12 = l_candle.ema12 * Decimal(11 / 13) + Decimal(c.close) * Decimal(2 / 13)

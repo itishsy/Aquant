@@ -111,10 +111,11 @@ def get_average_volume(candles: List[Candle]):
     size = len(candles)
     if candles is None or size == 0:
         return None
-    i = 0
+
     s = 0
-    while i < len(candles):
-        s = s + candles[i].volume
+    for c in candles:
+        s = s + c.volume
+
     return s/size
 
 
@@ -218,6 +219,36 @@ def get_section(candles: List[Candle], sdt, edt=None):
             cs.append(c)
         if c.dt == edt:
             break
+    return cs
+
+
+def get_between(candles: List[Candle], dt, left, length):
+    """
+    指定日期所在左右集合
+    :param candles:
+    :param dt: 时间
+    :param left: 左边
+    :param length: 集合长度
+    :return: candle集合，包含起止两根
+    """
+    cs = []
+    if candles is None:
+        return cs
+    s = len(candles)
+    i = 0
+    sti = -1
+    while i < s:
+        if candles[i].dt == dt:
+            sti = i
+            break
+        i = i + 1
+
+    if sti > 0:
+        j = 0
+        while j < s:
+            if j >= sti and len(cs) <= length:
+                cs.append(candles[i])
+            j = j + 1
     return cs
 
 

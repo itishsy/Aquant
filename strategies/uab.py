@@ -22,7 +22,7 @@ class Uab:
         lcs = candles[-self.ma:]
         idx = 0
         for c in lcs:
-            ma = eval(format('c.ma{}', str(self.ma)))
+            ma = eval('c.ma'+str(self.ma))
             if ma <= c.close:
                 idx = idx + 1
         if idx/self.ma < self.mrate:
@@ -39,8 +39,9 @@ class Uab:
         v_highest = utl.get_highest_volume(lcs)
         c_highest = utl.get_highest_close(lcs)
         if v_highest.dt == highest.dt and c_highest.dt != highest.dt and highest.close < highest.open:
-            avg = utl.get_average_volume(lcs)
-            if avg/highest.volume < 0.8:
+            bts = utl.get_between(candles, c_highest.dt, 5, 10)
+            avg = utl.get_average_volume(bts)
+            if avg/highest.volume < 0.6:
                 return
 
         # 不可出现顶背离
@@ -57,5 +58,5 @@ class Uab:
         sig = dbs[-1]
         sec = utl.get_section(cds, sig.dt, candles[-1].dt)
         sec_lowest = utl.get_lowest(sec)
-        if sec_lowest.low > sig.price:
+        if sec_lowest.dt == sig.dt:
             return sig

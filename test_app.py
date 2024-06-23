@@ -4,8 +4,8 @@ from models.user import generate_pwd
 
 
 def test_search(eng_name):
-    eng = engine.strategy[eng_name.capitalize()]()
-    eng.strategy = eng_name.capitalize()
+    eng = engine.strategy[eng_name]()
+    eng.strategy = eng_name
     print("[{}] {} start...".format(datetime.now(), eng_name))
     eng.do_search()
     print("[{}] {} end".format(datetime.now(), eng_name))
@@ -27,5 +27,6 @@ def test_model():
 
 
 if __name__ == '__main__':
-    test_watch('u630')
+    # test_watch('u630')
+    test_search('u30')
     # test_model()
