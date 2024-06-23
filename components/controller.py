@@ -6,43 +6,51 @@ import time
 
 
 def start_component(name, act):
-    comp = Component.get(Component.name == name)
-    comp.status = Component.Status.RUNNING
-    comp.run_start = datetime.now()
-    comp.save()
-    if act == 'fetch':
-        fet.fetch_all()
-    elif act == 'engine_task':
+    if act == 'engine_task':
         start_engine_task()
     elif act == 'engine_init':
         init_engine()
     else:
-        eng = engine.strategy[name.capitalize()]()
-        eng.strategy = name
-        if act == 'search' or act == 'all':
-            print('engine', name, 'action: search, start...')
-            eng.do_search()
-            print('engine', name, 'action: search, done!')
-        if act == 'watch' or act == 'all':
-            print('engine', name, 'action: watch, start...')
-            eng.do_watch()
-            print('engine', name, 'action: watch, done!')
-    comp.status = Component.Status.READY
-    comp.run_end = datetime.now()
-    comp.save()
+        comp = Component.get(Component.name == name)
+        comp.status = Component.Status.RUNNING
+        comp.run_start = datetime.now()
+        comp.save()
+        if act == 'fetch':
+            fet.fetch_all()
+        else:
+            eng = engine.strategy[name.capitalize()]()
+            eng.strategy = name
+            if act == 'search' or act == 'all':
+                print('engine', name, 'action: search, start...')
+                eng.do_search()
+                print('engine', name, 'action: search, done!')
+            if act == 'watch' or act == 'all':
+                print('engine', name, 'action: watch, start...')
+                eng.do_watch()
+                print('engine', name, 'action: watch, done!')
+        comp.status = Component.Status.READY
+        comp.run_end = datetime.now()
+        comp.save()
 
 
 def start_engine_task():
     while True:
+        comp = Component.get(Component.name == 'engine')
+        comp.status = Component.Status.RUNNING
+        comp.run_start = datetime.now()
+        comp.save()
         for name in engine.strategy:
             st = engine.strategy[name]()
             st.start()
-        time.sleep(60 * 5)
+        comp.status = Component.Status.READY
+        comp.run_end = datetime.now()
+        comp.save()
+        time.sleep(60 * 10)
 
 
 def init_engine():
     init_time = datetime(datetime.now().year, 1, 1)
-    default_components = ['fetcher', 'engine']
+    default_components = ['engine', 'fetcher']
     for comp in default_components:
         if not Component.select().where(Component.name == comp).exists():
             Component.create(name=comp, clock_time=datetime.now(), run_start=init_time, run_end=init_time, status=Component.Status.READY)
