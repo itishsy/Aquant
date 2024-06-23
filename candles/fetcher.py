@@ -55,7 +55,7 @@ def fetch_and_save(code, freq, begin=None):
         remark(code, freq, beg=beg)
 
 
-def double_merge(candles):
+def double_merge(candles, freq):
     single_candles = candles.iloc[::2]  # 获取单行
     double_candles = candles.iloc[1::2]  # 获取双行
     single_candles.reset_index(drop=True, inplace=True)
@@ -63,6 +63,7 @@ def double_merge(candles):
     for index, row in double_candles.iterrows():
         single_row = single_candles.iloc[index]
         row.open = single_row.open
+        row.freq = freq
         if row.high < single_row.high:
             row.high = single_row.high
         if row.low > single_row.low:
@@ -72,34 +73,23 @@ def double_merge(candles):
 
 def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
     d_flag = False
-    if freq == 10:
-        d_flag = True
-        freq = 5
     if begin:
         beg = dt_format(begin, '%Y%m%d')
     else:
         beg = cal_fetch_beg(freq)
 
-    df = ef.stock.get_quote_history(code, klt=freq, beg=beg)
+    if freq == 10:
+        df = ef.stock.get_quote_history(code, klt=5, beg=beg)
+        df = double_merge(df, freq)
+    else:
+        df = ef.stock.get_quote_history(code, klt=freq, beg=beg)
+
     df.columns = ['name', 'code', 'dt', 'open', 'close', 'high', 'low', 'volume', 'amount', 'zf', 'zdf', 'zde',
                   'turnover']
     df.drop(['name', 'code', 'zf', 'zdf', 'zde'], axis=1, inplace=True)
-    if d_flag:
-        df = double_merge(df)
-    # if freq == 101:
-    #     df['ma5'] = df['close'].rolling(5).mean()
-    #     df['ma10'] = df['close'].rolling(10).mean()
-    #     df['ma20'] = df['close'].rolling(20).mean()
-    #     df['ma30'] = df['close'].rolling(30).mean()
-    #     df['ma60'] = df['close'].rolling(60).mean()
-    #     df.fillna(0)
 
     candles = []
     for i, row in df.iterrows():
-        if d_flag:
-            row['freq'] = 10
-        else:
-            row['freq'] = freq
         c = Candle(row)
         if i == 0:
             if l_candle is not None and l_candle.ema12 is not None:
@@ -205,8 +195,10 @@ def cal_fetch_beg(freq):
         beg = (now - timedelta(25)).strftime('%Y%m%d')
     elif freq == 15:
         beg = (now - timedelta(13)).strftime('%Y%m%d')
+    elif freq == 10:
+        beg = (now - timedelta(10)).strftime('%Y%m%d')
     elif freq == 5:
-        beg = (now - timedelta(4)).strftime('%Y%m%d')
+        beg = (now - timedelta(5)).strftime('%Y%m%d')
     return beg
 
 

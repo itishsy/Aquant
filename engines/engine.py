@@ -142,8 +142,6 @@ class Engine(ABC):
 
     @staticmethod
     def fetch_candles(code, freq, begin=None):
-        if begin is None:
-            begin = fet.cal_fetch_beg(freq)
         candles = fet.fetch_data(code, freq, begin)
         candles = mar.mark(candles=candles)
         return candles

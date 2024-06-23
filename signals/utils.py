@@ -198,6 +198,7 @@ def get_stage(candles: List[Candle], dt) -> List[Candle]:
         i = i + 1
     return stage
 
+
 def get_section(candles: List[Candle], sdt, edt=None):
     """
     获取起始区间的部分
@@ -276,7 +277,6 @@ def has_cross(candles: List[Candle]):
     if d_flag:
         return -1
     return 0
-
 
 
 def get_dabrc(candles: List[Candle], b3_dt):
