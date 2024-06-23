@@ -42,19 +42,13 @@ def start_engine_task():
 
 def init_engine():
     init_time = datetime(datetime.now().year, 1, 1)
-    if not Component.select().where(Component.name == 'fetcher').exists():
-        Component(name='fetcher', clock_time=datetime.now(), run_start=init_time, run_end=init_time,
-                         status=Component.Status.READY).save()
-    else:
-        Component.update(clock_time=datetime.now(), status=Component.Status.READY).where(
-            Component.name == 'fetcher').execute()
-    if not Component.select().where(Component.name == 'engine').exists():
-        Component(name='engine', clock_time=datetime.now(), run_start=init_time, run_end=init_time,
-                         status=Component.Status.READY).save()
-    else:
-        Component.update(clock_time=datetime.now(), status=Component.Status.READY).where(
-            Component.name == 'engine').execute()
-    Component.delete().where(Component.name != 'fetcher').execute()
+    default_components = ['fetcher', 'engine']
+    for comp in default_components:
+        if not Component.select().where(Component.name == comp).exists():
+            Component.create(name=comp, clock_time=datetime.now(), run_start=init_time, run_end=init_time, status=Component.Status.READY)
+        else:
+            Component.update(clock_time=datetime.now(), status=Component.Status.READY).where(Component.name == comp).execute()
+    Component.delete().where(Component.name << default_components).execute()
     for name in engine.strategy:
         Component.create(name=name.lower()[0] + name[1:], clock_time=datetime.now(), run_start=init_time,
                          run_end=init_time, status=Component.Status.READY)
