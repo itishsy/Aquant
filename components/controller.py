@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from models.component import Component
 import candles.fetcher as fet
 from engines import *
@@ -27,5 +27,19 @@ def start_component(name, act):
     comp.save()
 
 
+def init_engine():
+    init_time = datetime.now() - timedelta(days=7)
+    if not Component.select(Component.name == 'fetcher').exists():
+        Component.create(name='fetcher', clock_time=datetime.now(), run_start=init_time, run_end=init_time,
+                         status=Component.Status.READY)
+    else:
+        Component.update(clock_time=datetime.now(), status=Component.Status.READY).where(
+            Component.name == 'fetcher').execute()
+    Component.delete().where(Component.name != 'fetcher').execute()
+    for name in engine.strategy:
+        Component.create(name=name.lower()[0] + name[1:], clock_time=datetime.now(), run_start=init_time,
+                         run_end=init_time, status=Component.Status.READY)
+
+
 if __name__ == '__main__':
-    start_component()
+    init_engine()
