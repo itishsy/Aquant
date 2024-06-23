@@ -56,8 +56,8 @@
                         start <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="engine_task") }}'>search</a></li>
-                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="engine_init") }}'>watch</a></li>
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="engine_task") }}'>task</a></li>
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="engine_init") }}'>init</a></li>
                     </ul>
                 </div>
             {% else %}
