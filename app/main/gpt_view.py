@@ -72,6 +72,6 @@ def gpt_edit():
 class GptForm(FlaskForm):
     id = IntegerField('id')
     # model = SelectField('模型', choices=choice_model(), default='gpt-4o')
-    message = TextAreaField('问题', validators=[DataRequired(message='不能为空'), Length(0, 500, message='长度不正确')])
-    content = TextAreaField('回答')
+    message = TextAreaField('问题', render_kw={"rows": 3}, validators=[DataRequired(message='不能为空'), Length(0, 500, message='长度不正确')])
+    content = TextAreaField('回答', render_kw={"rows": 8})
     submit = SubmitField('提交')
