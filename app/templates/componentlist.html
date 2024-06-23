@@ -50,6 +50,16 @@
                 <td>
             {% if row.name == 'fetcher' %}
                 <a class='btn btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="fetch") }}'>start</a>
+            {% elif row.name == 'engine' %}
+                <div class="btn-group btn-group-sm d-inline">
+                    <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        start <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="engine_task") }}'>search</a></li>
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="engine_init") }}'>watch</a></li>
+                    </ul>
+                </div>
             {% else %}
                 <div class="btn-group btn-group-sm d-inline">
                     <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
