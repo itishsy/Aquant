@@ -13,7 +13,7 @@ strategy = {}
 
 
 def strategy_engine(cls):
-    cls_name = cls.__name__
+    cls_name = cls.__name__.lower()[0] + cls.__name__[1:]
 
     def register(clz):
         strategy[cls_name] = clz

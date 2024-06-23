@@ -35,7 +35,9 @@ def start_component(name, act):
 def start_engine_task():
     while True:
         for name in engine.strategy:
+            print(name)
             st = engine.strategy[name]()
+            print('=====', st)
             st.start()
         time.sleep(60 * 5)
 
