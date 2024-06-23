@@ -48,7 +48,7 @@ def init_engine():
             Component.create(name=comp, clock_time=datetime.now(), run_start=init_time, run_end=init_time, status=Component.Status.READY)
         else:
             Component.update(clock_time=datetime.now(), status=Component.Status.READY).where(Component.name == comp).execute()
-    Component.delete().where(Component.name << default_components).execute()
+    Component.delete().where(~(Component.name << default_components)).execute()
     for name in engine.strategy:
         Component.create(name=name.lower()[0] + name[1:], clock_time=datetime.now(), run_start=init_time,
                          run_end=init_time, status=Component.Status.READY)
