@@ -28,7 +28,7 @@ def start_component(name, act):
 
 
 def init_engine():
-    init_time = datetime.now() - timedelta(days=7)
+    init_time = datetime(datetime.year, 1, 1)
     if not Component.select(Component.name == 'fetcher').exists():
         Component.create(name='fetcher', clock_time=datetime.now(), run_start=init_time, run_end=init_time,
                          status=Component.Status.READY)
