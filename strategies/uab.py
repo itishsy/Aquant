@@ -3,12 +3,11 @@ import signals.utils as utl
 from signals.divergence import diver_bottom, diver_top
 
 
-class UAB:
-
-    def __int__(self, code, ma=30, ma_rate=0.7, freq=30):
+class Uab:
+    def __int__(self, code, ma=30, mrate=0.7, freq=30):
         self.code = code
         self.ma = ma
-        self.ma_rate = ma_rate
+        self.mrate = mrate
         self.freq = freq
 
     def search(self):
@@ -26,7 +25,7 @@ class UAB:
             ma = eval(format('c.ma{}', str(self.ma)))
             if ma <= c.close:
                 idx = idx + 1
-        if idx/self.ma < self.ma_rate:
+        if idx/self.ma < self.mrate:
             return
 
         # 调整幅度不可过大（最近M根最高最低与当前收盘价比较）
