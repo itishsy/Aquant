@@ -126,13 +126,13 @@ class Engine(ABC):
                     sig.name = Symbol.get(Symbol.code == cho.code).name
                     sig.strategy = self.strategy
                     sig.created = datetime.now()
-                    save_sig = sig.save()
+                    sig.save()
                     if new_status == Choice.Status.DEAL:
-                        cho.bid = save_sig.get_id()
+                        cho.bid = sig.id
                     elif new_status == Choice.Status.KICK:
-                        cho.sid = save_sig.get_id()
+                        cho.sid = sig.id
                     else:
-                        cho.oid = save_sig.get_id()
+                        cho.oid = sig.id
                     cho.status = new_status
                     cho.updated = datetime.now()
                     cho.save()

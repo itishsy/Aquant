@@ -16,7 +16,7 @@ class Signal(BaseModel):
     dt = CharField()  # 时间
     price = DecimalField()  # 价格
     strategy = CharField()  # 策略
-    type = IntegerField()  # 类别
+    type = CharField()  # 类别
     status = IntegerField()  # 状态： 0 New 1 Choice 2 Unused 3 Invalid
     strength = IntegerField(null=True)
     effect = IntegerField(null=True)

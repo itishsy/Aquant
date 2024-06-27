@@ -91,7 +91,7 @@ def index():
 @main.route('/api/stats/summary', methods=['GET'])
 @login_required
 def summary():
-    c_size = Choice.select().where(Choice.Status.DISUSE < Choice.status < Choice.Status.KICK).count()
+    c_size = Choice.select().where(Choice.status.in_([Choice.Status.WATCH, Choice.Status.DEAL])).count()
     today = now_ymd()
     if today.weekday() == 5:
         today = today - timedelta(days=1)
