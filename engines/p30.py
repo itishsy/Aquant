@@ -15,7 +15,8 @@ class P30(Engine):
         pab.code = code
         pab.freq = 30
         sig = pab.search()
-        sig.type = 'pab'
+        if sig:
+            sig.type = 'diver-bottom'
         return sig
 
     def find_buy_signal(self, cho):

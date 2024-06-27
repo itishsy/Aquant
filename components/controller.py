@@ -18,7 +18,7 @@ def start_component(name, act):
         if act == 'fetch':
             fet.fetch_all()
         else:
-            eng = engine.strategy[name.capitalize()]()
+            eng = engine.strategy[name]()
             eng.strategy = name
             if act == 'search' or act == 'all':
                 print('engine', name, 'action: search, start...')

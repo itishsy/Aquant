@@ -17,7 +17,8 @@ class U30(Engine):
         uab.mrate = 0.7
         uab.freq = 30
         sig = uab.search()
-        sig.type = 'uab'
+        if sig:
+            sig.type = 'diver-bottom'
         return sig
 
     def find_buy_signal(self, cho):

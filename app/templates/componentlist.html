@@ -45,7 +45,7 @@
             {% if row.status == 2 %}
                     <span>{{row.run_start.strftime("%m/%d")}}({{row.run_start.strftime("%H:%M")}}~)</span>
             {% else %}
-                    <span>{{row.run_start.strftime("%m/%d")}}({{row.run_start.strftime("%H:%M")}}~{{row.run_end.strftime("%H:%m")}})</span>
+                    <span>{{row.run_start.strftime("%m/%d")}}({{row.run_start.strftime("%H:%M")}}~{{row.run_end.strftime("%H:%M")}})</span>
             {% endif %}
                 <td>
             {% if row.name == 'fetcher' %}
