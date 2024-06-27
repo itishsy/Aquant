@@ -52,41 +52,130 @@
                 </div>
             </div>
         </div>
-    <div class="mb-4">
-      <h4 class="display-4">入选信号</h4>
-      <hr>
-    </div>
+        <div class="mb-4">
+          <h4 class="display-4">入选信号</h4>
+          <hr>
+        </div>
         <div class="box-body">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="form-group">
-                    <label>信号</label>
-                    <span>{{s_signal.strategy}} - {{s_signal.freq}}</span>
+                    <label>时间</label>
+                    <span>{{cs.dt}}</span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>时间</label>
-                    <span>{{s_signal.dt}}</span>
+                    <label>信号</label>
+                    <span>{{cs.strategy}} - {{cs.freq}}</span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label>价格</label>
-                    <span>{{s_signal.price}}</span>
+                    <span>{{cs.price}}</span>
                 </div>
             </div>
         </div>
-
+        <div class="mb-4">
+          <h4 class="display-4">买入信号</h4>
+          <hr>
+        </div>
+                {% if bs %}
+        <div class="box-body">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>时间</label>
+                    <span>{{bs.dt}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>信号</label>
+                    <span>{{bs.freq}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>价格</label>
+                    <span>{{bs.price}}</span>
+                </div>
+            </div>
+        </div>
+                {% else %}
+        <div class="box-body">
+             <label>无</label>
+        </div>
+                {% endif %}
+        <div class="mb-4">
+          <h4 class="display-4">卖出信号</h4>
+          <hr>
+        </div>
+                {% if ss %}
+        <div class="box-body">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>时间</label>
+                    <span>{{ss.dt}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>信号</label>
+                    <span>{{ss.freq}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>价格</label>
+                    <span>{{ss.price}}</span>
+                </div>
+            </div>
+        </div>
+                {% else %}
+        <div class="box-body">
+             <label>无</label>
+        </div>
+                {% endif %}
+        <div class="mb-4">
+          <h4 class="display-4">出局信号</h4>
+          <hr>
+        </div>
+                {% if os %}
+        <div class="box-body">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>时间</label>
+                    <span>{{os.dt}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>信号</label>
+                    <span>{{os.freq}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>价格</label>
+                    <span>{{os.price}}</span>
+                </div>
+            </div>
+        </div>
+                {% else %}
+        <div class="box-body">
+             <label>无</label>
+        </div>
+                {% endif %}
         <div class="box-footer">
             <div class="col-md-12">
+                <a class='btn btn-default' href='javascript:history.back()'>返回</a>
                 {% if choice.id %}
-                <a class='btn btn-danger' href='{{ url_for("main.choice_list", id=choice.id, action="disuse") }}'>弃用</a>
+                <a class='btn btn-danger pull-right' href='{{ url_for("main.choice_list", id=choice.id, action="disuse") }}'>弃用</a>
 
                 {% if choice.status != 1 %}
                 <a class='btn btn-primary pull-right' href='{{ url_for("main.choice_list", id=choice.id, action="deal") }}'>交易</a>
                 {% endif %}
                 {% endif %}
-                <a class='btn btn-default pull-right' href='javascript:history.back()'>返回</a>
             </div>
         </div>
 </div>

@@ -74,11 +74,15 @@ def choice_edit():
             """
         # 查询
         if request.method == 'GET':
-            ss = Signal.get(id=cho.sid)
-            ws = None
-            if cho.wid:
-                ws = Signal.get(id=cho.wid)
-            return render_template('choicedetail.html', choice=cho, s_signal=ss, w_signal=ws, current_user=current_user)
+            cs = Signal.get(id=cho.cid)
+            bs, ss, os = None, None, None
+            if cho.bid:
+                bs = Signal.get(id=cho.bid)
+            if cho.sid:
+                ss = Signal.get(id=cho.sid)
+            if cho.oid:
+                os = Signal.get(id=cho.oid)
+            return render_template('choicedetail.html', choice=cho, cs=cs, bs=bs, ss=ss, os=os, current_user=current_user)
 
             # utils.model_to_form(cho, form)
             # if Ticket.select().where(Ticket.code == cho.code).exists():
