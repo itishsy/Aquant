@@ -31,7 +31,7 @@ class U30(Engine):
             if len(db5) > 0:
                 sig5 = db5[-1]
                 if sig5.price > sig30.price:
-                    sig5.type = 'diver_bottom'
+                    sig5.type = 'diver-bottom'
                     return sig5
 
     def find_out_signal(self, cho: Choice):

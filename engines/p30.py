@@ -14,7 +14,9 @@ class P30(Engine):
         pab = Pab()
         pab.code = code
         pab.freq = 30
-        return pab.search()
+        sig = pab.search()
+        sig.type = 'pab'
+        return sig
 
     def find_buy_signal(self, cho):
         if cho.cid is None:
@@ -27,6 +29,7 @@ class P30(Engine):
             if len(db5) > 0:
                 sig5 = db5[-1]
                 if sig5.price > sig30.price:
+                    sig5.type = 'diver_bottom'
                     return sig5
 
     def find_out_signal(self, cho: Choice):
@@ -36,14 +39,14 @@ class P30(Engine):
         cds = find_candles(cho.code, begin=sig30.dt)
         # 超时不出b_signal
         if len(cds) > 10:
-            return Signal(code=cho.code, name=cho.name, dt=cds[-1].dt, strategy='timeout')
+            return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=cds[-1].dt, type='timeout')
         lowest = utl.get_lowest(cds)
         # 快慢线均回落到0轴之下
         if lowest.dea9 < 0 and lowest.diff() < 0:
-            return Signal(code=cho.code, name=cho.name, dt=lowest.dt, strategy='lowest')
+            return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=lowest.dt, type='lowest')
         # c_signal跌破最低价
         if lowest.low < sig30.price:
-            return Signal(code=cho.code, name=cho.name, dt=lowest.dt, strategy='damage')
+            return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=lowest.dt, type='damage')
 
     def find_sell_signal(self, cho):
         if cho.bid is None:
@@ -53,14 +56,16 @@ class P30(Engine):
         cds5 = self.fetch_candles(code=cho.code, freq=5, begin=sig5.dt)
         dt5 = diver_top(cds5)
         if len(dt5) > 0:
-            return dt5[-1]
+            sig = dt5[-1]
+            sig.type = 'diver-top'
+            return sig
 
         cds30 = find_candles(code=cho.code, freq=30, begin=sig5.dt)
         highest = utl.get_highest(cds30)
         if utl.is_upper_shadow(highest):
-            return Signal(code=cho.code, name=cho.name, dt=highest.dt, strategy='shadow')
+            return Signal(code=cho.code, name=cho.name, freq=sig5.freq, dt=highest.dt, type='shadow')
 
         cross30 = utl.get_cross(cds30)
         if cross30[-1].mark == 1:
-            return Signal(code=cho.code, name=cho.name, dt=cross30[-1].dt, strategy='cross')
+            return Signal(code=cho.code, name=cho.name, freq=sig5.freq, dt=cross30[-1].dt, type='cross-down')
 
