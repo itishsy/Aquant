@@ -45,7 +45,7 @@ class U60(Engine):
             return Signal(code=cho.code, name=cho.name, freq=sig60.freq, dt=cds[-1].dt, type='timeout')
         # c_signal破坏
         lowest = utl.get_lowest(cds)
-        if lowest.low < sig60.price:
+        if lowest and lowest.low < sig60.price:
             return Signal(code=cho.code, name=cho.name, freq=sig60.freq, dt=cds[-1].dt, type='damage')
 
     def find_sell_signal(self, cho):

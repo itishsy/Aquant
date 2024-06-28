@@ -46,7 +46,7 @@ class P30(Engine):
         if lowest.dea9 < 0 and lowest.diff() < 0:
             return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=lowest.dt, type='lowest')
         # c_signal跌破最低价
-        if lowest.low < sig30.price:
+        if lowest and lowest.low < sig30.price:
             return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=lowest.dt, type='damage')
 
     def find_sell_signal(self, cho):
