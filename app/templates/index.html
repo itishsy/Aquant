@@ -16,10 +16,22 @@
     <div class="box-body">
         <div class="row">
             <div class="col-lg-6 col-xs-12">
+                <div class="small-box bg-red">
+                    <div class="inner">
+                        <a style="color: yellow"  href="{{ url_for('main.choice_list',status=2) }}"><h3 id="tr_size">0</h3></a>
+                        <p>trading（today:<a href="{{ url_for('main.choice_list',status=2,today=1) }}">
+                        <span id="tr_today_size">0</span>）</a></p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-ios-gear-outline"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-gray">
                     <div class="inner">
                         <a style="color: white" href="{{ url_for('main.choice_list') }}"><h3 id="c_size">0</h3></a>
-                        <p>入选池（今日:<a href="{{ url_for('main.choice_list',today=1 ) }}">
+                        <p>choice pool（today:<a href="{{ url_for('main.choice_list',today=1) }}">
                         <span id="c_today_size">0</span>）</a></p>
                     </div>
                     <div class="icon">
@@ -31,7 +43,7 @@
                 <div class="small-box bg-aqua">
                     <div class="inner">
                         <a style="color: white" href="{{ url_for('main.signallist',today=1 ) }}"><h3 id="s_today_size">0</h3></a>
-                        <p>今日信号（本周:<a style="color: yellow" href="{{ url_for('main.signallist') }}">
+                        <p>today signals（weekly:<a style="color: yellow" href="{{ url_for('main.signallist') }}">
                         <span id="s_size">0</span>）</a></p>
                     </div>
                     <div class="icon">
@@ -48,18 +60,6 @@
                     </div>
                     <div class="icon">
                         <i class="ion ion-person-add"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 col-xs-12">
-                <div class="small-box bg-red">
-                    <div class="inner">
-                        <a style="color: yellow"  href="{{ url_for('main.tradelist',today=1) }}"><h3 id="tr_today_size">0</h3></a>
-                        <p>今日交易（總數:<a href="{{ url_for('main.tradelist') }}">
-                        <span id="tr_size">0</span>）</a></p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-ios-gear-outline"></i>
                     </div>
                 </div>
             </div>

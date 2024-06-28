@@ -44,11 +44,11 @@ class Ticket(BaseModel):
     class Status:
         DEAL = 0
         HOLD = 1
-        KICK = 2
+        DONE = 2
 
         @staticmethod
         def all():
-            return [(Ticket.Status.DEAL, '交易'), (Ticket.Status.HOLD, '持有'), (Ticket.Status.KICK, '剔除')]
+            return [(Ticket.Status.DEAL, '交易'), (Ticket.Status.HOLD, '持有'), (Ticket.Status.DONE, '剔除')]
 
         @staticmethod
         def get(key):
@@ -56,7 +56,7 @@ class Ticket(BaseModel):
                 return '交易'
             if key == Ticket.Status.HOLD:
                 return '持有'
-            if key == Ticket.Status.KICK:
+            if key == Ticket.Status.DONE:
                 return '剔除'
 
 

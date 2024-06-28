@@ -41,19 +41,19 @@
                 <div class="form-group">
                     <label>状态</label>
                 {% if choice.status == 0 %}
-                    <span>弃用</span>
+                    <span>disuse</span>
                 {% elif choice.status == 1 %}
-                    <span>等待买点</span>
+                    <span>watch</span>
                 {% elif choice.status == 2 %}
-                    <span>交易</span>
+                    <span>deal</span>
                 {% else %}
-                    <span>结束交易</span>
+                    <span>done</span>
                 {% endif %}
                 </div>
             </div>
         </div>
-        <div class="mb-4">
-          <h4 class="display-4">入选信号</h4>
+        <div class="container">
+          <h4>入选信号</h4>
           <hr>
         </div>
         <div class="box-body">
@@ -76,8 +76,8 @@
                 </div>
             </div>
         </div>
-        <div class="mb-4">
-          <h4 class="display-4">买入信号</h4>
+        <div class="container">
+          <h4>买入信号</h4>
           <hr>
         </div>
                 {% if bs %}
@@ -106,8 +106,8 @@
              <label>无</label>
         </div>
                 {% endif %}
-        <div class="mb-4">
-          <h4 class="display-4">卖出信号</h4>
+        <div class="container">
+          <h4>卖出信号</h4>
           <hr>
         </div>
                 {% if ss %}
@@ -136,8 +136,8 @@
              <label>无</label>
         </div>
                 {% endif %}
-        <div class="mb-4">
-          <h4 class="display-4">出局信号</h4>
+        <div class="container">
+          <h4>出局信号</h4>
           <hr>
         </div>
                 {% if os %}

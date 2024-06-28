@@ -78,14 +78,14 @@
 
         <div class="box-footer">
             <div class="col-md-12">
+                <a class='btn btn-default' href='javascript:history.back()'>返回</a>
+
                 {% if signal.id %}
                 <a class='btn btn-danger' href='{{ url_for("main.signallist", id=signal.id, action="unused") }}'>弃用</a>
-
                 {% if signal.status != 1 %}
                 <a class='btn btn-primary pull-right' href='{{ url_for("main.signallist", id=signal.id, action="watch") }}'>观察</a>
                 {% endif %}
                 {% endif %}
-                <a class='btn btn-default pull-right' href='javascript:history.back()'>返回</a>
             </div>
         </div>
     </form>

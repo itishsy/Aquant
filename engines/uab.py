@@ -86,10 +86,10 @@ class UAB(Engine):
                 if lowest.low >= sig.price:
                     return sig
         else:
-            self.choice.status = Choice.Status.KICK
+            self.choice.status = Choice.Status.DONE
 
     def deal(self, tic):
         dt = self.ticket.bs_dt
         lowest = get_lowest(find_candles(self.ticket.code, begin=dt_format(dt)))
         if lowest.low < self.ticket.bs_price:
-            self.ticket.status = Ticket.Status.KICK
+            self.ticket.status = Ticket.Status.DONE

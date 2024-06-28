@@ -22,11 +22,11 @@ class Choice(BaseModel):
         DISUSE = 0
         WATCH = 1
         DEAL = 2
-        KICK = 3
+        DONE = 3
 
         @staticmethod
         def all():
-            return [(Choice.Status.DISUSE, '弃用'), (Choice.Status.WATCH, '观察'), (Choice.Status.DEAL, '交易'), (Choice.Status.KICK, '剔除')]
+            return [(Choice.Status.DISUSE, '弃用'), (Choice.Status.WATCH, '观察'), (Choice.Status.DEAL, '交易'), (Choice.Status.DONE, '剔除')]
 
         @staticmethod
         def get(key):
@@ -36,7 +36,7 @@ class Choice(BaseModel):
                 return '观察'
             if key == Choice.Status.DEAL:
                 return '交易'
-            if key == Choice.Status.KICK:
+            if key == Choice.Status.DONE:
                 return '剔除'
 
 

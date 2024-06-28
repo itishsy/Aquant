@@ -14,7 +14,7 @@ class U60(Engine):
         uab = Uab()
         uab.code = code
         uab.ma = 60
-        uab.mrate = 0.7
+        uab.mrate = 0.8
         uab.freq = 60
         sig = uab.search()
         if sig:

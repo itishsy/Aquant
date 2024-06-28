@@ -72,7 +72,7 @@ class Engine(ABC):
                 need_search = True
             elif run_end_time.year != now.year or run_end_time.month != now.month or run_end_time.day != now.day:
                 need_search = True
-            elif now.weekday() < 5 and run_end_time.hour < 16:
+            elif now.weekday() < 5 and run_end_time.hour < 16 and now.hour > 16:
                 need_search = True
 
         if not need_search:
@@ -98,6 +98,7 @@ class Engine(ABC):
                 if sig:
                     sig.code = co
                     sig.strategy = self.strategy
+                    sig.stage = 'choice'
                     sig.upset()
             except Exception as e:
                 print(e)
@@ -116,7 +117,8 @@ class Engine(ABC):
                                                                                         self.strategy,
                                                                                         (0 if sig is None else 1)))
                     if sig:
-                        new_status = Choice.Status.KICK
+                        sig.stage = 'sell'
+                        new_status = Choice.Status.DONE
                 else:
                     sig = self.find_out_signal(cho)
                     print(
@@ -124,6 +126,7 @@ class Engine(ABC):
                                                                                        self.strategy,
                                                                                        (0 if sig is None else 1)))
                     if sig:
+                        sig.stage = 'out'
                         new_status = Choice.Status.DISUSE
                     else:
                         sig = self.find_buy_signal(cho)
@@ -131,6 +134,7 @@ class Engine(ABC):
                                                                                              self.strategy,
                                                                                              (0 if sig is None else 1)))
                         if sig:
+                            sig.stage = 'buy'
                             new_status = Choice.Status.DEAL
                 if sig and not Signal.select().where(Signal.code == cho.code, Signal.freq == sig.freq,
                                                      Signal.dt == sig.dt).exists():
@@ -141,7 +145,7 @@ class Engine(ABC):
                     sig.save()
                     if new_status == Choice.Status.DEAL:
                         cho.bid = sig.id
-                    elif new_status == Choice.Status.KICK:
+                    elif new_status == Choice.Status.DONE:
                         cho.sid = sig.id
                     else:
                         cho.oid = sig.id

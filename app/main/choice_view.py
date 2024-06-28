@@ -27,12 +27,20 @@ def choice_list():
 
     # 查询列表
     today = request.args.get('today')
+    status = request.args.get('status')
     if today and today != 'None':
         last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
-        query = Choice.select().where(Choice.created >= last_day)
+        if status:
+            query = Choice.select().where(Choice.created >= last_day, Choice.status == status)
+        else:
+            query = Choice.select().where(Choice.created >= last_day)
         total_count = query.count()
     else:
-        query = Choice.select().where(Choice.status.in_([Choice.Status.WATCH, Choice.Status.DEAL])).order_by(Choice.created.desc())
+        if status:
+            query = Choice.select().where(Choice.status == status).order_by(
+                Choice.created.desc())
+        else:
+            query = Choice.select().where(Choice.status.in_([Choice.Status.WATCH, Choice.Status.DEAL])).order_by(Choice.created.desc())
         total_count = query.count()
 
     # 处理分页
