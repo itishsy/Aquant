@@ -57,7 +57,7 @@ class U60(Engine):
         dt15 = diver_top(cds15)
         if len(dt15) > 0:
             sig = dt15[-1]
-            sig.type = 'diver_top'
+            sig.type = 'diver-top'
             return sig
 
         cds60 = find_candles(code=cho.code, freq=60, begin=sig15.dt)
