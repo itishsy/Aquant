@@ -36,7 +36,7 @@ class U30(Engine):
                     return sig5
 
     def find_out_signal(self, cho: Choice):
-        if cho.cid is None:
+        if cho.cid is None or cho.cid == 0:
             return
         sig30 = Signal.get(Signal.id == cho.cid)
         cds = find_candles(cho.code, begin=sig30.dt)

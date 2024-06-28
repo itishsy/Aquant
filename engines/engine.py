@@ -50,7 +50,7 @@ class Engine(ABC):
                 need_start = True
             elif run_end_time.year != now.year or run_end_time.month != now.month or run_end_time.day != now.day:
                 need_start = True
-            elif now.weekday() < 5 and run_end_time.hour < 16:
+            elif now.weekday() < 5 and run_end_time.hour < 16 and now.hour > 16:
                 freq = [30, 60]
                 need_start = True
         if need_start:
