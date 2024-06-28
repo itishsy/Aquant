@@ -23,18 +23,18 @@
         <div class="box-body">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>编码</label>
+                    <label>名称</label>
                     {% if choice.code.startswith('60') %}
-                    <a href="http://xueqiu.com/S/SH{{choice.code}}">{{choice.code}}</a>
+                    <a href="http://xueqiu.com/S/SH{{choice.code}}">{{choice.name}}</a>
                     {% else %}
-                    <a href="http://xueqiu.com/S/SZ{{choice.code}}">{{choice.code}}</a>
+                    <a href="http://xueqiu.com/S/SZ{{choice.code}}">{{choice.name}}</a>
                     {% endif %}
                 </div>
             </div>
-             <div class="col-md-6">
+            <div class="col-md-6">
                 <div class="form-group">
-                    <label>名称</label>
-                    <span>{{choice.name}}</span>
+                    <label>引擎</label>
+                    <span>{{cs.strategy}}</span>
                 </div>
             </div>
             <div class="col-md-6">
@@ -51,28 +51,22 @@
                 {% endif %}
                 </div>
             </div>
-        </div>
-        <div class="container">
-          <h4>入选信号</h4>
-          <hr>
-        </div>
-        <div class="box-body">
             <div class="col-md-12">
                 <div class="form-group">
-                    <label>时间</label>
+                    <label>入选时间</label>
                     <span>{{cs.dt}}</span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>信号</label>
-                    <span>{{cs.strategy}} - {{cs.freq}}</span>
+                    <label>入选级别</label>
+                    <span>{{cs.freq}}</span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label>价格</label>
-                    <span>{{cs.price}}</span>
+                    <span>{{'{:.2f}'.format(cs.price)}}</span>
                 </div>
             </div>
         </div>
