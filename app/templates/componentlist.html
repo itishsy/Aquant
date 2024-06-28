@@ -49,15 +49,24 @@
             {% endif %}
                 <td>
             {% if row.name == 'fetcher' %}
-                <a class='btn btn-sm btn-default' href='{{ url_for("main.start_engine", name=row.name, act="fetch") }}'>start</a>
+                <div class="btn-group btn-group-sm d-inline">
+                    <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        start <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="candle") }}'>candle</a></li>
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="symbol") }}'>symbol</a></li>
+                    </ul>
+                </div>
             {% elif row.name == 'engine' %}
                 <div class="btn-group btn-group-sm d-inline">
                     <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         start <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="engine_task") }}'>task</a></li>
-                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="engine_init") }}'>init</a></li>
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="search") }}'>search_all</a></li>
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="watch") }}'>watch_all</a></li>
+                        <li><a class="dropdown-item" href='{{ url_for("main.start_engine", name=row.name, act="init") }}'>init</a></li>
                     </ul>
                 </div>
             {% else %}
