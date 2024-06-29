@@ -25,15 +25,9 @@ class U30(Engine):
         if cho.cid is None:
             return
 
-        sig30 = Signal.get(Signal.id == cho.cid)
-        if sig30:
-            cds = self.fetch_candles(code=cho.code, freq=5, begin=sig30.dt)
-            db5 = diver_bottom(cds)
-            if len(db5) > 0:
-                sig5 = db5[-1]
-                if sig5.price > sig30.price:
-                    sig5.type = 'diver-bottom'
-                    return sig5
+        c_sig = Signal.get(Signal.id == cho.cid)
+        if c_sig:
+            return self.common_buy_point(c_sig, 5)
 
     def find_out_signal(self, cho: Choice):
         if cho.cid is None or cho.cid == 0:

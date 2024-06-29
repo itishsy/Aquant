@@ -6,7 +6,8 @@ from common.utils import *
 from models.component import Component, COMPONENT_TYPE
 import candles.fetcher as fet
 import candles.marker as mar
-from signals.divergence import diver_top
+from signals.divergence import diver_bottom, diver_top
+from candles.storage import find_candles
 
 
 strategy = {}
@@ -182,6 +183,18 @@ class Engine(ABC):
             return False
 
         return True
+
+    def common_buy_point(self, c_sig, b_freq):
+        if b_freq > 15:
+            cds = find_candles(code=c_sig.code, freq=b_freq)
+        else:
+            cds = self.fetch_candles(code=c_sig.code, freq=b_freq)
+        dbs = diver_bottom(cds)
+        if dbs:
+            b_sig = dbs[-1]
+            if b_sig.dt > c_sig.dt and b_sig.price > c_sig.price:
+                b_sig.type = 'diver-bottom'
+                return b_sig
 
     @abstractmethod
     def find_choice_signal(self, code):

@@ -71,7 +71,7 @@ def double_merge(candles, freq):
     return double_candles
 
 
-def fetch_data(code, freq, begin, l_candle=None) -> List[Candle]:
+def fetch_data(code, freq, begin=None, l_candle=None) -> List[Candle]:
     if begin:
         beg = dt_format(begin, '%Y%m%d')
     else:
