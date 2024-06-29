@@ -9,12 +9,14 @@ import signals.utils as utl
 
 @strategy_engine
 class P30(Engine):
+    def __int__(self):
+        self.engine = Pab()
 
     def find_choice_signal(self, code):
-        pab = Pab()
-        pab.code = code
-        pab.freq = 30
-        sig = pab.search()
+        # pab = Pab()
+        self.engine.code = code
+        # pab.freq = 30
+        sig = self.engine.search()
         if sig:
             sig.type = 'diver-bottom'
         return sig
@@ -30,18 +32,11 @@ class P30(Engine):
     def find_out_signal(self, cho: Choice):
         if cho.cid is None:
             return
-        sig30 = Signal.get(Signal.id == cho.cid)
-        cds = find_candles(cho.code, begin=sig30.dt)
-        # 超时不出b_signal
-        if len(cds) > 10:
-            return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=cds[-1].dt, type='timeout')
-        lowest = utl.get_lowest(cds)
-        # 快慢线均回落到0轴之下
-        if lowest.dea9 < 0 and lowest.diff() < 0:
-            return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=lowest.dt, type='lowest')
-        # c_signal跌破最低价
-        if lowest and lowest.low < sig30.price:
-            return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=lowest.dt, type='damage')
+        c_sig = Signal.get(Signal.id == cho.cid)
+
+        o_sig = self.engine.out(c_sig, timeout=10)
+        if o_sig:
+            return o_sig
 
     def find_sell_signal(self, cho):
         if cho.bid is None:

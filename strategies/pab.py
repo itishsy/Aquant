@@ -4,10 +4,9 @@ from signals.divergence import diver_bottom
 
 
 class Pab:
-
-    def __int__(self, code, freq=30):
-        self.code = code
+    def __int__(self, freq, code):
         self.freq = freq
+        self.code = code
 
     def search(self):
         candles = find_candles(self.code)
@@ -36,4 +35,28 @@ class Pab:
             dbs = diver_bottom(cds)
             if len(dbs) > 0:
                 return dbs[-1]
+
+    def out(self, c_sig, timeout=None):
+        cds = find_candles(self.code, begin=c_sig.dt)
+
+        if timeout and len(cds) > timeout:
+            sig = c_sig
+            sig.dt = cds[-1].dt
+            sig.type = 'timeout'
+            return sig
+
+        for cd in cds:
+            if cd.low < c_sig.price:
+                sig = c_sig
+                sig.dt = cd.dt
+                sig.type = 'damage-lowest'
+                return sig
+            if cd.dea9 < 0 and cd.diff() < 0:
+                sig = c_sig
+                sig.dt = cd.dt
+                sig.type = 'damage-axis'
+                return sig
+
+    def sell_point(self):
+
 
