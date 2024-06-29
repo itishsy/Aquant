@@ -195,11 +195,12 @@ class Engine(ABC):
         return True
 
     @staticmethod
-    def common_buy_point(self, c_sig, b_freq):
+    def common_buy_point(c_sig, b_freq):
         if b_freq > 15:
             cds = find_candles(code=c_sig.code, freq=b_freq)
         else:
-            cds = self.fetch_candles(code=c_sig.code, freq=b_freq)
+            candles = fet.fetch_data(c_sig.code, b_freq)
+            cds = mar.mark(candles=candles)
         dbs = diver_bottom(cds)
         if dbs:
             b_sig = dbs[-1]
