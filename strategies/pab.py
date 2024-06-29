@@ -1,15 +1,16 @@
 from candles.storage import find_candles
 import signals.utils as utl
-from signals.divergence import diver_bottom
+from signals.divergence import diver_bottom, diver_top
+import candles.fetcher as fet
+import candles.marker as mar
+from models.signal import Signal
 
 
 class Pab:
-    def __int__(self, freq, code):
-        self.freq = freq
-        self.code = code
 
-    def search(self):
-        candles = find_candles(self.code)
+    @staticmethod
+    def search(code, freq):
+        candles = find_candles(code)
         size = len(candles)
 
         # 至少100根
@@ -31,32 +32,19 @@ class Pab:
         if cross0.mark == -1 and cross0.diff() > 0 and cross0.dea9 > 0:
             print('last golden above 0 axis')
             # 底背离
-            cds = find_candles(self.code, freq=self.freq, begin=cross0.dt)
+            cds = find_candles(code, freq=freq, begin=cross0.dt)
             dbs = diver_bottom(cds)
             if len(dbs) > 0:
                 return dbs[-1]
 
-    def out(self, c_sig, timeout=None):
-        cds = find_candles(self.code, begin=c_sig.dt)
+    @staticmethod
+    def buy_point(c_sig: Signal, b_freq):
+        pass
 
-        if timeout and len(cds) > timeout:
-            sig = c_sig
-            sig.dt = cds[-1].dt
-            sig.type = 'timeout'
-            return sig
+    @staticmethod
+    def sell_point(c_sig: Signal, b_sig: Signal):
+        pass
 
-        for cd in cds:
-            if cd.low < c_sig.price:
-                sig = c_sig
-                sig.dt = cd.dt
-                sig.type = 'damage-lowest'
-                return sig
-            if cd.dea9 < 0 and cd.diff() < 0:
-                sig = c_sig
-                sig.dt = cd.dt
-                sig.type = 'damage-axis'
-                return sig
-
-    def sell_point(self):
-
-
+    @staticmethod
+    def out(c_sig, timeout=None):
+        pass

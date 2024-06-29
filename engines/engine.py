@@ -8,6 +8,7 @@ import candles.fetcher as fet
 import candles.marker as mar
 from signals.divergence import diver_bottom, diver_top
 from candles.storage import find_candles
+import signals.utils as utl
 
 
 strategy = {}
@@ -110,33 +111,38 @@ class Engine(ABC):
                                     Choice.strategy ** '{}%'.format(self.strategy))
         for cho in chs:
             try:
-                new_status = None
-                if cho.status == Choice.Status.DEAL:
-                    sig = self.find_sell_signal(cho)
-                    print(
-                        '[{0}] find {1} sell signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
-                                                                                        self.strategy,
-                                                                                        (0 if sig is None else 1)))
-                    if sig:
-                        sig.stage = 'sell'
-                        new_status = Choice.Status.DONE
-                else:
-                    sig = self.find_out_signal(cho)
+                if not cho.cid:
+                    continue
+
+                c_sig = Signal.get(Signal.id == cho.cid)
+                sig = None
+                if not cho.bid:
+                    sig = self.find_out_signal(c_sig)
                     print(
                         '[{0}] find {1} out signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
                                                                                        self.strategy,
-                                                                                       (0 if sig is None else 1)))
+                                                                                       (0 if sig else 1)))
+
                     if sig:
                         sig.stage = 'out'
-                        new_status = Choice.Status.DISUSE
                     else:
-                        sig = self.find_buy_signal(cho)
+                        sig = self.find_buy_signal(c_sig)
                         print('[{0}] find {1} buy signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
                                                                                              self.strategy,
-                                                                                             (0 if sig is None else 1)))
+                                                                                             (0 if sig else 1)))
+
                         if sig:
                             sig.stage = 'buy'
-                            new_status = Choice.Status.DEAL
+                else:
+                    b_sig = Signal.get(Signal.id == cho.bid)
+                    sig = self.find_sell_signal(c_sig, b_sig)
+                    print(
+                        '[{0}] find {1} sell signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
+                                                                                        self.strategy,
+                                                                                        (0 if sig else 1)))
+                    if sig:
+                        sig.stage = 'sell'
+
                 if sig and not Signal.select().where(Signal.code == cho.code, Signal.freq == sig.freq,
                                                      Signal.dt == sig.dt).exists():
                     sig.code = cho.code
@@ -144,16 +150,20 @@ class Engine(ABC):
                     sig.strategy = self.strategy
                     sig.created = datetime.now()
                     sig.save()
-                    if new_status == Choice.Status.DEAL:
-                        cho.bid = sig.id
-                    elif new_status == Choice.Status.DONE:
-                        cho.sid = sig.id
-                    else:
+                    print('[{0}] add a {3} signal({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy,
+                                                                               sig.stage))
+
+                    if sig.stage == 'out':
                         cho.oid = sig.id
-                    cho.status = new_status
+                        cho.status = Choice.Status.DISUSE
+                    elif sig.stage == 'buy':
+                        cho.bid = sig.id
+                        cho.status = Choice.Status.DEAL
+                    else:
+                        cho.sid = sig.id
+                        cho.status = Choice.Status.DONE
                     cho.updated = datetime.now()
                     cho.save()
-                    print('[{0}] add a buy signal({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy))
             except Exception as e:
                 print('[{0}] {1} watch error -- {2} '.format(datetime.now(), cho.code, e))
 
@@ -184,6 +194,7 @@ class Engine(ABC):
 
         return True
 
+    @staticmethod
     def common_buy_point(self, c_sig, b_freq):
         if b_freq > 15:
             cds = find_candles(code=c_sig.code, freq=b_freq)
@@ -196,18 +207,65 @@ class Engine(ABC):
                 b_sig.type = 'diver-bottom'
                 return b_sig
 
+    @staticmethod
+    def common_sell_point(c_sig: Signal, b_freq):
+        # 次级别顶背离
+        if b_freq > 15:
+            cds = find_candles(code=c_sig.code, freq=b_freq)
+        else:
+            candles = fet.fetch_data(c_sig.code, b_freq)
+            cds = mar.mark(candles=candles)
+        dbs = diver_top(cds)
+        if len(dbs) > 0:
+            sig = dbs[-1]
+            sig.type = 'diver-top'
+            return sig
+
+        # 长上影线
+        cds1 = find_candles(code=c_sig.code, begin=c_sig.dt)
+        highest = utl.get_highest(cds1)
+        if utl.is_upper_shadow(highest):
+            return Signal(code=c_sig.code, name=c_sig.name, freq=c_sig.freq, dt=highest.dt, type='up-shadow')
+
+        cds2 = find_candles(code=c_sig.code, freq=c_sig.freq, begin=c_sig.dt)
+        cross = utl.get_cross(cds2)
+        if cross[-1].mark == 1:
+            return Signal(code=c_sig.code, name=c_sig.name, freq=c_sig.freq, dt=cross[-1].dt, type='cross-down')
+
+    @staticmethod
+    def common_out(c_sig, timeout=None):
+        cds = find_candles(c_sig.code, begin=c_sig.dt)
+
+        if timeout and len(cds) > timeout:
+            sig = c_sig
+            sig.dt = cds[-1].dt
+            sig.type = 'timeout'
+            return sig
+
+        for cd in cds:
+            if cd.low < c_sig.price:
+                sig = c_sig
+                sig.dt = cd.dt
+                sig.type = 'damage-lowest'
+                return sig
+            if cd.dea9 < 0 and cd.diff() < 0:
+                sig = c_sig
+                sig.dt = cd.dt
+                sig.type = 'damage-axis'
+                return sig
+
     @abstractmethod
     def find_choice_signal(self, code):
         pass
 
     @abstractmethod
-    def find_buy_signal(self, cho: Choice):
+    def find_buy_signal(self, c_sig: Signal):
         pass
 
     @abstractmethod
-    def find_out_signal(self, cho: Choice):
+    def find_out_signal(self, c_sig: Signal):
         pass
 
     @abstractmethod
-    def find_sell_signal(self, cho: Choice):
+    def find_sell_signal(self, c_sig: Signal, b_sig: Signal):
         pass

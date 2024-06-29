@@ -8,54 +8,26 @@ import signals.utils as utl
 
 
 @strategy_engine
-class U30(Engine):
+class U30(Engine, Uab):
 
     def find_choice_signal(self, code):
-        uab = Uab()
-        uab.code = code
-        uab.ma = 30
-        uab.mrate = 0.7
-        uab.freq = 30
-        sig = uab.search()
+        sig = self.search(code=code, freq=30, mfreq=30, mrate=0.7)
         if sig:
             sig.type = 'diver-bottom'
         return sig
 
-    def find_buy_signal(self, cho):
-        if cho.cid is None:
-            return
+    def find_buy_signal(self, c_sig: Signal):
+        sig = self.common_buy_point(c_sig, 5)
+        if not sig:
+            return self.buy_point(c_sig, 5)
 
-        c_sig = Signal.get(Signal.id == cho.cid)
-        if c_sig:
-            return self.common_buy_point(c_sig, 5)
+    def find_out_signal(self, c_sig: Signal):
+        sig = self.common_out(c_sig, timeout=10)
+        if not sig:
+            return self.out(c_sig, timeout=10)
 
-    def find_out_signal(self, cho: Choice):
-        if cho.cid is None or cho.cid == 0:
-            return
-        sig30 = Signal.get(Signal.id == cho.cid)
-        cds = find_candles(cho.code, begin=sig30.dt)
-        # 超时不出b_signal
-        if len(cds) > 10:
-            return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=cds[-1].dt, type='timeout')
-        # c_signal破坏
-        lowest = utl.get_lowest(cds)
-        if lowest and lowest.low < sig30.price:
-            return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=cds[-1].dt, type='damage')
-
-    def find_sell_signal(self, cho):
-        if cho.bid is None:
-            return
-        sig5 = Signal.get(Signal.id == cho.bid)
-
-        cds5 = self.fetch_candles(code=cho.code, freq=5, begin=sig5.dt)
-        dt5 = diver_top(cds5)
-        if len(dt5) > 0:
-            sig = dt5[-1]
-            sig.type = 'diver-top'
-            return sig
-
-        cds30 = find_candles(code=cho.code, freq=30, begin=sig5.dt)
-        highest = utl.get_highest(cds30)
-        if utl.is_upper_shadow(highest):
-            return Signal(code=cho.code, name=cho.name, freq=sig5.freq, dt=highest.dt, type='shadow')
-
+    def find_sell_signal(self, c_sig: Signal, b_sig: Signal):
+        sig = self.common_sell_point(c_sig, b_sig.freq)
+        if not sig:
+            sig = self.sell_point(c_sig, b_sig)
+        return sig
