@@ -72,22 +72,6 @@ class Uab:
         pass
 
     @staticmethod
-    def out(c_sig, timeout=None):
-        cds = find_candles(c_sig.code, begin=c_sig.dt)
-
-        if timeout and len(cds) > timeout:
-            sig = c_sig
-            sig.dt = cds[-1].dt
-            sig.type = 'timeout'
-            return sig
-
-        cds = find_candles(cho.code, begin=sig30.dt)
-        # 超时不出b_signal
-        if len(cds) > 10:
-            return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=cds[-1].dt, type='timeout')
-        # c_signal破坏
-        lowest = utl.get_lowest(cds)
-        if lowest and lowest.low < sig30.price:
-            return Signal(code=cho.code, name=cho.name, freq=sig30.freq, dt=cds[-1].dt, type='damage')
-
+    def out(c_sig):
+        pass
 

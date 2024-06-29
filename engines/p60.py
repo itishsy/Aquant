@@ -28,7 +28,7 @@ class P60(Engine, Pab):
     def find_out_signal(self, c_sig: Signal):
         sig = self.common_out(c_sig, timeout=20)
         if not sig:
-            sig = self.out(c_sig, timeout=20)
+            sig = self.out(c_sig)
         return sig
 
     def find_sell_signal(self, c_sig: Signal, b_sig: Signal):

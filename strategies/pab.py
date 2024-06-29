@@ -46,5 +46,11 @@ class Pab:
         pass
 
     @staticmethod
-    def out(c_sig, timeout=None):
-        pass
+    def out(c_sig):
+        cds = find_candles(c_sig.code, begin=c_sig.dt)
+        for cd in cds:
+            if cd.dea9 < 0 and cd.diff() < 0:
+                sig = c_sig
+                sig.dt = cd.dt
+                sig.type = 'damage-axis'
+                return sig

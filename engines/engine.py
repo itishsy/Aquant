@@ -248,11 +248,6 @@ class Engine(ABC):
                 sig.dt = cd.dt
                 sig.type = 'damage-lowest'
                 return sig
-            if cd.dea9 < 0 and cd.diff() < 0:
-                sig = c_sig
-                sig.dt = cd.dt
-                sig.type = 'damage-axis'
-                return sig
 
     @abstractmethod
     def find_choice_signal(self, code):
