@@ -51,17 +51,15 @@ class Uab:
         if len(dts) > 0:
             return
 
-        # 底背离
+        # 出现底背离
         cds = find_candles(code, freq=freq, begin=highest.dt)
         dbs = diver_bottom(cds)
-        if len(dbs) == 0:
-            return
-
-        sig = dbs[-1]
-        sec = utl.get_section(cds, sig.dt, candles[-1].dt)
-        sec_lowest = utl.get_lowest(sec)
-        if sec_lowest.dt == sig.dt:
-            return sig
+        if len(dbs) > 0:
+            sig = dbs[-1]
+            sec = utl.get_section(cds, sig.dt, candles[-1].dt)
+            sec_lowest = utl.get_lowest(sec)
+            if sec_lowest.dt == sig.dt:
+                return sig
 
     @staticmethod
     def buy_point(c_sig: Signal, b_freq):
