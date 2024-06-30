@@ -20,7 +20,7 @@
                     <div class="inner">
                         <a style="color: yellow"  href="{{ url_for('main.choice_list',status=2) }}"><h3 id="tr_size">0</h3></a>
                         <p>trading（today:<a href="{{ url_for('main.choice_list',status=2,today=1) }}">
-                        <span id="tr_today_size">0</span>）</a></p>
+                        <span id="tr_today_size">0</span></a>）</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-ios-gear-outline"></i>
@@ -31,8 +31,8 @@
                 <div class="small-box bg-gray">
                     <div class="inner">
                         <a style="color: white" href="{{ url_for('main.choice_list') }}"><h3 id="c_size">0</h3></a>
-                        <p>choice pool（today:<a href="{{ url_for('main.choice_list',today=1) }}">
-                        <span id="c_today_size">0</span>）</a></p>
+                        <p>choice（today:<a href="{{ url_for('main.choice_list',today=1) }}">
+                        <span id="c_today_size">0</span></a>）</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-iphone"></i>
@@ -44,7 +44,7 @@
                     <div class="inner">
                         <a style="color: white" href="{{ url_for('main.signallist',today=1 ) }}"><h3 id="s_today_size">0</h3></a>
                         <p>today signals（weekly:<a style="color: yellow" href="{{ url_for('main.signallist') }}">
-                        <span id="s_size">0</span>）</a></p>
+                        <span id="s_size">0</span></a>）</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-pie-graph"></i>
@@ -56,7 +56,7 @@
                     <div class="inner">
                         <a style="color: yellow" href="{{ url_for('main.ticket_list',today=1) }}"><h3 id="ti_today_size">0</h3></a>
                         <p>今日票据（總數:<a style="color: yellow" href="{{ url_for('main.ticket_list' ) }}">
-                        <span id="ti_size">0</span>）</a></p>
+                        <span id="ti_size">0</span></a>）</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-person-add"></i>

@@ -28,9 +28,12 @@ class Pab:
         if crs[-1].mark != 1:
             return
 
+        dts = diver_top(candles)
+        if len(dts) > 0:
+            return
+
         cross0 = crs[-2:][0]
         if cross0.mark == -1 and cross0.diff() > 0 and cross0.dea9 > 0:
-            print('last golden above 0 axis')
             # 底背离
             cds = find_candles(code, freq=freq, begin=cross0.dt)
             dbs = diver_bottom(cds)

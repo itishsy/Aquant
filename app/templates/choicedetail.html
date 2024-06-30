@@ -21,7 +21,7 @@
         </div>
 
         <div class="box-body">
-            <div class="col-md-6">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label>名称</label>
                     {% if choice.code.startswith('60') %}
@@ -31,13 +31,25 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
                 <div class="form-group">
-                    <label>引擎</label>
+                    <label>策略</label>
                     <span>{{cs.strategy}}</span>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>时间</label>
+                    <span>{{cs.dt}}</span>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>价格</label>
+                    <span>{{'{:.2f}'.format(cs.price)}}</span>
+                </div>
+            </div>
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label>状态</label>
                 {% if choice.status == 0 %}
@@ -51,113 +63,101 @@
                 {% endif %}
                 </div>
             </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label>入选时间</label>
-                    <span>{{cs.dt}}</span>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>入选级别</label>
-                    <span>{{cs.freq}}</span>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>价格</label>
-                    <span>{{'{:.2f}'.format(cs.price)}}</span>
-                </div>
-            </div>
         </div>
+                {% if bs %}
         <div class="container">
           <h4>买入信号</h4>
           <hr>
         </div>
-                {% if bs %}
         <div class="box-body">
-            <div class="col-md-12">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label>时间</label>
                     <span>{{bs.dt}}</span>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
                 <div class="form-group">
-                    <label>信号</label>
+                    <label>级别</label>
                     <span>{{bs.freq}}</span>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label>价格</label>
-                    <span>{{bs.price}}</span>
+                    <span>{{'{:.2f}'.format(bs.price)}}</span>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>类型</label>
+                    <span>{{bs.type}}</span>
                 </div>
             </div>
         </div>
-                {% else %}
-        <div class="box-body">
-             <label>无</label>
-        </div>
                 {% endif %}
+                {% if ss %}
         <div class="container">
           <h4>卖出信号</h4>
           <hr>
         </div>
-                {% if ss %}
         <div class="box-body">
-            <div class="col-md-12">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label>时间</label>
                     <span>{{ss.dt}}</span>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
                 <div class="form-group">
-                    <label>信号</label>
+                    <label>级别</label>
                     <span>{{ss.freq}}</span>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label>价格</label>
-                    <span>{{ss.price}}</span>
+                    <span>{{'{:.2f}'.format(ss.price)}}</span>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>类型</label>
+                    <span>{{ss.type}}</span>
                 </div>
             </div>
         </div>
-                {% else %}
-        <div class="box-body">
-             <label>无</label>
-        </div>
                 {% endif %}
+                {% if os %}
         <div class="container">
           <h4>出局信号</h4>
           <hr>
         </div>
-                {% if os %}
         <div class="box-body">
-            <div class="col-md-12">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label>时间</label>
                     <span>{{os.dt}}</span>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
                 <div class="form-group">
-                    <label>信号</label>
+                    <label>级别</label>
                     <span>{{os.freq}}</span>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label>价格</label>
-                    <span>{{os.price}}</span>
+                    <span>{{'{:.2f}'.format(os.price)}}</span>
                 </div>
             </div>
-        </div>
-                {% else %}
-        <div class="box-body">
-             <label>无</label>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>类型</label>
+                    <span>{{os.type}}</span>
+                </div>
+            </div>
         </div>
                 {% endif %}
         <div class="box-footer">

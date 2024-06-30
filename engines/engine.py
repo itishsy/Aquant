@@ -3,7 +3,7 @@ from models.choice import Choice
 from models.symbol import Symbol
 from models.signal import Signal
 from common.utils import *
-from models.component import Component, COMPONENT_TYPE
+from models.component import Component
 import candles.fetcher as fet
 import candles.marker as mar
 from signals.divergence import diver_bottom, diver_top
@@ -41,52 +41,45 @@ class Engine(ABC):
             print(e)
 
     @staticmethod
-    def start_fetch():
+    def need_start(comp: Component):
+        now = datetime.now()
+        if comp.status == Component.Status.READY:
+            run_end_time = comp.run_end
+            if run_end_time is None or not isinstance(run_end_time, datetime):
+                return True
+            if run_end_time.year != now.year or run_end_time.month != now.month or run_end_time.day != now.day:
+                return True
+            if now.weekday() < 5 and run_end_time.hour < 16 and now.hour > 16:
+                return True
+        return False
+
+    def start_fetch(self):
         freq = [101, 120, 60, 30]
         now = datetime.now()
         fetcher = Component.get(Component.name == 'fetcher')
-        need_start = False
-        if fetcher.status == Component.Status.READY:
-            run_end_time = fetcher.run_end
-            if run_end_time is None or not isinstance(run_end_time, datetime):
-                need_start = True
-            elif run_end_time.year != now.year or run_end_time.month != now.month or run_end_time.day != now.day:
-                need_start = True
-            elif now.weekday() < 5 and run_end_time.hour < 16 and now.hour > 16:
-                freq = [30, 60]
-                need_start = True
-        if need_start:
+        if self.need_start(fetcher):
             fetcher.status = Component.Status.RUNNING
             fetcher.run_start = datetime.now()
             fetcher.save()
-            fet.fetch_all(freq=freq)
+            if now.weekday() == 5:
+                Symbol.fetch()
+                fet.fetch_all(freq=freq, clean=True)
+            else:
+                fet.fetch_all(freq=freq)
             fetcher.status = Component.Status.READY
             fetcher.run_end = datetime.now()
             fetcher.save()
 
     def start_search(self):
-        now = datetime.now()
         eng = Component.get(Component.name == self.strategy)
-        need_search = False
-        if eng.status == Component.Status.READY:
-            run_end_time = eng.run_end
-            if run_end_time is None or not isinstance(run_end_time, datetime):
-                need_search = True
-            elif run_end_time.year != now.year or run_end_time.month != now.month or run_end_time.day != now.day:
-                need_search = True
-            elif now.weekday() < 5 and run_end_time.hour < 16 and now.hour > 16:
-                need_search = True
-
-        if not need_search:
-            return
-
-        eng.status = Component.Status.RUNNING
-        eng.run_start = datetime.now()
-        eng.save()
-        self.do_search()
-        eng.status = Component.Status.READY
-        eng.run_end = datetime.now()
-        eng.save()
+        if self.need_start(eng):
+            eng.status = Component.Status.RUNNING
+            eng.run_start = datetime.now()
+            eng.save()
+            self.do_search()
+            eng.status = Component.Status.READY
+            eng.run_end = datetime.now()
+            eng.save()
 
     def do_search(self):
         count = 0
@@ -166,12 +159,6 @@ class Engine(ABC):
                     cho.save()
             except Exception as e:
                 print('[{0}] {1} watch error -- {2} '.format(datetime.now(), cho.code, e))
-
-    @staticmethod
-    def fetch_candles(code, freq, begin=None):
-        candles = fet.fetch_data(code, freq, begin)
-        candles = mar.mark(candles=candles)
-        return candles
 
     @staticmethod
     def common_filter(candles):

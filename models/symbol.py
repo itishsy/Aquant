@@ -85,5 +85,5 @@ class Symbol(BaseModel):
 if __name__ == '__main__':
     db.connect()
     db.create_tables([Symbol])
-    Symbol.fetch()
+
 

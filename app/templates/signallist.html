@@ -22,9 +22,10 @@
         <table class="table table-bordered">
             <tr>
                 <th style="display: none" >ID</th>
-                <th>编码</th>
+                <th>名称</th>
                 <th>信号</th>
-                <th>信号时间</th>
+                <th>时间</th>
+                <th>类型</th>
             </tr>
             {% for row in form.content %}
 
@@ -39,6 +40,7 @@
                 </td>
                 <td>{{row.strategy}}-{{row.freq}}</td>
                 <td>{{row.dt}}</td>
+                <td>{{row.type}}</td>
             </tr>
             {% endfor %}
         </table>

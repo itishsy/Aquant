@@ -1,9 +1,7 @@
-from datetime import datetime, timedelta
 from models.base import BaseModel, db
 from flask_peewee.db import CharField, IntegerField, DateTimeField
 
 
-# 通知
 class Component(BaseModel):
     name = CharField()  # 名称
     clock_time = DateTimeField()  # 最近打卡时间
@@ -15,13 +13,6 @@ class Component(BaseModel):
         STOP = 0  # 停用
         READY = 1  # 就绪
         RUNNING = 2  # 运行中
-
-
-class COMPONENT_TYPE:
-    FETCHER = 'fetcher'
-    SENDER = 'sender'
-    SEARCHER = '{0}_searcher'
-    WATCHER = '{0}_watcher'
 
 
 if __name__ == '__main__':

@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from models.signal import Signal
 from models.symbol import Symbol
 from common.utils import *
-from models.component import Component, COMPONENT_TYPE
 import candles.fetcher as fet
 from candles.candle import Candle
 from typing import List
