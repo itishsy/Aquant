@@ -39,7 +39,7 @@
                     <a href='{{ url_for("main.signaledit", id=row.id) }}'>{{row.name}}</a>
                 </td>
                 <td>{{row.strategy}}-{{row.freq}}</td>
-                <td>{{row.dt.[5:]}}</td>
+                <td>{{ row.dt }}</td>
                 <td>{{row.type}}</td>
             </tr>
             {% endfor %}
