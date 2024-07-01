@@ -114,7 +114,7 @@ class Engine(ABC):
                     print(
                         '[{0}] find {1} out signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
                                                                                        self.strategy,
-                                                                                       (0 if sig else 1)))
+                                                                                       (0 if sig is None else 1)))
 
                     if sig:
                         sig.stage = 'out'
@@ -122,7 +122,7 @@ class Engine(ABC):
                         sig = self.find_buy_signal(c_sig)
                         print('[{0}] find {1} buy signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
                                                                                              self.strategy,
-                                                                                             (0 if sig else 1)))
+                                                                                             (0 if sig is None else 1)))
 
                         if sig:
                             sig.stage = 'buy'
@@ -132,7 +132,7 @@ class Engine(ABC):
                     print(
                         '[{0}] find {1} sell signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
                                                                                         self.strategy,
-                                                                                        (0 if sig else 1)))
+                                                                                        (0 if sig is None else 1)))
                     if sig:
                         sig.stage = 'sell'
 
@@ -198,7 +198,7 @@ class Engine(ABC):
     @staticmethod
     def common_sell_point(c_sig: Signal, b_freq):
         # 次级别顶背离
-        if b_freq > 15:
+        if int(b_freq) > 15:
             cds = find_candles(code=c_sig.code, freq=b_freq)
         else:
             candles = fet.fetch_data(c_sig.code, b_freq)
