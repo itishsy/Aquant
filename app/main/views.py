@@ -91,27 +91,33 @@ def index():
 @main.route('/api/stats/summary', methods=['GET'])
 @login_required
 def summary():
-    c_size = Choice.select().where(Choice.status.in_([Choice.Status.WATCH, Choice.Status.DEAL])).count()
+
+    # choice
+    c_size = Choice.select().where(Choice.status.in_([Choice.Status.WATCH])).count()
     today = now_ymd()
     if today.weekday() == 5:
         today = today - timedelta(days=1)
     elif today.weekday() == 6:
         today = today - timedelta(days=2)
-
     c_today_size = Choice.select().where(Choice.created >= today).count()
-    ti_size = 0     # Ticket.select().where(Ticket.status < Ticket.Status.DONE).count()
-    ti_today_size = 0   # Ticket.select().where(Ticket.created >= today).count()
-    s_size = Signal.select(Signal.created >= (today - timedelta(days=7))).count()
-    s_today_size = Signal.select().where(Signal.created >= today).count()
-    tr_size = Choice.select().where(Choice.status == Choice.Status.DEAL).count()     # Trade.select().where(Trade.status > 0).count()
-    tr_today_size = Choice.select().where(Choice.status == Choice.Status.DEAL, Choice.updated > today).count()    # Trade.select().where(Trade.status > 0, Trade.created > today).count()
+
+    # buy point
+    b_size = Choice.select().where(Choice.status == Choice.Status.DEAL).count()     # Ticket.select().where(Ticket.status < Ticket.Status.DONE).count()
+    b_today_size = Choice.select().where(Choice.status == Choice.Status.DEAL).count()     # Ticket.select().where(Ticket.created >= today).count()
+
+    # out
+    o_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE])).count()
+    o_today_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE])).count()
+
+    tr_size = 0  # Trade.select().where(Trade.status > 0).count()
+    tr_today_size = 0  # Trade.select().where(Trade.status > 0, Trade.created > today).count()
 
     data = {'c_size': c_size,
             'c_today_size': c_today_size,
-            's_size': s_size,
-            's_today_size': s_today_size,
-            'ti_size': ti_size,
-            'ti_today_size': ti_today_size,
+            'b_size': b_size,
+            'b_today_size': b_today_size,
+            'o_size': o_size,
+            'o_today_size': o_today_size,
             'tr_size': tr_size,
             'tr_today_size': tr_today_size}
     return jsonify(data)
