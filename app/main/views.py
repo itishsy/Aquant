@@ -103,11 +103,15 @@ def summary():
 
     # buy point
     b_size = Choice.select().where(Choice.status == Choice.Status.DEAL).count()     # Ticket.select().where(Ticket.status < Ticket.Status.DONE).count()
-    b_today_size = Choice.select().where(Choice.status == Choice.Status.DEAL).count()     # Ticket.select().where(Ticket.created >= today).count()
+    b_today_size = Choice.select().where(Choice.status == Choice.Status.DEAL, Choice.created >= today).count()     # Ticket.select().where(Ticket.created >= today).count()
 
     # out
     o_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE])).count()
-    o_today_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE])).count()
+    o_today_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE], Choice.created >= today)).count()
+
+    print('b_size:', b_size)
+    print('c_size:', c_size)
+    print('o_size:', o_size)
 
     tr_size = 0  # Trade.select().where(Trade.status > 0).count()
     tr_today_size = 0  # Trade.select().where(Trade.status > 0, Trade.created > today).count()
