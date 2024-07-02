@@ -37,7 +37,7 @@
                     <a href='{{ url_for("main.choice_edit", id=row.id) }}'>{{row.name}}</a>
                 </td>
                 <td>{{row.strategy}}</td>
-                <td>{{row.created}}</td>
+                <td>{{row.created.month}}/{{row.created.day}}</td>
                 <td>
                     {% if row.status==0 %}
                     <span>已弃用</span>
