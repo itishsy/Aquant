@@ -28,4 +28,7 @@ class P30(Engine, Pab):
         return sig
 
     def find_sell_signal(self, c_sig: Signal, b_sig: Signal):
-        return self.sell_point(c_sig, b_sig)
+        sig = self.common_sell_point(c_sig, b_sig)
+        if not sig:
+            sig = self.sell_point(c_sig, b_sig)
+        return sig

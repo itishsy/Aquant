@@ -32,7 +32,7 @@ class P60(Engine, Pab):
         return sig
 
     def find_sell_signal(self, c_sig: Signal, b_sig: Signal):
-        sig = self.common_sell_point(c_sig, b_sig.freq)
+        sig = self.common_sell_point(c_sig, b_sig)
         if not sig:
             sig = self.sell_point(c_sig, b_sig)
         return sig

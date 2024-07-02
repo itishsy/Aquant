@@ -196,18 +196,19 @@ class Engine(ABC):
                 return b_sig
 
     @staticmethod
-    def common_sell_point(c_sig: Signal, b_freq):
+    def common_sell_point(c_sig: Signal, b_sig: Signal):
         # 次级别顶背离
-        if int(b_freq) > 15:
-            cds = find_candles(code=c_sig.code, freq=b_freq)
+        if int(b_sig.freq) > 15:
+            cds = find_candles(code=c_sig.code, freq=b_sig.freq)
         else:
-            candles = fet.fetch_data(c_sig.code, b_freq)
+            candles = fet.fetch_data(c_sig.code, b_sig.freq)
             cds = mar.mark(candles=candles)
         dbs = diver_top(cds)
         if len(dbs) > 0:
             sig = dbs[-1]
-            sig.type = 'diver-top'
-            return sig
+            if b_sig.dt < sig.dt:
+                sig.type = 'diver-top'
+                return sig
 
         # 长上影线
         cds1 = find_candles(code=c_sig.code, begin=c_sig.dt)
