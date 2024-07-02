@@ -107,7 +107,7 @@ def summary():
 
     # out
     o_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE])).count()
-    o_today_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE], Choice.created >= today)).count()
+    o_today_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE]), Choice.created >= today).count()
 
     tr_size = 0  # Trade.select().where(Trade.status > 0).count()
     tr_today_size = 0  # Trade.select().where(Trade.status > 0, Trade.created > today).count()

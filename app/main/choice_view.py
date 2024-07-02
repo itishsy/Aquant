@@ -31,17 +31,17 @@ def choice_list():
     if today and today != 'None':
         last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
         if status:
-            if status == '03':
-                query = Choice.select().where(Choice.created >= last_day, Choice.status.in_(Choice.Status.DISUSE, Choice.Status.DONE))
+            if status == 30:
+                query = Choice.select().where(Choice.created >= last_day, Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE]))
             else:
-                query = Choice.select().where(Choice.created >= last_day, Choice.status.in_(Choice.Status.DISUSE, Choice.Status.DONE))
+                query = Choice.select().where(Choice.created >= last_day, Choice.status == status)
         else:
             query = Choice.select().where(Choice.created >= last_day)
         total_count = query.count()
     else:
         if status:
-            if status == '03':
-                query = Choice.select().where(Choice.status.in_(Choice.Status.DISUSE, Choice.Status.DONE)).order_by(
+            if status == 30:
+                query = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE])).order_by(
                     Choice.created.desc())
             else:
                 query = Choice.select().where(Choice.status == status).order_by(
