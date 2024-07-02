@@ -112,7 +112,7 @@ class Engine(ABC):
                 if not cho.bid:
                     sig = self.find_out_signal(c_sig)
                     print(
-                        '[{0}] find {1} out signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
+                        '[{0}] watching {1} out signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
                                                                                        self.strategy,
                                                                                        (0 if sig is None else 1)))
 
@@ -120,7 +120,7 @@ class Engine(ABC):
                         sig.stage = 'out'
                     else:
                         sig = self.find_buy_signal(c_sig)
-                        print('[{0}] find {1} buy signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
+                        print('[{0}] watching {1} buy signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
                                                                                              self.strategy,
                                                                                              (0 if sig is None else 1)))
 
@@ -130,7 +130,7 @@ class Engine(ABC):
                     b_sig = Signal.get(Signal.id == cho.bid)
                     sig = self.find_sell_signal(c_sig, b_sig)
                     print(
-                        '[{0}] find {1} sell signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
+                        '[{0}] watching {1} sell signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
                                                                                         self.strategy,
                                                                                         (0 if sig is None else 1)))
                     if sig:
