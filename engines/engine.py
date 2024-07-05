@@ -100,7 +100,7 @@ class Engine(ABC):
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))
 
     def do_watch(self):
-        chs = Choice.select().where(Choice.status << [Choice.Status.WATCH, Choice.Status.DEAL],
+        chs = Choice.select().where(Choice.status.in_([Choice.Status.WATCH, Choice.Status.DEAL]),
                                     Choice.strategy ** '{}%'.format(self.strategy))
         for cho in chs:
             try:
@@ -111,18 +111,19 @@ class Engine(ABC):
                 sig = None
                 if not cho.bid:
                     sig = self.find_out_signal(c_sig)
-                    print(
-                        '[{0}] watching {1} out signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
-                                                                                       self.strategy,
-                                                                                       (0 if sig is None else 1)))
+                    print('[{0}] watching {1} out signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
+                                                                                             self.strategy,
+                                                                                             (0 if sig is None else 1)))
 
                     if sig:
                         sig.stage = 'out'
                     else:
                         sig = self.find_buy_signal(c_sig)
-                        print('[{0}] watching {1} buy signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
-                                                                                             self.strategy,
-                                                                                             (0 if sig is None else 1)))
+                        print(
+                            '[{0}] watching {1} buy signal by {2} strategy, result:{3}'.format(datetime.now(), cho.code,
+                                                                                               self.strategy,
+                                                                                               (
+                                                                                                   0 if sig is None else 1)))
 
                         if sig:
                             sig.stage = 'buy'
@@ -213,12 +214,12 @@ class Engine(ABC):
         # 长上影线
         cds1 = find_candles(code=c_sig.code, begin=c_sig.dt)
         highest = utl.get_highest(cds1)
-        if utl.is_upper_shadow(highest):
+        if utl.is_upper_shadow(highest) and highest.dt > b_sig.dt:
             return Signal(code=c_sig.code, name=c_sig.name, freq=c_sig.freq, dt=highest.dt, type='up-shadow')
 
         cds2 = find_candles(code=c_sig.code, freq=c_sig.freq, begin=c_sig.dt)
         cross = utl.get_cross(cds2)
-        if cross[-1].mark == 1:
+        if cross[-1].mark == 1 and cross[-1].dt > b_sig.dt:
             return Signal(code=c_sig.code, name=c_sig.name, freq=c_sig.freq, dt=cross[-1].dt, type='cross-down')
 
     @staticmethod
