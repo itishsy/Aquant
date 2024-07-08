@@ -4,7 +4,7 @@ from signals.divergence import diver_bottom, diver_top
 from models.signal import Signal
 from models.choice import Choice
 from strategies.uab import Uab
-import signals.utils as utl
+from datetime import datetime, timedelta
 
 
 @strategy_engine
@@ -12,9 +12,9 @@ class U30(Engine, Uab):
 
     def find_choice_signal(self, code):
         sig = self.search(code=code, freq=30, mfreq=30, mrate=0.7)
-        if sig:
+        if sig and sig.dt > (datetime.now() - timedelta(days=10)).strftime('%Y-%m-%d'):
             sig.type = 'diver-bottom'
-        return sig
+            return sig
 
     def find_buy_signal(self, c_sig: Signal):
         sig = self.common_buy_point(c_sig, 5)
