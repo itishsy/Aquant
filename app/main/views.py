@@ -109,8 +109,9 @@ def summary():
     o_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE])).count()
     o_today_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE, Choice.Status.DONE]), Choice.created >= today).count()
 
-    tr_size = 0  # Trade.select().where(Trade.status > 0).count()
-    tr_today_size = 0  # Trade.select().where(Trade.status > 0, Trade.created > today).count()
+    recently = datetime.now() - timedelta(days=10)
+    s_size = Signal.select().where(Signal.created > recently).count()
+    s_today_size = Signal.select().where(Signal.created > today).count()
 
     data = {'c_size': c_size,
             'c_today_size': c_today_size,
@@ -118,8 +119,8 @@ def summary():
             'b_today_size': b_today_size,
             'o_size': o_size,
             'o_today_size': o_today_size,
-            'tr_size': tr_size,
-            'tr_today_size': tr_today_size}
+            's_size': s_size,
+            's_today_size': s_today_size}
     return jsonify(data)
 
 
