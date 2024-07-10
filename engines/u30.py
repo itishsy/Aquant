@@ -1,8 +1,5 @@
 from engines.engine import strategy_engine, Engine
-from candles.storage import find_candles
-from signals.divergence import diver_bottom, diver_top
 from models.signal import Signal
-from models.choice import Choice
 from strategies.uab import Uab
 from datetime import datetime, timedelta
 
