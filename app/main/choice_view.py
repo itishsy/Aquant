@@ -6,7 +6,7 @@ from app import utils
 from . import main
 from models.choice import Choice
 from models.signal import Signal
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length
@@ -30,8 +30,15 @@ def choice_list():
     status = request.args.get('status')
     if today and today != 'None':
         last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
+        if last_day.weekday() == 5:
+            last_day = last_day - timedelta(days=1)
+        elif last_day.weekday() == 6:
+            last_day = last_day - timedelta(days=2)
         if status:
-            query = Choice.select().where(Choice.updated >= last_day, Choice.status == status)
+            if status != 1:
+                query = Choice.select().where(Choice.created >= last_day, Choice.status == status)
+            else:
+                query = Choice.select().where(Choice.updated >= last_day, Choice.status == status)
         else:
             query = Choice.select().where(Choice.created >= last_day)
         total_count = query.count()
