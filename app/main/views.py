@@ -96,9 +96,11 @@ def summary():
     c_size = Choice.select().where(Choice.status.in_([Choice.Status.WATCH])).count()
     today = now_ymd()
     if today.weekday() == 5:
-        today = today - timedelta(days=1)
-    elif today.weekday() == 6:
         today = today - timedelta(days=2)
+    elif today.weekday() == 6:
+        today = today - timedelta(days=3)
+    else:
+        today = today - timedelta(days=1)
     c_today_size = Choice.select().where(Choice.created >= today).count()
 
     # buy point

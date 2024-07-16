@@ -97,7 +97,7 @@ class Engine(ABC):
                     sig.upset()
                     if not Choice.select().where(Choice.sid == sig.id).exists():
                         Choice.create(code=sig.code, name=sig.name, cid=sig.id, strategy=sig.strategy,
-                                      created=datetime.now())
+                                      created=datetime.now(), updated=datetime.now())
             except Exception as e:
                 print(e)
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))

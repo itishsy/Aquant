@@ -31,14 +31,13 @@ def choice_list():
     if today and today != 'None':
         last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
         if last_day.weekday() == 5:
-            last_day = last_day - timedelta(days=1)
-        elif last_day.weekday() == 6:
             last_day = last_day - timedelta(days=2)
+        elif last_day.weekday() == 6:
+            last_day = last_day - timedelta(days=3)
+        else:
+            last_day = last_day - timedelta(days=1)
         if status:
-            if status != 1:
-                query = Choice.select().where(Choice.created >= last_day, Choice.status == status)
-            else:
-                query = Choice.select().where(Choice.updated >= last_day, Choice.status == status)
+            query = Choice.select().where(Choice.updated >= last_day, Choice.status == status)
         else:
             query = Choice.select().where(Choice.created >= last_day)
         total_count = query.count()

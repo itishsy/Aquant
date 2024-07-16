@@ -42,24 +42,24 @@
             <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-aqua">
                     <div class="inner">
-                        <a style="color: white" href="{{ url_for('main.choice_list',status=1,today=1 ) }}"><h3 id="c_today_size">0</h3></a>
-                        <p>choice（total:<a style="color: yellow" href="{{ url_for('main.choice_list',status=1) }}">
-                        <span id="c_size">0</span></a>）</p>
+                        <a style="color: yellow" href="{{ url_for('main.choice_list',status=3,today=1) }}"><h3 id="o_today_size">0</h3></a>
+                        <p>done（total:<a style="color: whitesmoke" href="{{ url_for('main.choice_list',status=3 ) }}">
+                        <span id="o_size">0</span></a>）</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-pie-graph"></i>
+                        <i class="ion ion-person-add"></i>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-gray">
                     <div class="inner">
-                        <a style="color: yellow" href="{{ url_for('main.choice_list',status=3,today=1) }}"><h3 id="o_today_size">0</h3></a>
-                        <p>out（total:<a style="color: yellow" href="{{ url_for('main.choice_list',status=3 ) }}">
-                        <span id="o_size">0</span></a>）</p>
+                        <a style="color: white" href="{{ url_for('main.choice_list',status=1 ) }}"><h3 id="c_size">0</h3></a>
+                        <p>watching（new:<a style="color: blue" href="{{ url_for('main.choice_list',status=1,today=1) }}">
+                        <span id="c_today_size">0</span></a>）</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-person-add"></i>
+                        <i class="ion ion-pie-graph"></i>
                     </div>
                 </div>
             </div>
