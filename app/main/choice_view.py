@@ -43,8 +43,13 @@ def choice_list():
         total_count = query.count()
     else:
         if status:
-            query = Choice.select().where(Choice.status == status).order_by(
-                Choice.created.desc())
+            ss = str(status)
+            sa = [int(ss[0])]
+            if len(ss) > 1:
+                sa.append(ss[1])
+            if len(ss) > 2:
+                sa.append(ss[2])
+            query = Choice.select().where(Choice.status.in_(sa)).order_by(Choice.status.desc(), Choice.created.desc())
         else:
             query = Choice.select().where(Choice.status.in_([Choice.Status.WATCH, Choice.Status.DEAL])).order_by(Choice.created.desc())
         total_count = query.count()
@@ -55,7 +60,7 @@ def choice_list():
 
     lis = {'content': utils.query_to_list(query), 'total_count': total_count,
            'total_page': math.ceil(total_count / length), 'page': page, 'length': length}
-    return render_template('choicelist.html', form=lis, today=today, current_user=current_user)
+    return render_template('choicelist.html', form=lis, today=today, status=status, current_user=current_user)
 
 
 @main.route('/choice_edit', methods=['GET', 'POST'])

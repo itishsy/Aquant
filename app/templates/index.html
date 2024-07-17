@@ -18,20 +18,20 @@
             <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-red">
                     <div class="inner">
-                        <a style="color: yellow"  href="{{ url_for('main.signallist',today=1) }}"><h3 id="s_today_size">0</h3></a>
-                        <p>signals（all:<a href="{{ url_for('main.signallist') }}">
-                        <span id="s_size">0</span></a>）</p>
+                        <a style="color: yellow" href="{{ url_for('main.choice_list',status=3,today=1) }}"><h3 id="t_today_size">0</h3></a>
+                        <p>ticket（done:<a style="color: whitesmoke" href="{{ url_for('main.choice_list',status=3 ) }}">
+                        <span id="t_size">0</span></a>）</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-ios-gear-outline"></i>
+                        <i class="ion ion-person-add"></i>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-fuchsia">
                     <div class="inner">
-                        <a style="color: white" href="{{ url_for('main.choice_list',status=2) }}"><h3 id="b_size">0</h3></a>
-                        <p>b point（today:<a href="{{ url_for('main.choice_list',status=2 ,today=1) }}">
+                        <a style="color: white" href="{{ url_for('main.choice_list',status='2') }}"><h3 id="b_size">0</h3></a>
+                        <p>trading（done:<a href="{{ url_for('main.choice_list',status='3') }}">
                         <span id="b_today_size">0</span></a>）</p>
                     </div>
                     <div class="icon">
@@ -42,24 +42,24 @@
             <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-aqua">
                     <div class="inner">
-                        <a style="color: yellow" href="{{ url_for('main.choice_list',status=3,today=1) }}"><h3 id="o_today_size">0</h3></a>
-                        <p>done（total:<a style="color: whitesmoke" href="{{ url_for('main.choice_list',status=3 ) }}">
-                        <span id="o_size">0</span></a>）</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-person-add"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 col-xs-12">
-                <div class="small-box bg-gray">
-                    <div class="inner">
-                        <a style="color: white" href="{{ url_for('main.choice_list',status=1 ) }}"><h3 id="c_size">0</h3></a>
-                        <p>watching（new:<a style="color: blue" href="{{ url_for('main.choice_list',status=1,today=1) }}">
+                        <a style="color: white" href="{{ url_for('main.choice_list',status='1' ) }}"><h3 id="c_size">0</h3></a>
+                        <p>watching（over:<a style="color: blue" href="{{ url_for('main.choice_list', status='0' ) }}">
                         <span id="c_today_size">0</span></a>）</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-pie-graph"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xs-12">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <a style="color: yellow"  href="{{ url_for('main.signallist',today=1) }}"><h3 id="s_today_size">0</h3></a>
+                        <p>signals（all:<a href="{{ url_for('main.signallist') }}">
+                        <span id="s_size">0</span></a>）</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-ios-gear-outline"></i>
                     </div>
                 </div>
             </div>
@@ -83,8 +83,8 @@
             $("#c_today_size").text(jsOutObj.c_today_size);
             $("#b_size").text(jsOutObj.b_size);
             $("#b_today_size").text(jsOutObj.b_today_size);
-            $("#o_size").text(jsOutObj.o_size);
-            $("#o_today_size").text(jsOutObj.o_today_size);
+            $("#t_size").text(jsOutObj.t_size);
+            $("#t_today_size").text(jsOutObj.t_today_size);
         });
     }
 </script>

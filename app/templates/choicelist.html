@@ -40,13 +40,13 @@
                 <td>{{row.created.month}}/{{row.created.day}}</td>
                 <td>
                     {% if row.status==0 %}
-                    <span>已弃用</span>
+                    <span>弃用</span>
                     {% elif row.status==1 %}
                     <span>观察中</span>
                     {% elif row.status==2 %}
                     <span>交易中</span>
                     {% else %}
-                    <span>移除</span>
+                    <span>完成</span>
                     {% endif %}
                 </td>
             </tr>
@@ -61,9 +61,9 @@
             <li><a href="#">&laquo;</a></li>
             {% for i in range(1, form.total_page+ 1) %}
             {% if i == form.page %}
-            <li><a href="?page={{i}}&today={{today}}"><b>{{i}}</b></a></li>
+            <li><a href="?page={{i}}&today={{today}}&status={{status}}"><b>{{i}}</b></a></li>
             {% else %}
-            <li><a href="?page={{i}}&today={{today}}">{{i}}</a></li>
+            <li><a href="?page={{i}}&today={{today}}&status={{status}}">{{i}}</a></li>
             {% endif %}
             {% endfor %}
             <li><a href="#">&raquo;</a></li>

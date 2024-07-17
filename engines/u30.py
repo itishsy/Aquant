@@ -17,11 +17,13 @@ class U30(Engine, Uab):
         sig = self.common_buy_point(c_sig, 5)
         if not sig:
             return self.buy_point(c_sig, 5)
+        return sig
 
     def find_out_signal(self, c_sig: Signal):
         sig = self.common_out(c_sig, timeout=10)
         if not sig:
             return self.out(c_sig)
+        return sig
 
     def find_sell_signal(self, c_sig: Signal, b_sig: Signal):
         sig = self.common_sell_point(c_sig, b_sig)
