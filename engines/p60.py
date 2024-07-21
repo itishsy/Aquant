@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 class P60(Engine, Pab):
     def find_choice_signal(self, code):
         sig = self.search(code, 60)
-        if sig and sig.dt > (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d'):
+        if sig:  # and sig.dt > (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d'):
             sig.type = 'diver-bottom'
             return sig
 

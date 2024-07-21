@@ -23,22 +23,22 @@ class Pab:
             if c.diff() < 0 or c.dea9 < 0:
                 return
 
-        # 符合金叉-下叉形态
-        crs = utl.get_cross(candles)
-        if crs[-1].mark != 1:
-            return
-
         dts = diver_top(candles)
         if len(dts) > 0:
             return
 
-        cross0 = crs[-2:][0]
-        if cross0.mark == -1 and cross0.diff() > 0 and cross0.dea9 > 0:
-            # 底背离
-            cds = find_candles(code, freq=freq, begin=cross0.dt)
-            dbs = diver_bottom(cds)
-            if len(dbs) > 0:
-                return dbs[-1]
+        # 符合金叉-下叉形态
+        crs = utl.get_cross(candles)
+        if crs[-1].diff() < 0 or crs[-1].dea9 < 0 or crs[-2].diff() < 0 or crs[-2].dea9 < 0:
+            return
+
+        # cross0 = crs[-2:][0]
+        # if cross0.mark == -1 and cross0.diff() > 0 and cross0.dea9 > 0:
+        # 底背离
+        cds = find_candles(code, freq=freq)
+        dbs = diver_bottom(cds)
+        if len(dbs) > 0:
+            return dbs[-1]
 
     @staticmethod
     def buy_point(c_sig: Signal, b_freq):

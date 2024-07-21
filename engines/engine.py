@@ -231,6 +231,7 @@ class Engine(ABC):
 
         if timeout and len(cds) > timeout:
             sig = c_sig
+            sig.id = None
             sig.dt = cds[-1].dt
             sig.type = 'timeout'
             return sig
@@ -238,8 +239,9 @@ class Engine(ABC):
         for cd in cds:
             if cd.low < c_sig.price:
                 sig = c_sig
+                sig.id = None
                 sig.dt = cd.dt
-                sig.type = 'damage-lowest'
+                sig.type = 'damage'
                 return sig
 
     @abstractmethod
