@@ -27,6 +27,6 @@ def test_model():
 
 
 if __name__ == '__main__':
-    # test_watch('u30')
-    test_search('p60')
+    test_watch('p30')
+    # test_search('p60')
     # test_model()

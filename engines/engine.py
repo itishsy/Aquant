@@ -146,6 +146,7 @@ class Engine(ABC):
                     sig.name = Symbol.get(Symbol.code == cho.code).name
                     sig.strategy = self.strategy
                     sig.created = datetime.now()
+                    sig.id = None
                     sig.save()
                     print('[{0}] add a {3} signal({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy,
                                                                                sig.stage))

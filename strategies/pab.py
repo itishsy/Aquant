@@ -29,7 +29,7 @@ class Pab:
 
         # 符合金叉-下叉形态
         crs = utl.get_cross(candles)
-        if crs[-1].diff() < 0 or crs[-1].dea9 < 0 or crs[-2].diff() < 0 or crs[-2].dea9 < 0:
+        if len(crs) < 3 or crs[0].diff() < 0 or crs[0].dea9 < 0 or crs[1].diff() < 0 or crs[1].dea9 < 0:
             return
 
         # cross0 = crs[-2:][0]
@@ -38,7 +38,11 @@ class Pab:
         cds = find_candles(code, freq=freq)
         dbs = diver_bottom(cds)
         if len(dbs) > 0:
-            return dbs[-1]
+            sig = dbs[-1]
+            for cd in candles:
+                if cd.dt > sig.dt and cd.low < sig.price:
+                    return
+            return sig
 
     @staticmethod
     def buy_point(c_sig: Signal, b_freq):
