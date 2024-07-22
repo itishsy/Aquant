@@ -164,10 +164,10 @@
             <div class="col-md-12">
                 <a class='btn btn-default' href='javascript:history.back()'>返回</a>
                 {% if choice.id %}
-                <a class='btn btn-danger pull-right' href='{{ url_for("main.choice_list", id=choice.id, action="disuse") }}'>弃用</a>
+<!--                <a class='btn btn-danger pull-right' href='{{ url_for("main.choice_list", id=choice.id, action="disuse") }}'>弃用</a>-->
 
                 {% if choice.status != 1 %}
-                <a class='btn btn-primary pull-right' href='{{ url_for("main.choice_list", id=choice.id, action="deal") }}'>交易</a>
+                <a class='btn btn-primary pull-right' href='{{ url_for("main.choice_edit", id=choice.id, action="deal") }}'>交易</a>
                 {% endif %}
                 {% endif %}
             </div>

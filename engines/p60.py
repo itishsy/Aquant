@@ -16,6 +16,10 @@ class P60(Engine, Pab):
         sig = self.common_buy_point(c_sig, 15)
         if not sig:
             sig = self.buy_point(c_sig, 15)
+        if not sig:
+            sig = self.common_buy_point(c_sig, 5)
+        if not sig:
+            sig = self.buy_point(c_sig, 5)
         return sig
 
     def find_out_signal(self, c_sig: Signal):

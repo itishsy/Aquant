@@ -6,6 +6,7 @@ from app import utils
 from . import main
 from models.choice import Choice
 from models.signal import Signal
+from models.ticket import Ticket
 from datetime import datetime, timedelta
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField
@@ -68,6 +69,7 @@ def choice_list():
 def choice_edit():
     id = request.args.get('id', '')
     form = ChoiceForm()
+    print('=======', id)
     if id:
         cho = Choice.get(Choice.id == id)
         action = request.args.get('action')
@@ -77,20 +79,13 @@ def choice_edit():
             cho.save()
             flash('操作成功')
         if action == 'deal':
+            print('=======', cho.id)
             cho.status = Choice.Status.DEAL
             cho.updated = datetime.now()
             cho.save()
-            flash('操作成功')
-            """ 
-            if not Ticket.select().where(Ticket.code == cho.code).exists():
-                tic = Ticket()
-                tic.add_by_choice(cho)
-                flash('操作成功')
-            else:
-                tic = Ticket.get(Ticket.code == cho.code)
-                flash('操作成功')
-                return redirect(url_for('main.ticket_edit', id=tic.id))
-            """
+            tic = Ticket()
+            tic.add_by_choice(cho)
+            return redirect(url_for('main.ticket_edit', id=tic.id))
         # 查询
         if request.method == 'GET':
             cs = Signal.get(id=cho.cid)

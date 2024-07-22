@@ -105,12 +105,12 @@ def summary():
     c_today_size = Choice.select().where(Choice.status.in_([Choice.Status.DISUSE])).count()
 
     # trading
-    b_size = Choice.select().where(Choice.status == Choice.Status.DEAL).count()     # Ticket.select().where(Ticket.status < Ticket.Status.DONE).count()
-    b_today_size = Choice.select().where(Choice.status == Choice.Status.DONE).count()     # Ticket.select().where(Ticket.created >= today).count()
+    b_size = Choice.select().where(Choice.status == Choice.Status.DEAL).count()
+    b_today_size = Choice.select().where(Choice.status == Choice.Status.DONE).count()
 
     # ticket
-    t_size = Choice.select().where(Choice.status.in_([Choice.Status.DONE])).count()
-    t_today_size = Choice.select().where(Choice.status.in_([Choice.Status.DONE]), Choice.updated >= today).count()
+    t_size = Ticket.select().where(Ticket.status.in_([0, 3])).count()
+    t_today_size = Ticket.select().where(Ticket.status.in_([1, 2])).count()
 
     # signal
     recently = datetime.now() - timedelta(days=10)
