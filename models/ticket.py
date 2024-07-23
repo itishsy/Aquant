@@ -11,7 +11,7 @@ class Ticket(BaseModel):
     code = CharField()  # 编码
     name = CharField()  # 名称
     status = IntegerField(default=1)  # 状态 1 待交易， 2. 交易中， 0. 交易失败， 3. 完成交易
-    cid = IntegerField()  # choice id
+    cid = IntegerField()  # choice signal id
     bid = IntegerField()  # buy signal id
     sid = IntegerField()  # sell signal id
     b_dt = CharField()  # 买入时间
@@ -35,6 +35,28 @@ class Ticket(BaseModel):
             self.created = datetime.now()
             self.updated = datetime.now()
             self.save()
+
+    class Status:
+        UNEXECUTED = 0
+        PENDING = 1
+        TRADING = 2
+        SOLD = 3
+
+        @staticmethod
+        def all():
+            return [(Ticket.Status.UNEXECUTED, '未交易'), (Ticket.Status.PENDING, '待买入'),
+                    (Ticket.Status.TRADING, '交易中'), (Ticket.Status.SOLD, '完成交易')]
+
+        @staticmethod
+        def get(key):
+            if key == Ticket.Status.UNEXECUTED:
+                return '未交易'
+            if key == Ticket.Status.PENDING:
+                return '待买入'
+            if key == Ticket.Status.TRADING:
+                return '交易中'
+            if key == Ticket.Status.SOLD:
+                return '完成交易'
 
 #
 # class TicketSignal(BaseModel):
