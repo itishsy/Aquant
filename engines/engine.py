@@ -121,13 +121,15 @@ class Engine(ABC):
                     if sig:
                         print('[{0}] {1} find a buy signal by {2} strategy'.format(datetime.now(), cho.code,
                                                                                    self.strategy))
-                        sig.stage = 'buy'
+                        sig.stage = 'b'
 
                 if sig and not Signal.select().where(Signal.code == cho.code, Signal.freq == sig.freq,
                                                      Signal.dt == sig.dt).exists():
                     sig.code = cho.code
-                    sig.name = Symbol.get(Symbol.code == cho.code).name
+                    sig.name = cho.name
                     sig.strategy = self.strategy
+                    if sig.stage == 'b':
+                        sig.notify = 0
                     sig.created = datetime.now()
                     sig.id = None
                     sig.save()
@@ -138,7 +140,7 @@ class Engine(ABC):
                         cho.status = Choice.Status.DISUSE
                         cho.updated = datetime.now()
                         cho.save()
-                    elif sig.stage == 'buy':
+                    elif sig.stage == 'b':
                         cho.bid = sig.id
                         cho.status = Choice.Status.DEAL
                         cho.updated = datetime.now()
@@ -154,7 +156,14 @@ class Engine(ABC):
                     b_sig = Signal.get(Signal.id == ti.bid)
                     sig = self.find_sell_signal(c_sig, b_sig)
                     if sig:
-                        sig.stage = 'sell'
+                        sig.stage = 's'
+                        sig.code = ti.code
+                        sig.name = ti.name
+                        sig.notify = 0
+                        sig.strategy = self.strategy
+                        sig.created = datetime.now()
+                        sig.id = None
+                        sig.save()
                         print('[{0}] {1} find a sell signal by {2} strategy'.format(datetime.now(), ti.code,
                                                                                     self.strategy))
             except Exception as e:
@@ -209,6 +218,11 @@ class Engine(ABC):
             if b_sig.dt < sig.dt:
                 sig.type = 'diver-top'
                 return sig
+
+        # 止损线
+        for cd in cds:
+            if cd.dt > b_sig.dt and cd.low < b_sig.price:
+                return Signal(code=c_sig.code, name=c_sig.name, freq=c_sig.freq, price=cd.low, dt=cd.dt, type='damage-bs')
 
         # 长上影线
         cds1 = find_candles(code=c_sig.code, begin=c_sig.dt)
