@@ -83,8 +83,8 @@ def choice_edit():
             cho.status = Choice.Status.DEAL
             cho.updated = datetime.now()
             cho.save()
-            tic = Ticket()
-            tic.add_by_choice(cho)
+            tic = Ticket(cho)
+            tic.save()
             return redirect(url_for('main.ticket_edit', id=tic.id))
         # 查询
         if request.method == 'GET':

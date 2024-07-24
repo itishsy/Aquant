@@ -82,6 +82,22 @@ class Engine(ABC):
             eng.run_end = datetime.now()
             eng.save()
 
+    def start_watch(self):
+        tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING, Ticket.Status.TRADING]))
+        for ti in tis:
+            if ti.status == Ticket.Status.PENDING:
+                b_sig = Signal.get(ti.bid)
+                bp = self.common_buy_point(b_sig)
+                if bp:
+                    bp.notify = 0
+                    bp.save()
+            else:
+                self.do_watch4s(ti)
+        chs = Choice.select().where(Choice.status.in_([Choice.Status.WATCH]),
+                                    Choice.strategy ** '{}%'.format(self.strategy))
+        for ch in chs:
+            self.do_watch4b(ch)
+
     def do_search(self):
         count = 0
         symbols = Symbol.actives()
@@ -103,71 +119,67 @@ class Engine(ABC):
                 print(e)
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))
 
-    def do_watch(self):
         chs = Choice.select().where(Choice.status.in_([Choice.Status.WATCH]),
                                     Choice.strategy ** '{}%'.format(self.strategy))
         for cho in chs:
-            try:
-                if not cho.cid:
-                    continue
+            c_sig = Signal.get(Signal.id == cho.cid)
+            sig = self.find_out_signal(c_sig)
+            if sig and not Signal.select().where(Signal.code == cho.code, Signal.freq == sig.freq, Signal.dt == sig.dt).exists():
+                sig.code = cho.code
+                sig.name = cho.name
+                sig.stage = 'out'
+                sig.strategy = self.strategy
+                sig.created = datetime.now()
+                sig.id = None
+                sig.save()
+                cho.oid = sig.id
+                cho.status = Choice.Status.DISUSE
+                cho.updated = datetime.now()
+                cho.save()
+                print('[{0}] {1} find a out signal by {2} strategy'.format(datetime.now(), cho.code, self.strategy))
 
-                c_sig = Signal.get(Signal.id == cho.cid)
-                sig = self.find_out_signal(c_sig)
-                if sig:
-                    print('[{0}] {1} find a out signal by {2} strategy'.format(datetime.now(), cho.code, self.strategy))
-                    sig.stage = 'out'
-                else:
-                    sig = self.find_buy_signal(c_sig)
-                    if sig:
-                        print('[{0}] {1} find a buy signal by {2} strategy'.format(datetime.now(), cho.code,
-                                                                                   self.strategy))
-                        sig.stage = 'b'
+    def do_watch4s(self, ti: Ticket):
+        try:
+            c_sig = Signal.get(Signal.id == ti.cid)
+            b_sig = Signal.get(Signal.id == ti.bid)
+            sig = self.find_sell_signal(c_sig, b_sig)
+            if sig:
+                sig.stage = 's'
+                sig.code = ti.code
+                sig.name = ti.name
+                sig.notify = 0
+                sig.strategy = self.strategy
+                sig.created = datetime.now()
+                sig.id = None
+                sig.save()
+                print('[{0}] {1} find a sell signal by {2} strategy'.format(datetime.now(), ti.code,
+                                                                            self.strategy))
+        except Exception as e:
+            print('[{0}] {1} watch ticket error -- {2} '.format(datetime.now(), ti.code, e))
 
-                if sig and not Signal.select().where(Signal.code == cho.code, Signal.freq == sig.freq,
-                                                     Signal.dt == sig.dt).exists():
-                    sig.code = cho.code
-                    sig.name = cho.name
-                    sig.strategy = self.strategy
-                    if sig.stage == 'b':
-                        sig.notify = 0
-                    sig.created = datetime.now()
-                    sig.id = None
-                    sig.save()
-                    print('[{0}] add a {3} signal({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy,
-                                                                               sig.stage))
-                    if sig.stage == 'out':
-                        cho.oid = sig.id
-                        cho.status = Choice.Status.DISUSE
-                        cho.updated = datetime.now()
-                        cho.save()
-                    elif sig.stage == 'b':
-                        cho.bid = sig.id
-                        cho.status = Choice.Status.DEAL
-                        cho.updated = datetime.now()
-                        cho.save()
-            except Exception as e:
-                print('[{0}] {1} watch error -- {2} '.format(datetime.now(), cho.code, e))
-
-        tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING, Ticket.Status.TRADING]))
-        for ti in tis:
-            try:
-                if ti.status == Ticket.Status.TRADING:
-                    c_sig = Signal.get(Signal.id == ti.cid)
-                    b_sig = Signal.get(Signal.id == ti.bid)
-                    sig = self.find_sell_signal(c_sig, b_sig)
-                    if sig:
-                        sig.stage = 's'
-                        sig.code = ti.code
-                        sig.name = ti.name
-                        sig.notify = 0
-                        sig.strategy = self.strategy
-                        sig.created = datetime.now()
-                        sig.id = None
-                        sig.save()
-                        print('[{0}] {1} find a sell signal by {2} strategy'.format(datetime.now(), ti.code,
-                                                                                    self.strategy))
-            except Exception as e:
-                print('[{0}] {1} watch error -- {2} '.format(datetime.now(), ti.code, e))
+    def do_watch4b(self, cho: Choice):
+        try:
+            c_sig = Signal.get(Signal.id == cho.cid)
+            sig = self.find_buy_signal(c_sig)
+            if sig and not Signal.select().where(Signal.code == cho.code, Signal.freq == sig.freq, Signal.dt == sig.dt).exists():
+                sig.code = cho.code
+                sig.name = cho.name
+                sig.stage = 'b'
+                sig.strategy = self.strategy
+                sig.notify = 0
+                sig.created = datetime.now()
+                sig.id = None
+                sig.save()
+                cho.bid = sig.id
+                cho.status = Choice.Status.DEAL
+                cho.updated = datetime.now()
+                cho.save()
+                tic = Ticket(cho)
+                tic.save()
+                print('[{0}] add a {3} signal({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy,
+                                                                           sig.stage))
+        except Exception as e:
+            print('[{0}] {1} watch choice error -- {2} '.format(datetime.now(), cho.code, e))
 
     @staticmethod
     def common_filter(candles):
@@ -191,7 +203,25 @@ class Engine(ABC):
         return True
 
     @staticmethod
-    def common_buy_point(c_sig, b_freq):
+    def common_buy_point(b_sig):
+        cds1 = find_candles(b_sig.code, freq=1)
+        dbs = diver_bottom(cds1)
+        if len(dbs) > 0:
+            sig = dbs[-1]
+            if sig.dt > b_sig.dt and sig.price > b_sig.price:
+                return sig
+
+        cds = find_candles(b_sig.code, freq=b_sig.freq)
+        crs = utl.get_cross(cds)
+        if len(crs) > 2 and crs[0] == 1 and crs[1].dt > b_sig.dt:
+            st1 = utl.get_stage(crs[1])
+            st2 = utl.get_stage(crs[2])
+            if utl.get_lowest(st1).low > b_sig.price and utl.contains(st2, b_sig.dt):
+                return Signal(code=b_sig.code, name=b_sig.name, freq=b_sig.freq, price=crs[0].low, dt=crs[0].dt,
+                              type='cross-bp')
+
+    @staticmethod
+    def common_buy_signal(c_sig, b_freq):
         if b_freq > 15:
             cds = find_candles(code=c_sig.code, freq=b_freq)
         else:
@@ -205,7 +235,7 @@ class Engine(ABC):
                 return b_sig
 
     @staticmethod
-    def common_sell_point(c_sig: Signal, b_sig: Signal):
+    def common_sell_signal(c_sig: Signal, b_sig: Signal):
         # 次级别顶背离
         if int(b_sig.freq) > 15:
             cds = find_candles(code=c_sig.code, freq=b_sig.freq)

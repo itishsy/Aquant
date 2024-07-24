@@ -45,11 +45,11 @@ class Pab:
             return sig
 
     @staticmethod
-    def buy_point(c_sig: Signal, b_freq):
+    def buy_signal(c_sig: Signal, b_freq):
         pass
 
     @staticmethod
-    def sell_point(c_sig: Signal, b_sig: Signal):
+    def sell_signal(c_sig: Signal, b_sig: Signal):
         pass
 
     @staticmethod

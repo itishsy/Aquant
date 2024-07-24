@@ -23,33 +23,33 @@ class Ticket(BaseModel):
     created = DateTimeField()
     updated = DateTimeField()
 
-    def add_by_choice(self, cho: Choice):
-        if not Ticket.select().where(Ticket.cid == cho.id, Ticket.bid == cho.bid).exists():
-            self.status = 1
+    def __init__(self, cho: Choice):
+        super().__init__(self)
+        if cho.bid and not Ticket.select().where(Ticket.cid == cho.id, Ticket.bid == cho.bid).exists():
+            self.status = Ticket.Status.PENDING
             self.code = cho.code
             self.name = cho.name
-            self.cid = cho.id
+            self.cid = cho.cid
             self.bid = cho.bid
             bs = Signal.get(Signal.id == cho.bid)
             self.sl_price = bs.price
             self.created = datetime.now()
             self.updated = datetime.now()
-            self.save()
 
     class Status:
-        UNEXECUTED = 0
+        MISS = 0
         PENDING = 1
         TRADING = 2
         SOLD = 3
 
         @staticmethod
         def all():
-            return [(Ticket.Status.UNEXECUTED, '未交易'), (Ticket.Status.PENDING, '待买入'),
+            return [(Ticket.Status.MISS, '未交易'), (Ticket.Status.PENDING, '待买入'),
                     (Ticket.Status.TRADING, '交易中'), (Ticket.Status.SOLD, '完成交易')]
 
         @staticmethod
         def get(key):
-            if key == Ticket.Status.UNEXECUTED:
+            if key == Ticket.Status.MISS:
                 return '未交易'
             if key == Ticket.Status.PENDING:
                 return '待买入'

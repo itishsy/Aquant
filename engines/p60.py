@@ -13,13 +13,13 @@ class P60(Engine, Pab):
             return sig
 
     def find_buy_signal(self, c_sig: Signal):
-        sig = self.common_buy_point(c_sig, 15)
+        sig = self.common_buy_signal(c_sig, 15)
         if not sig:
-            sig = self.buy_point(c_sig, 15)
+            sig = self.buy_signal(c_sig, 15)
         if not sig:
-            sig = self.common_buy_point(c_sig, 5)
+            sig = self.common_buy_signal(c_sig, 5)
         if not sig:
-            sig = self.buy_point(c_sig, 5)
+            sig = self.buy_signal(c_sig, 5)
         return sig
 
     def find_out_signal(self, c_sig: Signal):
@@ -29,7 +29,7 @@ class P60(Engine, Pab):
         return sig
 
     def find_sell_signal(self, c_sig: Signal, b_sig: Signal):
-        sig = self.common_sell_point(c_sig, b_sig)
+        sig = self.common_sell_signal(c_sig, b_sig)
         if not sig:
-            sig = self.sell_point(c_sig, b_sig)
+            sig = self.sell_signal(c_sig, b_sig)
         return sig

@@ -253,7 +253,10 @@ def get_between(candles: List[Candle], dt, left, length):
 
 
 def get_cross(candles: List[Candle]):
-    """ 获取形成交叉的Candle """
+    """ 获取形成交叉的Candle
+    -1 为下叉
+    1 为上叉
+    """
     cs = []
     if candles is None:
         return cs
@@ -265,6 +268,19 @@ def get_cross(candles: List[Candle]):
             cs.append(candles[i])
         i = i - 1
     return cs
+
+
+def contains(candles: List[Candle], dt):
+    """
+    是否包含
+    :param candles:
+    :param dt:
+    :return:
+    """
+    for c in candles:
+        if c.dt == dt:
+            return True
+    return False
 
 
 def has_trend(candles: List[Candle]):
