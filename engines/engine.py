@@ -35,7 +35,7 @@ class Engine(ABC):
             if now.weekday() < 5:
                 n_val = now.hour * 100 + now.minute
                 if 930 < n_val < 1130 or 1300 < n_val < 1530:
-                    self.do_watch()
+                    self.start_watch()
                 if 1130 < n_val < 1300 or n_val > 1600:
                     self.start_search()
         except Exception as e:
@@ -93,10 +93,17 @@ class Engine(ABC):
                     bp.save()
             else:
                 self.do_watch4s(ti)
-        chs = Choice.select().where(Choice.status.in_([Choice.Status.WATCH]),
+        chs = Choice.select().where(Choice.status.in_([Choice.Status.WATCH, Choice.Status.DEAL]),
                                     Choice.strategy ** '{}%'.format(self.strategy))
         for ch in chs:
-            self.do_watch4b(ch)
+            if ch.status == Choice.Status.WATCH:
+                self.do_watch4b(ch)
+            else:
+                ti = Ticket.select().where(Ticket.cid == ch.cid)
+                if ti.sid:
+                    ch.status = Choice.Status.DONE
+                    ch.updated = datetime.now()
+                    ch.save()
 
     def do_search(self):
         count = 0
@@ -152,6 +159,10 @@ class Engine(ABC):
                 sig.created = datetime.now()
                 sig.id = None
                 sig.save()
+                ti.sid = sig.id
+                ti.status = Ticket.Status.SOLD
+                ti.updated = datetime.now()
+                ti.save()
                 print('[{0}] {1} find a sell signal by {2} strategy'.format(datetime.now(), ti.code,
                                                                             self.strategy))
         except Exception as e:
