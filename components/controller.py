@@ -31,7 +31,7 @@ def start_component(name, act):
             print('engine', name, 'action: search, done!')
         if act == 'watch' or act == 'all':
             print('engine', name, 'action: watch, start...')
-            eng.do_watch()
+            eng.start_watch()
             print('engine', name, 'action: watch, done!')
     comp.status = Component.Status.READY
     comp.run_end = datetime.now()

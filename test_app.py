@@ -17,7 +17,7 @@ def test_watch(eng_name):
     eng = engine.strategy[eng_name]()
     eng.strategy = eng_name
     print("[{}] {} start...".format(datetime.now(), eng_name))
-    eng.do_watch()
+    eng.start_watch()
     print("[{}] {} end".format(datetime.now(), eng_name))
 
 

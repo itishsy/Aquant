@@ -19,9 +19,9 @@ if __name__ == '__main__':
             st = engine.strategy[name]()
             print("[{}] {} start...".format(datetime.now(), name))
             st.start()
-        print("[{}] sleep {} min".format(datetime.now(), 5))
         Component.update(run_start=datetime.now(), status=Component.Status.READY).where(
             Component.name == 'engine').execute()
         qywx.find_signal_and_send()
+        print("[{}] sleep {} min".format(datetime.now(), 5))
         time.sleep(60 * 5)
 

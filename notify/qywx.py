@@ -33,7 +33,7 @@ class Qywx(RPA):
         content = ''
         for si in sis:
             # link = 'http://xueqiu.com/S/{}{}'.format('SH' if si.code.startswith('60') else 'SZ', si.code)
-            content = '{}{}{}{};{}'.format(si.stage, si.code, si.freq, si.dt, content)
+            content = '{}-{}-{}-{}\n{}'.format(si.stage, si.freq, si.code, str(si.dt).replace('-', '').replace(' ', '').replace(':', ''), content)
         if content != '':
             if self.send(content):
                 for si in sis:
