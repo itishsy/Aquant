@@ -11,6 +11,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 if __name__ == '__main__':
     qywx = Qywx()
+    qywx.send('start')
     while True:
         Component.update(run_start=datetime.now(), status=Component.Status.RUNNING).where(
             Component.name == 'engine').execute()

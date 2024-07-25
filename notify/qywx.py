@@ -32,8 +32,8 @@ class Qywx(RPA):
         sis = Signal.select().where(Signal.notify == 0).order_by(Signal.id).limit(5)
         content = ''
         for si in sis:
-            link = 'http://xueqiu.com/S/{}{}'.format('SH' if si.code.startswith('60') else 'SZ', si.code)
-            content = '【{}】{} {} {};{}'.format(si.stage, link, si.freq, si.dt, content)
+            # link = 'http://xueqiu.com/S/{}{}'.format('SH' if si.code.startswith('60') else 'SZ', si.code)
+            content = '{}{}{}{};{}'.format(si.stage, si.code, si.freq, si.dt, content)
         if content != '':
             if self.send(content):
                 for si in sis:
