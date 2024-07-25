@@ -63,6 +63,7 @@ class Engine(ABC):
             fetcher.run_start = datetime.now()
             fetcher.save()
             if now.weekday() == 5:
+                freq = [102, 101, 120, 60, 30]
                 Symbol.fetch()
                 fet.fetch_all(freq=freq, clean=True)
             else:
@@ -84,6 +85,8 @@ class Engine(ABC):
 
     def start_watch(self):
         tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING, Ticket.Status.TRADING]))
+        chs = Choice.select().where(Choice.status.in_([Choice.Status.WATCH, Choice.Status.DEAL]),
+                                    Choice.strategy ** '{}%'.format(self.strategy))
         for ti in tis:
             if ti.status == Ticket.Status.PENDING:
                 b_sig = Signal.get(ti.bid)
@@ -93,14 +96,12 @@ class Engine(ABC):
                     bp.save()
             else:
                 self.do_watch4s(ti)
-        chs = Choice.select().where(Choice.status.in_([Choice.Status.WATCH, Choice.Status.DEAL]),
-                                    Choice.strategy ** '{}%'.format(self.strategy))
         for ch in chs:
             if ch.status == Choice.Status.WATCH:
                 self.do_watch4b(ch)
             else:
                 ti = Ticket.select().where(Ticket.cid == ch.cid)
-                if ti.sid:
+                if ti.sid and ti.status == Ticket.Status.SOLD:
                     ch.status = Choice.Status.DONE
                     ch.updated = datetime.now()
                     ch.save()
