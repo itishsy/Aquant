@@ -1,8 +1,5 @@
-import datetime
-
 from components.sender import *
 import logging
-from models.signal import Signal
 
 
 class Qywx(RPA):
@@ -27,19 +24,6 @@ class Qywx(RPA):
             traceback.print_exc()
             logging.error('send wechat message failed')
         return False
-
-    def find_signal_and_send(self):
-        sis = Signal.select().where(Signal.notify == 0).order_by(Signal.id).limit(5)
-        content = ''
-        for si in sis:
-            # link = 'http://xueqiu.com/S/{}{}'.format('SH' if si.code.startswith('60') else 'SZ', si.code)
-            content = '{}-{}-{}-{}\n{}'.format(si.stage, si.freq, si.code, str(si.dt).replace('-', '').replace(' ', '').replace(':', ''), content)
-        if content != '':
-            if self.send(content):
-                for si in sis:
-                    si.notify = 1
-                    si.updated = datetime.datetime.now()
-                    si.save()
 
 
 if __name__ == '__main__':
