@@ -23,18 +23,20 @@ class Ticket(BaseModel):
     created = DateTimeField()
     updated = DateTimeField()
 
-    def __init__(self, cho: Choice):
-        super().__init__(self)
+    @staticmethod
+    def add_by_choice(cho: Choice):
         if cho.bid and not Ticket.select().where(Ticket.cid == cho.id, Ticket.bid == cho.bid).exists():
-            self.status = Ticket.Status.PENDING
-            self.code = cho.code
-            self.name = cho.name
-            self.cid = cho.cid
-            self.bid = cho.bid
+            tic = Ticket()
+            tic.status = Ticket.Status.PENDING
+            tic.code = cho.code
+            tic.name = cho.name
+            tic.cid = cho.cid
+            tic.bid = cho.bid
             bs = Signal.get(Signal.id == cho.bid)
-            self.sl_price = bs.price
-            self.created = datetime.now()
-            self.updated = datetime.now()
+            tic.sl_price = bs.price
+            tic.created = datetime.now()
+            tic.updated = datetime.now()
+            tic.save()
 
     class Status:
         MISS = 0

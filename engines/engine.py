@@ -186,8 +186,7 @@ class Engine(ABC):
                 cho.status = Choice.Status.DEAL
                 cho.updated = datetime.now()
                 cho.save()
-                tic = Ticket(cho)
-                tic.save()
+                Ticket.add_by_choice(cho)
                 print('[{0}] add a {3} signal({1}) by strategy {2}'.format(datetime.now(), cho.code, self.strategy,
                                                                            sig.stage))
         except Exception as e:
