@@ -41,14 +41,10 @@ def ticket_list():
             flash('操作失败')
 
     # 查询列表
-    today = request.args.get('today')
-    sea = request.args.get('sea')
-    if today and today != 'None':
+    status = request.args.get('status')
+    if status and status != 'None':
         last_day = now_ymd()  # find_candles('000001', 101, limit=1)[0].dt
         query = Ticket.select().where(Ticket.status < 3, Ticket.created > last_day).order_by(Ticket.hold.desc())
-        total_count = query.count()
-    elif sea and sea != 'None':
-        query = Ticket.select().where((Ticket.code.contains(sea)) | (Ticket.name.contains(sea)))
         total_count = query.count()
     else:
         query = Ticket.select().where(Ticket.status < 3).order_by(Ticket.status.desc(), Ticket.hold.desc())

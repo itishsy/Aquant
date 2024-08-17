@@ -2,7 +2,7 @@ import smtplib
 import traceback
 
 
-def send(content):
+def send_email(content):
     try:
         smtp_server = "smtp.163.com"
         smtp_username = "itishsy@163.com"
@@ -28,4 +28,4 @@ def send(content):
 
 
 if __name__ == '__main__':
-    send("hello")
+    send_email("hello")

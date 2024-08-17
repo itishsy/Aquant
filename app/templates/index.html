@@ -16,9 +16,21 @@
     <div class="box-body">
         <div class="row">
             <div class="col-lg-6 col-xs-12">
+                <div class="small-box bg-aqua">
+                    <div class="inner">
+                        <a style="color: white" href="{{ url_for('main.choice_list',status='1' ) }}"><h3 id="c_size">0</h3></a>
+                        <p>choice（over:<a style="color: blue" href="{{ url_for('main.choice_list', status='0' ) }}">
+                        <span id="c_today_size">0</span></a>）</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-pie-graph"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xs-12">
                 <div class="small-box bg-red">
                     <div class="inner">
-                        <a style="color: yellow" href="{{ url_for('main.choice_list',status=3,today=1) }}"><h3 id="t_today_size">0</h3></a>
+                        <a style="color: yellow" href="{{ url_for('main.choice_list',status=3) }}"><h3 id="t_today_size">0</h3></a>
                         <p>ticket（done:<a style="color: whitesmoke" href="{{ url_for('main.choice_list',status=3 ) }}">
                         <span id="t_size">0</span></a>）</p>
                     </div>
@@ -36,18 +48,6 @@
                     </div>
                     <div class="icon">
                         <i class="ion ion-iphone"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 col-xs-12">
-                <div class="small-box bg-aqua">
-                    <div class="inner">
-                        <a style="color: white" href="{{ url_for('main.choice_list',status='1' ) }}"><h3 id="c_size">0</h3></a>
-                        <p>watching（over:<a style="color: blue" href="{{ url_for('main.choice_list', status='0' ) }}">
-                        <span id="c_today_size">0</span></a>）</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-pie-graph"></i>
                     </div>
                 </div>
             </div>

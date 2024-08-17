@@ -9,6 +9,7 @@ import logging
 
 class RPA:
     def __init__(self, headless=False):
+        print("=====start driver=====")
         options = webdriver.ChromeOptions()
         if headless:
             options.add_argument('--headless')

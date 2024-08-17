@@ -89,7 +89,7 @@ class Engine(ABC):
                                     Choice.strategy ** '{}%'.format(self.strategy))
         for ti in tis:
             if ti.status == Ticket.Status.PENDING:
-                b_sig = Signal.get(ti.bid)
+                b_sig = Signal.select().where(Signal.id == ti.bid)
                 bp = self.common_buy_point(b_sig)
                 if bp:
                     bp.notify = 0
