@@ -1,6 +1,7 @@
 from engines import *
 from datetime import datetime
 from models.user import generate_pwd
+from models.symbol import Symbol
 from models.ticket import Ticket
 from models.base import BaseModel, db
 
@@ -29,6 +30,7 @@ def test_model():
 
 
 if __name__ == '__main__':
+    Symbol.fetch()
     # test_watch('p60')
-    test_search('u20')
+    # test_search('u20')
     # test_model()

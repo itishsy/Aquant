@@ -56,9 +56,9 @@ class Symbol(BaseModel):
         if symbol.industry == '银行':
             symbol.status = 0
             symbol.comment = '银行'
-        elif symbol.total < 5000000000 or symbol.circulating < 3000000000:
-            symbol.status = 0
-            symbol.comment = '小市值'
+        # elif symbol.total < 5000000000 or symbol.circulating < 3000000000:
+        #     symbol.status = 0
+        #     symbol.comment = '小市值'
         else:
             symbol.status = 1
         symbol.updated = datetime.now()
