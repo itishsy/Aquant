@@ -304,30 +304,29 @@ def find_un_close_story(version=""):
         if story_status == 2:
             print(story.permalink())
 
-
-if __name__ == '__main__':
-    version = 'BOT20240910,RPA20240910'
-    users = {'chaodongyue':"巢东岳",
-             'chenjingchun':"陈静纯",
-             'fengweilong':'冯尾龙',
-             'huangshouyi':'黄首益',
-             'liangheyun':'梁鹤云',
-             'lirongwei':'李荣威',
-             'lisongyang':'李松洋',
-             'liudandan':'刘丹丹',
-             'liuhongchang':'刘洪昌',
-             'liwensha':'李文莎',
-             'lixiaolong':'李小龙',
-             'pengshasha':'彭莎莎',
-             'tanyong':'谭咏',
-             'wangying':'王英',
-             'weizhaoxin':'韦兆新',
-             'xufuzhou':'徐富周',
-             'yanglianxin':'杨廉新',
-             'zengyixin':'曾轶鑫',
-             'zhangkailun':'张凯伦',
-             'zhengjiajie':'郑佳杰',
-             'zhenshijun':'甄仕军'}
+# 复盘统计
+def version_tj(version, start_time, end_time):
+    users = {'chaodongyue': "巢东岳",
+             'chenjingchun': "陈静纯",
+             'fengweilong': '冯尾龙',
+             'huangshouyi': '黄首益',
+             'liangheyun': '梁鹤云',
+             'lirongwei': '李荣威',
+             'lisongyang': '李松洋',
+             'liudandan': '刘丹丹',
+             'liuhongchang': '刘洪昌',
+             'liwensha': '李文莎',
+             'lixiaolong': '李小龙',
+             'pengshasha': '彭莎莎',
+             'tanyong': '谭咏',
+             'wangying': '王英',
+             'weizhaoxin': '韦兆新',
+             'xufuzhou': '徐富周',
+             'yanglianxin': '杨廉新',
+             'zengyixin': '曾轶鑫',
+             'zhangkailun': '张凯伦',
+             'zhengjiajie': '郑佳杰',
+             'zhenshijun': '甄仕军'}
 
     usernames = users.keys()
     print("版本：", version)
@@ -339,7 +338,7 @@ if __name__ == '__main__':
 
     for user in usernames:
         # 版本统计
-        issues = jira.search_issues('fixVersion in ({}) AND assignee in ({}) '.format(version, user), maxResults=1000, expand='changelog')
+        issues = jira.search_issues('fixVersion in ({}) AND assignee in ({}) '.format(version, user), expand='changelog')
 
         done_arr = []
         add_arr = []
@@ -353,7 +352,7 @@ if __name__ == '__main__':
             elif issue.fields.issuetype.name in ['任务', 'Test', '故事', '子任务']:
                 task_arr.append(issue)
 
-            if issue.get_field('created') > '2024-09-03':
+            if issue.get_field('created') > start_time:
                 add_arr.append(issue)
 
             status = issue.get_field('status').name
@@ -364,11 +363,11 @@ if __name__ == '__main__':
 
         if user in ['liwensha', 'lixiaolong', 'chenjingchun', 'yanglianxin']:
             bugs = jira.search_issues('fixVersion in ({}) AND reporter in ({}) '.format(version, user),
-                                        maxResults=1000, expand='changelog')
+                                      maxResults=1000, expand='changelog')
             for bug in bugs:
                 bug_arr.append(bug)
 
-                if bug.get_field('created') > '2024-09-03':
+                if bug.get_field('created') > start_time and bug.get_field('created') < end_time:
                     add_arr.append(bug)
 
                 if bug.get_field('status').name == 'In View':
@@ -378,48 +377,57 @@ if __name__ == '__main__':
 
         if len(issues) > 0:
             total = total + len(issues)
-            done_size = done_size + len(add_arr)
+            done_size = done_size + len(done_arr)
             add_size = add_size + len(add_arr)
             delay_size = delay_size + len(delay_arr)
             InView_size = InView_size + len(InView_arr)
 
-            print(users.get(user), "任务：", "{}+{}".format(len(task_arr), len(bug_arr)), "完成：", len(done_arr), "插入：", len(add_arr), "延迟：", "{}+{}".format(len(delay_arr), len(InView_arr)))
+            print(users.get(user), "任务：", "{}+{}".format(len(task_arr), len(bug_arr)), "完成：", len(done_arr), "插入：",
+                  len(add_arr), "延迟：", "{}+{}".format(len(delay_arr), len(InView_arr)))
             for delay in delay_arr:
                 comment_txt = ''
                 comments = delay.fields.comment.comments
                 if len(comments) > 0:
                     for comment in comments:
-                        if comment.created > '2024-09-02':
+                        if start_time < comment.created < end_time:
                             comment_txt = comment_txt + comment.body
-                print(delay.permalink(), delay.get_field('summary'), '插入' if delay.get_field('created') > '2024-09-03'else '', comment_txt)
+                print(delay.permalink(), delay.get_field('summary'),
+                      '插入' if delay.get_field('created') > start_time else '', comment_txt)
             for inView in InView_arr:
                 comment_txt = ''
                 comments = inView.fields.comment.comments
                 if len(comments) > 0:
                     for comment in comments:
-                        if comment.created > '2024-09-02':
+                        if start_time < comment.created < end_time:
                             comment_txt = comment_txt + comment.body
-                print(inView.permalink(), inView.get_field('summary'), '插入' if inView.get_field('created') > '2024-09-03'else '', comment_txt)
+                print(inView.permalink(), inView.get_field('summary'),
+                      '插入' if inView.get_field('created') > start_time else '', comment_txt)
 
-    print("总数", total, "插入", add_size, "完成", done_size, "延迟", delay_size, "延迟验证", InView_size )
+    print("总数", total, "插入", add_size, "完成", done_size, "延迟", delay_size, "延迟验证", InView_size)
 
+
+if __name__ == '__main__':
+    version = 'BOT20241031,RPA20241031'
+    version_tj(version=version, start_time='2024-10-19', end_time='2024-10-31')
 
 '''
     # 创建子任务
     all_story = find_all_story()
     for story in all_story:
         story_summary = story.get_field('summary')
-        if story_summary in ['泉州社保']:
+        if story_summary in ['柳州社保','合肥社保','深圳社保','太原社保','广州社保','惠州社保','晋中社保','天津社保','沈阳社保','大连社保','东莞社保','北京社保','长春社保','泉州社保','西安社保','海口社保','郑州社保','武汉社保','无锡社保','厦门社保']:
             task_assignee = story.get_field('assignee')     # 经办人
             if task_assignee:
                 story_key = story.key
-                task_summary = "【" + story_summary + "】添加税务端填报基数流程"
-                task_description = "https://docs.qq.com/sheet/DSnhRV2lKUnVLb05G?tab=BB08J2"
+                task_summary = "【" + story_summary + "】优化税务端填报基数流程，需要确保提交名单必需与增员成功名单一致"
+                task_description = """税务端填报基数流程，需要复核提交名单必需与增员成功名单一致
+                参考长春-社保处理方式
+                咨询佳杰
+            """
                 task_component_id = '11015'  # 城市配置
                 add_sub_task(story_key, task_summary, task_description, task_assignee.name, task_component_id, fixVersions =version)
-'''
 
-'''
+
     # 更新维护人
     all_story = find_all_story()
     for story in all_story:

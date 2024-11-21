@@ -14,7 +14,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 class EngineTask(threading.Thread):
     def run(self):
-        notify = Notify()
+        # notify = Notify()
         while True:
             Component.update(run_start=datetime.now(), status=Component.Status.RUNNING).where(
                 Component.name == 'engine').execute()
@@ -24,7 +24,7 @@ class EngineTask(threading.Thread):
                 st.start()
             Component.update(run_start=datetime.now(), status=Component.Status.READY).where(
                 Component.name == 'engine').execute()
-            notify.do_send()
+            # notify.do_send()
             print("[{}] sleep {} min".format(datetime.now(), 5))
             time.sleep(60 * 5)
 
