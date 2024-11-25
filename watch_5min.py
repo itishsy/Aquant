@@ -50,7 +50,7 @@ if __name__ == '__main__':
                 candles = fetch_data(st, freq)
                 candles = mark(candles)
                 dbs = diver_bottom(candles)
-                if len(dbs) > 0 and dbs[-1].dt not in sig_dts:
+                if len(dbs) > 0 and (st+dbs[-1].dt) not in sig_dts:
                     dt = dbs[-1].dt
                     sig_dts.append(st+dt)
                     print('[{}] {}: bottom sig:{} freq: {}'.format(datetime.now().strftime("%H:%M"), st[-3:], dt, freq))
@@ -60,7 +60,7 @@ if __name__ == '__main__':
                             flag = True
                             break
                 dts = diver_top(candles)
-                if len(dts) > 0 and dts[-1].dt not in sig_dts:
+                if len(dts) > 0 and (st+dts[-1].dt) not in sig_dts:
                     dt = dts[-1].dt
                     sig_dts.append(st+dt)
                     print('[{}] {}: top sig:{} freq: {} '.format(datetime.now().strftime("%H:%M"), st[-3:], dt, freq))

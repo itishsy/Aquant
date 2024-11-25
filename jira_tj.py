@@ -407,8 +407,8 @@ def version_tj(version, start_time, end_time):
 
 
 if __name__ == '__main__':
-    version = 'BOT20241031,RPA20241031'
-    version_tj(version=version, start_time='2024-10-19', end_time='2024-10-31')
+    version = 'BOT20241129,RPA20241129'
+    version_tj(version=version, start_time='2024-11-19', end_time='2024-11-30')
 
 '''
     # 创建子任务
