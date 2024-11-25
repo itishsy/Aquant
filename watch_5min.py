@@ -75,4 +75,5 @@ if __name__ == '__main__':
         else:
             print("无数据")
             break
+        print('{} {}'.format(datetime.now().strftime("%H:%M"), len(sta)))
         time.sleep(60 * 5)
