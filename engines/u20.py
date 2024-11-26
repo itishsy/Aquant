@@ -1,6 +1,6 @@
 from engines.engine import strategy_engine, Engine
 from models.signal import Signal
-from strategies.ma20 import MA20
+from strategies.ma import MA20
 from datetime import datetime, timedelta
 
 
