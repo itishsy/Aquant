@@ -46,26 +46,49 @@ if __name__ == '__main__':
             for st in sta:
                 if flag:
                     break
-                freq = 5
-                candles = fetch_data(st, freq)
-                candles = mark(candles)
-                dbs = diver_bottom(candles)
+                candles5 = fetch_data(st, 5)
+                candles5 = mark(candles5)
+                dbs = diver_bottom(candles5)
                 if len(dbs) > 0 and (st+dbs[-1].dt) not in sig_dts:
                     dt = dbs[-1].dt
                     sig_dts.append(st+dt)
-                    print('[{}] {}: bottom sig:{} freq: {}'.format(datetime.now().strftime("%H:%M"), st[-3:], dt, freq))
+                    print('[{}] {}: bottom sig:{} freq: {}'.format(datetime.now().strftime("%H:%M"), st[-3:], dt, 5))
                     if dt > datetime.now().strftime("%Y-%m-%d 00:00:01"):
-                        result = show_dialog(st[-2:]+' ' + str(freq) + 'b ' + str(dt))
+                        result = show_dialog(st[-2:]+' ' + '5b ' + str(dt))
                         if not result:
                             flag = True
                             break
-                dts = diver_top(candles)
+                dts = diver_top(candles5)
                 if len(dts) > 0 and (st+dts[-1].dt) not in sig_dts:
                     dt = dts[-1].dt
                     sig_dts.append(st+dt)
-                    print('[{}] {}: top sig:{} freq: {} '.format(datetime.now().strftime("%H:%M"), st[-3:], dt, freq))
+                    print('[{}] {}: top sig:{} freq: {} '.format(datetime.now().strftime("%H:%M"), st[-3:], dt, 5))
                     if dt > datetime.now().strftime("%Y-%m-%d 00:00:01"):
-                        result = show_dialog(st[-2:]+' ' + str(freq) + 's ' + str(dt))
+                        result = show_dialog(st[-2:]+' ' + '5s ' + str(dt))
+                        if not result:
+                            flag = True
+                            break
+                if flag:
+                    break
+                candles15 = fetch_data(st, 15)
+                candles15 = mark(candles15)
+                dbs = diver_bottom(candles15)
+                if len(dbs) > 0 and (st+dbs[-1].dt) not in sig_dts:
+                    dt = dbs[-1].dt
+                    sig_dts.append(st+dt)
+                    print('[{}] {}: bottom sig:{} freq: {}'.format(datetime.now().strftime("%H:%M"), st[-3:], dt, 15))
+                    if dt > datetime.now().strftime("%Y-%m-%d 00:00:01"):
+                        result = show_dialog(st[-2:]+' ' + '15b ' + str(dt))
+                        if not result:
+                            flag = True
+                            break
+                dts = diver_top(candles15)
+                if len(dts) > 0 and (st+dts[-1].dt) not in sig_dts:
+                    dt = dts[-1].dt
+                    sig_dts.append(st+dt)
+                    print('[{}] {}: top sig:{} freq: {} '.format(datetime.now().strftime("%H:%M"), st[-3:], dt, 15))
+                    if dt > datetime.now().strftime("%Y-%m-%d 00:00:01"):
+                        result = show_dialog(st[-2:]+' ' + '15s ' + str(dt))
                         if not result:
                             flag = True
                             break

@@ -10,14 +10,13 @@ class Ticket(BaseModel):
     id = AutoField()
     code = CharField()  # 编码
     name = CharField()  # 名称
-    status = IntegerField(default=1)  # 状态 1 待交易， 2. 交易中， 0. 交易失败， 3. 完成交易
-    sig_id = IntegerField()  # signal id
     b_dt = CharField()  # 买入时间
     b_price = DecimalField()  # 买入价
     s_dt = CharField()  # 卖出时间
     s_price = DecimalField()  # 卖出价
     hold = IntegerField()  # 持有量
     sl_price = DecimalField()  # 止损价
+    status = IntegerField(default=1)  # 状态 1 0
     created = DateTimeField()
     updated = DateTimeField()
 

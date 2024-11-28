@@ -2,6 +2,7 @@ from engines import *
 from datetime import datetime
 from models.user import generate_pwd
 from models.symbol import Symbol
+from models.engine import Engine
 from models.ticket import Ticket
 from models.base import BaseModel, db
 from candles.fetcher import fetch_all
@@ -47,9 +48,39 @@ def monthly_diver_bottom():
                 print("http://xueqiu.com/S/SZ{} {}".format(sb.code,sis[-1].dt))
 
 
+def engine_job():
+    now = datetime.now()
+    n_val = now.hour * 100 + now.minute
+    ens = Engine.select().where(Engine.status == 0)
+    for eng in ens:
+        if eng.job_from < n_val < eng.job_to:
+            if eng.job_times == 1 and eng.run_end > datetime.strptime(datetime.now().strftime("%Y-%m-%d 00:00:01"),
+                                                                      "%Y-%m-%d %H:%M:%S"):
+                continue
+            try:
+                eng.status = 1
+                eng.run_start = datetime.now()
+                eng.save()
+                fun = eng.name + '.' + eng.method
+                if hasattr(searcher.U20, 'search'):
+                    print('===')
+                if eval("hasattr("+fun+", 'start')"):
+                    eval(fun + '.start()')
+                else:
+                    eval(fun + '()')
+                eng.status = 0
+                eng.run_end = datetime.now()
+                eng.save()
+            except Exception as e:
+                eng.status = 0
+                eng.save()
+                print(e)
+
+
 if __name__ == '__main__':
     # Symbol.fetch()
     # test_watch('p60')
     # test_search('u20')
     # test_model()
-    monthly_diver_bottom()
+    # monthly_diver_bottom()
+    engine_job()

@@ -1,7 +1,7 @@
 from candles.storage import find_candles
 import signals.utils as utl
 from signals.divergence import diver_bottom, diver_top
-from common_filter import Common
+# from common_strategy import Common
 import candles.marker as mar
 from models.signal import Signal
 from candles.fetcher import fetch_data
