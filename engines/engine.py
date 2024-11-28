@@ -21,6 +21,7 @@ class Searcher(ABC):
     strategy = 'searcher'
 
     def start(self):
+        self.strategy = self.__class__.__name__.lower()
         count = 0
         symbols = Symbol.actives()
         for sym in symbols:
@@ -47,19 +48,25 @@ class Searcher(ABC):
 
 
 class BaseWatcher(ABC):
+    strategy = 'watcher'
 
     def start(self):
+        self.strategy = self.__class__.__name__.lower()
         tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING, Ticket.Status.TRADING]))
         for ti in tis:
             try:
-                print('[{0}] {1} searching by strategy -- {2}  '.format(datetime.now(), ti.code, self.strategy))
+                print('[{0}] {1} watcher by strategy -- {2}  '.format(datetime.now(), ti.code, self.strategy))
                 sig5 = self.watch(ti.code, 5)
                 if sig5:
                     sig5.code = ti.code
+                    sig5.strategy = self.strategy
+                    sig5.stage = ti.id
                     sig5.upset()
                 sig15 = self.watch(ti.code, 15)
                 if sig15:
                     sig15.code = ti.code
+                    sig15.strategy = self.strategy
+                    sig15.stage = ti.id
                     sig15.upset()
 
             except Exception as e:

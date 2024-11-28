@@ -36,8 +36,9 @@ class EngineJob(threading.Thread):
             now = datetime.now()
             n_val = now.hour * 100 + now.minute
             if now.weekday() < 5:
-                ens = Engine.select().where(Engine.Status == 0)
+                ens = Engine.select().where(Engine.status == 0)
                 for eng in ens:
+                    print("[{}] start engine {}".format(datetime.now(), eng.name))
                     if eng.job_from < n_val < eng.job_to:
                         if eng.job_times == 1 and eng.run_end > datetime.strptime(datetime.now().strftime("%Y-%m-%d 00:00:01"), "%Y-%m-%d %H:%M:%S"):
                             continue
