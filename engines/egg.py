@@ -1,31 +1,23 @@
 from abc import ABC, abstractmethod
 from models.choice import Choice
 from models.symbol import Symbol
-from models.signal import Signal
 from models.ticket import Ticket
 from common.utils import *
-from strategies.common_strategy import CommonStrategy
-from models.component import Component
-import candles.fetcher as fet
-import candles.marker as mar
-from signals.divergence import diver_bottom, diver_top
-from candles.storage import find_candles
-import signals.utils as utl
 
 
-strategy = {}
+engines = {}
 
 
-def strategy_engine(cls):
+def job_engine(cls):
     cls_name = cls.__name__.lower()[0] + cls.__name__[1:]
 
     def register(clz):
-        strategy[cls_name] = clz
+        engines[cls_name] = clz
 
     return register(cls)
 
 
-class BaseSearcher(ABC):
+class Searcher(ABC):
     strategy = 'engine'
 
     def start(self):

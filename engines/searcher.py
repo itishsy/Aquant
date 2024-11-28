@@ -1,4 +1,4 @@
-from engines.base import BaseSearcher, strategy_engine
+from engines.egg import Searcher, job_engine
 from models.signal import Signal
 from models.symbol import Symbol
 from models.choice import Choice
@@ -6,8 +6,8 @@ from strategies.ma import MA20, MA60
 from datetime import datetime, timedelta
 
 
-@strategy_engine
-class U20(BaseSearcher):
+@job_engine
+class U20(Searcher):
 
     def search(self, code):
         sig = MA20.search(code)
@@ -16,8 +16,8 @@ class U20(BaseSearcher):
             return sig
 
 
-@strategy_engine
-class U10(BaseSearcher):
+@job_engine
+class U10(Searcher):
 
     def search(self, code):
         sig = MA20.search(code)
@@ -26,8 +26,8 @@ class U10(BaseSearcher):
             return sig
 
 
-@strategy_engine
-class U60(BaseSearcher):
+@job_engine
+class U60(Searcher):
 
     def search(self, code):
         sig = MA20.search(code)

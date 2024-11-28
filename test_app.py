@@ -61,13 +61,10 @@ def engine_job():
                 eng.status = 1
                 eng.run_start = datetime.now()
                 eng.save()
-                fun = eng.name + '.' + eng.method
-                if hasattr(searcher.U20, 'search'):
-                    print('===')
-                if eval("hasattr("+fun+", 'start')"):
-                    eval(fun + '.start()')
+                if egg.engines.get(eng.method) is None:
+                    eval(eng.name + '.' + eng.method + '()')
                 else:
-                    eval(fun + '()')
+                    egg.engines[eng.method]().start()
                 eng.status = 0
                 eng.run_end = datetime.now()
                 eng.save()

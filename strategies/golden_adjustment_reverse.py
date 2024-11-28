@@ -1,6 +1,6 @@
 from strategies.strategy import register_strategy, Strategy
 from candles.storage import find_candles
-from common_strategy.config import Config
+from base_strategy.config import Config
 import signals.utils as sig
 from signals.divergence import diver_bottom
 from candles.candle import Candle

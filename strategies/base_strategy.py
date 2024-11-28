@@ -9,10 +9,10 @@ Common filter
 """
 
 
-class CommonStrategy:
+class BaseStrategy:
 
     @staticmethod
-    def filter(code):
+    def candles(code):
         candles = find_candles(code)
         size = len(candles)
 

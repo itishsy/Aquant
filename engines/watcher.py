@@ -1,10 +1,10 @@
-from engines.base import BaseWatcher, strategy_engine
+from engines.egg import BaseWatcher, job_engine
 from candles.fetcher import fetch_data
 from candles.marker import mark
 from signals.divergence import diver_top, diver_bottom
 
 
-@strategy_engine
+@job_engine
 class Watcher(BaseWatcher):
 
     def watch(self, code, freq):

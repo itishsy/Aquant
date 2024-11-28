@@ -1,7 +1,7 @@
 from candles.storage import find_candles
 import signals.utils as utl
 from signals.divergence import diver_bottom, diver_top
-# from common_strategy import Common
+from strategies.base_strategy import BaseStrategy
 import candles.marker as mar
 from models.signal import Signal
 from candles.fetcher import fetch_data
@@ -17,7 +17,7 @@ class MA20:
 
     @staticmethod
     def search(code):
-        candles = Common.candles(code)
+        candles = BaseStrategy.candles(code)
         if not candles:
             return
 
@@ -101,7 +101,7 @@ class MA60:
 
     @staticmethod
     def search(code):
-        candles = Common.candles(code)
+        candles = BaseStrategy.candles(code)
         if not candles:
             return
 
