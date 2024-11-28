@@ -1,4 +1,4 @@
-from engines.egg import Searcher, job_engine
+from engines.engine import Searcher, job_engine
 from models.signal import Signal
 from models.symbol import Symbol
 from models.choice import Choice

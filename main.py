@@ -45,10 +45,10 @@ class EngineJob(threading.Thread):
                             eng.status = 1
                             eng.run_start = datetime.now()
                             eng.save()
-                            if eng.name == 'searcher':
-                                eval(eng.name + '.' + eng.method + '.start()')
-                            else:
+                            if engine.engines.get(eng.method) is None:
                                 eval(eng.name + '.' + eng.method + '()')
+                            else:
+                                engine.engines[eng.method]().start()
                             eng.status = 0
                             eng.run_end = datetime.now()
                             eng.save()

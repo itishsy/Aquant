@@ -61,10 +61,10 @@ def engine_job():
                 eng.status = 1
                 eng.run_start = datetime.now()
                 eng.save()
-                if egg.engines.get(eng.method) is None:
+                if engine.engines.get(eng.method) is None:
                     eval(eng.name + '.' + eng.method + '()')
                 else:
-                    egg.engines[eng.method]().start()
+                    engine.engines[eng.method]().start()
                 eng.status = 0
                 eng.run_end = datetime.now()
                 eng.save()

@@ -18,7 +18,7 @@ def job_engine(cls):
 
 
 class Searcher(ABC):
-    strategy = 'engine'
+    strategy = 'searcher'
 
     def start(self):
         count = 0

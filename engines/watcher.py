@@ -1,4 +1,4 @@
-from engines.egg import BaseWatcher, job_engine
+from engines.engine import BaseWatcher, job_engine
 from candles.fetcher import fetch_data
 from candles.marker import mark
 from signals.divergence import diver_top, diver_bottom
