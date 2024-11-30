@@ -24,6 +24,7 @@ class Searcher(ABC):
         self.strategy = self.__class__.__name__.lower()
         count = 0
         symbols = Symbol.actives()
+        Choice.update(status=0).where(Choice.strategy == self.strategy).execute()
         for sym in symbols:
             try:
                 count = count + 1
@@ -75,4 +76,16 @@ class BaseWatcher(ABC):
 
     @abstractmethod
     def watch(self, code, freq):
+        pass
+
+
+class Fetcher(ABC):
+    strategy = 'fetcher'
+
+    def start(self):
+        self.strategy = self.__class__.__name__.lower()
+        self.fetch()
+
+    @abstractmethod
+    def fetch(self):
         pass

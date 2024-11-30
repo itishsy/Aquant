@@ -5,7 +5,7 @@ from models.signal import Signal
 from models.ticket import Ticket
 from common.utils import *
 from models.component import Component
-import candles.fetcher as fet
+import candles.finance as fet
 import candles.marker as mar
 from signals.divergence import diver_bottom, diver_top
 from candles.storage import find_candles
@@ -65,9 +65,10 @@ class Engine(ABC):
             if now.weekday() == 5:
                 freq = [102, 101, 120, 60, 30]
                 Symbol.fetch()
-                fet.fetch_all(freq=freq, clean=True)
+                # fet.fetch_all(freq=freq, clean=True)
             else:
-                fet.fetch_all(freq=freq)
+                pass
+                # fet.fetch_all(freq=freq)
             fetcher.status = Component.Status.READY
             fetcher.run_end = datetime.now()
             fetcher.save()

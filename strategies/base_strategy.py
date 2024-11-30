@@ -1,6 +1,6 @@
 from candles.storage import find_candles
 from signals.divergence import diver_top, diver_bottom
-from candles.fetcher import fetch_data
+from candles.finance import fetch_data
 from candles.marker import mark
 from datetime import datetime
 

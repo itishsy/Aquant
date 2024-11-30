@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from models.signal import Signal
 from models.symbol import Symbol
 from common.utils import *
-import candles.fetcher as fet
+import candles.finance as fet
 from candles.candle import Candle
 from typing import List
 from candles.storage import dba, find_candles

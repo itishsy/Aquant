@@ -1,7 +1,7 @@
 from candles.storage import find_candles
 import signals.utils as utl
 from signals.divergence import diver_bottom, diver_top
-import candles.fetcher as fet
+import candles.finance as fet
 import candles.marker as mar
 from models.signal import Signal
 

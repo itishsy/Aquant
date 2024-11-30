@@ -1,30 +1,44 @@
 from engines import *
 from datetime import datetime
-from models.user import generate_pwd
+from models.symbol import Symbol
 from models.symbol import Symbol
 from models.engine import Engine
 from models.ticket import Ticket
 from models.base import BaseModel, db
-from candles.fetcher import fetch_all
 from candles.storage import find_candles
 from signals.divergence import diver_bottom
 from candles.marker import mark
 
 
-def test_search(eng_name):
-    eng = engine.strategy[eng_name]()
-    eng.strategy = eng_name
-    print("[{}] {} start...".format(datetime.now(), eng_name))
-    eng.do_search()
-    print("[{}] {} end".format(datetime.now(), eng_name))
+def search_choice(engines):
+    for eng_name in engines:
+        eng = engine.strategy[eng_name]()
+        eng.strategy = eng_name
+        print("[{}] {} start...".format(datetime.now(), eng_name))
+        eng.do_search()
+        print("[{}] {} end".format(datetime.now(), eng_name))
 
 
-def test_watch(eng_name):
+def watch_bsig(eng_name):
     eng = engine.strategy[eng_name]()
     eng.strategy = eng_name
     print("[{}] {} start...".format(datetime.now(), eng_name))
     eng.start_watch()
     print("[{}] {} end".format(datetime.now(), eng_name))
+
+
+def find_month_divergence():
+    symbols = Symbol.select()
+    for sym in symbols:
+        try:
+            candles = find_candles(sym.code, freq=103)
+            sis = diver_bottom(candles)
+            print('search single code=', sym.code, 'result:', len(sis))
+            if len(sis) > 0:
+                for si in sis:
+                    si.save()
+        except Exception as e:
+            print(e)
 
 
 def test_model():
@@ -72,6 +86,10 @@ def engine_job():
                 eng.status = 0
                 eng.save()
                 print(e)
+
+
+def upset_symbol():
+    Symbol.fetch()
 
 
 if __name__ == '__main__':

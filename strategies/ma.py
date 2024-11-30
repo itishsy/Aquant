@@ -4,7 +4,7 @@ from signals.divergence import diver_bottom, diver_top
 from strategies.base_strategy import BaseStrategy
 import candles.marker as mar
 from models.signal import Signal
-from candles.fetcher import fetch_data
+from candles.finance import fetch_data
 from candles.marker import mark
 
 

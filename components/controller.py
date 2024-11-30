@@ -1,7 +1,7 @@
 from datetime import datetime
 from models.component import Component
 from models.symbol import Symbol
-import candles.fetcher as fet
+import candles.finance as fet
 from engines import *
 
 
@@ -13,7 +13,8 @@ def start_component(name, act):
     comp.save()
     if name == 'fetcher':
         if act == 'candle':
-            fet.fetch_all()
+            pass
+            # fet.fetch_all()
         elif act == 'symbol':
             Symbol().fetch()
     elif name == 'engine':

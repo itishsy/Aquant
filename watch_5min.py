@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 import time
-from candles.fetcher import fetch_data
+from candles.finance import fetch_data
 from candles.marker import mark
 from signals.divergence import diver_top, diver_bottom
 import tkinter as tk

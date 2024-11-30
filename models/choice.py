@@ -10,10 +10,6 @@ class Choice(BaseModel):
     code = CharField()  # 编码
     name = CharField()  # 名称
     strategy = CharField()  # 策略
-    cid = IntegerField()  # 信號ID
-    bid = IntegerField(null=True)  # 信號ID
-    sid = IntegerField(null=True)  # 信號ID
-    oid = IntegerField(null=True)  # 信號ID
     status = IntegerField(default=1)  # 状态
     created = DateTimeField()
     updated = DateTimeField(null=True)

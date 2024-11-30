@@ -3,14 +3,14 @@ from datetime import datetime, timedelta
 from candles.candle import Candle
 from models.symbol import Symbol
 from decimal import Decimal
-from candles.storage import dba
+from candles.storage import dba, find_candles
 from common.config import Config
 from sqlalchemy import select, desc, delete, and_, text
 from candles.marker import remark
 from candles.storage import clean_data
 from typing import List
 from common.utils import dt_format
-from models.component import Component
+import signals.utils as utl
 import logging
 import time
 import pandas as pd
@@ -154,32 +154,6 @@ def update_ma(code):
     sen.close()
 
 
-def fetch_all(freq=None, clean=False):
-    start_time = datetime.now()
-    ks = []
-    if freq is not None:
-        if isinstance(freq, list):
-            ks = freq
-        else:
-            ks.append(freq)
-    else:
-        ks = Config.FREQ
-    sbs = Symbol.actives()
-    count = 0
-    for sb in sbs:
-        try:
-            print('[{}] {} fetch candles [{}] start!'.format(datetime.now(), count, sb.code))
-            if clean:
-                clean_data(sb.code)
-            for k in ks:
-                fetch_and_save(sb.code, k)
-            print('[{}] {} fetch candles [{}] done!'.format(datetime.now(), count, sb.code))
-            count = count + 1
-        except Exception as ex:
-            print('fetch candles [{}] error!'.format(sb.code), ex)
-    print('[{}] fetch all done! elapsed time:'.format(datetime.now(), datetime.now() - start_time))
-
-
 def cal_fetch_beg(freq):
     now = datetime.now()
     beg = ''
@@ -202,33 +176,39 @@ def cal_fetch_beg(freq):
     return beg
 
 
-def fetch_daily():
-    print('[{}] fetcher start ...'.format(datetime.now()))
-    while True:
-        now = datetime.now()
-        try:
-            Component.update(clock_time=now).where(Component.name == 'fetcher').execute()
-            if now.weekday() < 5 and now.hour > 15:
-                fet = Component.get(Component.name == 'fetcher')
-                fet_time = fet.run_end  # datetime.p(fet.run_time, '%Y-%m-%d %H:%M:%S')
-                if fet_time.day < now.day or fet_time.hour < 15:
-                    fetch_all()
-                    print("==============用時：{}=================".format(datetime.now() - now))
-        except Exception as e:
-            print(e)
-        finally:
-            time.sleep(60 * 30)
-
-
 if __name__ == '__main__':
     # fetch_daily()
-    # fetch_all(clean=True)
-    update_ma('000030')
-    # idx = 0
-    # for symbol in Symbol.actives():
-    #     idx = idx + 1
-    #     print('update candle', symbol.code, idx)
-    #     session = dba.get_session(symbol.code)
-    #     session.execute(delete(Candle).where(Candle.freq == 101))
-    #     session.commit()
-    #     fetch_and_save(symbol.code, 101)
+    # fetch_all(freq=103, clean=True)
+    # update_ma('000030')
+    idx = 0
+    for symbol in Symbol.actives():
+        idx = idx + 1
+        # print('find_candle diver_bottom:', symbol.code, idx)
+        candles1 = find_candles(symbol.code, freq=103)
+        signals = []
+        tbs = utl.get_top_bottom(candles1)
+        size = len(tbs)
+        for i in range(2, size):
+            c_2 = tbs[i - 2]
+            c_1 = tbs[i - 1]
+            c_0 = tbs[i]
+            if c_2.mark == -3 and c_1.mark == 3 and c_0.mark == -3 and c_2.diff() < 0 and c_1.diff() < 0 and c_0.diff() < 0:
+                is_cross = True
+                if i + 1 == size:
+                    cs = utl.get_section(candles1, c_0.dt, candles1[-1].dt)
+                    if utl.has_cross(cs) != 1:
+                        is_cross = False
+                if is_cross:
+                    down_stage1 = utl.get_stage(candles1, c_2.dt)
+                    down_stage2 = utl.get_stage(candles1, c_0.dt)
+                    if utl.has_trend(down_stage1) > -2 and utl.has_trend(down_stage2) > -2:
+                        low1 = utl.get_lowest(down_stage1)
+                        low2 = utl.get_lowest(down_stage2)
+                        lowest = utl.get_lowest(utl.get_section(candles1, low1.dt))
+                        if c_2.diff() < c_0.diff() and low1.low > low2.low == lowest.low and low2.dt > '2024-01-01':
+                            print(idx, 'search single=', symbol.code, symbol.name, low2.dt, low2.low)
+
+        # session = dba.get_session(symbol.code)
+        # session.execute(delete(Candle).where(Candle.freq == 101))
+        # session.commit()
+        # fetch_and_save(symbol.code, 101)

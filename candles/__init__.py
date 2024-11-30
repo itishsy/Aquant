@@ -1,1 +1,1 @@
-__all__ = ['storage.py', 'fetcher', 'candle']
+__all__ = ['storage.py', 'finance.py', 'candle']
