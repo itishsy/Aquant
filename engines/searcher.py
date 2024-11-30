@@ -2,7 +2,7 @@ from engines.engine import Searcher, job_engine
 from models.signal import Signal
 from models.symbol import Symbol
 from models.choice import Choice
-from strategies.ma import MA20, MA60
+from strategies.ma20 import MA20
 from datetime import datetime, timedelta
 
 

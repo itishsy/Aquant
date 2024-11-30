@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from models.choice import Choice
 from models.symbol import Symbol
+from models.signal import Signal
 from models.ticket import Ticket
 from common.utils import *
 
@@ -29,15 +30,15 @@ class Searcher(ABC):
             try:
                 count = count + 1
                 co = sym.code
-                print('[{0}] {1} searching by strategy -- {2} ({3}) '.format(datetime.now(), co, self.strategy, count))
+                print('[{0}] {1} searching by {2} ({3}) '.format(datetime.now(), co, self.strategy, count))
                 sig = self.search(co)
                 if sig:
                     sig.code = co
                     sig.strategy = self.strategy
                     sig.stage = 'choice'
                     sig.upset()
-                    if not Choice.select().where(Choice.sid == sig.id).exists():
-                        Choice.create(code=sig.code, name=sig.name, cid=sig.id, strategy=sig.strategy,
+                    if not Choice.select().where(Choice.code == sig.code and Choice.strategy == self.strategy).exists():
+                        Choice.create(code=sig.code, name=sig.name, strategy=self.strategy, status=1,
                                       created=datetime.now(), updated=datetime.now())
             except Exception as e:
                 print(e)

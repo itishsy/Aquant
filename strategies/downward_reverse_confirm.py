@@ -1,6 +1,6 @@
 from strategies.strategy import register_strategy, Strategy
 from candles.storage import find_stage_candles, find_candles
-from base_strategy.config import Config
+from strategy.config import Config
 import signals.utils as sig
 from models.signal import Signal
 from datetime import datetime, timedelta
