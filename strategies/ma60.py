@@ -13,7 +13,7 @@ Buy point of divergence during the adjustment of the upward trend
 
 
 
-class MA20:
+class MA60:
 
     @staticmethod
     def search(code):
@@ -25,22 +25,22 @@ class MA20:
             return
 
         # 在ma上线占比
-        last_20 = candles[-20:]
+        last_30 = candles[-30:]
         below_close_count = 0
-        beyond_ma5_ma10_count = 0
-        for c in last_20:
-            if c.ma20 > c.close:
+        beyond_ma10_ma20_count = 0
+        for c in last_30:
+            if c.ma60 > c.close:
                 below_close_count = below_close_count + 1
-            if c.ma20 >= c.ma5 or c.ma20 >= c.ma10:
-                beyond_ma5_ma10_count = beyond_ma5_ma10_count + 1
-        if below_close_count > 2 or beyond_ma5_ma10_count > 1:
+            if c.ma60 >= c.ma10 or c.ma60 >= c.ma20:
+                beyond_ma10_ma20_count = beyond_ma10_ma20_count + 1
+        if below_close_count > 2 or beyond_ma10_ma20_count > 1:
             return
 
         # 活跃度不足
         turnover_size = 0
         big_up = 0
         close = 0
-        for c in last_20:
+        for c in last_30:
             if c.turnover < 2:
                 turnover_size = turnover_size + 1
             if close > 0 and c.close / close > 1.08:
@@ -57,35 +57,27 @@ class MA20:
         dts = diver_top(candles_120)
         if len(dts) > 0:
             return
-        candles_60 = find_candles(code, freq=60)
-        dts = diver_top(candles_60)
-        if len(dts) > 0:
-            return
-        candles_30 = find_candles(code, freq=30)
-        dts = diver_top(candles_30)
-        if len(dts) > 0:
-            return
 
         # 高位放量
-        highest = utl.get_highest(last_20)
-        v_highest = utl.get_highest_volume(last_20)
+        highest = utl.get_highest(last_30)
+        v_highest = utl.get_highest_volume(last_30)
         if highest.dt == v_highest.dt:
             idx = 0
-            for c in last_20:
-                if 0 < idx < 19 and highest.dt == c.dt and last_20[idx - 1].volume / c.volume < 0.8 and last_20[idx + 1].volume / c.volume < 0.9:
+            for c in last_30:
+                if 0 < idx < 19 and highest.dt == c.dt and last_30[idx - 1].volume / c.volume < 0.8 and last_30[idx + 1].volume / c.volume < 0.9:
                     return
                 idx = idx + 1
 
         # 大A形态
-        lowest = utl.get_lowest(last_20)
-        lower_sec = utl.get_section(last_20, highest.dt)
+        lowest = utl.get_lowest(last_30)
+        lower_sec = utl.get_section(last_30, highest.dt)
         if len(lower_sec) < 8:
             lower = utl.get_lowest(lower_sec)
-            if (highest.high - Decimal(lower.low)) / (highest.high - Decimal(lowest.low)) > 0.618:
+            if (highest.high - Decimal(lower.low)) / (highest.high - Decimal(lowest.low)) > 0.5:
                 return
 
         # 15/30min底背离
-        cds = find_candles(code, freq=30)
+        cds = find_candles(code, freq=60)
         dbs = diver_bottom(cds)
         if len(dbs) > 0:
             sig = driver_bottom_plus(dbs[-1], cds)
@@ -93,7 +85,7 @@ class MA20:
                 sig.code = code
                 return sig
 
-        cds = fetch_data(code, 15)
+        cds = fetch_data(code, 30)
         cds = mark(cds)
         dbs = diver_bottom(cds)
         if len(dbs) > 0:

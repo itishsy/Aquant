@@ -3,6 +3,7 @@ from models.signal import Signal
 from models.symbol import Symbol
 from models.choice import Choice
 from strategies.ma20 import MA20
+from strategies.ma60 import MA60
 from datetime import datetime, timedelta
 
 
@@ -17,10 +18,10 @@ class U20(Searcher):
 
 
 @job_engine
-class U10(Searcher):
+class U60(Searcher):
 
     def search(self, code):
-        sig = MA20.search(code)
+        sig = MA60.search(code)
         if sig and sig.dt > (datetime.now() - timedelta(days=10)).strftime('%Y-%m-%d'):
             sig.type = 'diver-bottom'
             return sig
