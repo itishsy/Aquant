@@ -17,6 +17,12 @@ class Engine(BaseModel):
         READY = 0  # 就绪
         RUNNING = 1  # 运行中
 
+    @staticmethod
+    def init():
+        Engine.create(name='fetcher', method='symbols', job_from='1600', job_to='2300', job_times=5, status=0)
+        Engine.create(name='fetcher', method='candles', job_from='1600', job_to='2300', job_times=1, status=0)
+        Engine.create(name='searcher', method='u20', job_from='1600', job_to='2300', job_times=1, status=0)
+
 
 if __name__ == '__main__':
     db.connect()

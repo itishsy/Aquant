@@ -37,7 +37,7 @@ class Searcher(ABC):
                     sig.strategy = self.strategy
                     sig.stage = 'choice'
                     sig.upset()
-                    if not Choice.select().where(Choice.code == sig.code and Choice.strategy == self.strategy).exists():
+                    if not Choice.select().where((Choice.code == sig.code) & (Choice.strategy == self.strategy)).exists():
                         Choice.create(code=sig.code, name=sig.name, strategy=self.strategy, status=1,
                                       created=datetime.now(), updated=datetime.now())
             except Exception as e:

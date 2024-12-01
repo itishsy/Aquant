@@ -3,10 +3,12 @@ import signals.utils as utl
 from signals.divergence import diver_bottom, diver_top
 from candles.finance import fetch_data
 from candles.marker import mark
+from decimal import Decimal
 
 
 """
 Buy point of divergence during the adjustment of the upward trend
+
 """
 
 
@@ -43,27 +45,35 @@ class MA20:
             if close > 0 and c.close / close > 1.08:
                 big_up = big_up + 1
             close = c.close
-        if turnover_size > 3 or big_up < 3:
+        if turnover_size > 3 or big_up < 2:
             return
 
         # 出现顶背离
         dts = diver_top(candles)
         if len(dts) > 0:
             return
+        candles_120 = find_candles(code, freq=120)
+        dts = diver_top(candles_120)
+        if len(dts) > 0:
+            return
         candles_60 = find_candles(code, freq=60)
         dts = diver_top(candles_60)
         if len(dts) > 0:
             return
+        candles_30 = find_candles(code, freq=30)
+        dts = diver_top(candles_30)
+        if len(dts) > 0:
+            return
 
         # 高位放量
-        # highest = utl.get_highest(last_20)
-        # v_highest = utl.get_highest_volume(last_20)
-        # if highest.dt == v_highest.dt:
-        #     idx = 0
-        #     for c in last_20:
-        #         if 0 < idx < 19 and highest.dt == c.dt and last_20[idx - 1].volume < c.volume > last_20[idx + 1].volume:
-        #             return
-        #         idx = idx + 1
+        highest = utl.get_highest(last_20)
+        v_highest = utl.get_highest_volume(last_20)
+        if highest.dt == v_highest.dt:
+            idx = 0
+            for c in last_20:
+                if 0 < idx < 19 and highest.dt == c.dt and last_20[idx - 1].volume / c.volume < 0.9 and last_20[idx + 1].volume / c.volume < 0.9:
+                    return
+                idx = idx + 1
 
         # 出现15/30min底背离
         cds = find_candles(code, freq=30)
@@ -78,4 +88,8 @@ class MA20:
             sec = utl.get_section(cds, sig.dt, candles[-1].dt)
             sec_lowest = utl.get_lowest(sec)
             if sec_lowest.dt == sig.dt:
-                return sig
+                # 不要出现大A形态
+                lowest = utl.get_lowest(last_20)
+                if (highest.high-Decimal(sec_lowest.low))/(highest.high-Decimal(lowest.low)) > 0.618:
+                    sig.code = code
+                    return sig
