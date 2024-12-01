@@ -25,7 +25,7 @@ class Searcher(ABC):
         self.strategy = self.__class__.__name__.lower()
         count = 0
         symbols = Symbol.actives()
-        Choice.update(status=0).where(Choice.strategy == self.strategy).execute()
+        Choice.delete().where(Choice.strategy == self.strategy).execute()
         for sym in symbols:
             try:
                 count = count + 1
@@ -37,9 +37,9 @@ class Searcher(ABC):
                     sig.strategy = self.strategy
                     sig.stage = 'choice'
                     sig.upset()
-                    if not Choice.select().where((Choice.code == sig.code) & (Choice.strategy == self.strategy)).exists():
-                        Choice.create(code=sig.code, name=sig.name, strategy=self.strategy, status=1,
-                                      created=datetime.now(), updated=datetime.now())
+                    if not Choice.select().where((Choice.code == co) & (Choice.strategy == self.strategy)).exists():
+                        cho = Choice.create(code=co, name=sym.name, strategy=self.strategy, status=1, created=datetime.now(), updated=datetime.now())
+                        Signal.update(oid=cho.id).where((Signal.code == co) & (Signal.strategy == self.strategy)).execute()
             except Exception as e:
                 print(e)
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))

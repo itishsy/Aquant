@@ -113,6 +113,19 @@ def diver_bottom(candles: List[Candle]) -> List[Signal]:
     return signals
 
 
+def driver_bottom_plus(sig, cds):
+    sec = utl.get_section(cds, sig.dt)
+    sec_lowest = utl.get_lowest(sec)
+    if sec_lowest.dt == sig.dt:
+        tbs = utl.get_top_bottom(cds)
+        if tbs[-1].dt == sig.dt:
+            sec_lowest2 = tbs[-3]
+        else:
+            sec_lowest2 = tbs[-4]
+        if (sec_lowest.diff() / sec_lowest2.diff()) < 0.8:
+            return sig
+
+
 def shape_top(candles: List[Candle]) -> List[Signal]:
     """
     顶分型

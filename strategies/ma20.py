@@ -1,6 +1,6 @@
 from candles.storage import find_candles
 import signals.utils as utl
-from signals.divergence import diver_bottom, diver_top
+from signals.divergence import diver_bottom, diver_top, driver_bottom_plus
 from candles.finance import fetch_data
 from candles.marker import mark
 from decimal import Decimal
@@ -10,6 +10,7 @@ from decimal import Decimal
 Buy point of divergence during the adjustment of the upward trend
 
 """
+
 
 
 class MA20:
@@ -75,21 +76,29 @@ class MA20:
                     return
                 idx = idx + 1
 
-        # 出现15/30min底背离
+        # 大A形态
+        lowest = utl.get_lowest(last_20)
+        lower_sec = utl.get_section(last_20, highest.dt)
+        if len(lower_sec) < 8:
+            lower = utl.get_lowest(lower_sec)
+            if (highest.high - Decimal(lower.low)) / (highest.high - Decimal(lowest.low)) > 0.5:
+                return
+
+        # 15/30min底背离
         cds = find_candles(code, freq=30)
         dbs = diver_bottom(cds)
-        if len(dbs) == 0:
-            cds = fetch_data(code, 15)
-            cds = mark(cds)
-            dbs = diver_bottom(cds)
-
         if len(dbs) > 0:
-            sig = dbs[-1]
-            sec = utl.get_section(cds, sig.dt, candles[-1].dt)
-            sec_lowest = utl.get_lowest(sec)
-            if sec_lowest.dt == sig.dt:
-                # 不要出现大A形态
-                lowest = utl.get_lowest(last_20)
-                if (highest.high-Decimal(sec_lowest.low))/(highest.high-Decimal(lowest.low)) > 0.618:
-                    sig.code = code
-                    return sig
+            sig = driver_bottom_plus(dbs[-1], cds)
+            if sig:
+                sig.code = code
+                return sig
+
+        cds = fetch_data(code, 15)
+        cds = mark(cds)
+        dbs = diver_bottom(cds)
+        if len(dbs) > 0:
+            sig = driver_bottom_plus(dbs[-1], cds)
+            if sig:
+                sig.code = code
+                return sig
+
