@@ -14,8 +14,7 @@ class U20(Searcher):
     def search(self, code):
         sig = MA20.search(code)
         if sig:
-            begin = datetime.strptime(sig.dt, '%Y-%m-%d')
-            cds = find_candles(code, freq=101, begin=begin)
+            cds = find_candles(code, freq=101, begin=sig.dt)
             if len(cds) < 5:
                 sig.type = 'diver-bottom'
                 return sig
@@ -27,10 +26,9 @@ class U60(Searcher):
     def search(self, code):
         sig = MA60.search(code)
         if sig:
-            begin = datetime.strptime(sig.dt, '%Y-%m-%d')
-            cds = find_candles(code, freq=101, begin=begin)
+            cds = find_candles(code, freq=101, begin=sig.dt)
             if len(cds) < 10:
-                candles15 = fetch_data(code, 15, begin=begin)
+                candles15 = fetch_data(code, 15, begin=sig.dt)
                 candles15 = mark(candles15)
                 dbs = diver_bottom(candles15)
                 if len(dbs) > 0:
