@@ -1,5 +1,6 @@
 from engines.engine import Searcher, job_engine
 from candles.storage import find_candles
+from strategies.ma10 import MA10
 from strategies.ma20 import MA20
 from strategies.ma60 import MA60
 from datetime import datetime, timedelta
@@ -15,7 +16,7 @@ class U20(Searcher):
         sig = MA20.search(code)
         if sig:
             cds = find_candles(code, freq=101, begin=sig.dt)
-            if len(cds) < 5:
+            if len(cds) < 3:
                 sig.type = 'diver-bottom'
                 return sig
 
@@ -27,21 +28,18 @@ class U60(Searcher):
         sig = MA60.search(code)
         if sig:
             cds = find_candles(code, freq=101, begin=sig.dt)
-            if len(cds) < 10:
-                candles15 = fetch_data(code, 15, begin=sig.dt)
-                candles15 = mark(candles15)
-                dbs = diver_bottom(candles15)
-                if len(dbs) > 0:
-                    sig15 = dbs[-1].dt
-                    sig15.type = 'diver-bottom'
-                    return sig15
+            if len(cds) < 6:
+                sig.type = 'diver-bottom'
+                return sig
 
 
 @job_engine
-class B103(Searcher):
+class U10(Searcher):
 
     def search(self, code):
-        sig = MA20.search(code)
-        if sig and sig.dt > (datetime.now() - timedelta(days=10)).strftime('%Y-%m-%d'):
-            sig.type = 'diver-bottom'
-            return sig
+        sig = MA10.search(code)
+        if sig:
+            cds = find_candles(code, freq=101, begin=sig.dt)
+            if len(cds) < 2:
+                sig.type = 'diver-bottom'
+                return sig

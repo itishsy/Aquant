@@ -57,6 +57,10 @@ class MA60:
         dts = diver_top(candles_120)
         if len(dts) > 0:
             return
+        candles_60 = find_candles(code, freq=60)
+        dts = diver_top(candles_60)
+        if len(dts) > 0:
+            return
 
         # 高位放量
         highest = utl.get_highest(last_30)
