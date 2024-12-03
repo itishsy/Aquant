@@ -28,22 +28,17 @@ class MA10:
         last_10 = candles[-10:]
         below_close_count = 0
         for c in last_10:
-            if c.ma5 > c.close and c.ma5 > c.ma10:
+            if c.ma10 > c.close:
                 below_close_count = below_close_count + 1
         if below_close_count > 1:
             return
 
         # 活跃度不足
         turnover_size = 0
-        big_up = 0
-        close = 0
         for c in last_10:
-            if c.turnover < 2:
+            if c.turnover < 1:
                 turnover_size = turnover_size + 1
-            if close > 0 and c.close / close > 1.06:
-                big_up = big_up + 1
-            close = c.close
-        if turnover_size > 1 or big_up < 2:
+        if turnover_size > 1:
             return
 
         # 出现顶背离
