@@ -14,11 +14,9 @@ class U20(Searcher):
 
     def search(self, code):
         sig = MA20.search(code)
-        if sig:
-            cds = find_candles(code, freq=101, begin=sig.dt)
-            if len(cds) < 3:
-                sig.type = 'diver-bottom'
-                return sig
+        if sig and sig.dt > (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d'):
+            sig.type = 'diver-bottom'
+            return sig
 
 
 @job_engine

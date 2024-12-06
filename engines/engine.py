@@ -49,7 +49,7 @@ class Searcher(ABC):
         pass
 
 
-class BaseWatcher(ABC):
+class Watcher(ABC):
     strategy = 'watcher'
 
     def start(self):
@@ -57,26 +57,31 @@ class BaseWatcher(ABC):
         tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING, Ticket.Status.TRADING]))
         for ti in tis:
             try:
-                print('[{0}] {1} watcher by strategy -- {2}  '.format(datetime.now(), ti.code, self.strategy))
-                sig5 = self.watch(ti.code, 5)
-                if sig5:
-                    sig5.code = ti.code
-                    sig5.strategy = self.strategy
-                    sig5.stage = ti.id
-                    sig5.upset()
-                sig15 = self.watch(ti.code, 15)
-                if sig15:
-                    sig15.code = ti.code
-                    sig15.strategy = self.strategy
-                    sig15.stage = ti.id
-                    sig15.upset()
-
+                print('[{0}] {1} watch ticket -- {2}  '.format(datetime.now(), ti.code, self.strategy))
+                sig = self.watch(ti.code)
+                if sig:
+                    sig.code = ti.code
+                    sig.strategy = self.strategy
+                    sig.stage = ti.id
+                    sig.upset()
+            except Exception as e:
+                print(e)
+        chs = Choice.select().where(Choice.strategy == 'u10')
+        for ch in chs:
+            try:
+                print('[{0}] {1} watch u10 -- {2}  '.format(datetime.now(), ch.code, self.strategy))
+                sig = self.watch(ch.code)
+                if sig:
+                    sig.code = ch.code
+                    sig.strategy = self.strategy
+                    sig.stage = ch.id
+                    sig.upset()
             except Exception as e:
                 print(e)
         print('[{0}] search {1} done!  '.format(datetime.now(), self.strategy))
 
     @abstractmethod
-    def watch(self, code, freq):
+    def watch(self, code):
         pass
 
 
