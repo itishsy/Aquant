@@ -1,14 +1,17 @@
-from candles.candle import Candle
 from typing import List
+from decimal import Decimal
+
+from candles.candle import Candle
 import signals.utils as utl
 from candles.storage import find_candles
-from signals.divergence import diver_top
-from decimal import Decimal
+from signals.divergence import diver_bottom, diver_top, driver_bottom_plus
+from candles.finance import fetch_data
+from candles.marker import mark
 
 
 def choices(code, size):
     candles = find_candles(code)
-    if len(candles) > 100:
+    if len(candles) == 100:
         return candles[-size:]
 
 
@@ -62,7 +65,7 @@ def is_beyond_ma(candles: List[Candle], ma_level, ma_ratio=1):
         ma_val = eval('c.ma' + str(ma_level))
         if c.close > ma_val:
             beyond_ma_counter = beyond_ma_counter + 1
-    if beyond_ma_counter/len(candles) > ma_ratio:
+    if beyond_ma_counter/len(candles) >= ma_ratio:
         return True
     return False
 
@@ -72,8 +75,26 @@ def is_big_a(candles: List[Candle], down_ratio=0.618):
     highest = utl.get_highest(candles)
     lowest = utl.get_lowest(candles)
     lower_sec = utl.get_section(candles, highest.dt)
-    if len(lower_sec) < 8:
+    if len(lower_sec) < len(candles)/2:
         lower = utl.get_lowest(lower_sec)
-        if (highest.high - Decimal(lower.low)) / (highest.high - Decimal(lowest.low)) > down_ratio:
+        if (highest.high - Decimal(lower.low)) / (highest.high - Decimal(lowest.low)) >= down_ratio:
             return True
     return False
+
+
+def driver_bottom_signal(code, freq, limit):
+    if freq > 15:
+        cds = find_candles(code, freq=freq)
+        dbs = diver_bottom(cds)
+    else:
+        cds = fetch_data(code, freq)
+        cds = mark(cds)
+        dbs = diver_bottom(cds)
+    if len(dbs) > 0:
+        sig = driver_bottom_plus(dbs[-1], cds)
+        if sig and len(utl.get_section(cds, sig.dt)) <= limit:
+            sig.code = code
+            sig.type = 'diver-bottom'
+            return sig
+
+
