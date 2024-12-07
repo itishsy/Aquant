@@ -1,88 +1,38 @@
 from candles.storage import find_candles
-import signals.utils as utl
 from signals.divergence import diver_bottom, diver_top, driver_bottom_plus
 from candles.finance import fetch_data
 from candles.marker import mark
-from decimal import Decimal
-
-
-"""
-Buy point of divergence during the adjustment of the upward trend
-
-"""
-
+from strategies.utils import choices, is_active, is_top_volume, is_top_divergence, is_beyond_ma, is_big_a
 
 
 class MA20:
 
     @staticmethod
     def search(code):
-        candles = find_candles(code)
-        size = len(candles)
+        candles = choices(code, 20)
 
-        # 至少100根
-        if size < 100:
+        if not candles:
             return
 
-        # 在ma上线占比
-        last_20 = candles[-20:]
-        below_close_count = 0
-        beyond_ma5_ma10_count = 0
-        for c in last_20:
-            if c.ma20 > c.close:
-                below_close_count = below_close_count + 1
-            if c.ma20 >= c.ma5 or c.ma20 >= c.ma10:
-                beyond_ma5_ma10_count = beyond_ma5_ma10_count + 1
-        if below_close_count > 2 or beyond_ma5_ma10_count > 1:
+        # 在ma20线之上
+        if not is_beyond_ma(candles, 20, ma_ratio=0.9):
             return
 
         # 活跃度不足
-        turnover_size = 0
-        big_up = 0
-        close = 0
-        for c in last_20:
-            if c.turnover < 2:
-                turnover_size = turnover_size + 1
-            if close > 0 and c.close / close > 1.08:
-                big_up = big_up + 1
-            close = c.close
-        if turnover_size > 3 or big_up < 2:
+        if not is_active(candles):
             return
 
         # 出现顶背离
-        dts = diver_top(candles)
-        if len(dts) > 0:
-            return
-        candles_120 = find_candles(code, freq=120)
-        dts = diver_top(candles_120)
-        if len(dts) > 0:
-            return
-        candles_60 = find_candles(code, freq=60)
-        dts = diver_top(candles_60)
-        if len(dts) > 0:
-            return
-        candles_30 = find_candles(code, freq=30)
-        dts = diver_top(candles_30)
-        if len(dts) > 0:
+        if is_top_divergence(code, [101, 120, 60]):
             return
 
         # 高位放量
-        highest = utl.get_highest(last_20)
-        v_highest = utl.get_highest_volume(last_20)
-        if highest.dt == v_highest.dt:
-            idx = 0
-            for c in last_20:
-                if 0 < idx < 19 and highest.dt == c.dt and last_20[idx - 1].volume / c.volume < 0.8 and last_20[idx + 1].volume / c.volume < 0.9:
-                    return
-                idx = idx + 1
+        if is_top_volume(candles, pre_ratio=0.8, nxt_ratio=0.9):
+            return
 
         # 大A形态
-        lowest = utl.get_lowest(last_20)
-        lower_sec = utl.get_section(last_20, highest.dt)
-        if len(lower_sec) < 8:
-            lower = utl.get_lowest(lower_sec)
-            if (highest.high - Decimal(lower.low)) / (highest.high - Decimal(lowest.low)) > 0.618:
-                return
+        if is_big_a(candles, down_ratio=0.618):
+            return
 
         # 15/30min底背离
         cds = find_candles(code, freq=30)

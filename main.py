@@ -35,18 +35,19 @@ class EngineJob(threading.Thread):
         while True:
             now = datetime.now()
             n_val = now.hour * 100 + now.minute
-            ens = Engine.select().where(Engine.status == 0)
+            ens = Engine.select().where(Engine.status >= 0)
             for eng in ens:
                 print("[{}] start engine {}".format(datetime.now(), eng.name))
-                if eng.job_from < n_val < eng.job_to:
-                    if eng.job_times == 1 and eng.run_end > datetime.strptime(
-                            datetime.now().strftime("%Y-%m-%d 00:00:01"),
-                            "%Y-%m-%d %H:%M:%S"):
-                        continue
-                    if eng.job_times == 5 and now.weekday() != 5 and eng.run_end > datetime.strptime(
-                            datetime.now().strftime("%Y-%m-%d 00:00:01"),
-                            "%Y-%m-%d %H:%M:%S"):
-                        continue
+                if eng.job_from < n_val < eng.job_to or eng.status == 0:
+                    if eng.status != 0:
+                        if eng.job_times == 1 and eng.run_end > datetime.strptime(
+                                datetime.now().strftime("%Y-%m-%d 00:00:01"),
+                                "%Y-%m-%d %H:%M:%S"):
+                            continue
+                        if eng.job_times == 5 and now.weekday() != 5 and eng.run_end > datetime.strptime(
+                                datetime.now().strftime("%Y-%m-%d 00:00:01"),
+                                "%Y-%m-%d %H:%M:%S"):
+                            continue
                     try:
                         eng.status = 1
                         eng.run_start = datetime.now()
@@ -55,16 +56,15 @@ class EngineJob(threading.Thread):
                             eval(eng.name + '.' + eng.method + '()')
                         else:
                             engine.engines[eng.method]().start()
-                        eng.status = 0
-                        eng.run_end = datetime.now()
-                        eng.save()
                     except Exception as e:
                         print(e)
+                        eng.info = 'error'
+                    finally:
                         eng.status = 2
+                        eng.run_end = datetime.now()
                         eng.save()
+
             time.sleep(60 * 5)
-        else:
-            time.sleep(60 * 60 * 4)
 
 
 if __name__ == '__main__':
