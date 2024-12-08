@@ -1,4 +1,6 @@
-from models.signal import Signal
+import datetime
+
+from models.symbol import Symbol
 import strategies.utils as sul
 
 
@@ -37,7 +39,11 @@ class MA20:
             # 2天内发出15min底背离信号
             sig = sul.driver_bottom_signal(code, 15, 32)
 
-        return sig
-        # else:
+        if sig:
+            return sig
+        else:
+            sym = Symbol.get(Symbol.code == code)
+            sym.is_watch = 1
+            sym.save()
         #     return Signal(code=code, freq=20, dt=candles[-1].dt, price=candles[-1].close, type='upward')
 

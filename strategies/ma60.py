@@ -1,7 +1,5 @@
-from candles.storage import find_candles
-from signals.divergence import diver_bottom, driver_bottom_plus
+from models.symbol import Symbol
 import strategies.utils as sul
-from models.signal import Signal
 
 
 class MA60:
@@ -39,7 +37,12 @@ class MA60:
             # 3天内发出的15min底背离信号
             sig = sul.driver_bottom_signal(code, 30, 24)
 
-        return sig
+        if sig:
+            return sig
+        else:
+            sym = Symbol.get(Symbol.code == code)
+            sym.is_watch = 1
+            sym.save()
         # else:
         #     return Signal(code=code, freq=60, dt=candles[-1].dt, price=candles[-1].close, type='upward')
 

@@ -30,6 +30,8 @@ class Searcher(ABC):
             try:
                 count = count + 1
                 co = sym.code
+                sym.is_watch = 0
+                sym.save()
                 print('[{0}] {1} searching by {2} ({3}) '.format(datetime.now(), co, self.strategy, count))
                 sig = self.search(co)
                 if sig:
@@ -54,27 +56,29 @@ class Watcher(ABC):
 
     def start(self):
         self.strategy = self.__class__.__name__.lower()
-        tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING, Ticket.Status.TRADING]))
-        for ti in tis:
+        watch_list = []
+        if self.strategy.startswith('s'):
+            tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING, Ticket.Status.TRADING]))
+            for ti in tis:
+                watch_list.append(ti.code)
+        else:
+            chs = Choice.select().where(Choice.strategy.in_(['u20', 'u60']))
+            for ch in chs:
+                watch_list.append(ch.code)
+            sls = Symbol.select().where(Symbol.is_watch == 1)
+            for sl in sls:
+                watch_list.append(sl.code)
+
+        for code in watch_list:
             try:
-                print('[{0}] {1} watch ticket -- {2}  '.format(datetime.now(), ti.code, self.strategy))
-                sig = self.watch(ti.code)
-                if sig:
-                    sig.code = ti.code
+                print('[{0}] {1} watch u10 -- {2}  '.format(datetime.now(), code, self.strategy))
+                sig = self.watch(code)
+                if sig and not Signal.select().where(Signal.code == code, Signal.dt == sig.dt).exists():
+                    sig.code = code
                     sig.strategy = self.strategy
-                    sig.stage = ti.id
-                    sig.upset()
-            except Exception as e:
-                print(e)
-        chs = Choice.select().where(Choice.strategy == 'u10')
-        for ch in chs:
-            try:
-                print('[{0}] {1} watch u10 -- {2}  '.format(datetime.now(), ch.code, self.strategy))
-                sig = self.watch(ch.code)
-                if sig:
-                    sig.code = ch.code
-                    sig.strategy = self.strategy
-                    sig.stage = ch.id
+                    sig.stage = 'watch'
+                    # if sig.dt.split(' ')[0] == datetime.now().strftime('%Y-%m-%d'):
+                    sig.notify = 0
                     sig.upset()
             except Exception as e:
                 print(e)
@@ -94,4 +98,16 @@ class Fetcher(ABC):
 
     @abstractmethod
     def fetch(self):
+        pass
+
+
+class Sender(ABC):
+    strategy = 'sender'
+
+    def start(self):
+        self.strategy = self.__class__.__name__.lower()
+        self.send()
+
+    @abstractmethod
+    def send(self):
         pass

@@ -13,7 +13,7 @@ def send_email(content):
         smtp.login(smtp_username, smtp_password)
 
         from_email = "itishsy@163.com"
-        to_email = "huangshouyi@nfstone.com"
+        to_email = "279440948@qq.com"
         subject = "Signal"
         body = content
 

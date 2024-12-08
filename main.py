@@ -51,6 +51,7 @@ class EngineJob(threading.Thread):
                     try:
                         eng.status = 1
                         eng.run_start = datetime.now()
+                        eng.comment = None
                         eng.save()
                         if engine.engines.get(eng.method) is None:
                             eval(eng.name + '.' + eng.method + '()')
@@ -58,7 +59,7 @@ class EngineJob(threading.Thread):
                             engine.engines[eng.method]().start()
                     except Exception as e:
                         print(e)
-                        eng.info = 'error'
+                        eng.comment = 'error'
                     finally:
                         eng.status = 2
                         eng.run_end = datetime.now()

@@ -11,7 +11,7 @@ class Engine(BaseModel):
     run_start = DateTimeField()  # 最近执行时间
     run_end = DateTimeField()  # 最近执行时间
     status = IntegerField(default=0)  # 状态 -1 禁用，0 待执行 1 执行中 2 执行结束
-    info = CharField()
+    comment = CharField()
 
     class Status:
         STOP = -1  # 禁用

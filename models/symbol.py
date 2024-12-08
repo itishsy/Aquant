@@ -18,6 +18,7 @@ class Symbol(BaseModel):
     gross = FloatField()
     net = FloatField()
     sector = CharField()
+    is_watch = IntegerField()
     created = DateTimeField()
     updated = DateTimeField()
     comment = CharField()
