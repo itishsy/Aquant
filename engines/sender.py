@@ -14,9 +14,9 @@ class email(Sender):
         msg = ''
         for si in sis:
             if si.code.startswith('60'):
-                msg = msg + "http://xueqiu.com/S/SH{} {} {} {}".format(si.code, si.dt, si.freq, si.strategy)
+                msg = msg + "http://xueqiu.com/S/SH{} {},{},{} ".format(si.code, si.dt, si.freq, si.strategy)
             else:
-                msg = msg + "http://xueqiu.com/S/SZ{} {} {} {}".format(si.code, si.dt, si.freq, si.strategy)
+                msg = msg + "http://xueqiu.com/S/SZ{} {},{},{} ".format(si.code, si.dt, si.freq, si.strategy)
 
         if msg != '':
             try:
