@@ -60,8 +60,10 @@ class Signal(BaseModel):
                             si.save()
         else:
             self.name = Symbol.get(Symbol.code == self.code).name
+            self.notify = 0
             self.created = datetime.now()
             self.save()
+
 
 class SIGNAL_TYPE:
     BOTTOM_DIVERGENCE = 0
