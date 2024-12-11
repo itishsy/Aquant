@@ -34,10 +34,10 @@ class MA20:
             return
 
         # 3天内发出30min底背离信号
-        # sig = sul.driver_bottom_signal(code, 30, 24)
-        # if not sig:
-        # 2.5天内发出15min底背离信号
-        sig = sul.driver_bottom_signal(code, 15, 40)
+        sig = sul.driver_bottom_signal(code, 30, 32)
+        if not sig:
+            # 2.5天内发出15min底背离信号
+            sig = sul.driver_bottom_signal(code, 15, 40)
 
         if sig:
             sig.notify = 0
