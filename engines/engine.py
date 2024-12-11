@@ -40,7 +40,7 @@ class Searcher(ABC):
                     sig.stage = 'choice'
                     sig.upset()
                     if not Choice.select().where((Choice.code == co) & (Choice.strategy == self.strategy)).exists():
-                        cho = Choice.create(code=co, name=sym.name, strategy=self.strategy, status=1, created=datetime.now(), updated=datetime.now())
+                        cho = Choice.create(code=co, name=sym.name, strategy=self.strategy, dt=sig.dt, price=sig.price, status=1, created=datetime.now(), updated=datetime.now())
                         Signal.update(oid=cho.id).where((Signal.code == co) & (Signal.strategy == self.strategy)).execute()
             except Exception as e:
                 print(e)
@@ -56,30 +56,31 @@ class Watcher(ABC):
 
     def start(self):
         self.strategy = self.__class__.__name__.lower()
-        watch_list = []
+        sis = []
         if self.strategy.startswith('s'):
             tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING, Ticket.Status.TRADING]))
             for ti in tis:
-                watch_list.append(ti.code)
+                sig = self.watch(ti.code)
+                sis.append(sig)
         else:
             chs = Choice.select().where(Choice.strategy.in_(['u20', 'u60']))
             for ch in chs:
-                watch_list.append(ch.code)
+                sig = self.watch(ch.code)
+                sis.append(sig)
             sls = Symbol.select().where(Symbol.is_watch == 1)
             for sl in sls:
-                watch_list.append(sl.code)
+                sig = self.watch(sl.code)
+                sis.append(sig)
 
-        for code in watch_list:
+        for si in sis:
             try:
-                print('[{0}] {1} watch u10 -- {2}  '.format(datetime.now(), code, self.strategy))
-                sig = self.watch(code)
-                if sig and not Signal.select().where(Signal.code == code, Signal.dt == sig.dt).exists():
-                    sig.code = code
-                    sig.strategy = self.strategy
-                    sig.stage = 'watch'
-                    # if sig.dt.split(' ')[0] == datetime.now().strftime('%Y-%m-%d'):
-                    sig.notify = 0
-                    sig.upset()
+                print('[{0}] {1} watch u10 -- {2}  '.format(datetime.now(), si.code, self.strategy))
+                if not Signal.select().where(Signal.code == si.code, Signal.dt == si.dt).exists():
+                    si.code = si.code
+                    si.strategy = self.strategy
+                    si.stage = 'watch'
+                    si.notify = 0
+                    si.upset()
             except Exception as e:
                 print(e)
         print('[{0}] search {1} done!  '.format(datetime.now(), self.strategy))

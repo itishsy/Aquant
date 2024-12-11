@@ -31,18 +31,18 @@ class MA60:
         if sul.is_big_a(candles, down_ratio=0.618):
             return
 
-        # 5天内发出的60min底背离信号
-        sig = sul.driver_bottom_signal(code, 60, 20)
+        # 8天内发出的60min底背离信号
+        sig = sul.driver_bottom_signal(code, 60, 32)
         if not sig:
-            # 3天内发出的15min底背离信号
-            sig = sul.driver_bottom_signal(code, 30, 24)
+            # 4天内发出的15min底背离信号
+            sig = sul.driver_bottom_signal(code, 30, 30)
 
         if sig:
             return sig
-        else:
-            sym = Symbol.get(Symbol.code == code)
-            sym.is_watch = 1
-            sym.save()
+        # else:
+        #     sym = Symbol.get(Symbol.code == code)
+        #     sym.is_watch = 1
+        #     sym.save()
         # else:
         #     return Signal(code=code, freq=60, dt=candles[-1].dt, price=candles[-1].close, type='upward')
 

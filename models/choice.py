@@ -10,6 +10,8 @@ class Choice(BaseModel):
     code = CharField()  # 编码
     name = CharField()  # 名称
     strategy = CharField()  # 策略
+    dt = CharField()  # signal.dt
+    price = DecimalField()  # 价格
     status = IntegerField(default=1)  # 状态
     created = DateTimeField()
     updated = DateTimeField(null=True)

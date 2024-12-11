@@ -34,16 +34,17 @@ class MA20:
             return
 
         # 3天内发出30min底背离信号
-        sig = sul.driver_bottom_signal(code, 30, 24)
-        if not sig:
-            # 2天内发出15min底背离信号
-            sig = sul.driver_bottom_signal(code, 15, 32)
+        # sig = sul.driver_bottom_signal(code, 30, 24)
+        # if not sig:
+        # 2.5天内发出15min底背离信号
+        sig = sul.driver_bottom_signal(code, 15, 40)
 
         if sig:
+            sig.notify = 0
             return sig
-        else:
-            sym = Symbol.get(Symbol.code == code)
-            sym.is_watch = 1
-            sym.save()
+        # else:
+        #     sym = Symbol.get(Symbol.code == code)
+        #     sym.is_watch = 1
+        #     sym.save()
         #     return Signal(code=code, freq=20, dt=candles[-1].dt, price=candles[-1].close, type='upward')
 
