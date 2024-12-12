@@ -61,16 +61,25 @@ class Watcher(ABC):
             tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING, Ticket.Status.TRADING]))
             for ti in tis:
                 sig = self.watch(ti.code)
-                sis.append(sig)
+                if sig:
+                    sig.code = ti.code
+                    sig.name = ti.name
+                    sis.append(sig)
         else:
             chs = Choice.select().where(Choice.strategy.in_(['u20', 'u60']))
             for ch in chs:
                 sig = self.watch(ch.code)
-                sis.append(sig)
+                if sig:
+                    sig.code = ch.code
+                    sig.name = ch.name
+                    sis.append(sig)
             sls = Symbol.select().where(Symbol.is_watch == 1)
             for sl in sls:
                 sig = self.watch(sl.code)
-                sis.append(sig)
+                if sig:
+                    sig.code = sl.code
+                    sig.name = sl.name
+                    sis.append(sig)
 
         for si in sis:
             try:
