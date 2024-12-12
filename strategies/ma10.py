@@ -6,7 +6,7 @@ class MA10:
 
     @staticmethod
     def search(code):
-        candles = sul.choices(code, 20)
+        candles = sul.choices(code, 15)
 
         if not candles:
             return
