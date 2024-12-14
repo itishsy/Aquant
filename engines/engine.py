@@ -69,8 +69,9 @@ class Watcher(ABC):
             chs = Choice.select().where(Choice.strategy.in_(['u20', 'u60']))
             for ch in chs:
                 sig = self.watch(ch.code)
-                if sig:
+                if sig and sig.dt > ch.dt:
                     sig.code = ch.code
+                    sig.strategy = ch.strategy
                     sig.name = ch.name
                     sis.append(sig)
             sls = Symbol.select().where(Symbol.is_watch == 1)
@@ -78,6 +79,7 @@ class Watcher(ABC):
                 sig = self.watch(sl.code)
                 if sig:
                     sig.code = sl.code
+                    sig.strategy = 'u10'
                     sig.name = sl.name
                     sis.append(sig)
 
@@ -86,7 +88,6 @@ class Watcher(ABC):
                 print('[{0}] {1} watch u10 -- {2}  '.format(datetime.now(), si.code, self.strategy))
                 if not Signal.select().where(Signal.code == si.code, Signal.dt == si.dt).exists():
                     si.code = si.code
-                    si.strategy = self.strategy
                     si.stage = 'watch'
                     si.notify = 0
                     si.upset()

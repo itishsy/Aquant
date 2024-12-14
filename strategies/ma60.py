@@ -35,7 +35,7 @@ class MA60:
         sig = sul.driver_bottom_signal(code, 60, 32)
         if not sig:
             # 4天内发出的15min底背离信号
-            sig = sul.driver_bottom_signal(code, 30, 30)
+            sig = sul.driver_bottom_signal(code, 30, 32)
 
         if sig:
             return sig
