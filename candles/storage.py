@@ -158,6 +158,7 @@ def find_stage_candles(code, freq, candle) -> List[Candle]:
     session.close()
     return cds
 
+
 def clean_data(code):
     session = dba.get_session(code)
     session.execute(text('TRUNCATE TABLE `{}`'.format(code)))

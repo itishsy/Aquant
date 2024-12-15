@@ -6,6 +6,7 @@ from models.engine import Engine
 from models.ticket import Ticket
 from models.base import BaseModel, db
 from candles.storage import find_candles
+from candles.finance import fetch_and_save
 from signals.divergence import diver_bottom
 from candles.marker import mark
 from strategies.ma20 import MA20
@@ -53,14 +54,18 @@ def monthly_diver_bottom():
     # fetch_all(freq=103)
     sbs = Symbol.actives()
     for sb in sbs:
-        candles = find_candles(sb.code, freq=103)
-        # candles = mark(candles)
-        sis = diver_bottom(candles)
-        if len(sis) > 0 and sis[-1].dt > '2024-01-01' and candles[-1].close < 15:
-            if sb.code.startswith('60'):
-                print("http://xueqiu.com/S/SH{} {}".format(sb.code,sis[-1].dt))
-            else:
-                print("http://xueqiu.com/S/SZ{} {}".format(sb.code,sis[-1].dt))
+        try:
+            fetch_and_save(sb.code, freq=103)
+            candles = find_candles(sb.code, freq=103)
+            sis = diver_bottom(candles)
+            # print('find monthly diver bottom: {}, results:{}'.format(sb.code, len(sis)))
+            if len(sis) > 0 and sis[-1].dt > '2024-01-01':
+                if sb.code.startswith('60'):
+                    print("http://xueqiu.com/S/SH{} {}".format(sb.code, sis[-1].dt))
+                else:
+                    print("http://xueqiu.com/S/SZ{} {}".format(sb.code, sis[-1].dt))
+        except Exception as e:
+            print(e)
 
 
 def engine_job():
@@ -98,7 +103,7 @@ if __name__ == '__main__':
     # test_watch('p60')
     # test_search('u20')
     # test_model()
-    # monthly_diver_bottom()
+    monthly_diver_bottom()
     # engine_job()
-    ma20 = MA20()
-    ma20.search('002587')
+    # ma20 = MA20()
+    # ma20.search('002587')
