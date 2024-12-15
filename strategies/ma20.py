@@ -22,7 +22,10 @@ class MA20:
             return
 
         # 出现顶背离
-        if sul.is_top_divergence(code, [101, 120, 60]):
+        if sul.is_top_divergence(code, 101):
+            return
+
+        if sul.is_top_divergence(code, 60, limit=20):
             return
 
         # 高位放量

@@ -18,6 +18,8 @@ def choices(code, size):
 # 是否高位放量
 def is_top_volume(candles: List[Candle], pre_ratio=0.8, nxt_ratio=0.9):
     highest = utl.get_highest(candles)
+    if highest.dt == candles[-1].dt:
+        return False
     c_size = len(candles)
     v_highest = utl.get_highest_volume(candles)
     if highest.dt == v_highest.dt:
@@ -33,7 +35,7 @@ def is_top_volume(candles: List[Candle], pre_ratio=0.8, nxt_ratio=0.9):
 
 
 # 是否活跃的
-def is_active(candles: List[Candle], zhang_ting=0.097, zhang_ting_size=2, high_turnover=3.5, high_turnover_size=2):
+def is_active(candles: List[Candle], zhang_ting=0.097, zhang_ting_size=1, high_turnover=3.5, high_turnover_size=2):
     ht_counter = 0  # 高换手
     zt_counter = 0  # 大涨幅
     close = 0
@@ -49,11 +51,12 @@ def is_active(candles: List[Candle], zhang_ting=0.097, zhang_ting_size=2, high_t
 
 
 # 是否顶背离
-def is_top_divergence(code, freq):
-    for f in freq:
-        cds = find_candles(code, f)
-        dts = diver_top(cds)
-        if len(dts) > 0:
+def is_top_divergence(code, freq, limit=None):
+    cds = find_candles(code, freq)
+    dts = diver_top(cds)
+    if len(dts) > 0:
+        sig = dts[-1]
+        if limit is None or len(utl.get_section(cds, sig.dt)) <= limit:
             return True
     return False
 

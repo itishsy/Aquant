@@ -11,6 +11,9 @@ class MA10:
         if not candles:
             return
 
+        if candles[-1].close > candles[-1].ma10:
+            return
+
         if not sul.is_beyond_ma(candles, 10, ma_ratio=0.9):
             return
 
@@ -22,8 +25,12 @@ class MA10:
         if sul.is_top_volume(candles, pre_ratio=0.9, nxt_ratio=0.9):
             return
 
-        # 出现顶背离
-        if sul.is_top_divergence(code, [101, 120, 60, 30]):
+        # 6天内出现60min顶背离
+        if sul.is_top_divergence(code, 60, limit=30):
+            return
+
+        # 3天内出现30min顶背离
+        if sul.is_top_divergence(code, 30, 24):
             return
 
         # 1天内发出5min底背离信号

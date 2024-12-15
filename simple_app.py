@@ -8,6 +8,7 @@ from models.base import BaseModel, db
 from candles.storage import find_candles
 from signals.divergence import diver_bottom
 from candles.marker import mark
+from strategies.ma20 import MA20
 
 
 def search_choice(engines):
@@ -98,4 +99,6 @@ if __name__ == '__main__':
     # test_search('u20')
     # test_model()
     # monthly_diver_bottom()
-    engine_job()
+    # engine_job()
+    ma20 = MA20()
+    ma20.search('002587')
