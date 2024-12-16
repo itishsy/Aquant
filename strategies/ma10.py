@@ -14,11 +14,11 @@ class MA10:
         if candles[-1].close > candles[-1].ma10:
             return
 
-        if not sul.is_beyond_ma(candles, 10, ma_ratio=0.9):
+        if not sul.is_beyond_ma(candles, 10):
             return
 
         # 活跃度
-        if not sul.is_active(candles, zhang_ting_size=1):
+        if not sul.is_active(candles, zhang_ting=0.085, zhang_ting_size=1):
             return
 
         # 高位放量
