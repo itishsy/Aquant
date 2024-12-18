@@ -68,6 +68,7 @@ class Watcher(ABC):
         else:
             tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING]))
             for ti in tis:
+                print('[{0}] {1} watch ticket '.format(datetime.now(), ti.code))
                 sig = self.watch(ti.code)
                 if sig:
                     sig.code = ti.code
