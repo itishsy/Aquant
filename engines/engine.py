@@ -66,6 +66,14 @@ class Watcher(ABC):
                     sig.name = ti.name
                     sis.append(sig)
         else:
+            tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING]))
+            for ti in tis:
+                sig = self.watch(ti.code)
+                if sig:
+                    sig.code = ti.code
+                    sig.name = ti.name
+                    sig.strategy = 'ticket'
+                    sis.append(sig)
             chs = Choice.select().where(Choice.strategy.in_(['u20', 'u60']))
             for ch in chs:
                 print('[{0}] {1} watch choice -- {2}  '.format(datetime.now(), ch.code, ch.strategy))
