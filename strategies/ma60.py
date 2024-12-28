@@ -24,7 +24,7 @@ class MA60:
             return
 
         # 高位放量
-        if sul.is_top_volume(candles, pre_ratio=0.7, nxt_ratio=0.7):
+        if sul.is_top_volume(candles, pre_ratio=0.8, nxt_ratio=0.8):
             return
 
         # 大A形态

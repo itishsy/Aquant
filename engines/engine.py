@@ -25,13 +25,10 @@ class Searcher(ABC):
         self.strategy = self.__class__.__name__.lower()
         count = 0
         symbols = Symbol.actives()
-        Choice.delete().where(Choice.strategy == self.strategy).execute()
         for sym in symbols:
             try:
                 count = count + 1
                 co = sym.code
-                sym.is_watch = 0
-                sym.save()
                 print('[{0}] {1} searching by {2} ({3}) '.format(datetime.now(), co, self.strategy, count))
                 sig = self.search(co)
                 if sig:
@@ -39,8 +36,13 @@ class Searcher(ABC):
                     sig.strategy = self.strategy
                     sig.stage = 'choice'
                     sig.upset()
+
+                    sym.is_watch = 1
+                    sym.updated = datetime.now()
+                    sym.save()
+
                     if not Choice.select().where((Choice.code == co) & (Choice.strategy == self.strategy)).exists():
-                        cho = Choice.create(code=co, name=sym.name, strategy=self.strategy, dt=sig.dt, price=sig.price, status=1, created=datetime.now(), updated=datetime.now())
+                        cho = Choice.create(code=co, name=sym.name, strategy=self.strategy, dt=sig.dt, price=sig.price, freq=sig.freq, status=1, created=datetime.now(), updated=datetime.now())
                         Signal.update(oid=cho.id).where((Signal.code == co) & (Signal.strategy == self.strategy)).execute()
             except Exception as e:
                 print(e)
@@ -56,58 +58,18 @@ class Watcher(ABC):
 
     def start(self):
         self.strategy = self.__class__.__name__.lower()
-        sis = []
-        if self.strategy.startswith('s'):
-            tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING, Ticket.Status.TRADING]))
-            for ti in tis:
-                sig = self.watch(ti.code)
-                if sig:
-                    sig.code = ti.code
-                    sig.name = ti.name
-                    sis.append(sig)
-        else:
-            tis = Ticket.select().where(Ticket.status.in_([Ticket.Status.PENDING]))
-            for ti in tis:
-                print('[{0}] {1} watch ticket '.format(datetime.now(), ti.code))
-                sig = self.watch(ti.code)
-                if sig:
-                    sig.code = ti.code
-                    sig.name = ti.name
-                    sig.strategy = 'ticket'
-                    sis.append(sig)
-            chs = Choice.select().where(Choice.strategy.in_(['u20', 'u60']))
-            for ch in chs:
-                print('[{0}] {1} watch choice -- {2}  '.format(datetime.now(), ch.code, ch.strategy))
-                sig = self.watch(ch.code)
-                if sig and sig.dt > ch.dt:
-                    if sig.price < ch.price:
-                        Choice.delete().where(Choice.code == ch.code).execute()
-                    else:
-                        sig.code = ch.code
-                        sig.strategy = ch.strategy
-                        sig.name = ch.name
-                        sis.append(sig)
-            sls = Symbol.select().where(Symbol.is_watch == 1)
-            for sl in sls:
-                print('[{0}] {1} watch symbol u10 '.format(datetime.now(), sl.code, ))
-                sig = self.watch(sl.code)
-                if sig:
-                    sig.code = sl.code
-                    sig.strategy = 'u10'
-                    sig.name = sl.name
-                    sis.append(sig)
-
-        for si in sis:
+        symbols = Symbol.select().where(Symbol.status == 1, Symbol.is_watch == 1)
+        for sym in symbols:
             try:
-                print('[{0}] {1} watch -- {2}  '.format(datetime.now(), si.code, self.strategy))
-                if not Signal.select().where(Signal.code == si.code, Signal.dt == si.dt).exists():
-                    si.code = si.code
-                    si.stage = 'watch'
-                    si.notify = 0
-                    si.upset()
+                sig = self.watch(sym.code)
+                if sig:
+                    sig.code = sym.code
+                    sig.name = sym.name
+                    sig.stage = 'watch'
+                    sig.notify = 0
+                    sig.upset()
             except Exception as e:
                 print(e)
-        print('[{0}] search {1} done!  '.format(datetime.now(), self.strategy))
 
     @abstractmethod
     def watch(self, code):

@@ -8,6 +8,7 @@ class Engine(BaseModel):
     job_from = IntegerField(default=0)  # 作业开始
     job_to = IntegerField(default=0)  # 作业截止
     job_times = IntegerField(default=0)  # 执行次数，0不限制
+    run_order = IntegerField(default=100)  # 执行順序
     run_start = DateTimeField()  # 最近执行时间
     run_end = DateTimeField()  # 最近执行时间
     status = IntegerField(default=0)  # 状态 -1 禁用，0 待执行 1 执行中 2 执行结束

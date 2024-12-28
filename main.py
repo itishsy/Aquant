@@ -35,7 +35,7 @@ class EngineJob(threading.Thread):
         while True:
             now = datetime.now()
             n_val = now.hour * 100 + now.minute
-            ens = Engine.select().where(Engine.status >= 0)
+            ens = Engine.select().where(Engine.status >= 0).order_by(Engine.run_order)
             for eng in ens:
                 print("[{}] start engine {}".format(datetime.now(), eng.name))
                 if eng.job_from < n_val < eng.job_to or eng.status == 0:

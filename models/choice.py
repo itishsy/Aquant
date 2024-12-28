@@ -11,6 +11,7 @@ class Choice(BaseModel):
     name = CharField()  # 名称
     strategy = CharField()  # 策略
     dt = CharField()  # signal.dt
+    freq = CharField()  # signal.freq
     price = DecimalField()  # 价格
     status = IntegerField(default=1)  # 状态
     created = DateTimeField()

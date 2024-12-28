@@ -2,6 +2,8 @@ from engines.engine import Watcher, job_engine
 from candles.finance import fetch_data
 from candles.marker import mark
 from signals.divergence import diver_top, diver_bottom
+from models.choice import Choice
+from models.ticket import Ticket
 
 
 @job_engine
@@ -12,7 +14,15 @@ class B5(Watcher):
         candles = mark(candles)
         dbs = diver_bottom(candles)
         if len(dbs) > 0:
-            return dbs[-1]
+            sig = dbs[-1]
+            cho = Choice.select().where(Choice.code == code, Choice.freq == 30)
+            if cho:
+                if cho.dt > sig.dt and cho.price > sig.price:
+                    return sig
+                else:
+                    Choice.delete().where(Choice.code == code).execute()
+            else:
+                return sig
 
 
 @job_engine
@@ -23,26 +33,24 @@ class B15(Watcher):
         candles = mark(candles)
         dbs = diver_bottom(candles)
         if len(dbs) > 0:
-            return dbs[-1]
+            sig = dbs[-1]
+            cho = Choice.select().where(Choice.code == code, Choice.freq == 60)
+            if cho:
+                if cho.dt > sig.dt and cho.price > sig.price:
+                    return sig
+                else:
+                    Choice.delete().where(Choice.code == code).execute()
+            else:
+                return sig
 
 
 @job_engine
-class S5(Watcher):
+class Tickets(Watcher):
 
     def watch(self, code):
-        candles = fetch_data(code, 5)
-        candles = mark(candles)
-        dts = diver_top(candles)
-        if len(dts) > 0:
-            return dts[-1]
-
-
-@job_engine
-class S15(Watcher):
-
-    def watch(self, code):
-        candles = fetch_data(code, 15)
-        candles = mark(candles)
-        dts = diver_top(candles)
-        if len(dts) > 0:
-            return dts[-1]
+        if Ticket.select().where(Ticket.code == code, Ticket.status == 1).exists():
+            candles = fetch_data(code, 5)
+            candles = mark(candles)
+            dts = diver_top(candles)
+            if len(dts) > 0:
+                return dts[-1]

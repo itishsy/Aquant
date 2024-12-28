@@ -6,7 +6,7 @@ import efinance as ef
 
 
 @job_engine
-class candles(Fetcher):
+class Candles(Fetcher):
 
     def fetch(self):
         now = datetime.now()
@@ -35,7 +35,7 @@ class candles(Fetcher):
 
 
 @job_engine
-class symbols(Fetcher):
+class Symbols(Fetcher):
 
     def fetch(self):
         df = ef.stock.get_realtime_quotes(['沪A', '深A'])
@@ -86,6 +86,7 @@ class symbols(Fetcher):
                 #     symbol.comment = '小市值'
                 else:
                     symbol.status = 1
-                symbol.updated = datetime.now()
+                symbol.is_watch = 0
+                symbol.created = datetime.now()
                 symbol.save()
 
