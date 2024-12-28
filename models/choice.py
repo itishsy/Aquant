@@ -13,6 +13,7 @@ class Choice(BaseModel):
     dt = CharField()  # signal.dt
     freq = CharField()  # signal.freq
     price = DecimalField()  # 价格
+    b_sig = IntegerField(null=True)  # b_sig
     status = IntegerField(default=1)  # 状态
     created = DateTimeField()
     updated = DateTimeField(null=True)

@@ -19,6 +19,8 @@ class B5(Watcher):
             if cho:
                 if cho.freq == 30 and cho.dt < sig.dt:
                     if cho.price < sig.price:
+                        cho.b_sig = 1
+                        cho.save()
                         return sig
                     else:
                         Choice.delete().where(Choice.code == code).execute()
@@ -39,6 +41,8 @@ class B15(Watcher):
             if cho:
                 if cho.freq == 60 and cho.dt < sig.dt:
                     if cho.price < sig.price:
+                        cho.b_sig = 1
+                        cho.save()
                         return sig
                     else:
                         Choice.delete().where(Choice.code == code).execute()
