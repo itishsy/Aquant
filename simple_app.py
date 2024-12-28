@@ -21,11 +21,10 @@ def search_choice(engines):
         print("[{}] {} end".format(datetime.now(), eng_name))
 
 
-def watch_bsig(eng_name):
-    eng = engine.strategy[eng_name]()
-    eng.strategy = eng_name
+def test_watch(eng_name):
+    # eng.strategy = eng_name
     print("[{}] {} start...".format(datetime.now(), eng_name))
-    eng.start_watch()
+    engine.engines[eng_name]().start()
     print("[{}] {} end".format(datetime.now(), eng_name))
 
 
@@ -100,10 +99,10 @@ def upset_symbol():
 
 if __name__ == '__main__':
     # Symbol.fetch()
-    # test_watch('p60')
+    test_watch('b15')
     # test_search('u20')
     # test_model()
-    monthly_diver_bottom()
+    # monthly_diver_bottom()
     # engine_job()
     # ma20 = MA20()
     # ma20.search('002587')

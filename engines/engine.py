@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from models.choice import Choice
 from models.symbol import Symbol
 from models.signal import Signal
-from models.ticket import Ticket
 from common.utils import *
 
 

@@ -15,12 +15,14 @@ class B5(Watcher):
         dbs = diver_bottom(candles)
         if len(dbs) > 0:
             sig = dbs[-1]
-            cho = Choice.select().where(Choice.code == code, Choice.freq == 30)
+            cho = Choice.select().where(Choice.code == code).first()
+            Choice.select().where(Choice.code == code, Choice.freq == 30)
             if cho:
-                if cho.dt > sig.dt and cho.price > sig.price:
-                    return sig
-                else:
-                    Choice.delete().where(Choice.code == code).execute()
+                if cho.freq == 30 and cho.dt < sig.dt:
+                    if cho.price < sig.price:
+                        return sig
+                    else:
+                        Choice.delete().where(Choice.code == code).execute()
             else:
                 return sig
 
@@ -34,12 +36,13 @@ class B15(Watcher):
         dbs = diver_bottom(candles)
         if len(dbs) > 0:
             sig = dbs[-1]
-            cho = Choice.select().where(Choice.code == code, Choice.freq == 60)
+            cho = Choice.select().where(Choice.code == code).first()
             if cho:
-                if cho.dt > sig.dt and cho.price > sig.price:
-                    return sig
-                else:
-                    Choice.delete().where(Choice.code == code).execute()
+                if cho.freq == 60 and cho.dt < sig.dt:
+                    if cho.price < sig.price:
+                        return sig
+                    else:
+                        Choice.delete().where(Choice.code == code).execute()
             else:
                 return sig
 
