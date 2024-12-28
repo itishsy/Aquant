@@ -80,10 +80,13 @@ class Watcher(ABC):
                 print('[{0}] {1} watch choice -- {2}  '.format(datetime.now(), ch.code, ch.strategy))
                 sig = self.watch(ch.code)
                 if sig and sig.dt > ch.dt:
-                    sig.code = ch.code
-                    sig.strategy = ch.strategy
-                    sig.name = ch.name
-                    sis.append(sig)
+                    if sig.price < ch.price:
+                        Choice.delete().where(Choice.code == ch.code).execute()
+                    else:
+                        sig.code = ch.code
+                        sig.strategy = ch.strategy
+                        sig.name = ch.name
+                        sis.append(sig)
             sls = Symbol.select().where(Symbol.is_watch == 1)
             for sl in sls:
                 print('[{0}] {1} watch symbol u10 '.format(datetime.now(), sl.code, ))

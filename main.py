@@ -9,7 +9,7 @@ from notify.notify import Notify
 import os
 from app import create_app
 
-logging.basicConfig(format='%(asctime)s %(message)s', filename='d://aquant.log')
+logging.basicConfig(format='%(asctime)s %(message)s', filename='aquant.log')
 logging.getLogger().setLevel(logging.INFO)
 
 
