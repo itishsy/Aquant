@@ -11,9 +11,10 @@ class U20(Searcher):
 
     def search(self, code):
         sig = MA20.search(code)
-        sig.stage = 'choice'
-        sig.notify = 0
-        return sig
+        if sig:
+            sig.stage = 'choice'
+            sig.notify = 0
+            return sig
 
 
 @job_engine
@@ -21,9 +22,10 @@ class U60(Searcher):
 
     def search(self, code):
         sig = MA60.search(code)
-        sig.stage = 'choice'
-        sig.notify = None
-        return sig
+        if sig:
+            sig.stage = 'choice'
+            sig.notify = None
+            return sig
 
 
 @job_engine
