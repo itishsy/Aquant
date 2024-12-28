@@ -16,7 +16,6 @@ class B5(Watcher):
         if len(dbs) > 0:
             sig = dbs[-1]
             cho = Choice.select().where(Choice.code == code).first()
-            Choice.select().where(Choice.code == code, Choice.freq == 30)
             if cho:
                 if cho.freq == 30 and cho.dt < sig.dt:
                     if cho.price < sig.price:
