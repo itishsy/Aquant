@@ -10,22 +10,14 @@ from datetime import datetime, timedelta
 class U20(Searcher):
 
     def search(self, code):
-        sig = MA20.search(code)
-        if sig:
-            sig.stage = 'choice'
-            sig.notify = 0
-            return sig
+        return MA20.search(code)
 
 
 @job_engine
 class U60(Searcher):
 
     def search(self, code):
-        sig = MA60.search(code)
-        if sig:
-            sig.stage = 'choice'
-            sig.notify = None
-            return sig
+        return MA60.search(code)
 
 
 @job_engine

@@ -101,3 +101,5 @@ def driver_bottom_signal(code, freq, limit):
             return sig
 
 
+def cal_limit(freq, day):
+    return day*240/freq

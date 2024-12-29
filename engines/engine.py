@@ -23,6 +23,7 @@ class Searcher(ABC):
     def start(self):
         self.strategy = self.__class__.__name__.lower()
         count = 0
+        Choice.delete().where(Choice.strategy == self.strategy).execute()
         symbols = Symbol.actives()
         for sym in symbols:
             try:
@@ -31,6 +32,10 @@ class Searcher(ABC):
                 print('[{0}] {1} searching by {2} ({3}) '.format(datetime.now(), co, self.strategy, count))
                 sig = self.search(co)
                 if sig:
+                    if sig.freq < 30:
+                        sig.notify = 0
+                    else:
+                        sig.notify = -1
                     sig.code = co
                     sig.strategy = self.strategy
                     sig.stage = 'choice'
