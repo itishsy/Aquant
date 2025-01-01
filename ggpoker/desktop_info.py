@@ -18,7 +18,7 @@ class DesktopInfo(BaseModel):
     created = DateTimeField()
 
     def to_string(self):
-        return "手牌: {}、{} 公共牌: {}、{}、{}、{},{} 底池: {}".format(self.card1, self.card2,
+        return "手牌: {},{} 公共牌: {},{},{},{},{} 底池: {}".format(self.card1, self.card2,
                                                              self.card3, self.card4, self.card5, self.card6, self.card7,
                                                              self.pool)
 

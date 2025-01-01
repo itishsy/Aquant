@@ -27,12 +27,12 @@ class Action:
 
     def flop(self):
         desktop = self.desktops[-1]
-        return ACT.Fold
+        return ACT.Check
 
     def turn(self):
-        desktop = self.desktops[-1]
-        return ACT.Fold
+        # desktop = self.desktops[-1]
+        return ACT.Check
 
     def river(self):
-        desktop = self.desktops[-1]
-        return ACT.Fold
+        # desktop = self.desktops[-1]
+        return ACT.Check
