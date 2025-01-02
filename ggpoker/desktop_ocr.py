@@ -102,21 +102,21 @@ class OcrDesktop:
                     return 'K'
                 else:
                     return c
-        return '?'
 
     def read_card(self, idx):
         region = eval('self.card' + str(idx) + '_region')
         self.crop(region[0], region[1], region[2], region[3])
         txt = self.rec_text()
         card = self.fetch_card_number(txt)
-        if idx == 1:
-            suit_position = SUIT_ONE_POSITION
-        elif idx == 2:
-            suit_position = SUIT_TWO_POSITION
-        else:
-            suit_position = eval('self.suit' + str(idx) + '_position')
-        suit = self.rec_suit(suit_position[0], suit_position[1])
-        return card + suit
+        if card:
+            if idx == 1:
+                suit_position = SUIT_ONE_POSITION
+            elif idx == 2:
+                suit_position = SUIT_TWO_POSITION
+            else:
+                suit_position = eval('self.suit' + str(idx) + '_position')
+            suit = self.rec_suit(suit_position[0], suit_position[1])
+            return card + suit
 
     def read_pool(self):
         self.crop(POOL_REGION[0], POOL_REGION[1], POOL_REGION[2], POOL_REGION[3])
@@ -133,16 +133,15 @@ class OcrDesktop:
         return 0.00
 
     def get_stage(self):
-        if self.desktop.card3 == '??':
+        if not self.desktop.card3:
             return STAGE.PreFlop
-        elif self.desktop.card6 == '??':
+        elif not self.desktop.card6:
             return STAGE.Flop
-        elif self.desktop.card7 == '??':
+        elif not self.desktop.card7:
             return STAGE.Turn
         return STAGE.River
 
     def do_action(self):
-        print(self.desktop.to_string())
         stage = self.get_stage()
         act = None
         if stage == STAGE.PreFlop:
@@ -170,28 +169,29 @@ class OcrDesktop:
         # image = Image.open(DESKTOP_IMAGE)
         # color = image.getpixel(FOLD_BUTTON_POSITION)
         color = pyautogui.pixel(FOLD_BUTTON_POSITION[0], FOLD_BUTTON_POSITION[1])
-        return is_match_color(BUTTON_COLOR, color, 10)
+        return not is_match_color(BACKGROUND_COLOR, color, 50)
 
     def read(self):
         new_desktop = None
         if self.is_read():
-            if self.is_action():
-                self.do_action()
             new_desktop = DesktopInfo()
             new_desktop.card1 = self.read_card(1)
-            new_desktop.card2 = self.read_card(2)
-            new_desktop.card3 = self.read_card(3)
-            if new_desktop.card3 != '??':
+            if new_desktop.card1:
+                new_desktop.card2 = self.read_card(2)
+                new_desktop.card3 = self.read_card(3)
+            if new_desktop.card3:
                 new_desktop.card4 = self.read_card(4)
                 new_desktop.card5 = self.read_card(5)
                 new_desktop.card6 = self.read_card(6)
-                if new_desktop.card6 != '??':
-                    new_desktop.card7 = self.read_card(7)
+            if new_desktop.card6:
+                new_desktop.card7 = self.read_card(7)
             new_desktop.pool = self.read_pool()
+            if self.desktop is None:
+                self.desktop = new_desktop
         if new_desktop and not self.desktop.equals(desktop_info=new_desktop):
             self.action.add(new_desktop)
             self.desktop = new_desktop
-            print(new_desktop.to_string())
+            print(new_desktop.to_string(), 'action:', self.is_action())
         if self.is_action():
             self.do_action()
 
@@ -203,7 +203,7 @@ while True:
     ocr_desktop.read()
     time.sleep(3)
 
-# rec_color(937, 880)
+# rec_color(830, 860)
 
 # color = pyautogui.pixel(READ_FLAG_POSITION[0], READ_FLAG_POSITION[1])
 # print(color)

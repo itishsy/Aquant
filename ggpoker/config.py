@@ -61,6 +61,7 @@ READ_FLAG_COLOR = (239, 239, 239)
 
 # 按钮颜色
 BUTTON_COLOR = (194, 79, 72)
+BACKGROUND_COLOR = (34, 34, 34)
 
 # 表示需要操作的位置及颜色值（出现弃牌按钮）
 FOLD_BUTTON_POSITION = (937, 880)
