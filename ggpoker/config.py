@@ -1,69 +1,50 @@
-class STAGE:
-    PreFlop = 0
-    Flop = 1
-    Turn = 2
-    River = 3
+# 需要远程到游戏桌面, 远程桌面分辩设置为：1440*900
+# 游戏窗口最大化，牌需要设置为4色
+# position=(x,y) 相对x为left,y为top
+# region=(x,y,w,h)
+# location=(region, position)
 
 
-class ACT:
-    Fold = -1
-    Check = 0
-    Call = 1
-    Raise = 2
-    AllIn = 100
-
-
-OCR_CARDS = ['A', 'K', 'k', 'Q', 'J', 'j', '10', '1o', '1O', '9', '8', '7', '6', '5', '4', '3', '2']
-RAISE_CARDS = ['AA', 'KK']
-CALL_CARDS = ['AK', 'AQ', 'AJ', 'AT', 'KQ', 'KJ', 'KT', 'QJ',
-              'QQ', 'JJ', 'TT', '99', '88', '77', '66', '55', '44', '33', '22']
-CALL_CARD_SUITS = ['A9', 'A8', 'A7', 'A6', 'A5', 'A4', 'A3', 'A2',
-                   'KJ', 'KT', 'QJ', 'QT', 'Q9', 'JT', 'J9', 'T9']
-
+# 游戏窗口标题
 WIN_TITLE = "192.168.0.113 - 远程桌面连接"
-DESKTOP_IMAGE = "desktop_image.jpg"
-CROPPED_IMAGE = 'cropped_image.jpg'
-
-# 截图偏移
+# 截图区域相对于左上角的偏移位
 OFFSET_X, OFFSET_Y = 0, 0
+
+# 牌
+# 4种花色的颜色值。黑桃（Spade）红桃（Heart）梅花（Club）方块（Diamond）
+SUIT_COLOR = ((0, 0, 0), (202, 23, 27), (29, 126, 45), (1, 30, 196))
 # 单个牌要截取的宽度和高度
 CARD_WIDTH, CARD_HEIGHT = 38, 40
-
-# 第1张手牌起始位置
-CARD_ONE_POSITION = (653, 691)
-# 第1张手牌花色位置
-SUIT_ONE_POSITION = (676, 751)
-
-# 第2张手牌起始位置
-CARD_TWO_POSITION = (718, 690)
-# 第2张手牌花色位置
-SUIT_TWO_POSITION = (737, 746)
-
-# 第1张公共牌起始位置
-PUB_CARD_POSITION = (488, 410)
-# 第1张公共牌花色位置
-PUB_SUIT_OFFSET = (546, 486)
+# 第1张牌定位 (识别区域,花色位置)
+CARD_1_LOCATION = ((653, 691, CARD_WIDTH, CARD_HEIGHT), (676, 751))
+# 第2张牌定位 (识别区域,花色位置)
+CARD_2_LOCATION = ((718, 690, CARD_WIDTH, CARD_HEIGHT), (737, 746))
+# 第3张牌定位 (识别区域,花色位置)
+CARD_3_LOCATION = ((488, 410, CARD_WIDTH, CARD_HEIGHT), (546, 486))
 # 公共牌之间的间隔
 PUB_CARD_SPACE_X = 100
 
-# 底池区域
+# 底池
+# 底池区域（l,t,w,h)
 POOL_REGION = (729, 368, 88, 30)
 
-# 4种花色的颜色值
-SPADE_COLOR = (0, 0, 0)
-HEART_COLOR = (202, 23, 27)
-CLUB_COLOR = (29, 126, 45)
-DIAMOND_COLOR = (1, 30, 196)
-
+# 判断
 # 表示需要读牌桌信息的位置及颜色值（出现手牌）
 READ_FLAG_POSITION = (701, 724)
 READ_FLAG_COLOR = (239, 239, 239)
 
 # 按钮颜色
 BUTTON_COLOR = (194, 79, 72)
-BACKGROUND_COLOR = (34, 34, 34)
+# 牌桌识别
+TABLE_COLOR = (19, 90, 22)
+TABLE_POSITION = (729, 627)
+# 牌桌背景颜色
+TABLE_BACKGROUND_COLOR = (34, 34, 34)
+
 
 # 表示需要操作的位置及颜色值（出现弃牌按钮）
-FOLD_BUTTON_POSITION = (937, 880)
-CHECK_BUTTON_POSITION = (1096, 880)
+FOLD_BUTTON_POSITION = (937, 860)
+CHECK_BUTTON_POSITION = (1096, 860)
 
+# 操作
+ACTION_CHECK_POSITION = (1052, 852)
