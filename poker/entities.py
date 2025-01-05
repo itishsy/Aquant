@@ -83,18 +83,6 @@ class Section(BaseModel):
             return Stage.Turn
         return Stage.River
 
-    def add_player(self, idx, player):
-        if idx == 1:
-            self.player1 = player
-        elif idx == 2:
-            self.player2 = player
-        elif idx == 3:
-            self.player3 = player
-        elif idx == 4:
-            self.player4 = player
-        elif idx == 5:
-            self.player5 = player
-
 
 class Player(BaseModel):
     id = AutoField()

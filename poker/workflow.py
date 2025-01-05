@@ -24,7 +24,7 @@ class TableImage:
         y2 = WIN_OFFSET[1] + region[1] + region[3]
         # self.image.save("aaa.jpg")
         region_image = self.image.crop((x1, y1, x2, y2))
-        # region_image.save(cropped_image)
+        region_image.save(cropped_image)
         image_bytes = io.BytesIO()
         region_image.save(image_bytes, format='PNG')
         image_bytes = image_bytes.getvalue()
@@ -169,6 +169,7 @@ class WorkFlow:
         if self.game.sections:
             if not self.game.sections[-1].action:
                 strategy = Strategy(self.game)
+                strategy.analyze()
                 act = strategy.cal()
                 self.game.sections[-1].action = act
             else:
@@ -210,7 +211,7 @@ def test_workflow(file_name='table_image.jpg'):
 
 
 if __name__ == '__main__':
-    # wf = WorkFlow()
-    # wf.start()
-    test_workflow()
+    wf = WorkFlow()
+    wf.start()
+    # test_workflow()
 

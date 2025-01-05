@@ -93,7 +93,7 @@ def fetch_amount(ocr_txt):
             part1 = ocr_txt[1: length - 2]
             part2 = ocr_txt[length - 2: length]
             val = '{}.{}'.format(part1, part2)
-        # print('amount:', ocr_txt)
+        print('amount:', ocr_txt)
         return Decimal(val)
     return 0.00
 
@@ -107,7 +107,7 @@ def get_region(name, idx=None):
         return region
     elif name == 'PLAYER':
         name_region = eval('REGION_PLAYER_' + str(idx))
-        amount_region = (name_region[0], name_region[1] + PLAYER_HEIGHT, name_region[2], name_region[3])
+        amount_region = (name_region[0], name_region[1] + PLAYER_HEIGHT - 5, name_region[2], name_region[3])
         return name_region, amount_region
     elif idx:
         return eval('REGION_' + name + '_' + str(idx))

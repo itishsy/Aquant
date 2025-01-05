@@ -20,8 +20,9 @@ class Strategy:
         return act
 
     def set_player_action(self, idx, act, tail=-1):
-        locals_dict = {'sec': self.game.sections[tail], 'act': act}
-        eval('sec.player{}_action = act'.format(idx), __locals=locals_dict)
+        sec = self.game.sections[tail]
+        if sec:
+            eval("sec.player{}_action = '{}'".format(idx, act))
 
     def analyze(self):
         six = len(self.game.sections)
