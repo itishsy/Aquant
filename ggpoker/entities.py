@@ -1,7 +1,6 @@
 from models.base import BaseModel, db
 from flask_peewee.db import CharField, IntegerField, DateTimeField, AutoField, DecimalField
 from datetime import datetime
-from ggpoker.strategy import pre_flop, flop, turn, river
 
 
 # 牌局信息。每发一次牌为新的牌局
@@ -25,29 +24,26 @@ class Game(BaseModel):
         game.created = datetime.now()
         return game
 
-    def add_section(self, section):
+    def load(self, section):
         self.sections.append(section)
 
-    def get_action(self):
-        action = Action.Check
-        if len(self.sections) > 0:
-            stage = self.sections[-1].get_stage()
-            if stage == Stage.PreFlop:
-                action = pre_flop(self)
-            elif stage == Stage.Flop:
-                action = flop(self)
-            elif stage == Stage.Turn:
-                action = turn(self)
-            elif stage == Stage.River:
-                action = river(self)
-        print(action.to_string())
-        return action
+    def print(self):
+        print('ID:{}'.format(self.code))
+        print('手牌:{}|{},位置:{}'.format(self.card1, self.card2, self.seat))
+        size = len(self.sections)
+        for i in range(size):
+            sec = self.sections[i]
+            print("【round{}】：底池:{}, 公共牌: {}|{}|{}|{}|{}, 玩家: {}|{}|{}|{}|{}".format(i, sec.pool, sec.card3, sec.card4, sec.card5, sec.card6, sec.card7,
+                            sec.player1, sec.player2, sec.player3, sec.player4, sec.player5))
 
 
 # 牌桌信息
 class Section(BaseModel):
     id = AutoField()
     pool = DecimalField()  # 底池
+    seat = IntegerField()  # 座位
+    card1 = CharField()  # 公共牌1
+    card2 = CharField()  # 公共牌2
     card3 = CharField()  # 公共牌1
     card4 = CharField()  # 公共牌2
     card5 = CharField()  # 公共牌3
@@ -62,11 +58,15 @@ class Section(BaseModel):
     player5 = CharField()   # 玩家5
 
     def to_string(self):
-        return ("底池: {} 公共牌: {},{},{},{},{} "
-                .format(self.pool, self.card3, self.card4, self.card5, self.card6, self.card7))
+        return ("手牌:{}|{}, 位置:{}, 底池:{}, 公共牌: {}|{}|{}|{}|{}, 玩家: {}|{}|{}|{}|{}"
+                .format(self.card1, self.card2, self.seat, self.pool,
+                        self.card3, self.card4, self.card5, self.card6, self.card7,
+                        self.player1, self.player2, self.player3, self.player4, self.player5))
 
-    def equals(self, section):
-        return self.to_string() == section.to_string()
+    def equals(self, sec):
+        return (self.pool == sec.pool and self.card3 == sec.card3 and self.card4 == sec.card4
+                and self.card5 == sec.card5 and self.card6 == sec.card6 and self.card7 == sec.card7
+                and self.seat == sec.seat)
 
     def get_stage(self):
         if not self.card3:

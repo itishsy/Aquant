@@ -9,14 +9,15 @@ CALL_CARD_SUITS = ['A9', 'A8', 'A7', 'A6', 'A5', 'A4', 'A3', 'A2',
 
 
 def do_action(game: Game):
-    action = river(game)
-    if not action:
-        action = turn(game)
-    if not action:
-        action = flop(game)
-    if not action:
-        action = pre_flop(game)
-    return action
+    if game:
+        action = river(game)
+        if not action:
+            action = turn(game)
+        if not action:
+            action = flop(game)
+        if not action:
+            action = pre_flop(game)
+        return action
 
 
 def pre_flop(game: Game):
