@@ -27,6 +27,10 @@ class Game(BaseModel):
     def load(self, section):
         self.sections.append(section)
 
+    def action(self, act):
+        sec = self.sections[-1]
+        sec.action = act
+
     def print(self):
         print('ID:{}'.format(self.code))
         print('手牌:{}|{},位置:{}'.format(self.card1, self.card2, self.seat))
@@ -49,13 +53,24 @@ class Section(BaseModel):
     card5 = CharField()  # 公共牌3
     card6 = CharField()  # 公共牌4
     card7 = CharField()  # 公共牌5
+    action = CharField()  # 操作
     created = DateTimeField()
 
     player1 = CharField()   # 玩家1
+    player1_amount = DecimalField()  #
+    player1_action = CharField()  #
     player2 = CharField()   # 玩家2
+    player2_amount = DecimalField()  #
+    player2_action = CharField()  #
     player3 = CharField()   # 玩家3
+    player3_amount = DecimalField()  #
+    player3_action = CharField()  #
     player4 = CharField()   # 玩家4
+    player4_amount = DecimalField()  #
+    player4_action = CharField()  #
     player5 = CharField()   # 玩家5
+    player5_amount = DecimalField()  #
+    player5_action = CharField()  #
 
     def to_string(self):
         return ("手牌:{}|{}, 位置:{}, 底池:{}, 公共牌: {}|{}|{}|{}|{}, 玩家: {}|{}|{}|{}|{}"
@@ -105,6 +120,7 @@ class Stage:
 
 
 class Action:
+    Null = -2
     Fold = -1
     Check = 0
     Call = 1
@@ -122,6 +138,8 @@ class Action:
             return 'Raise'
         elif self == Action.AllIn:
             return 'AllIn'
+        else:
+            return 'Null'
 
 
 if __name__ == '__main__':

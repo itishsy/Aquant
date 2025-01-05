@@ -17,6 +17,9 @@ def do_action(game: Game):
             action = flop(game)
         if not action:
             action = pre_flop(game)
+        if not action:
+            action = Action.Null
+        game.action(action)
         return action
 
 

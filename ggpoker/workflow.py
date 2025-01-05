@@ -149,7 +149,7 @@ class WorkFlow:
                     if self.check(section):
                         table.set_players(section)
                         self.game.load(section)
-
+                        self.game.print()
                     act = do_action(self.game)
                     print('action:', act)
             else:
@@ -157,10 +157,13 @@ class WorkFlow:
             time.sleep(3)
 
 
-# wf = WorkFlow()
-# wf.start()
+def test_ocr_table_image(img='table_image.jpg'):
+    tab1 = TableImage(img, ddddocr.DdddOcr())
+    sec1 = tab1.section()
+    tab1.set_players(sec1)
+    print(sec1.to_string())
 
-tab1 = TableImage('table_image.jpg', ddddocr.DdddOcr())
-sec1 = tab1.section()
-tab1.set_players(sec1)
-print(sec1.to_string())
+
+wf = WorkFlow()
+wf.start()
+
