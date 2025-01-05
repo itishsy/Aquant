@@ -1,6 +1,5 @@
 from models.base import BaseModel, db
 from flask_peewee.db import CharField, IntegerField, DateTimeField, AutoField, DecimalField
-from datetime import datetime
 
 
 # 牌局信息。每发一次牌为新的牌局
@@ -12,33 +11,25 @@ class Game(BaseModel):
     seat = IntegerField()  # 座位
     created = DateTimeField()
 
+    stage = CharField()  # 阶段
     sections = []
 
-    @staticmethod
-    def new(card1, card2, seat):
-        game = Game()
-        game.code = datetime.now().strftime('%Y%m%d%H%M%S')
-        game.card1 = card1
-        game.card2 = card2
-        game.seat = seat
-        game.created = datetime.now()
-        return game
-
-    def load(self, section):
-        self.sections.append(section)
-
-    def action(self, act):
-        sec = self.sections[-1]
-        sec.action = act
-
-    def print(self):
-        print('ID:{}'.format(self.code))
-        print('手牌:{}|{},位置:{}'.format(self.card1, self.card2, self.seat))
+    def to_strings(self):
+        info = ['ID:   {}'.format(self.code), '手牌:     {}|{},位置:{}'.format(self.card1, self.card2, self.seat)]
         size = len(self.sections)
         for i in range(size):
             sec = self.sections[i]
-            print("【round{}】：底池:{}, 公共牌: {}|{}|{}|{}|{}, 玩家: {}|{}|{}|{}|{}".format(i, sec.pool, sec.card3, sec.card4, sec.card5, sec.card6, sec.card7,
-                            sec.player1, sec.player2, sec.player3, sec.player4, sec.player5))
+            info.append("round{}: 阶段：{}".format(i+1, sec.get_stage()))
+            info.append("\t底池: {},\n\t公共牌: {}|{}|{}|{}|{}".format(
+                sec.pool, sec.card3, sec.card4, sec.card5, sec.card6, sec.card7))
+            info.append("\t玩家:\n\t\t{}({}),{}\n\t\t{}({}),{}\n\t\t{}({}),{}\n\t\t{}({}),{}\n\t\t{}({}),{}".format(
+                sec.player1, sec.player1_amount, sec.player1_action,
+                sec.player2, sec.player2_amount, sec.player2_action,
+                sec.player3, sec.player3_amount, sec.player3_action,
+                sec.player4, sec.player4_amount, sec.player4_action,
+                sec.player5, sec.player5_amount, sec.player5_action))
+            info.append("\t操作：{}".format(i, sec.action))
+        return info
 
 
 # 牌桌信息
