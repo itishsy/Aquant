@@ -24,7 +24,7 @@ class TableImage:
         y2 = WIN_OFFSET[1] + region[1] + region[3]
         # self.image.save("aaa.jpg")
         region_image = self.image.crop((x1, y1, x2, y2))
-        region_image.save(cropped_image)
+        # region_image.save(cropped_image)
         image_bytes = io.BytesIO()
         region_image.save(image_bytes, format='PNG')
         image_bytes = image_bytes.getvalue()
@@ -120,7 +120,7 @@ class WorkFlow:
                 self.win = win
                 img = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
                 color = img.getpixel(POSITION_READY)
-                self.is_active = is_match_color(color, COLOR_READY, 50)
+                self.is_active = is_match_color(color, COLOR_READY, 100)
         return self.is_active
 
     def load(self, sec):
@@ -195,7 +195,7 @@ class WorkFlow:
                     self.action()
                 self.print()
             else:
-                print('未进入游戏桌面')
+                print('未进入游戏')
             time.sleep(3)
 
 

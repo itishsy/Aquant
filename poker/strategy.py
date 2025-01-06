@@ -22,7 +22,7 @@ class Strategy:
     def set_player_action(self, idx, act, tail=-1):
         sec = self.game.sections[tail]
         if sec:
-            eval("sec.player{}_action = '{}'".format(idx, act))
+            exec("sec.player{}_action = '{}'".format(idx, act))
 
     def analyze(self):
         six = len(self.game.sections)
