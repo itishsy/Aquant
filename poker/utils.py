@@ -4,7 +4,6 @@ from PIL import Image
 from config import *
 from decimal import Decimal
 
-
 table_image = "table_image.jpg"
 cropped_image = 'table_cropped_image.jpg'
 ocr_cards = ['A', 'K', 'k', 'Q', 'J', 'j', '10', '1o', '1O', '9', '8', '7', '6', '5', '4', '3', '2']
@@ -67,6 +66,7 @@ def ocr_text(ocr, region):
 
 def fetch_card(ocr_txt, idx):
     card_txt = None
+    # print(ocr_txt)
     for c in ocr_cards:
         if c in ocr_txt:
             if c == '10' or c == '1O' or c == '1o':
@@ -82,7 +82,7 @@ def fetch_card(ocr_txt, idx):
 
 
 def fetch_amount(ocr_txt):
-    if ocr_txt:
+    if ocr_txt and '全押' not in ocr_txt:
         ocr_txt = ocr_txt.replace("o", "0")
         ocr_txt = ocr_txt.replace("O", "0")
         length = len(ocr_txt)
@@ -93,15 +93,18 @@ def fetch_amount(ocr_txt):
             part1 = ocr_txt[1: length - 2]
             part2 = ocr_txt[length - 2: length]
             val = '{}.{}'.format(part1, part2)
-        print('amount:', ocr_txt)
-        return Decimal(val)
+        # print('amount:', ocr_txt)
+        try:
+            return Decimal(val)
+        except:
+            return Decimal(0.0)
     return 0.00
 
 
 def get_region(name, idx=None):
     if name == 'CARD' or name == 'SUIT':
         idx_str = '3' if idx > 3 else str(idx)
-        region = eval('REGION_'+name+'_' + idx_str)
+        region = eval('REGION_' + name + '_' + idx_str)
         if idx > 3:
             region = (region[0] + (idx - 3) * PUB_CARD_SPACE_X, region[1], region[2], region[3])
         return region
@@ -113,6 +116,5 @@ def get_region(name, idx=None):
         return eval('REGION_' + name + '_' + str(idx))
     else:
         return eval('REGION_' + name)
-
 
 # shot_table_image(True)

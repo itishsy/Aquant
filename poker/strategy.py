@@ -37,7 +37,7 @@ class Strategy:
 
                 amt_1 = eval('sec_1.player{}_amount'.format(i))
                 amt_2 = eval('sec_2.player{}_amount'.format(i))
-                diff_amt = amt_1 - amt_2
+                diff_amt = amt_2 - amt_1 if amt_1 and amt_2 else 0
                 is_same_stage = sec_1.get_stage() == sec_2.get_stage()
 
                 if pool_raised:
