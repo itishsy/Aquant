@@ -139,14 +139,13 @@ class WorkFlow:
         # print(sec.to_string())
         if self.game:
             if self.game.card1 != sec.card1 or self.game.card2 != sec.card2 or self.game.seat != sec.seat:
-                game = Game()
-                game.code = datetime.now().strftime('%Y%m%d%H%M%S')
-                game.card1 = sec.card1
-                game.card2 = sec.card2
-                game.seat = sec.seat
-                game.stage = sec.get_stage()
-                game.created = datetime.now()
-                self.game = game
+                self.game = Game()
+                self.game.code = datetime.now().strftime('%Y%m%d%H%M%S')
+                self.game.card1 = sec.card1
+                self.game.card2 = sec.card2
+                self.game.seat = sec.seat
+                self.game.stage = sec.get_stage()
+                self.game.created = datetime.now()
                 self.game.sections.clear()
                 self.game_info = None
                 strategy = Strategy(game)
