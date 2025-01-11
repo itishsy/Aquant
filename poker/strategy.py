@@ -14,10 +14,10 @@ class Strategy:
         self.game = game
 
     def cal(self):
-        act = Action.Null
-        if self.game.stage == Stage.PreFlop:
-            act = self.pre_flop()
-        return act
+        if self.game.stage == 'PreFlop':
+            self.game.action = self.pre_flop()
+            if self.game.sections:
+                self.game.sections[-1].action = self.game.action
 
     def set_player_action(self, idx, act, tail=-1):
         sec = self.game.sections[tail]

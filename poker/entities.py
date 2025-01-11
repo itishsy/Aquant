@@ -17,11 +17,17 @@ class Game(BaseModel):
     created = DateTimeField()
 
     stage = CharField()  # 阶段
+
     sections = []
+    action = None
+
+    def get_action(self):
+        act = self.action
+        self.action = None
+        return act
 
     def get_info(self):
-        return 'ID: {} 手牌: {}|{} 位置: {}'.format(self.code, self.card1, self.card2, self.seat)
-
+        return '手牌: {}|{} 位置: {}'.format(self.card1, self.card2, self.seat)
 
 
 # 牌桌信息

@@ -148,7 +148,7 @@ class WorkFlow:
                 self.game.created = datetime.now()
                 self.game.sections.clear()
                 self.game_info = None
-                strategy = Strategy(game)
+                strategy = Strategy(self.game)
                 sec.action = strategy.cal()
                 self.game.sections.append(sec)
                 return True
@@ -167,26 +167,29 @@ class WorkFlow:
                 self.game.sections[-1] = sec
             else:
                 self.game.sections.append(sec)
-            strategy = Strategy(self.game)
-            self.game.sections[-1].action = strategy.cal()
+            sty = Strategy(self.game)
+            sty.analyze()
+            sty.cal()
+
+    def do_action(self):
+        act = self.game.get_action()
+        if act:
+            print("\t操作：{}".format(act))
 
     def print(self):
         size = len(self.game.sections)
         if size == 1:
             if self.game_info != self.game.get_info():
+                print('----------------------------')
                 print(self.game.get_info())
-                print("\t操作：{}".format(self.game.sections[-1].action))
                 self.game_info = self.game.get_info()
             self.game_sections_size = 1
         else:
             for i in range(self.game_sections_size, size):
                 sec = self.game.sections[i]
-                pre = self.game.sections[i-1]
-                print("round{}：{}".format(i + 1, sec.get_stage()))
-                if sec.pool > pre.pool:
-                    print("\t底池: {}".format(sec.pool))
                 if sec.card3:
-                    print("\t公共牌: {}|{}|{}|{}|{}".format(sec.card3, sec.card4, sec.card5, sec.card6, sec.card7))
+                    print("{}: {}|{}|{}|{}|{} pool: {}".format(sec.get_stage(), sec.card3, sec.card4, sec.card5,
+                                                               sec.card6, sec.card7, sec.pool))
                 if sec.player1 and sec.player1_action and 'bet' in sec.player1_action:
                     print("\tplayer1:\t{}({}),{}".format(
                         sec.player1, sec.player1_amount, sec.player1_action))
@@ -202,19 +205,20 @@ class WorkFlow:
                 if sec.player5 and sec.player5_action and 'bet' in sec.player5_action:
                     print("\tplayer5:\t{}({}),{}".format(
                         sec.player5, sec.player5_amount, sec.player5_action))
-                print("\t操作：{}".format(sec.action))
             self.game_sections_size = size
 
     def start(self):
         while True:
             if self.active():
                 image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
-                table = TableImage(image, self.ocr)
-                section = table.create_section()
-                if self.load(section):
-                    table.fetch_players()
-                    self.reload(section)
-                self.print()
+                if is_match_color(image.getpixel(POSITION_FOLD_BUTTON), COLOR_BUTTON, 100):
+                    table = TableImage(image, self.ocr)
+                    section = table.create_section()
+                    if self.load(section):
+                        table.fetch_players()
+                        self.reload(section)
+                    self.print()
+                    self.do_action()
             else:
                 print('未开始游戏')
             time.sleep(3)
