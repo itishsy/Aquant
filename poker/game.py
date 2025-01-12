@@ -30,14 +30,16 @@ class Game(BaseModel):
         game.stage = 'PreFlop'
         game.created = datetime.now()
         game.sections = [sec]
-        for i in range(5):
-            player_name = eval('sec.player{}'.format(i+1))
+        for i in range(1, 6):
+            player_name = eval('sec.player{}'.format(i))
             player = Player()
             player.game_code = game.code
             player.seat = (sec.seat + i) % 6
+            if player.seat == 0:
+                player.seat = 6
             if player_name:
                 player.name = player_name
-                player.amount = eval('sec.player{}_amount'.format(i+1))
+                player.amount = eval('sec.player{}_amount'.format(i))
                 if player.amount:
                     player.status = 'playing'
                     act = PlayerAction()

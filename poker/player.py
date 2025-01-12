@@ -20,6 +20,11 @@ class Player(BaseModel):
             return
 
         for i in range(1, s_len):
+            if self.actions[i].action == 'pending':
+                if sections[i - 1].pool < sections[i].pool and self.actions[i - 1].amount > self.actions[i].amount:
+                    self.actions[i].action = 'bet:{}'.format(self.actions[i - 1].amount - self.actions[i].amount)
+
+        for i in range(1, s_len):
             is_pool_raised = sections[i - 1].pool < sections[i].pool
             pre_action = self.actions[i - 1].action
 
@@ -31,6 +36,7 @@ class Player(BaseModel):
                     self.actions[i - 1].action = 'check'
             else:
                 self.actions[i].action = 'check'
+
 
     @staticmethod
     def eval_action(pre_amount, cur_amount, pre_pool, cur_pool, is_other_bet_behind):
