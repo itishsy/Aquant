@@ -36,7 +36,7 @@ def crop_table_image(left, top, width, height):
     region_image.save(cropped_image)
 
 
-def is_match_color(color1, color2, diff):
+def is_match_color(color1, color2, diff=100):
     return (abs(color1[0] - color2[0]) < diff and
             abs(color1[1] - color2[1]) < diff and
             abs(color1[1] - color2[1]) < diff)

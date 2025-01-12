@@ -1,4 +1,4 @@
-from entities import Game, Action, Stage
+from game import Game, Action, Stage
 
 
 RAISE_CARDS = ['AA', 'KK']
@@ -13,7 +13,7 @@ class Strategy:
     def __init__(self, game):
         self.game = game
 
-    def cal(self):
+    def predict(self):
         if self.game.stage == 'PreFlop':
             self.game.action = self.pre_flop()
             if self.game.sections:

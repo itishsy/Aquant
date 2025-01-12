@@ -1,7 +1,8 @@
 import time
 import io
 from datetime import datetime
-from entities import Game, Section, Action
+from poker.game import Game, Section, Action
+from poker.player import Player
 from utils import *
 from poker.strategy import Strategy
 
@@ -72,19 +73,16 @@ class TableImage:
 
     def create_section(self):
         pool = self.fetch_pool()
-        if not pool:
-            # print('无法读取底池')
-            return
         card1 = self.fetch_card(1)
-        if not card1:
-            # print('无法读取手牌')
+        seat = self.fetch_seat()
+        if not pool or not card1 or not seat:
             return
-        card2 = self.fetch_card(2)
+
         sec = Section()
         sec.pool = pool
-        sec.seat = self.fetch_seat()
+        sec.seat = seat
         sec.card1 = card1
-        sec.card2 = card2
+        sec.card2 = self.fetch_card(2)
         sec.card3 = self.fetch_card(3)
         if sec.card3:
             sec.card4 = self.fetch_card(4)
@@ -92,16 +90,16 @@ class TableImage:
             sec.card6 = self.fetch_card(6)
             if sec.card6:
                 sec.card7 = self.fetch_card(7)
-        self.section = sec
-        return sec
 
-    def fetch_players(self):
-        if self.section:
-            self.section.player1, self.section.player1_amount = self.fetch_player(1)
-            self.section.player2, self.section.player2_amount = self.fetch_player(2)
-            self.section.player3, self.section.player3_amount = self.fetch_player(3)
-            self.section.player4, self.section.player4_amount = self.fetch_player(4)
-            self.section.player5, self.section.player5_amount = self.fetch_player(5)
+        sec.player1, sec.player1_amount = self.fetch_player(1)
+        sec.player2, sec.player2_amount = self.fetch_player(2)
+        sec.player3, sec.player3_amount = self.fetch_player(3)
+        sec.player4, sec.player4_amount = self.fetch_player(4)
+        sec.player5, sec.player5_amount = self.fetch_player(5)
+
+        if not self.section.equals(sec):
+            self.section = sec
+            return sec
 
 
 class WorkFlow:
@@ -109,20 +107,25 @@ class WorkFlow:
     def __init__(self):
         self.ocr = ddddocr.DdddOcr()
         self.game = Game()
-        self.is_active = False
         self.win = None
+        self.is_start = False
+        self.image = None
         self.game_sections_size = 0
         self.game_info = ''
 
     def active(self):
-        if not self.is_active:
+        if not self.is_start:
             win = get_win()
             if win:
                 self.win = win
                 img = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
-                color = img.getpixel(POSITION_READY)
-                self.is_active = is_match_color(color, COLOR_READY, 100)
-        return self.is_active
+                self.is_start = is_match_color(img.getpixel(POSITION_READY), COLOR_READY)
+        if self.is_start:
+            image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
+            if is_match_color(image.getpixel(POSITION_FOLD_BUTTON), COLOR_BUTTON):
+                self.image = image
+                return True
+        return False
 
     def load(self, sec):
         """
@@ -130,48 +133,22 @@ class WorkFlow:
         :param sec:
         :return:
         """
-        if sec is None:
+
+        if sec is None or not sec.card1 or not sec.card2 or not sec.seat:
             return False
 
-        if not sec.card1 or not sec.card2 or not sec.seat:
-            return False
-
-        # print(sec.to_string())
-        if self.game:
-            if self.game.card1 != sec.card1 or self.game.card2 != sec.card2 or self.game.seat != sec.seat:
-                self.game = Game()
-                self.game.code = datetime.now().strftime('%Y%m%d%H%M%S')
-                self.game.card1 = sec.card1
-                self.game.card2 = sec.card2
-                self.game.seat = sec.seat
-                self.game.stage = sec.get_stage()
-                self.game.created = datetime.now()
-                self.game.sections.clear()
-                self.game_info = None
-                strategy = Strategy(self.game)
-                sec.action = strategy.cal()
-                self.game.sections.append(sec)
-                return True
-            if self.game.sections:
-                last_sec = self.game.sections[-1]
-                if last_sec.equals(sec):
-                    return False
-                else:
-                    self.game.sections.append(sec)
-        return True
-
-    def reload(self, sec):
-        if self.game and self.game.sections:
+        if self.game.card1 != sec.card1 or self.game.card2 != sec.card2 or self.game.seat != sec.seat:
+            self.game = Game.new(sec)
+        else:
             last_sec = self.game.sections[-1]
             if last_sec.equals(sec):
-                self.game.sections[-1] = sec
+                return False
             else:
                 self.game.sections.append(sec)
-            sty = Strategy(self.game)
-            sty.analyze()
-            sty.cal()
+        return True
 
     def do_action(self):
+        self.print()
         act = self.game.get_action()
         if act:
             print("\t操作：{}".format(act))
@@ -180,8 +157,7 @@ class WorkFlow:
         size = len(self.game.sections)
         if size == 1:
             if self.game_info != self.game.get_info():
-                print('----------------------------')
-                print(self.game.get_info())
+                print('\n------------', self.game.get_info(), '------------')
                 self.game_info = self.game.get_info()
             self.game_sections_size = 1
         else:
@@ -210,15 +186,14 @@ class WorkFlow:
     def start(self):
         while True:
             if self.active():
-                image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
-                if is_match_color(image.getpixel(POSITION_FOLD_BUTTON), COLOR_BUTTON, 100):
-                    table = TableImage(image, self.ocr)
-                    section = table.create_section()
-                    if self.load(section):
-                        table.fetch_players()
-                        self.reload(section)
-                    self.print()
+                table = TableImage(self.image, self.ocr)
+                section = table.create_section()
+                if section and self.load(section):
+                    strategy = Strategy(self.game)
+                    strategy.predict()
                     self.do_action()
+                else:
+                    print('error section:' + section.to_string())
             else:
                 print('未开始游戏')
             time.sleep(3)
@@ -229,9 +204,7 @@ def test_workflow(file_name='table_image.jpg'):
     tab1 = TableImage(Image.open(file_name), wf1.ocr)
     sec1 = tab1.create_section()
     if wf1.load(sec1):
-        tab1.fetch_players()
-        wf1.reload(sec1)
-    wf1.print()
+        wf1.print()
 
 
 if __name__ == '__main__':

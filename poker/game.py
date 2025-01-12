@@ -1,30 +1,47 @@
 from models.base import BaseModel, db
 from flask_peewee.db import CharField, IntegerField, DateTimeField, AutoField, DecimalField
+from datetime import datetime
+from poker.player import Player
 
 
 # 牌局信息。每发一次牌为新的牌局
 class Game(BaseModel):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.sections = []
 
     id = AutoField()
     code = CharField()  # 牌局
     card1 = CharField()  # 手牌1
     card2 = CharField()  # 手牌1
     seat = IntegerField()  # 座位
+    stage = CharField()  # 最终阶段
     created = DateTimeField()
 
-    stage = CharField()  # 阶段
-
+    players = []
     sections = []
-    action = None
+    actions = []
+
+    @staticmethod
+    def new(sec):
+        game = Game()
+        game.code = datetime.now().strftime('%Y%m%d%H%M%S')
+        game.card1 = sec.card1
+        game.card2 = sec.card2
+        game.seat = sec.seat
+        game.stage = 'PreFlop'
+        game.created = datetime.now()
+        game.sections = [sec]
+        for i in range(1, 6):
+            player_name = eval('sec.player{}'.format(i))
+            player = Player()
+            if player_name:
+                player.name = player_name
+                player.balance = eval('sec.player{}_amount'.format(i))
+                player.seat = (sec.seat + i) % 6
+                player.game_code = game.code
+            game.players.append(player)
 
     def get_action(self):
-        act = self.action
-        self.action = None
-        return act
+        if self.actions:
+            return self.actions[-1]
 
     def get_info(self):
         return '手牌: {}|{} 位置: {}'.format(self.card1, self.card2, self.seat)
@@ -32,9 +49,13 @@ class Game(BaseModel):
 
 # 牌桌信息
 class Section(BaseModel):
+    """
+    每次需要做决策时，根据捕获的tableImage生成一个section
+    """
     id = AutoField()
     pool = DecimalField()  # 底池
     seat = IntegerField()  # 座位
+    stage = CharField()  # 阶段
     card1 = CharField()  # 公共牌1
     card2 = CharField()  # 公共牌2
     card3 = CharField()  # 公共牌1
@@ -47,19 +68,14 @@ class Section(BaseModel):
 
     player1 = CharField()   # 玩家1
     player1_amount = DecimalField()  #
-    player1_action = CharField()  #
     player2 = CharField()   # 玩家2
     player2_amount = DecimalField()  #
-    player2_action = CharField()  #
     player3 = CharField()   # 玩家3
     player3_amount = DecimalField()  #
-    player3_action = CharField()  #
     player4 = CharField()   # 玩家4
     player4_amount = DecimalField()  #
-    player4_action = CharField()  #
     player5 = CharField()   # 玩家5
     player5_amount = DecimalField()  #
-    player5_action = CharField()  #
 
     def to_string(self):
         return ("手牌:{}|{}, 位置:{}, 底池:{}, 公共牌: {}|{}|{}|{}|{}, 玩家: {}|{}|{}|{}|{}"
@@ -80,13 +96,6 @@ class Section(BaseModel):
         elif not self.card7:
             return 'Turn'
         return 'River'
-
-
-class Player(BaseModel):
-    id = AutoField()
-    name = CharField()
-    seat = CharField()
-    balance = DecimalField()  # 余额
 
 
 class Stage:

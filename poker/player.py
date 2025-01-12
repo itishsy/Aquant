@@ -1,18 +1,28 @@
-from poker.entities import Player
+from models.base import BaseModel, db
+from flask_peewee.db import CharField, IntegerField, DateTimeField, AutoField, DecimalField
+
+
+class Player(BaseModel):
+    id = AutoField()
+    game_code = CharField()
+    name = CharField()
+    seat = CharField()
+    balance = DecimalField()  # 余额
+    actions = []
 
 
 class PlayerAction:
-    stage = 0
-    round = 0
-    action = ''
-    amount = 0.0
+    player_id = IntegerField()
+    stage = CharField()
+    round = IntegerField()
+    action = CharField()
+    amount = DecimalField()
 
 
 def eval_player_actions(sections, idx):
-    sec = sections[-1]
-    player = Player()
-    player.name = eval('sec.player{}'.format(idx))
-    player.seat = (sec.seat + idx) % 6
+    actions = []
     for i in range(len(sections)):
+        pa = PlayerAction()
         sec = sections[i]
         pool = sec.pool
+    return actions
