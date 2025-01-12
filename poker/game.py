@@ -1,7 +1,8 @@
 from models.base import BaseModel, db
 from flask_peewee.db import CharField, IntegerField, DateTimeField, AutoField, DecimalField
 from datetime import datetime
-from poker.player import Player
+from poker.player import Player, PlayerAction
+from config import SB, BB
 
 
 # 牌局信息。每发一次牌为新的牌局
@@ -20,7 +21,7 @@ class Game(BaseModel):
     actions = []
 
     @staticmethod
-    def new(sec):
+    def create_by_section(sec):
         game = Game()
         game.code = datetime.now().strftime('%Y%m%d%H%M%S')
         game.card1 = sec.card1
@@ -29,14 +30,26 @@ class Game(BaseModel):
         game.stage = 'PreFlop'
         game.created = datetime.now()
         game.sections = [sec]
-        for i in range(1, 6):
-            player_name = eval('sec.player{}'.format(i))
+        for i in range(5):
+            player_name = eval('sec.player{}'.format(i+1))
             player = Player()
+            player.game_code = game.code
+            player.seat = (sec.seat + i) % 6
             if player_name:
                 player.name = player_name
-                player.balance = eval('sec.player{}_amount'.format(i))
-                player.seat = (sec.seat + i) % 6
-                player.game_code = game.code
+                player.amount = eval('sec.player{}_amount'.format(i+1))
+                if player.amount:
+                    player.status = 'playing'
+                    act = PlayerAction()
+                    act.stage = 'PreFlop'
+                    act.round = 1
+                    act.amount = player.amount
+                    act.action = 'pending' if player.seat > 2 else 'bet:{}'.format(SB if player.seat == 1 else BB)
+                    player.actions = [act]
+                else:
+                    player.status = 'leave'
+            else:
+                player.status = 'nobody'
             game.players.append(player)
 
     def get_action(self):

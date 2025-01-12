@@ -1,9 +1,9 @@
 import time
 import io
-from datetime import datetime
+
 from poker.game import Game, Section, Action
-from poker.player import Player
-from utils import *
+from poker.player import PlayerAction
+from poker.utils import *
 from poker.strategy import Strategy
 
 
@@ -133,19 +133,24 @@ class WorkFlow:
         :param sec:
         :return:
         """
-
-        if sec is None or not sec.card1 or not sec.card2 or not sec.seat:
-            return False
-
-        if self.game.card1 != sec.card1 or self.game.card2 != sec.card2 or self.game.seat != sec.seat:
-            self.game = Game.new(sec)
-        else:
-            last_sec = self.game.sections[-1]
-            if last_sec.equals(sec):
-                return False
-            else:
+        if sec and sec.card1 and sec.card2 and sec.seat:
+            if self.game.card1 != sec.card1 or self.game.card2 != sec.card2 or self.game.seat != sec.seat:
+                self.game = Game.create_by_section(sec)
+                return True
+            elif not sec.equals(self.game.sections[-1]):
                 self.game.sections.append(sec)
-        return True
+                for i in range(5):
+                    player = self.game.players[i]
+                    if player.status == '' and player.actions[-1].action != 'fold':
+                        act = PlayerAction()
+                        act.stage = sec.get_stage()
+                        act.round = 1 if player.actions[-1].stage != act.stage else player.actions[-1].round + 1
+                        act.amount = eval('sec.player{}_amount'.format(i-1))
+                        act.action = 'pending'
+                        player.actions.append(act)
+                        player.eval_player_actions(self.game.sections, i)
+                return True
+        return False
 
     def do_action(self):
         self.print()

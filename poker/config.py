@@ -13,7 +13,9 @@ WIN_TITLE = "192.168.0.113 - 远程桌面连接"
 # 截图区域相对于左上角的偏移位
 WIN_OFFSET = (0, 0)
 
-DEFAULT_POOL = 0.03
+SB = 0.01
+BB = 0.02
+
 
 # 牌
 # 4种花色的颜色值。黑桃（Spade）红桃（Heart）梅花（Club）方块（Diamond）
