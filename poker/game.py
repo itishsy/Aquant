@@ -40,19 +40,56 @@ class Game(BaseModel):
             if player_name:
                 player.name = player_name
                 player.amount = eval('sec.player{}_amount'.format(i))
-                if player.amount:
-                    player.status = 'playing'
-                    act = PlayerAction()
-                    act.stage = 'PreFlop'
-                    act.round = 1
-                    act.amount = player.amount
-                    act.action = 'pending' if player.seat > 2 else 'bet:{}'.format(SB if player.seat == 1 else BB)
-                    player.actions = [act]
+                player.status = 'playing' if player.amount else 'leave'
+                act = PlayerAction()
+                act.stage = 'PreFlop'
+                act.round = 1
+                act.amount = player.amount
+                if player.seat == 1:
+                    act.action = 'bet:{}'.format(SB)
+                elif player.seat == 2:
+                    act.action = 'bet:{}'.format(BB)
+                elif player.seat < sec.seat:
+                    act.action = 'fold'
                 else:
-                    player.status = 'leave'
+                    act.action = 'pending'
+                player.actions = [act]
             else:
                 player.status = 'nobody'
             game.players.append(player)
+
+    def append_section(self, section):
+        pre_section = self.sections[-1]
+        for i in range(5):
+            player = self.players[i]
+            pre_action = player.actions[-1]
+            player_name = eval('sec.player{}'.format(i+1))
+            if player_name:
+                amount = eval('sec.player{}_amount'.format(i+1))
+                if amount:
+                    player.status = 'playing'
+                    act = PlayerAction()
+                    act.stage = section.get_stage()
+                    act.round = 1 if pre_action.stage != act.stage else pre_action.round + 1
+                    act.amount = amount
+                    if pre_action.amount > amount:
+                        act.action = 'bet:{}'.format(pre_action.amount - amount)
+                    elif pre_action.amount < amount:
+                        act.action = 'fold'
+                    else:
+                        if pre_section.pool == section.pool:
+                            act.action = 'check'
+                        else:
+                            if player.seat < section.seat:
+                                act.action = 'fold'
+                            else:
+                                act.action = 'pending'
+                    player.actions.append(act)
+                else:
+                    player.status = 'new'
+            else:
+                player.status = 'leave'
+        self.sections.append(section)
 
     def get_action(self):
         if self.actions:

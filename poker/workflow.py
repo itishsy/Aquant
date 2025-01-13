@@ -133,24 +133,26 @@ class WorkFlow:
         :param sec:
         :return:
         """
+        flag = False
         if sec and sec.card1 and sec.card2 and sec.seat:
             if self.game.card1 != sec.card1 or self.game.card2 != sec.card2 or self.game.seat != sec.seat:
                 self.game = Game.create_by_section(sec)
-                return True
+                flag = True
             elif not sec.equals(self.game.sections[-1]):
-                self.game.sections.append(sec)
-                for i in range(5):
-                    player = self.game.players[i]
-                    if player.status == '' and player.actions[-1].action != 'fold':
-                        act = PlayerAction()
-                        act.stage = sec.get_stage()
-                        act.round = 1 if player.actions[-1].stage != act.stage else player.actions[-1].round + 1
-                        act.amount = eval('sec.player{}_amount'.format(i-1))
-                        act.action = 'pending'
-                        player.actions.append(act)
-                        player.eval_player_actions(self.game.sections, i)
-                return True
-        return False
+                self.game.append_section(sec)
+                flag = True
+            # if flag:
+            #     for i in range(5):
+            #         player = self.game.players[i]
+            #         if player.status == 'playing' and player.actions[-1].action != 'fold':
+            #             act = PlayerAction()
+            #             act.stage = sec.get_stage()
+            #             act.round = 1 if player.actions[-1].stage != act.stage else player.actions[-1].round + 1
+            #             act.amount = eval('sec.player{}_amount'.format(i-1))
+            #             act.action = 'pending'
+            #             player.actions.append(act)
+            #             player.eval_player_actions(self.game.sections, i)
+        return flag
 
     def do_action(self):
         self.print()
