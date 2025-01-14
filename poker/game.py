@@ -49,7 +49,7 @@ class Game(BaseModel):
                     act.action = 'bet:{}'.format(SB)
                 elif player.seat == 2:
                     act.action = 'bet:{}'.format(BB)
-                elif player.seat < sec.seat:
+                elif player.seat < sec.seat and sec.pool == (SB+BB):
                     act.action = 'fold'
                 else:
                     act.action = 'pending'
