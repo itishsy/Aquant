@@ -97,7 +97,7 @@ class TableImage:
         sec.player4, sec.player4_amount = self.fetch_player(4)
         sec.player5, sec.player5_amount = self.fetch_player(5)
 
-        if not self.section.equals(sec):
+        if self.section and not self.section.equals(sec):
             self.section = sec
             return sec
 
@@ -120,11 +120,17 @@ class WorkFlow:
                 self.win = win
                 img = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
                 self.is_start = is_match_color(img.getpixel(POSITION_READY), COLOR_READY)
+                if self.is_start:
+                    print("开始游戏")
         if self.is_start:
             image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
-            if is_match_color(image.getpixel(POSITION_FOLD_BUTTON), COLOR_BUTTON):
+            image.save(table_image)
+            color = image.getpixel(POSITION_FOLD_BUTTON)
+            if is_match_color(color, COLOR_BUTTON):
                 self.image = image
                 return True
+        else:
+            print("未开始游戏")
         return False
 
     def load(self, sec):
@@ -133,62 +139,31 @@ class WorkFlow:
         :param sec:
         :return:
         """
-        flag = False
         if sec and sec.card1 and sec.card2 and sec.seat:
             if self.game.card1 != sec.card1 or self.game.card2 != sec.card2 or self.game.seat != sec.seat:
                 self.game = Game.create_by_section(sec)
-                flag = True
+                return True
             elif not sec.equals(self.game.sections[-1]):
                 self.game.append_section(sec)
-                flag = True
-            # if flag:
-            #     for i in range(5):
-            #         player = self.game.players[i]
-            #         if player.status == 'playing' and player.actions[-1].action != 'fold':
-            #             act = PlayerAction()
-            #             act.stage = sec.get_stage()
-            #             act.round = 1 if player.actions[-1].stage != act.stage else player.actions[-1].round + 1
-            #             act.amount = eval('sec.player{}_amount'.format(i-1))
-            #             act.action = 'pending'
-            #             player.actions.append(act)
-            #             player.eval_player_actions(self.game.sections, i)
-        return flag
+                return True
+        return False
 
     def do_action(self):
-        self.print()
         act = self.game.get_action()
         if act:
             print("\t操作：{}".format(act))
 
+        self.print()
+
     def print(self):
-        size = len(self.game.sections)
-        if size == 1:
-            if self.game_info != self.game.get_info():
-                print('\n------------', self.game.get_info(), '------------')
-                self.game_info = self.game.get_info()
-            self.game_sections_size = 1
-        else:
-            for i in range(self.game_sections_size, size):
-                sec = self.game.sections[i]
-                if sec.card3:
-                    print("{}: {}|{}|{}|{}|{} pool: {}".format(sec.get_stage(), sec.card3, sec.card4, sec.card5,
-                                                               sec.card6, sec.card7, sec.pool))
-                if sec.player1 and sec.player1_action and 'bet' in sec.player1_action:
-                    print("\tplayer1:\t{}({}),{}".format(
-                        sec.player1, sec.player1_amount, sec.player1_action))
-                if sec.player2 and sec.player2_action and 'bet' in sec.player2_action:
-                    print("\tplayer2:\t{}({}),{}".format(
-                        sec.player2, sec.player2_amount, sec.player2_action))
-                if sec.player3 and sec.player3_action and 'bet' in sec.player3_action:
-                    print("\tplayer3:\t{}({}),{}".format(
-                        sec.player3, sec.player3_amount, sec.player3_action))
-                if sec.player4 and sec.player4_action and 'bet' in sec.player4_action:
-                    print("\tplayer4:\t{}({}),{}".format(
-                        sec.player4, sec.player4_amount, sec.player4_action))
-                if sec.player5 and sec.player5_action and 'bet' in sec.player5_action:
-                    print("\tplayer5:\t{}({}),{}".format(
-                        sec.player5, sec.player5_amount, sec.player5_action))
-            self.game_sections_size = size
+        if not self.game_info or self.game_info != self.game.get_info():
+            self.game_info = self.game.get_info()
+            print(self.game_info)
+
+        sec = self.game.sections[-1]
+        print("{} pool: {}".format(sec.get_stage(), sec.pool))
+        for player in self.game.players:
+            print("player: {}, seat: {}, action:{}".format(player.name, player.seat, player.actions[-1].action))
 
     def start(self):
         while True:
@@ -200,9 +175,8 @@ class WorkFlow:
                     strategy.predict()
                     self.do_action()
                 else:
-                    print('error section:' + section.to_string())
-            else:
-                print('未开始游戏')
+                    if section:
+                        print('error section:' + section.to_string())
             time.sleep(3)
 
 

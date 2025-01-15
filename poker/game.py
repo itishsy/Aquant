@@ -11,7 +11,12 @@ class Game(BaseModel):
     id = AutoField()
     code = CharField()  # 牌局
     card1 = CharField()  # 手牌1
-    card2 = CharField()  # 手牌1
+    card2 = CharField()  # 手牌2
+    card3 = CharField()  # 公共牌1
+    card4 = CharField()  # 公共牌2
+    card5 = CharField()  # 公共牌3
+    card6 = CharField()  # 公共牌4
+    card7 = CharField()  # 公共牌5
     seat = IntegerField()  # 座位
     stage = CharField()  # 最终阶段
     created = DateTimeField()
@@ -59,6 +64,11 @@ class Game(BaseModel):
             game.players.append(player)
 
     def append_section(self, section):
+        self.card3 = section.card3
+        self.card4 = section.card4
+        self.card5 = section.card5
+        self.card6 = section.card6
+        self.card7 = section.card7
         pre_section = self.sections[-1]
         for i in range(5):
             player = self.players[i]
@@ -96,7 +106,9 @@ class Game(BaseModel):
             return self.actions[-1]
 
     def get_info(self):
-        return '手牌: {}|{} 位置: {}'.format(self.card1, self.card2, self.seat)
+        return '手牌: {}|{} 位置: {}\n 公共牌: {}-{}-{}-{}-{}'.format(self.card1, self.card2, self.seat,
+                                                                      self.card3, self.card4, self.card5,
+                                                                      self.card6, self.card7)
 
 
 # 牌桌信息
@@ -108,8 +120,8 @@ class Section(BaseModel):
     pool = DecimalField()  # 底池
     seat = IntegerField()  # 座位
     stage = CharField()  # 阶段
-    card1 = CharField()  # 公共牌1
-    card2 = CharField()  # 公共牌2
+    card1 = CharField()  # 手牌1
+    card2 = CharField()  # 手牌2
     card3 = CharField()  # 公共牌1
     card4 = CharField()  # 公共牌2
     card5 = CharField()  # 公共牌3

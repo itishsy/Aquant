@@ -39,7 +39,7 @@ def crop_table_image(left, top, width, height):
 def is_match_color(color1, color2, diff=100):
     return (abs(color1[0] - color2[0]) < diff and
             abs(color1[1] - color2[1]) < diff and
-            abs(color1[1] - color2[1]) < diff)
+            abs(color1[2] - color2[2]) < diff)
 
 
 def fetch_color(x, y, is_desktop=False):
