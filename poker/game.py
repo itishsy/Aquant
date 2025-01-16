@@ -36,6 +36,7 @@ class Game(BaseModel):
         game.stage = 'PreFlop'
         game.created = datetime.now()
         game.sections = [sec]
+        game.players.clear()
         for i in range(1, 6):
             player_name = eval('sec.player{}'.format(i))
             player = Player()
@@ -105,12 +106,8 @@ class Game(BaseModel):
                 player.status = 'leave'
         self.sections.append(section)
 
-    def get_action(self):
-        if self.actions:
-            return self.actions[-1]
-
     def get_info(self):
-        return '位置: {} 手牌: {}|{}'.format(
+        return '位置: {} 手牌: {},{}'.format(
             self.seat, self.card1, self.card2)
 
 

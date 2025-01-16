@@ -118,7 +118,6 @@ class WorkFlow:
             if is_match_color(image.getpixel(POSITION_FOLD_BUTTON), COLOR_BUTTON):
                 table = TableImage(image, self.ocr)
                 sec = table.create_section()
-                # print(sec.to_string())
                 if not self.section or not sec.equals(self.game.sections[-1]):
                     self.section = sec
                     return True
@@ -129,10 +128,10 @@ class WorkFlow:
                 img = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
                 self.is_start = is_match_color(img.getpixel(POSITION_READY), COLOR_READY)
                 if self.is_start:
-                    print("game start")
+                    print("start")
                     return self.active()
                 else:
-                    print("no start")
+                    print("ready")
             else:
                 print("no window")
         return False
@@ -152,10 +151,9 @@ class WorkFlow:
         return False
 
     def do_action(self):
+        strategy = Strategy(self.game)
+        strategy.predict()
         self.print()
-        act = self.game.get_action()
-        if act:
-            print("\t操作：{}".format(act))
 
     def print(self):
         if not self.game_info or self.game_info != self.game.get_info():
@@ -171,14 +169,12 @@ class WorkFlow:
             if player.actions and player.actions[-1].action != 'fold':
                 print("{}: {}, {}".format(player.name, player.seat, player.actions[-1].action))
 
-        print('-------')
+        print('-------', len(self.game.players))
 
     def start(self):
         while True:
             if self.active():
                 if self.load():
-                    strategy = Strategy(self.game)
-                    strategy.predict()
                     self.do_action()
             time.sleep(3)
 
