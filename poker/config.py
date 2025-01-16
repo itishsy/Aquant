@@ -65,7 +65,7 @@ POSITION_BOTTOM_4 = (1057, 353)  # 右上
 POSITION_BOTTOM_5 = (1057, 634)  # 右下
 
 # 按钮颜色
-COLOR_BUTTON = (194, 79, 72)
+COLOR_BUTTON = (171, 67, 63)
 # 牌桌背景颜色
 COLOR_TABLE_BACKGROUND = (34, 34, 34)
 # 表示需要操作的位置及颜色值（出现弃牌按钮）

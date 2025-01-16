@@ -3,6 +3,7 @@ from flask_peewee.db import CharField, IntegerField, DateTimeField, AutoField, D
 from datetime import datetime
 from poker.player import Player, PlayerAction
 from config import SB, BB
+from decimal import Decimal
 
 
 # 牌局信息。每发一次牌为新的牌局
@@ -54,7 +55,7 @@ class Game(BaseModel):
                     act.action = 'bet:{}'.format(SB)
                 elif player.seat == 2:
                     act.action = 'bet:{}'.format(BB)
-                elif player.seat < sec.seat and sec.pool == (SB+BB):
+                elif player.seat < sec.seat and sec.pool == Decimal(str(SB+BB)):
                     act.action = 'fold'
                 else:
                     act.action = 'pending'
@@ -62,6 +63,7 @@ class Game(BaseModel):
             else:
                 player.status = 'nobody'
             game.players.append(player)
+        return game
 
     def append_section(self, section):
         self.card3 = section.card3
@@ -72,10 +74,12 @@ class Game(BaseModel):
         pre_section = self.sections[-1]
         for i in range(5):
             player = self.players[i]
+            if not player.actions:
+                continue
             pre_action = player.actions[-1]
-            player_name = eval('sec.player{}'.format(i+1))
+            player_name = eval('section.player{}'.format(i+1))
             if player_name:
-                amount = eval('sec.player{}_amount'.format(i+1))
+                amount = eval('section.player{}_amount'.format(i+1))
                 if amount:
                     player.status = 'playing'
                     act = PlayerAction()
@@ -106,9 +110,8 @@ class Game(BaseModel):
             return self.actions[-1]
 
     def get_info(self):
-        return '手牌: {}|{} 位置: {}\n 公共牌: {}-{}-{}-{}-{}'.format(self.card1, self.card2, self.seat,
-                                                                      self.card3, self.card4, self.card5,
-                                                                      self.card6, self.card7)
+        return '位置: {} 手牌: {}|{}'.format(
+            self.seat, self.card1, self.card2)
 
 
 # 牌桌信息

@@ -97,9 +97,7 @@ class TableImage:
         sec.player4, sec.player4_amount = self.fetch_player(4)
         sec.player5, sec.player5_amount = self.fetch_player(5)
 
-        if self.section and not self.section.equals(sec):
-            self.section = sec
-            return sec
+        return sec
 
 
 class WorkFlow:
@@ -109,82 +107,87 @@ class WorkFlow:
         self.game = Game()
         self.win = None
         self.is_start = False
-        self.image = None
+        self.section = None
         self.game_sections_size = 0
         self.game_info = ''
 
     def active(self):
-        if not self.is_start:
+        if self.is_start:
+            image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
+            # image.save(table_image)
+            if is_match_color(image.getpixel(POSITION_FOLD_BUTTON), COLOR_BUTTON):
+                table = TableImage(image, self.ocr)
+                sec = table.create_section()
+                # print(sec.to_string())
+                if not self.section or not sec.equals(self.game.sections[-1]):
+                    self.section = sec
+                    return True
+        else:
             win = get_win()
-            if win:
+            if win and (win.left > 0 or win.top > 0):
                 self.win = win
                 img = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
                 self.is_start = is_match_color(img.getpixel(POSITION_READY), COLOR_READY)
                 if self.is_start:
-                    print("开始游戏")
-        if self.is_start:
-            image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
-            image.save(table_image)
-            color = image.getpixel(POSITION_FOLD_BUTTON)
-            if is_match_color(color, COLOR_BUTTON):
-                self.image = image
-                return True
-        else:
-            print("未开始游戏")
+                    print("game start")
+                    return self.active()
+                else:
+                    print("no start")
+            else:
+                print("no window")
         return False
 
-    def load(self, sec):
+    def load(self):
         """
         检查一个新的section是否合格，避免重复添加到game中
-        :param sec:
         :return:
         """
-        if sec and sec.card1 and sec.card2 and sec.seat:
-            if self.game.card1 != sec.card1 or self.game.card2 != sec.card2 or self.game.seat != sec.seat:
-                self.game = Game.create_by_section(sec)
+        if self.section and self.section.card1 and self.section.card2 and self.section.seat:
+            if self.game.card1 != self.section.card1 or self.game.card2 != self.section.card2 or self.game.seat != self.section.seat:
+                self.game = Game.create_by_section(self.section)
                 return True
-            elif not sec.equals(self.game.sections[-1]):
-                self.game.append_section(sec)
+            elif not self.section.equals(self.game.sections[-1]):
+                self.game.append_section(self.section)
                 return True
         return False
 
     def do_action(self):
+        self.print()
         act = self.game.get_action()
         if act:
             print("\t操作：{}".format(act))
 
-        self.print()
-
     def print(self):
         if not self.game_info or self.game_info != self.game.get_info():
             self.game_info = self.game.get_info()
-            print(self.game_info)
+            print('-----', self.game_info, '-----')
 
         sec = self.game.sections[-1]
-        print("{} pool: {}".format(sec.get_stage(), sec.pool))
+        print("pool: {}, 公共牌: {}-{}-{}-{}-{}".format(
+            sec.pool, self.game.card3, self.game.card4, self.game.card5,
+            self.game.card6, self.game.card7))
+
         for player in self.game.players:
-            print("player: {}, seat: {}, action:{}".format(player.name, player.seat, player.actions[-1].action))
+            if player.actions and player.actions[-1].action != 'fold':
+                print("{}: {}, {}".format(player.name, player.seat, player.actions[-1].action))
+
+        print('-------')
 
     def start(self):
         while True:
             if self.active():
-                table = TableImage(self.image, self.ocr)
-                section = table.create_section()
-                if section and self.load(section):
+                if self.load():
                     strategy = Strategy(self.game)
                     strategy.predict()
                     self.do_action()
-                else:
-                    if section:
-                        print('error section:' + section.to_string())
             time.sleep(3)
 
 
 def test_workflow(file_name='table_image.jpg'):
     wf1 = WorkFlow()
     tab1 = TableImage(Image.open(file_name), wf1.ocr)
-    sec1 = tab1.create_section()
-    if wf1.load(sec1):
+    wf1.section = tab1.create_section()
+    if wf1.load():
         wf1.print()
 
 
