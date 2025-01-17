@@ -21,7 +21,7 @@ def search_choice(engines):
         print("[{}] {} end".format(datetime.now(), eng_name))
 
 
-def test_watch(eng_name):
+def test_engine(eng_name):
     # eng.strategy = eng_name
     print("[{}] {} start...".format(datetime.now(), eng_name))
     engine.engines[eng_name]().start()
@@ -93,14 +93,9 @@ def engine_job():
                 print(e)
 
 
-def upset_symbol():
-    Symbol.fetch()
-
-
 if __name__ == '__main__':
-    # Symbol.fetch()
-    test_watch('b15')
-    # test_search('u20')
+    # test_engine('u305')
+    test_engine('u615')
     # test_model()
     # monthly_diver_bottom()
     # engine_job()

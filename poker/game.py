@@ -107,8 +107,8 @@ class Game(BaseModel):
         self.sections.append(section)
 
     def get_info(self):
-        return '位置: {} 手牌: {},{}'.format(
-            self.seat, self.card1, self.card2)
+        return '手牌: {},{} 位置: {}'.format(
+            self.card1, self.card2, self.seat)
 
 
 # 牌桌信息

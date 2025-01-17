@@ -32,10 +32,10 @@ class Searcher(ABC):
                 print('[{0}] {1} searching by {2} ({3}) '.format(datetime.now(), co, self.strategy, count))
                 sig = self.search(co)
                 if sig:
-                    if sig.freq < 30:
-                        sig.notify = 0
-                    else:
-                        sig.notify = -1
+                    # if sig.freq < 30:
+                    #     sig.notify = 0
+                    # else:
+                    #     sig.notify = -1
                     sig.code = co
                     sig.strategy = self.strategy
                     sig.stage = 'choice'
@@ -45,9 +45,9 @@ class Searcher(ABC):
                     sym.updated = datetime.now()
                     sym.save()
 
-                    if not Choice.select().where((Choice.code == co) & (Choice.strategy == self.strategy)).exists():
-                        cho = Choice.create(code=co, name=sym.name, strategy=self.strategy, dt=sig.dt, price=sig.price, freq=sig.freq, status=1, created=datetime.now(), updated=datetime.now())
-                        Signal.update(oid=cho.id).where((Signal.code == co) & (Signal.strategy == self.strategy)).execute()
+                    # if not Choice.select().where((Choice.code == co) & (Choice.strategy == self.strategy)).exists():
+                    #     cho = Choice.create(code=co, name=sym.name, strategy=self.strategy, dt=sig.dt, price=sig.price, freq=sig.freq, status=1, created=datetime.now(), updated=datetime.now())
+                    #     Signal.update(oid=cho.id).where((Signal.code == co) & (Signal.strategy == self.strategy)).execute()
             except Exception as e:
                 print(e)
         print('[{0}] search {1} done! ({2}) '.format(datetime.now(), self.strategy, count))

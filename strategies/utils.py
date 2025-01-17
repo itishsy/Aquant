@@ -12,16 +12,17 @@ from candles.marker import mark
 def choices(code, size):
     candles = find_candles(code)
     if len(candles) == 100:
-        return candles[-size:]
+        return candles, candles[-size:]
 
 
 # 是否高位放量
-def is_top_volume(candles: List[Candle], pre_ratio=0.8, nxt_ratio=0.9):
+def is_top_volume(candles: List[Candle], pre_ratio=0.8, nxt_ratio=0.9, limit=30):
     highest = utl.get_highest(candles)
     if highest.dt == candles[-1].dt:
         return False
     c_size = len(candles)
     v_highest = utl.get_highest_volume(candles)
+    hdt = None
     if highest.dt == v_highest.dt:
         idx = 0
         for c in candles:
@@ -29,8 +30,10 @@ def is_top_volume(candles: List[Candle], pre_ratio=0.8, nxt_ratio=0.9):
                     and highest.dt == c.dt \
                     and candles[idx - 1].volume / c.volume <= pre_ratio \
                     and candles[idx + 1].volume / c.volume <= nxt_ratio:
-                return True
+                hdt = highest.dt
             idx = idx + 1
+    if hdt and len(utl.get_section(candles, hdt)) <= limit:
+        return True
     return False
 
 
@@ -61,6 +64,15 @@ def is_top_divergence(code, freq, limit=None):
     return False
 
 
+def is_daily_top(candles, limit=None):
+    dts = diver_top(candles)
+    if len(dts) > 0:
+        sig = dts[-1]
+        if limit is None or len(utl.get_section(candles, sig.dt)) <= limit:
+            return True
+    return False
+
+
 # 是否在ma线之上
 def is_beyond_ma(candles: List[Candle], ma_level, ma_ratio=1):
     beyond_ma_counter = 0
@@ -69,6 +81,17 @@ def is_beyond_ma(candles: List[Candle], ma_level, ma_ratio=1):
         if c.close > ma_val:
             beyond_ma_counter = beyond_ma_counter + 1
     if beyond_ma_counter/len(candles) >= ma_ratio:
+        return True
+    return False
+
+
+# 是否在0軸线之上
+def is_beyond_x(candles: List[Candle], x_ratio=0.9):
+    beyond_x_counter = 0
+    for c in candles:
+        if c.dea9 > 0:
+            beyond_x_counter = beyond_x_counter + 1
+    if beyond_x_counter / len(candles) >= x_ratio:
         return True
     return False
 

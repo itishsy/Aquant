@@ -161,15 +161,19 @@ class WorkFlow:
             print('-----', self.game_info, '-----')
 
         sec = self.game.sections[-1]
-        print("pool: {}, 公共牌: {}-{}-{}-{}-{}".format(
-            sec.pool, self.game.card3, self.game.card4, self.game.card5,
-            self.game.card6, self.game.card7))
+        if sec.card3:
+            print("pool: {}, 公共牌: {}-{}-{}-{}-{}".format(
+                sec.pool, self.game.card3, self.game.card4, self.game.card5,
+                self.game.card6, self.game.card7))
+        else:
+            print("pool: {}".format(sec.pool))
 
-        for player in self.game.players:
-            if player.actions and player.actions[-1].action != 'fold':
-                print("{}: {}, {}".format(player.name, player.seat, player.actions[-1].action))
+        if len(self.game.sections) > 1:
+            for player in self.game.players:
+                if player.actions and player.actions[-1].action != 'fold':
+                    print("{}: {}, {}".format(player.name, player.seat, player.actions[-1].action))
 
-        print('-------', len(self.game.players))
+        # print('-------', len(self.game.players))
 
     def start(self):
         while True:
