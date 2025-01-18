@@ -36,16 +36,16 @@ class Strategy:
             if c1 in CALL_CARD_SUITS or c2 in CALL_CARD_SUITS:
                 if self.game.card1[1] == self.game.card2[1]:
                     return Action.Check
-            return Action.Check
+            return Action.Fold
 
     def flop(self):
         if self.game.stage == Stage.Flop:
-            return []
+            return Action.Null
 
     def turn(self):
         if self.game.stage == Stage.Turn:
-            return []
+            return Action.Null
 
     def river(self):
         if self.game.stage == Stage.River:
-            return []
+            return Action.Null

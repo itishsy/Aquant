@@ -26,6 +26,8 @@ class Game(BaseModel):
     sections = []
     actions = []
 
+    action = None
+
     @staticmethod
     def create_by_section(sec):
         game = Game()
