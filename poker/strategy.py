@@ -17,11 +17,18 @@ class Strategy003:
             self.game.action = self.pre_flop()
             if self.game.sections:
                 self.game.sections[-1].action = self.game.action
-        else:
-            cards = Cards(self.game.card1, self.game.card2,
-                          self.game.card3, self.game.card4, self.game.card5, self.game.card6, self.game.card7)
-            card_power = cards.lookup()
-            print(card_power, cards.to_string(card_power))
+        elif self.game.stage == 'Flop':
+            self.game.action = self.flop()
+            if self.game.sections:
+                self.game.sections[-1].action = self.game.action
+        elif self.game.stage == 'Turn':
+            self.game.action = self.turn()
+            if self.game.sections:
+                self.game.sections[-1].action = self.game.action
+        elif self.game.stage == 'River':
+            self.game.action = self.turn()
+            if self.game.sections:
+                self.game.sections[-1].action = self.game.action
 
     def pre_flop(self):
         if self.game.card1 and self.game.card2:
@@ -40,15 +47,35 @@ class Strategy003:
 
     def flop(self):
         if self.game.stage == Stage.Flop:
-            return Action.Null
+            cards = Cards(self.game.card1, self.game.card2,
+                          self.game.card3, self.game.card4, self.game.card5)
+            card_power = cards.lookup()
+            print('==>', cards.to_string(card_power))
+            if card_power > Cards.Pair:
+                return Action.Call
+            else:
+                return Action.Fold
+        return Action.Null
 
     def turn(self):
         if self.game.stage == Stage.Turn:
-            return Action.Null
+            cards = Cards(self.game.card1, self.game.card2,
+                          self.game.card3, self.game.card4, self.game.card5, self.game.card6)
+            card_power = cards.lookup()
+            print('==>', cards.to_string(card_power))
+            if card_power > Cards.Two_Pair:
+                return Action.Call
+        return Action.Null
 
     def river(self):
         if self.game.stage == Stage.River:
-            return Action.Null
+            cards = Cards(self.game.card1, self.game.card2,
+                          self.game.card3, self.game.card4, self.game.card5, self.game.card6, self.game.card7)
+            card_power = cards.lookup()
+            print('==>', cards.to_string(card_power))
+            if card_power > Cards.Two_Pair:
+                return Action.Call
+        return Action.Null
 
 
 class Strategy03:

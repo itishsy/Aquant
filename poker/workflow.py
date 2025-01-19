@@ -5,7 +5,7 @@ import random
 from poker.game import Game, Section, Action
 from poker.player import PlayerAction
 from poker.utils import *
-from poker.strategy import Strategy
+from poker.strategy import Strategy003
 
 
 class TableImage:
@@ -152,7 +152,7 @@ class WorkFlow:
         return False
 
     def do_action(self):
-        strategy = Strategy(self.game)
+        strategy = Strategy003(self.game)
         strategy.predict()
         self.print()
         if self.game.action:

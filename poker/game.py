@@ -74,6 +74,7 @@ class Game(BaseModel):
         self.card5 = section.card5
         self.card6 = section.card6
         self.card7 = section.card7
+        self.stage = section.get_stage()
         pre_section = self.sections[-1]
         for i in range(5):
             player = self.players[i]
