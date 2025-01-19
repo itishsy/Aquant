@@ -103,7 +103,7 @@ class Symbols(Fetcher):
 class DailyReview(Fetcher):
     def fetch(self):
         print("=====start driver=====")
-        service = Service('C:\\Huangsy\\sourcecode\\pobotvenv\\msedgedriver.exe')
+        service = Service('C:\\Program Files\\WebDriver\\msedgedriver.exe')
         driver = webdriver.Edge(service=service)
         # driver = webdriver.Chrome()
 
