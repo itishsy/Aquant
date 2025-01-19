@@ -184,9 +184,9 @@ class DailyReview(Fetcher):
             bk_ql = bk_ql + '{}。{}, {}({})、{}({}) \n'.format(el_bk_ql_name.text, el_bk_ql_comment.text,
                                                              el_bk_ql_gp1.text, el_bk_ql_gp1.get_attribute('href'),
                                                              el_bk_ql_gp2.text, el_bk_ql_gp2.get_attribute('href'))
-            print(el_bk_ql_name.text, el_bk_ql_comment.text,
-                  el_bk_ql_gp1.text, el_bk_ql_gp1.get_attribute('href').split('=')[1],
-                  el_bk_ql_gp2.text, el_bk_ql_gp2.get_attribute('href').split('=')[1])
+            # print(el_bk_ql_name.text, el_bk_ql_comment.text,
+            #       el_bk_ql_gp1.text, el_bk_ql_gp1.get_attribute('href').split('=')[1],
+            #       el_bk_ql_gp2.text, el_bk_ql_gp2.get_attribute('href').split('=')[1])
 
         review.bk_ql = bk_ql
 
@@ -204,8 +204,8 @@ class DailyReview(Fetcher):
                 .format(i))
             bk_fk = bk_fk + '{}。{}, {}({}) \n'.format(el_bk_fk_name.text, el_bk_fk_comment.text,
                                                       el_bk_fk_gp.text, el_bk_fk_gp.get_attribute('href'))
-            print(el_bk_fk_name.text, el_bk_fk_comment.text,
-                  el_bk_fk_gp.text, el_bk_fk_gp.get_attribute('href').split('=')[1])
+            # print(el_bk_fk_name.text, el_bk_fk_comment.text,
+            #       el_bk_fk_gp.text, el_bk_fk_gp.get_attribute('href').split('=')[1])
         review.bk_fk = bk_fk
 
         # 热股
@@ -217,7 +217,7 @@ class DailyReview(Fetcher):
         for el in hot_list:
             els = el.find_elements(By.CLASS_NAME, 'openapp')
             flag = False
-            print('No.', j)
+            # print('No.', j)
             for el2 in els:
                 final_str = re.sub(r"^\s+|\s+$", "", el2.text)
                 txt = final_str.split('\n')
@@ -227,7 +227,7 @@ class DailyReview(Fetcher):
                         if t != '\n':
                             gp_hot1 = gp_hot1 + t
                             flag = True
-                            print(i, t)
+                            # print(i, t)
                             i = i + 1
             if flag:
                 gp_hot1 = gp_hot1 + '\n'
@@ -235,3 +235,4 @@ class DailyReview(Fetcher):
         review.gp_hot1 = gp_hot1
         review.created = datetime.now()
         review.save()
+        driver.quit()
