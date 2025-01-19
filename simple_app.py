@@ -95,7 +95,8 @@ def engine_job():
 
 if __name__ == '__main__':
     # test_engine('u305')
-    test_engine('u615')
+    # test_engine('u615')
+    test_engine('dailyReview')
     # test_model()
     # monthly_diver_bottom()
     # engine_job()
