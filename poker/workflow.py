@@ -5,7 +5,7 @@ import random
 from poker.game import Game, Section, Action
 from poker.player import PlayerAction
 from poker.utils import *
-from poker.strategy import Strategy003
+from poker.strategies.strategy import Strategy
 
 
 class TableImage:
@@ -152,17 +152,15 @@ class WorkFlow:
         return False
 
     def do_action(self):
-        strategy = Strategy003(self.game)
-        strategy.predict()
         self.print()
         if self.game.action:
             print(self.game.action)
             # 移动鼠标到指定位置
-            if self.game.action == 'Fold':
+            if self.game.action == 'fold':
                 pyautogui.moveTo(POSITION_BUTTON_FOLD[0]+random.randint(1, 10), POSITION_BUTTON_FOLD[1] + random.randint(1, 5), duration=0.5)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
-            elif self.game.action == 'Call':
+            elif self.game.action == 'call':
                 pyautogui.moveTo(POSITION_BUTTON_CALL[0]+random.randint(1, 10), POSITION_BUTTON_CALL[1] + random.randint(1, 5), duration=0.5)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
-            elif self.game.action == 'Raise':
+            elif self.game.action == 'raise':
                 pyautogui.moveTo(POSITION_BUTTON_RAISE[0]+random.randint(1, 10), POSITION_BUTTON_RAISE[1] + random.randint(1, 5), duration=0.5)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
             self.game.action = None
             pyautogui.click()
@@ -188,9 +186,11 @@ class WorkFlow:
                     print("{}: {}, {}".format(player.name, player.seat, player.actions[-1].action))
 
     def start(self):
+        strategy = Strategy(Strategy.GG003)
         while True:
             if self.active():
                 if self.load():
+                    strategy.predict(self.game)
                     self.do_action()
             time.sleep(3)
 

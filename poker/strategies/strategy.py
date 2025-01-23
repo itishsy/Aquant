@@ -1,0 +1,57 @@
+from poker.card import two_card_str
+
+
+def fetch_by_level(cd, le):
+    if len(cd.code) == le:
+        return cd
+    else:
+        for c in reversed(cd.children):
+            return fetch_by_level(c, le)
+
+
+class Cond:
+    code = '0'
+    exp = ''
+    children = []
+
+    def __init__(self, exp):
+        self.exp = exp
+
+    def append_child(self, exp, level):
+        parent = fetch_by_level(self, level)
+        if parent:
+            cd = Cond(exp)
+            cd.code = '{}{}'.format(parent.code, len(parent.children) + 1)
+            cd.children = []
+            parent.children.append(cd)
+
+
+class Strategy:
+
+    GG003 = 'gg003.txt'
+
+    def __init__(self, strategy_file):
+        self.args = {}
+        with open(strategy_file, 'r', encoding='utf-8') as file:
+            line = file.readline()
+            self.cond = Cond(line)
+            while line:
+                line = file.readline()
+                self.cond.append_child(line.replace('\t', ''), line.count('\t'))
+
+    def predict(self, game):
+        self.args = {
+            'stage': game.stage,
+            'hand': two_card_str(game.card1, game.card2),
+            'pool': game.sections[-1].pool,
+            'seat': game.seat
+        }
+        game.action = self.eval_act(self.cond)
+
+    def eval_act(self, co):
+        for c in co.children:
+            if not c.children:
+                return c.exp
+            if eval(c.exp, self.args):
+                return self.eval_act(c)
+
