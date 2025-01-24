@@ -160,7 +160,8 @@ class WorkFlow:
                 pyautogui.moveTo(POSITION_BUTTON_FOLD[0]+random.randint(1, 10), POSITION_BUTTON_FOLD[1] + random.randint(1, 5), duration=0.5)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
             elif self.game.action == 'call':
                 pyautogui.moveTo(POSITION_BUTTON_CALL[0]+random.randint(1, 10), POSITION_BUTTON_CALL[1] + random.randint(1, 5), duration=0.5)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
-            elif self.game.action == 'raise':
+            elif 'raise' in self.game.action:
+                bet = eval('random.randint{}'.format(self.game.action.replace('raise',''))
                 pyautogui.moveTo(POSITION_BUTTON_RAISE[0]+random.randint(1, 10), POSITION_BUTTON_RAISE[1] + random.randint(1, 5), duration=0.5)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
             self.game.action = None
             pyautogui.click()
