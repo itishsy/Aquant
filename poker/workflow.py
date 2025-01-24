@@ -1,9 +1,9 @@
 import time
 import io
-import random
+import ddddocr
 
-from poker.game import Game, Section, Action
-from poker.player import PlayerAction
+from poker.game import Game, Section
+from poker.action import Action
 from poker.utils import *
 from poker.strategies.strategy import Strategy
 
@@ -119,7 +119,7 @@ class WorkFlow:
             if is_match_color(image.getpixel(POSITION_BUTTON_FOLD), COLOR_BUTTON):
                 table = TableImage(image, self.ocr)
                 sec = table.create_section()
-                if sec and not self.section or not sec.equals(self.game.sections[-1]):
+                if sec and (not self.section or not sec.equals(self.game.sections[-1])):
                     self.section = sec
                     return True
         else:
@@ -153,20 +153,9 @@ class WorkFlow:
 
     def do_action(self):
         self.print()
-        if self.game.action:
-            print(self.game.action)
-            # 移动鼠标到指定位置
-            if self.game.action == 'fold':
-                pyautogui.moveTo(POSITION_BUTTON_FOLD[0]+random.randint(1, 10), POSITION_BUTTON_FOLD[1] + random.randint(1, 5), duration=0.5)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
-            elif self.game.action == 'call':
-                pyautogui.moveTo(POSITION_BUTTON_CALL[0]+random.randint(1, 10), POSITION_BUTTON_CALL[1] + random.randint(1, 5), duration=0.5)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
-            elif 'raise' in self.game.action:
-                bet = eval('random.randint{}'.format(self.game.action.replace('raise',''))
-                pyautogui.moveTo(POSITION_BUTTON_RAISE[0]+random.randint(1, 10), POSITION_BUTTON_RAISE[1] + random.randint(1, 5), duration=0.5)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
-            self.game.action = None
-            pyautogui.click()
-            pyautogui.moveTo(POSITION_BUTTON_FOLD[0]+random.randint(1, 10), POSITION_BUTTON_FOLD[1] + random.randint(100, 150)-300,
-                             duration=0.5)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
+        action = Action(self.game.action)
+        action.do()
+        self.game.action = None
 
     def print(self):
         if not self.game_info or self.game_info != self.game.get_info():
@@ -185,6 +174,9 @@ class WorkFlow:
             for player in self.game.players:
                 if player.actions and player.actions[-1].action != 'fold':
                     print("{}: {}, {}".format(player.name, player.seat, player.actions[-1].action))
+
+        if self.game.action:
+            print("action --> {}".format(self.game.action))
 
     def start(self):
         strategy = Strategy(Strategy.GG003)

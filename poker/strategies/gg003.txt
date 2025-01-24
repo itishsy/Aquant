@@ -1,34 +1,36 @@
 gg003
 	stage=='PreFlop'
 		hand in ['AA', 'KK']
-			pool <= 10
-				raise[3,10]
+			pool <= 3
+				bet(2,4)
+			3 < pool <= 10
+				bet(3,10)
 			10 < pool <= 30
-				raise[20,30]
+				bet(20,30)
 			30< pool < 60
-				raise[50,60]
+				bet(50,60)
 		hand in ['AK', 'QQ']
 			pool <= 10
-				raise[3,8]
+				bet(3,8)
 			pool > 10
 				call
 		hand in ['AQ', 'AJ', 'JJ', 'TT']
 			pool <= 3
-				raise[2,3]
+				bet(2,4)
 			3 < pool <= 20
 				call
 			pool > 20
 				fold
 		hand in ['AT', 'KQ', 'KJ', 'KT', 'QJ', 'QT', 'JT', 'T9']
 			pool <= 3
-				raise[2,3]
+				bet(2,4)
 			3 < pool <= 10
 				call
 			pool > 10
 				fold
 		hand in ['99', '88', '77', '66', '55', '44', '33', '22']
 			pool <= 3
-				raise[2,3]
+				bet(2,4)
 			3 < pool <= 20
 				call
 			pool > 20
@@ -36,12 +38,13 @@ gg003
 		hand in ['A9s', 'A8s', 'A7s', 'A6s', 'A5s', 'A4s', 'A3s', 'A2s', 'Q9s', 'J9s']
 			pool <= 3
 				seat in [1, 2, 6]
-					raise[2,3]
+					bet(2,4)
 			3 < pool <= 10
-				raise[1, 2, 6]
+				seat in [1, 2, 6]
 					call
 			pool > 10
 				fold
+		fold
 	stage=='Flop'
 	stage=='Turn'
 	stage=='River'

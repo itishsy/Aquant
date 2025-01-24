@@ -172,7 +172,7 @@ class Stage:
     River = 4
 
 
-class Action:
+class ActionType:
     Null = 'NG'
     Fold = 'Fold'
     Check = 'Check'

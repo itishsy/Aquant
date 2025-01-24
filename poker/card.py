@@ -30,8 +30,6 @@ def two_card_str(card1, card2):
     v1 = card_value(card1)
     v2 = card_value(card2)
     cv = card1[0] + card2[0] if v1 > v2 else card2[0] + card1[0]
-    if card1[1] == card2[1]:
-        return cv + 's'
     return cv
 
 

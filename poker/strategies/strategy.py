@@ -1,4 +1,7 @@
 from poker.card import two_card_str
+from poker.config import BB
+from decimal import Decimal
+from poker.game import Stage
 
 
 def fetch_by_level(cd, le):
@@ -28,7 +31,7 @@ class Cond:
 
 class Strategy:
 
-    GG003 = 'gg003.txt'
+    GG003 = 'strategies/gg003.txt'
 
     def __init__(self, strategy_file):
         self.args = {}
@@ -43,10 +46,14 @@ class Strategy:
         self.args = {
             'stage': game.stage,
             'hand': two_card_str(game.card1, game.card2),
-            'pool': game.sections[-1].pool,
+            'pool': int(game.sections[-1].pool/Decimal(str(BB))),
             'seat': game.seat
         }
-        game.action = self.eval_act(self.cond)
+        act = self.eval_act(self.cond)
+        if not act and game.stage == Stage.PreFlop and game.card1[1] == game.card2[1]:
+            self.args['hand'] = self.args['hand'] + 's'
+            act = self.eval_act(self.cond)
+        game.action = act
 
     def eval_act(self, co):
         for c in co.children:

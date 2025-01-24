@@ -1,5 +1,4 @@
 import pyautogui
-import ddddocr
 from PIL import Image
 from config import *
 from decimal import Decimal

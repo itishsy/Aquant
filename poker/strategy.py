@@ -1,4 +1,4 @@
-from poker.game import Game, Action, Stage
+from poker.game import Game, ActionType, Stage
 from poker.card import Cards
 
 
@@ -35,15 +35,15 @@ class Strategy003:
             c1 = self.game.card1[0:1] + self.game.card2[0:1]
             c2 = self.game.card2[0:1] + self.game.card1[0:1]
             if c1 in self.pre_flop_allin_cards or c2 in self.pre_flop_allin_cards:
-                return Action.AllIn
+                return ActionType.AllIn
             if c1 in self.pre_flop_raise_cards or c2 in self.pre_flop_raise_cards:
-                return Action.Raise
+                return ActionType.Raise
             if c1 in self.pre_flop_call_cards or c2 in self.pre_flop_call_cards:
-                return Action.Call
+                return ActionType.Call
             if (self.game.card1[1] == self.game.card2[1] and
                     (c1 + 's' in self.pre_flop_call_cards or c2 + 's' in self.pre_flop_call_cards)):
-                return Action.Call
-            return Action.Fold
+                return ActionType.Call
+            return ActionType.Fold
 
     def flop(self):
         if self.game.stage == Stage.Flop:
@@ -52,10 +52,10 @@ class Strategy003:
             card_power = cards.lookup()
             print('==>', cards.to_string(card_power))
             if card_power > Cards.Pair:
-                return Action.Call
+                return ActionType.Call
             else:
-                return Action.Fold
-        return Action.Null
+                return ActionType.Fold
+        return ActionType.Null
 
     def turn(self):
         if self.game.stage == Stage.Turn:
@@ -64,8 +64,8 @@ class Strategy003:
             card_power = cards.lookup()
             print('==>', cards.to_string(card_power))
             if card_power > Cards.Two_Pair:
-                return Action.Call
-        return Action.Null
+                return ActionType.Call
+        return ActionType.Null
 
     def river(self):
         if self.game.stage == Stage.River:
@@ -74,8 +74,8 @@ class Strategy003:
             card_power = cards.lookup()
             print('==>', cards.to_string(card_power))
             if card_power > Cards.Two_Pair:
-                return Action.Call
-        return Action.Null
+                return ActionType.Call
+        return ActionType.Null
 
 
 class Strategy03:
