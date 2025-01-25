@@ -124,7 +124,7 @@ class WorkFlow:
                     return True
         else:
             win = get_win()
-            if win and (win.left > 0 or win.top > 0):
+            if win and (win.left >= 0 or win.top >= 0):
                 self.win = win
                 img = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
                 self.is_start = is_match_color(img.getpixel(POSITION_READY), COLOR_READY)
@@ -143,7 +143,8 @@ class WorkFlow:
         :return:
         """
         if self.section and self.section.card1 and self.section.card2 and self.section.seat:
-            if self.game.card1 != self.section.card1 or self.game.card2 != self.section.card2 or self.game.seat != self.section.seat:
+            if (self.game.card1 != self.section.card1 or self.game.card2 != self.section.card2
+                    or self.game.seat != self.section.seat):
                 self.game = Game.create_by_section(self.section)
                 return True
             elif not self.section.equals(self.game.sections[-1]):
@@ -155,6 +156,8 @@ class WorkFlow:
         self.print()
         action = Action(self.game.action)
         action.do()
+        if not (self.section.get_stage() == 'PreFlop' and self.section.action == 'fold'):
+            self.section.save()
         self.game.action = None
 
     def print(self):

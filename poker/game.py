@@ -166,10 +166,10 @@ class Section(BaseModel):
 
 
 class Stage:
-    PreFlop = 1
-    Flop = 2
-    Turn = 3
-    River = 4
+    PreFlop = 'PreFlop'
+    Flop = 'Flop'
+    Turn = 'Turn'
+    River = 'River'
 
 
 class ActionType:
@@ -182,6 +182,5 @@ class ActionType:
 
 
 if __name__ == '__main__':
-    pass
-    # db.connect()
-    # db.create_tables([DesktopInfo])
+    db.connect()
+    db.create_tables([Section])

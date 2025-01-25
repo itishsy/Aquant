@@ -50,7 +50,7 @@ class Strategy:
             'seat': game.seat
         }
         act = self.eval_act(self.cond)
-        if not act and game.stage == Stage.PreFlop and game.card1[1] == game.card2[1]:
+        if 'fold' == act and game.card1[1] == game.card2[1]:
             self.args['hand'] = self.args['hand'] + 's'
             act = self.eval_act(self.cond)
         game.action = act
