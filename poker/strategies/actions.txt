@@ -47,9 +47,11 @@ actions
 		hand_score<50
 			fold
 	stage=='Flop'
-		power>=20000
+		win > 0.5
 			call
-		power<20000
+		0.2 < win < 0.5
 			check
+		win < 0.2
+			fold
 	stage=='Turn'
 	stage=='River'
