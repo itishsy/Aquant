@@ -6,7 +6,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'super-secret'
     # DB_HOST = '192.168.0.113'
-    DB_HOST = '192.168.1.102'
+    DB_HOST = '192.168.1.100'
     DB_PORT = 3306
     DB_USER = 'root'
     DB_PASSWD = 'root'

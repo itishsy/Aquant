@@ -93,8 +93,8 @@ class Strategy:
             'seat': game.seat
         }
         rate_range = eval_cond(self.range_cond, args)
-        min_rate = rate_range.split(',')[0]
-        max_rate = rate_range.split(',')[1]
+        min_rate = rate_range.split('-')[0]
+        max_rate = rate_range.split('-')[1]
         opponent_range = []
         suits = ['h', 'd', 'c', 's']
         for key, value in hands_rate:
