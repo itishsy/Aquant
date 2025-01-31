@@ -13,7 +13,6 @@ class TableImage:
     def __init__(self, image, ocr):
         self.image = image
         self.ocr = ocr
-        self.section = None
 
     def is_open(self):
         color = self.image.getpixel(POSITION_READY)
@@ -82,21 +81,24 @@ class TableImage:
         sec = Section()
         sec.pool = pool
         sec.seat = seat
+        sec.stage = 'PreFlop'
         sec.card1 = card1
         sec.card2 = self.fetch_card(2)
         sec.card3 = self.fetch_card(3)
         if sec.card3:
+            sec.stage = 'Flop'
             sec.card4 = self.fetch_card(4)
             sec.card5 = self.fetch_card(5)
             sec.card6 = self.fetch_card(6)
             if sec.card6:
                 sec.card7 = self.fetch_card(7)
+                sec.stage = 'River' if sec.card7 else 'Turn'
 
-        sec.player1, sec.player1_amount = self.fetch_player(1)
-        sec.player2, sec.player2_amount = self.fetch_player(2)
-        sec.player3, sec.player3_amount = self.fetch_player(3)
-        sec.player4, sec.player4_amount = self.fetch_player(4)
-        sec.player5, sec.player5_amount = self.fetch_player(5)
+        sec.player1_name, sec.player1_amount = self.fetch_player(1)
+        sec.player2_name, sec.player2_amount = self.fetch_player(2)
+        sec.player3_name, sec.player3_amount = self.fetch_player(3)
+        sec.player4_name, sec.player4_amount = self.fetch_player(4)
+        sec.player5_name, sec.player5_amount = self.fetch_player(5)
 
         return sec
 
@@ -105,24 +107,13 @@ class WorkFlow:
 
     def __init__(self):
         self.ocr = ddddocr.DdddOcr()
-        self.game = Game()
+        self.game = None
         self.win = None
         self.is_start = False
-        self.section = None
-        self.game_sections_size = 0
         self.game_info = ''
 
     def active(self):
-        if self.is_start:
-            image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
-            # image.save(table_image)
-            if is_match_color(image.getpixel(POSITION_BUTTON_FOLD), COLOR_BUTTON):
-                table = TableImage(image, self.ocr)
-                sec = table.create_section()
-                if sec and (not self.section or not sec.equals(self.game.sections[-1])):
-                    self.section = sec
-                    return True
-        else:
+        if not self.is_start:
             win = get_win()
             if win and (win.left >= 0 or win.top >= 0):
                 self.win = win
@@ -130,34 +121,26 @@ class WorkFlow:
                 self.is_start = is_match_color(img.getpixel(POSITION_READY), COLOR_READY)
                 if self.is_start:
                     print("start")
-                    return self.active()
+                    return True
                 else:
                     print("ready")
             else:
                 print("no window")
-        return False
+        return self.is_start
 
-    def load(self):
-        """
-        检查一个新的section是否合格，避免重复添加到game中
-        :return:
-        """
-        if self.section and self.section.card1 and self.section.card2 and self.section.seat:
-            if (self.game.card1 != self.section.card1 or self.game.card2 != self.section.card2
-                    or self.game.seat != self.section.seat):
-                self.game = Game.create_by_section(self.section)
-                return True
-            elif not self.section.equals(self.game.sections[-1]):
-                self.game.append_section(self.section)
-                return True
+    def load_game(self, section):
+        if not self.game or self.game.card1 != section.card1 or self.game.card2 != section.card2 or self.game.seat != section.seat:
+            self.game = Game(section)
+            return True
+        if self.game and self.game.sections and section.equals(self.game.sections[-1]):
+            self.game.append_section(section)
+            return True
         return False
 
     def do_action(self):
         self.print()
         action = Action(self.game.action)
         action.do()
-        if not (self.section.get_stage() == 'PreFlop' and self.section.action == 'fold'):
-            self.section.save()
         self.game.action = None
 
     def print(self):
@@ -182,20 +165,28 @@ class WorkFlow:
             print("action --> {}".format(self.game.action))
 
     def start(self):
-        strategy = Strategy(Strategy.GG003)
+        strategy = Strategy()
         while True:
             if self.active():
-                if self.load():
-                    strategy.predict(self.game)
-                    self.do_action()
-            time.sleep(3)
+                image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
+                table = TableImage(image, self.ocr)
+                sec = table.create_section()
+                # image.save(table_image)
+                if sec and sec.enabled():
+                    if self.load_game(sec):
+                        strategy.predict_action(self.game)
+                        sec.action = self.game.action
+                        sec.save()
+                    if self.game.action and is_match_color(image.getpixel(POSITION_BUTTON_FOLD), COLOR_BUTTON):
+                        self.do_action()
+            time.sleep(2)
 
 
 def test_workflow(file_name='table_image.jpg'):
     wf1 = WorkFlow()
     tab1 = TableImage(Image.open(file_name), wf1.ocr)
-    wf1.section = tab1.create_section()
-    if wf1.load():
+    sec1 = tab1.create_section()
+    if wf1.load_game(sec1):
         wf1.print()
 
 

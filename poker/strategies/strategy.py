@@ -1,7 +1,7 @@
-from poker.card import two_card_str
+import poker.game
+from poker.card import Hand, hands_rate
 from poker.config import BB
 from decimal import Decimal
-from poker.game import Stage
 
 
 def fetch_by_level(cd, le):
@@ -29,36 +29,89 @@ class Cond:
             parent.children.append(cd)
 
 
+def eval_cond(cond, args):
+    for co in cond.children:
+        if not co.children:
+            return co.exp.strip()
+        if eval(co.exp, args):
+            return eval_cond(co, args)
+
+
 class Strategy:
 
-    GG003 = 'strategies/gg003.txt'
+    actions = 'strategies/actions.txt'
+    ranges = 'strategies/ranges.txt'
 
-    def __init__(self, strategy_file):
-        self.args = {}
-        with open(strategy_file, 'r', encoding='utf-8') as file:
+    def __init__(self):
+        self.action_args = {}
+        self.range_args = {}
+        with open(self.actions, 'r', encoding='utf-8') as file:
             line = file.readline()
-            self.cond = Cond(line)
+            self.action_cond = Cond(line)
             while line:
                 line = file.readline()
-                self.cond.append_child(line.replace('\t', ''), line.count('\t'))
+                self.action_cond.append_child(line.replace('\t', ''), line.count('\t'))
+        with open(self.ranges, 'r', encoding='utf-8') as file:
+            line = file.readline()
+            self.range_cond = Cond(line)
+            while line:
+                line = file.readline()
+                self.range_cond.append_child(line.replace('\t', ''), line.count('\t'))
 
-    def predict(self, game):
-        self.args = {
+    def predict_action(self, game):
+        hand = Hand(game.card1, game.card2)
+        if game.card3:
+            hand.board = [game.card3, game.card4, game.card5]
+            if game.card6:
+                hand.board.append(game.card6)
+                if game.card7:
+                    hand.board.append(game.card7)
+
+        player_pre_act = 'raise、call、3bet、check'   # 翻牌前行动。加注通常表示较强的手牌，而跟注可能意味着中等或投机性手牌。
+        player_flop_act = '持续bet、check-raise'   # 翻牌后行动。
+        player_balance = 100    # 筹码量。 短筹码玩家倾向于玩得更紧，而深筹码玩家可能更激进，尝试利用筹码优势进行诈唬或价值下注。
+        player_amt = 6      # 翻牌后下注尺度。大额下注通常表示强牌或诈唬,小额下注可能意味着中等牌力或试探性下注
+        player_style = '0, 1, 2'  # 历史行为。 紧凶、松凶、被动。紧凶玩家加注时通常有强牌，而松凶玩家可能用更宽的范围加注
+        board_style = '单张成顺、单张成花、卡顺、三张花、'   # 牌面结构。 湿润牌面下注，对手可能有更多听牌或成牌
+
+        opponent_range = self.pre_player_range(game)
+        args = {
             'stage': game.stage,
-            'hand': two_card_str(game.card1, game.card2),
+            'hand': hand.string,
+            'hand_score': hand.get_score(),
             'pool': int(game.sections[-1].pool/Decimal(str(BB))),
-            'seat': game.seat
+            'seat': game.seat,
+            'win': hand.win_rate(opponent_range)
         }
-        act = self.eval_act(self.cond)
-        if 'fold' == act and game.card1[1] == game.card2[1]:
-            self.args['hand'] = self.args['hand'] + 's'
-            act = self.eval_act(self.cond)
+        act = eval_cond(self.action_cond, args)
         game.action = act
 
-    def eval_act(self, co):
-        for c in co.children:
-            if not c.children:
-                return c.exp
-            if eval(c.exp, self.args):
-                return self.eval_act(c)
+    def pre_player_range(self, game):
+        args = {
+            'stage': game.stage,
+            'pool': int(game.sections[-1].pool / Decimal(str(BB))),
+            'seat': game.seat
+        }
+        rate_range = eval_cond(self.range_cond, args)
+        min_rate = rate_range.split(',')[0]
+        max_rate = rate_range.split(',')[1]
+        opponent_range = []
+        suits = ['h', 'd', 'c', 's']
+        for key, value in hands_rate:
+            if min_rate <= value <= max_rate:
+                if key[0] == key[1]:
+                    from itertools import combinations
+                    for combination in combinations(suits, 2):
+                        opponent_range.append(key[0]+combination[0]+key[1]+combination[1])
+                elif key[2] == 'o':
+                    ranks = [key[0], key[1]]
+                    range1 = [rank + suit for rank in ranks for suit in suits]
+                    opponent_range = opponent_range + range1
+                elif key[2] == 's':
+                    opponent_range.append(key[0]+'h'+key[1]+'h')
+                    opponent_range.append(key[0]+'d'+key[1]+'d')
+                    opponent_range.append(key[0]+'c'+key[1]+'c')
+                    opponent_range.append(key[0]+'s'+key[1]+'s')
+        return opponent_range
+
 

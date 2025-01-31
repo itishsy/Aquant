@@ -1,0 +1,14 @@
+ranges
+	stage=='PreFlop'
+		pool < 20
+			36-90
+		20 < pool < 50
+			50-90
+		pool > 50
+			55-90
+	stage=='Flop'
+		35-90
+	stage=='Turn'
+		35-90
+	stage=='River'
+		35-90

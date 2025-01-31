@@ -1,6 +1,6 @@
-gg003
+actions
 	stage=='PreFlop'
-		hand in ['AA', 'KK']
+		hand_score>80
 			pool <= 3
 				bet(2,4)
 			3 < pool <= 10
@@ -9,33 +9,33 @@ gg003
 				bet(20,30)
 			30< pool < 60
 				bet(50,60)
-		hand in ['AK', 'QQ']
+		70<hand_score<80
 			pool <= 10
 				bet(3,8)
 			pool > 10
 				call
-		hand in ['AQ', 'AJ', 'JJ', 'TT']
+		60<hand_score<70
 			pool <= 3
 				bet(2,4)
 			3 < pool <= 20
 				call
 			pool > 20
 				fold
-		hand in ['AT', 'KQ', 'KJ', 'KT', 'QJ', 'QT', 'JT', 'T9']
+		55<hand_score<60
 			pool <= 3
 				bet(2,4)
 			3 < pool <= 10
 				call
 			pool > 10
 				fold
-		hand in ['99', '88', '77', '66', '55', '44', '33', '22']
+		52<hand_score<55
 			pool <= 3
 				bet(2,4)
 			3 < pool <= 20
 				call
 			pool > 20
 				fold
-		hand in ['A9s', 'A8s', 'A7s', 'A6s', 'A5s', 'A4s', 'A3s', 'A2s', 'Q9s', 'J9s']
+		50<hand_score<52
 			pool <= 3
 				seat in [1, 2, 6]
 					bet(2,4)
@@ -44,7 +44,12 @@ gg003
 					call
 			pool > 10
 				fold
-		fold
+		hand_score<50
+			fold
 	stage=='Flop'
+		power>=20000
+			call
+		power<20000
+			check
 	stage=='Turn'
 	stage=='River'
