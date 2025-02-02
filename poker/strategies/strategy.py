@@ -1,5 +1,6 @@
 import poker.game
-from poker.card import Hand, hands_rate
+from poker.card import Hand
+from poker.strategies.sorted_hands import hands_win_rate
 from poker.config import BB
 from decimal import Decimal
 from itertools import combinations
@@ -103,7 +104,7 @@ class Strategy:
         max_rate = float(rate_range.split('-')[1])
         opponent_range = []
         suits = ['h', 'd', 'c', 's']
-        for key, value in hands_rate.items():
+        for key, value in hands_win_rate.items():
             if min_rate <= value <= max_rate:
                 if key[0] == key[1]:
                     for combination in combinations(suits, 2):
