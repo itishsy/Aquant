@@ -130,6 +130,8 @@ class GameEngine:
                     print("ready")
             else:
                 print("no window")
+        if not self.win or (self.win.left < 0 and self.win.top < 0):
+            self.is_start = False
         return self.is_start
 
     def load_game(self, section):
@@ -154,12 +156,11 @@ class GameEngine:
 
         sec = self.game.sections[-1]
         if sec.card3:
-            print("pool: {}, 公共牌: {}-{}-{}-{}-{}".format(
+            print("pool: {}, 公共牌: {}-{}-{}-{}-{}, call: {}".format(
                 sec.pool, self.game.card3, self.game.card4, self.game.card5,
-                self.game.card6, self.game.card7))
+                self.game.card6, self.game.card7, sec.call))
         else:
-            print("pool: {}".format(sec.pool))
-        print("call: {}".format(sec.call))
+            print("pool: {}, call: {}".format(sec.pool, sec.call))
 
         if len(self.game.sections) > 1:
             for player in self.game.players:
@@ -167,12 +168,12 @@ class GameEngine:
                     print("{}: {}, {}".format(player.name, player.seat, player.actions[-1].action))
 
         if self.game.action:
-            print("eval {} action --> {}".format(self.game.stage, self.game.action))
+            print("{} action --> {}".format(self.game.stage, self.game.action))
 
     def start(self):
         strategy = Strategy()
         while True:
-            if self.active():
+            if self.active() and self.win.left > 0:
                 image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
                 table = TableImage(image, self.ocr)
                 sec = table.create_section()
@@ -196,7 +197,7 @@ def test_workflow(file_name='table_image.jpg'):
 
 
 if __name__ == '__main__':
-    # ge = GameEngine()
-    # ge.start()
-    test_workflow()
+    ge = GameEngine()
+    ge.start()
+    # test_workflow()
 
