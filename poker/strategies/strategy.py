@@ -75,7 +75,7 @@ class Strategy:
         opponent_range = self.opponent_ranges(game)
         hand_score = hand.get_score()
         win_rate = hand.win_rate(opponent_range)
-        print('hand_score==> {} , win_rate ==> {}'.forma(hand_score, win_rate))
+        print('hand_score==> {} , win_rate ==> {}'.format(hand_score, win_rate))
         args = {
             'stage': game.stage,
             'hand_score': hand_score,

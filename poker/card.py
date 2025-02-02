@@ -17,41 +17,23 @@ def card_index(card):
 
 
 def card_value(card):
-    num = card[0]
-    val = 0
-    if num == 'T':
-        val = val + 10
-    elif num == 'J':
-        val = val + 11
-    elif num == 'Q':
-        val = val + 12
-    elif num == 'K':
-        val = val + 13
-    elif num == 'A':
-        val = val + 14
-    else:
-        val = val + int(num)
-    return val
+    return card_index(card) + 2
 
 
 class Cards:
 
-    Straight_Flush = 9*10000
-    Four_Of_A_Kind = 8*10000
-    Full_House = 7*10000
-    Flush = 6*10000
-    Straight = 5*10000
-    Three_Of_A_Kind = 4*10000
-    Two_Pair = 3*10000
-    Pair = 2*10000
-    High_Card = 10000
+    def __init__(self):
+        pass
 
-    def __init__(self, hand):
-        self.hand = hand
-        current_deck = deck.copy()
-        current_deck.remove(hand[0])
-        current_deck.remove(hand[1])
-        self.deck = current_deck
+    Straight_Flush = 9000
+    Four_Of_A_Kind = 8000
+    Full_House = 7000
+    Flush = 6000
+    Straight = 5000
+    Three_Of_A_Kind = 4000
+    Two_Pair = 3000
+    Pair = 2000
+    High_Card = 1000
 
     def lookup(self, board, hand):
         from itertools import combinations
@@ -61,31 +43,6 @@ class Cards:
             if five_score > score:
                 score = five_score
         return score
-
-    def win_rate(self, opponent_range, board=None):
-        wins = 0
-        num_simulations = 10000
-        for _ in range(num_simulations):
-            # 从对家的底牌范围中随机抽取手牌
-            opponent_hand = opponent_range[np.random.randint(0, len(opponent_range))]
-
-            current_deck = self.deck.copy()
-            current_deck.remove(opponent_hand[0:2])
-            current_deck.remove(opponent_hand[2:4])
-            cur_board = board
-            if not cur_board:
-                cur_board = random.sample(current_deck, 5)
-            elif len(board) < 5:
-                for c in board:
-                    current_deck.remove(c)
-                cur_board = board + random.sample(current_deck, 5 - len(board))
-
-            # 计算牌力
-            strength1 = self.lookup(cur_board, self.hand)
-            strength2 = self.lookup(cur_board, [opponent_hand[0:2], opponent_hand[2:4]])
-            if strength1 > strength2:
-                wins += 1
-        return wins / num_simulations
 
     def five_card(self, cards):
         # 先将牌按牌面数值大小排序
@@ -102,6 +59,7 @@ class Cards:
         if max(straight_ranks) - min(straight_ranks) == 4 and len(set(straight_ranks)) == 5:
             is_straight = True
         if is_straight and is_flush:
+            # 同花顺。 最大值为：9000+14=9014（A-T） 最小值：9000+2=9005（5-A）
             return self.Straight_Flush + card_value(sorted_cards[-1])
 
         # 判断是否四条
@@ -112,32 +70,32 @@ class Cards:
             if count == 4:
                 four_rank = [r for r in rank_counts if rank_counts[r] == 4][0]
                 remaining_cards = [c for c in sorted_cards if c[:-1] != four_rank]
-                # return '四条', [four_rank + suits_list[0]] * 4 + remaining_cards[:1]
-                return self.Four_Of_A_Kind + card_value(four_rank)*100 + card_value(remaining_cards[-1])
+                # 四条。 最大值为：8000+140+13=8153（4条A+K） 最小值：8000+20+3=8023（4条2+3）
+                return self.Four_Of_A_Kind + card_value(four_rank)*10 + card_value(remaining_cards[-1])
 
         # 判断是否葫芦（三条加一对）
         three_ranks = [r for r in rank_counts if rank_counts[r] == 3]
         two_ranks = [r for r in rank_counts if rank_counts[r] == 2]
         if three_ranks and two_ranks:
-            # return "葫芦", [r + suits_list[0] for r in three_ranks + two_ranks]
-            return self.Full_House + card_value(three_ranks[0])*100 + card_value(two_ranks[0])
+            # 葫芦。最大值为：7000+140+13=7153（3条A+2条K） 最小值：7000+20+3=7023（3条2+2条3）
+            return self.Full_House + card_value(three_ranks[0])*10 + card_value(two_ranks[0])
 
         # 判断是否同花
         if is_flush:
-            # return "同花", sorted_cards[:5]
+            # 同花。 最大值为：6000+14=6014（A花） 最小值：6000+7=6007（7花）
             return self.Flush + card_value(sorted_cards[-1])
 
         # 判断是否顺子
         if is_straight:
-            # return "顺子", sorted_cards[:5]
+            # 顺子。 最大值为：5000+14=5014（A顺） 最小值：5000+5=5005（5顺）
             return self.Straight + card_value(sorted_cards[-1])
 
         # 判断是否三条
         if 3 in rank_counts.values():
             three_rank = [r for r in rank_counts if rank_counts[r] == 3][0]
             remaining_cards = [c for c in sorted_cards if c[:-1] != three_rank]
-            # return "三条", [three_rank + suits_list[0]] * 3 + remaining_cards[:2]
-            return self.Three_Of_A_Kind + card_value(three_rank)*100 + card_value(remaining_cards[-1])
+            # 三条。 最大值为：4000+140+13=4153（三条A+K） 最小值：4000+20+4=4204（三条2+34）
+            return self.Three_Of_A_Kind + card_value(three_rank)*10 + card_value(remaining_cards[-1])
 
         # 判断是否两对
         pair_count = 0
@@ -147,24 +105,21 @@ class Cards:
                 pair_count += 1
                 pair_ranks.append([r for r in rank_counts if rank_counts[r] == 2])
         if pair_count == 2:
-            # return "两对", [r + suits_list[0] for r in pair_ranks[0] + pair_ranks[1]]
             c1 = card_value(pair_ranks[0][0])
             c2 = card_value(pair_ranks[0][1])
-            return self.Two_Pair + max(c1, c2)*100 + min(c1, c2)
+            # 两对。 最大值为：3000+140+13=3153（2条A+2条K） 最小值：3000+20+3=3203（三条2+三条3）
+            return self.Two_Pair + max(c1, c2)*10 + min(c1, c2)
 
         # 判断是否一对
         if pair_count == 1:
             pair_rank = [r for r in rank_counts if rank_counts[r] == 2][0]
             remaining_cards = [c for c in sorted_cards if c[:-1] != pair_rank]
-            # return "一对", [pair_rank + suits_list[0]] * 2 + remaining_cards[:3]
-            return self.Pair + card_value(pair_rank)*100 + card_value(remaining_cards[-1])
+            # 两对。 最大值为：2000+140+13=2153（2条A+2条K） 最小值：2000+20+3=2023（三条2+三条3）
+            return self.Pair + card_value(pair_rank)*10 + card_value(remaining_cards[-1]) + card_value(remaining_cards[-2])
 
         # 如果都不是，就是高牌
-        # return "高牌", sorted_cards[:5]
-        return (((self.High_Card + (card_value(sorted_cards[-1])-5)*1000
-                + (card_value(sorted_cards[-2])-5)*100)
-                + (card_value(sorted_cards[-3])-5)*10)
-                + (card_value(sorted_cards[-4])-5))
+        # 高牌。 最大值为：1000+140+13+12+10
+        return self.High_Card + card_value(sorted_cards[-1]) * 10 + card_value(sorted_cards[-2]) + card_value(sorted_cards[-3]) + card_value(sorted_cards[-4])
 
     def to_string(self, val):
         m2 = val // 100 % 100 - 2   # 中间2位
@@ -197,18 +152,18 @@ class Hand:
 
     def __init__(self, card1, card2):
         self.evaluator = Evaluator()
-        self.string = card1 + card2 if card_value(card1) > card_value(card2) else card2 + card1
+        self.cards = card1 + card2 if card_value(card1) > card_value(card2) else card2 + card1
         self.hand = [Card.new(card1),  Card.new(card2)]
         self.deck = Deck()
         self.board = []
 
     def get_score(self):
-        if self.string[0] == self.string[1]:
-            res = hands_win_rate.get(self.string[0] + self.string[1])
-        elif self.string[1] == self.string[3]:
-            res = hands_win_rate.get(self.string[0] + self.string[2] + 's')
+        if self.cards[0] == self.cards[2]:
+            res = hands_win_rate.get(self.cards[0] + self.cards[0])
+        elif self.cards[1] == self.cards[3]:
+            res = hands_win_rate.get(self.cards[0] + self.cards[2] + 's')
         else:
-            res = hands_win_rate.get(self.string[0] + self.string[2] + 'o')
+            res = hands_win_rate.get(self.cards[0] + self.cards[2] + 'o')
         return 35.10 if res is None else res
 
     def eval(self):
