@@ -221,19 +221,18 @@ class Hand:
 
     def __init__(self, card1, card2):
         self.evaluator = Evaluator()
-        self.string = card1[0] + card2[0] if card_value(card1) > card_value(card2) else card2[0] + card1[0]
-        self.short = self.string if card1[0] == card2[0] else (self.string + ('s' if card1[1] == card2[1] else 'o'))
+        self.string = card1 + card2 if card_value(card1) > card_value(card2) else card2 + card1
         self.hand = [Card.new(card1),  Card.new(card2)]
         self.deck = Deck()
         self.board = []
 
-    def set_board(self, *args):
-        if 3 <= len(args) <= 5:
-            for cd in args:
-                self.board.append(Card.new(cd))
-
     def get_score(self):
-        res = hands_rate.get(self.short)
+        if self.string[0] == self.string[1]:
+            res = hands_rate.get(self.string)
+        elif self.string[1] == self.string[3]:
+            res = hands_rate.get(self.string[0] + self.string[2] + 's')
+        else:
+            res = hands_rate.get(self.string[0] + self.string[2] + 'o')
         return 35.10 if res is None else res
 
     def eval(self):
@@ -247,11 +246,13 @@ class Hand:
 
     def win_rate(self, opponent_range, num_simulations=10000):
         wins = 0
-        opponent_wins = 0
         for _ in range(num_simulations):
             # 从对家的底牌范围中随机抽取手牌
             opponent_cards = opponent_range[np.random.randint(0, len(opponent_range))]
             opponent_hand = [Card.new(opponent_cards[0:2]), Card.new(opponent_cards[2:4])]
+            if (opponent_hand[0] == self.hand[0] or opponent_hand[0] == self.hand[1] or
+                    opponent_hand[1] == self.hand[0] or opponent_hand[1] == self.hand[1]):
+                continue
             # 初始化牌堆
             # cur_deck = Deck()
             self.deck.shuffle()
@@ -273,9 +274,7 @@ class Hand:
             strength2 = self.evaluator.evaluate(opponent_hand, board)
             if strength1 < strength2:
                 wins += 1
-            elif strength1 > strength2:
-                opponent_wins += 1
-        return wins / num_simulations, opponent_wins / num_simulations
+        return wins / num_simulations * 100
 
 
 kk = Hand('Ks', 'Kd')

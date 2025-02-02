@@ -2,6 +2,7 @@ import poker.game
 from poker.card import Hand, hands_rate
 from poker.config import BB
 from decimal import Decimal
+from itertools import combinations
 
 
 def fetch_by_level(cd, le):
@@ -19,6 +20,7 @@ class Cond:
 
     def __init__(self, exp):
         self.exp = exp
+        self.children = []
 
     def append_child(self, exp, level):
         parent = fetch_by_level(self, level)
@@ -43,6 +45,8 @@ class Strategy:
     ranges = 'strategies/ranges.txt'
 
     def __init__(self):
+        self.action_cond = None
+        self.range_cond = None
         self.action_args = {}
         self.range_args = {}
         with open(self.actions, 'r', encoding='utf-8') as file:
@@ -75,13 +79,15 @@ class Strategy:
         board_style = '单张成顺、单张成花、卡顺、三张花、'   # 牌面结构。 湿润牌面下注，对手可能有更多听牌或成牌
 
         opponent_range = self.pre_player_range(game)
+        win_rate = hand.win_rate(opponent_range)
+        print('win_rate ===> ', win_rate)
         args = {
             'stage': game.stage,
             'hand': hand.string,
             'hand_score': hand.get_score(),
             'pool': int(game.sections[-1].pool/Decimal(str(BB))),
             'seat': game.seat,
-            'win': hand.win_rate(opponent_range)
+            'win': win_rate
         }
         act = eval_cond(self.action_cond, args)
         game.action = act
@@ -93,20 +99,21 @@ class Strategy:
             'seat': game.seat
         }
         rate_range = eval_cond(self.range_cond, args)
-        min_rate = rate_range.split('-')[0]
-        max_rate = rate_range.split('-')[1]
+        min_rate = float(rate_range.split('-')[0])
+        max_rate = float(rate_range.split('-')[1])
         opponent_range = []
         suits = ['h', 'd', 'c', 's']
-        for key, value in hands_rate:
+        for key, value in hands_rate.items():
             if min_rate <= value <= max_rate:
                 if key[0] == key[1]:
-                    from itertools import combinations
                     for combination in combinations(suits, 2):
                         opponent_range.append(key[0]+combination[0]+key[1]+combination[1])
                 elif key[2] == 'o':
                     ranks = [key[0], key[1]]
                     range1 = [rank + suit for rank in ranks for suit in suits]
-                    opponent_range = opponent_range + range1
+                    for combination in combinations(suits, 2):
+                        opponent_range.append(key[0]+combination[0]+key[1]+combination[1])
+                        # opponent_range.append(combination)
                 elif key[2] == 's':
                     opponent_range.append(key[0]+'h'+key[1]+'h')
                     opponent_range.append(key[0]+'d'+key[1]+'d')
