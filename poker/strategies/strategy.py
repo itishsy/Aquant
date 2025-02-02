@@ -78,7 +78,6 @@ class Strategy:
         print('hand_score==> {} , win_rate ==> {}'.forma(hand_score, win_rate))
         args = {
             'stage': game.stage,
-            'hand': hand.string,
             'hand_score': hand_score,
             'pool': int(game.sections[-1].pool/Decimal(str(BB))),
             'seat': game.seat,
@@ -104,7 +103,6 @@ class Strategy:
         args = {
             'stage': game.stage,
             'pool': int(game.sections[-1].pool / Decimal(str(BB))),
-            'seat': game.seat
         }
         rate_range = eval_cond(self.range_cond, args)
         min_rate = float(rate_range.split('-')[0])
