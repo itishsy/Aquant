@@ -121,7 +121,8 @@ class Cards:
         # 高牌。 最大值为：1000+140+13+12+10
         return self.High_Card + card_value(sorted_cards[-1]) * 10 + card_value(sorted_cards[-2]) + card_value(sorted_cards[-3]) + card_value(sorted_cards[-4])
 
-    def to_string(self, val):
+    def five_card_name(self, cards):
+        val = self.five_card(cards)
         m2 = val // 100 % 100 - 2   # 中间2位
         t2 = val % 100 - 2          # 最后2位
         if val >= self.Straight_Flush:
