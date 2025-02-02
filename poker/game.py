@@ -178,6 +178,7 @@ class Section(BaseModel):
     card6 = CharField(null=True)  # 公共牌4
     card7 = CharField(null=True)  # 公共牌5
     action = CharField(null=True)  # 操作
+    call = DecimalField(null=True)  # 跟注金额
 
     player1_name = CharField(null=True)  # 玩家1
     player1_amount = DecimalField(null=True)  #

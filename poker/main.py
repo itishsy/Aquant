@@ -100,10 +100,14 @@ class TableImage:
         sec.player4_name, sec.player4_amount = self.fetch_player(4)
         sec.player5_name, sec.player5_amount = self.fetch_player(5)
 
+        amount_txt = self.ocr_txt(REGION_CALL_AMOUNT)
+        call_amount = fetch_amount(amount_txt)
+        sec.call = call_amount
+
         return sec
 
 
-class WorkFlow:
+class GameEngine:
 
     def __init__(self):
         self.ocr = ddddocr.DdddOcr()
@@ -139,7 +143,7 @@ class WorkFlow:
 
     def do_action(self):
         self.print()
-        action = Action(self.game.action)
+        action = Action(self.game.action, self.game.sections[-1].call)
         action.do()
         self.game.action = None
 
@@ -155,6 +159,7 @@ class WorkFlow:
                 self.game.card6, self.game.card7))
         else:
             print("pool: {}".format(sec.pool))
+        print("call: {}".format(sec.call))
 
         if len(self.game.sections) > 1:
             for player in self.game.players:
@@ -162,7 +167,7 @@ class WorkFlow:
                     print("{}: {}, {}".format(player.name, player.seat, player.actions[-1].action))
 
         if self.game.action:
-            print("{} action --> {}".format(self.game.stage, self.game.action))
+            print("eval {} action --> {}".format(self.game.stage, self.game.action))
 
     def start(self):
         strategy = Strategy()
@@ -183,7 +188,7 @@ class WorkFlow:
 
 
 def test_workflow(file_name='table_image.jpg'):
-    wf1 = WorkFlow()
+    wf1 = GameEngine()
     tab1 = TableImage(Image.open(file_name), wf1.ocr)
     sec1 = tab1.create_section()
     if wf1.load_game(sec1):
@@ -191,7 +196,7 @@ def test_workflow(file_name='table_image.jpg'):
 
 
 if __name__ == '__main__':
-    wf = WorkFlow()
-    wf.start()
-    # test_workflow()
+    # ge = GameEngine()
+    # ge.start()
+    test_workflow()
 

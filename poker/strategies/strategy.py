@@ -88,7 +88,7 @@ class Strategy:
 
     def opponent_ranges(self, game):
         """
-        评估玩家的手牌范围
+        评估对手的手牌范围
         :param game:
         :return:
         """

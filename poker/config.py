@@ -8,7 +8,7 @@
 # 定位：LOCATION_XXX = (position, color)
 
 
-# 游戏窗口标题
+# 识别游戏窗口标题
 # WIN_TITLE = "192.168.0.113 - 远程桌面连接"
 WIN_TITLE = "192.168.1.100 - 远程桌面连接"
 # 截图区域相对于左上角的偏移位
@@ -18,7 +18,7 @@ SB = 0.01
 BB = 0.02
 
 
-# 牌
+#  ===== 手牌及公共牌 =====
 # 4种花色的颜色值。黑桃（Spade）红桃（Heart）梅花（Club）方块（Diamond）
 SUIT_COLOR = ((0, 0, 0), (202, 23, 27), (29, 126, 45), (1, 30, 196))
 # 单个牌要截取的宽度和高度
@@ -35,28 +35,20 @@ POSITION_SUIT_3 = (546, 486)
 # 公共牌之间的间隔
 PUB_CARD_SPACE_X = 100
 
-# 底池
+# ===== 底池金额 =====
 # 底池区域（l,t,w,h)
 REGION_POOL = (729, 368, 88, 30)
 
-# 玩家
+
+# ===== 玩家信息ocr识别，包括名称、金额、位置 =====
+# 读取玩家信息的区域
 PLAYER_WIDTH, PLAYER_HEIGHT = 135, 31
 REGION_PLAYER_1 = (194, 657, PLAYER_WIDTH, PLAYER_HEIGHT)
 REGION_PLAYER_2 = (233, 304, PLAYER_WIDTH, PLAYER_HEIGHT)
 REGION_PLAYER_3 = (666, 230, PLAYER_WIDTH, PLAYER_HEIGHT)
 REGION_PLAYER_4 = (1099, 309, PLAYER_WIDTH, PLAYER_HEIGHT)
 REGION_PLAYER_5 = (1137, 658, PLAYER_WIDTH, PLAYER_HEIGHT)
-
-# 判断
-# 表示需要读牌桌信息的位置及颜色值（出现手牌）
-POSITION_READY = (701, 724)
-COLOR_READY = (239, 239, 239)
-
-# 牌桌识别
-COLOR_TABLE = (19, 90, 22)
-POSITION_TABLE = (733, 647)
-
-# bottom所在位置
+# 识别玩家的位置。根据btn所在位置
 COLOR_BOTTOM = (239, 195, 44)   # D标记颜色
 POSITION_BOTTOM_0 = (648, 657)  # 我
 POSITION_BOTTOM_1 = (392, 634)  # 左下
@@ -65,14 +57,21 @@ POSITION_BOTTOM_3 = (672, 303)  # 上
 POSITION_BOTTOM_4 = (1057, 353)  # 右上
 POSITION_BOTTOM_5 = (1057, 634)  # 右下
 
-# 按钮颜色
+
+#  ===== 操作判断 =====
+
+# 判断当前牌桌是否需要采取行动。通过手牌位置的背景颜色来判断
+POSITION_READY = (701, 724)
+COLOR_READY = (239, 239, 239)
+
+# 按钮颜色。 fold、call、raise操作按钮的位置
 COLOR_BUTTON = (171, 67, 63)
-# 牌桌背景颜色
-COLOR_TABLE_BACKGROUND = (34, 34, 34)
-# 表示需要操作的位置及颜色值（出现弃牌按钮）
 POSITION_BUTTON_FOLD = (937, 860)
 POSITION_BUTTON_CALL = (1096, 860)
 POSITION_BUTTON_RAISE = (1252, 860)
 
-# 操作
-ACTION_CHECK_POSITION = (1052, 852)
+POSITION_BUTTON_ADD_RAISE = (1301, 787)
+
+# ocr跟注金额
+REGION_CALL_AMOUNT = (1047, 856, 91, 30)
+
