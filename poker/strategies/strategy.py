@@ -1,5 +1,5 @@
 import poker.game
-from poker.card import Hand
+from poker.card import Hand, suits
 from poker.strategies.sorted_hands import hands_win_rate
 from poker.config import BB
 from decimal import Decimal
@@ -72,6 +72,28 @@ class Strategy:
                 if game.card7:
                     hand.board.append(game.card7)
 
+        opponent_range = self.opponent_ranges(game)
+        hand_score = hand.get_score()
+        win_rate = hand.win_rate(opponent_range)
+        print('hand_score==> {} , win_rate ==> {}'.forma(hand_score, win_rate))
+        args = {
+            'stage': game.stage,
+            'hand': hand.string,
+            'hand_score': hand_score,
+            'pool': int(game.sections[-1].pool/Decimal(str(BB))),
+            'seat': game.seat,
+            'win_rate': win_rate
+        }
+        act = eval_cond(self.action_cond, args)
+        game.action = act
+
+    def opponent_ranges(self, game):
+        """
+        评估玩家的手牌范围
+        :param game:
+        :return:
+        """
+
         player_pre_act = 'raise、call、3bet、check'   # 翻牌前行动。加注通常表示较强的手牌，而跟注可能意味着中等或投机性手牌。
         player_flop_act = '持续bet、check-raise'   # 翻牌后行动。
         player_balance = 100    # 筹码量。 短筹码玩家倾向于玩得更紧，而深筹码玩家可能更激进，尝试利用筹码优势进行诈唬或价值下注。
@@ -79,21 +101,6 @@ class Strategy:
         player_style = '0, 1, 2'  # 历史行为。 紧凶、松凶、被动。紧凶玩家加注时通常有强牌，而松凶玩家可能用更宽的范围加注
         board_style = '单张成顺、单张成花、卡顺、三张花、'   # 牌面结构。 湿润牌面下注，对手可能有更多听牌或成牌
 
-        opponent_range = self.pre_player_range(game)
-        win_rate = hand.win_rate(opponent_range)
-        print('win_rate ===> ', win_rate)
-        args = {
-            'stage': game.stage,
-            'hand': hand.string,
-            'hand_score': hand.get_score(),
-            'pool': int(game.sections[-1].pool/Decimal(str(BB))),
-            'seat': game.seat,
-            'win': win_rate
-        }
-        act = eval_cond(self.action_cond, args)
-        game.action = act
-
-    def pre_player_range(self, game):
         args = {
             'stage': game.stage,
             'pool': int(game.sections[-1].pool / Decimal(str(BB))),
@@ -103,23 +110,14 @@ class Strategy:
         min_rate = float(rate_range.split('-')[0])
         max_rate = float(rate_range.split('-')[1])
         opponent_range = []
-        suits = ['h', 'd', 'c', 's']
         for key, value in hands_win_rate.items():
             if min_rate <= value <= max_rate:
-                if key[0] == key[1]:
+                if key[0] == key[1] or key[2] == 'o':
                     for combination in combinations(suits, 2):
                         opponent_range.append(key[0]+combination[0]+key[1]+combination[1])
-                elif key[2] == 'o':
-                    ranks = [key[0], key[1]]
-                    range1 = [rank + suit for rank in ranks for suit in suits]
-                    for combination in combinations(suits, 2):
-                        opponent_range.append(key[0]+combination[0]+key[1]+combination[1])
-                        # opponent_range.append(combination)
                 elif key[2] == 's':
-                    opponent_range.append(key[0]+'h'+key[1]+'h')
-                    opponent_range.append(key[0]+'d'+key[1]+'d')
-                    opponent_range.append(key[0]+'c'+key[1]+'c')
-                    opponent_range.append(key[0]+'s'+key[1]+'s')
+                    for suit in suits:
+                        opponent_range.append(key[0]+suit+key[1]+suit)
         return opponent_range
 
 

@@ -162,7 +162,7 @@ class WorkFlow:
                     print("{}: {}, {}".format(player.name, player.seat, player.actions[-1].action))
 
         if self.game.action:
-            print("action --> {}".format(self.game.action))
+            print("{} action --> {}".format(self.game.stage, self.game.action))
 
     def start(self):
         strategy = Strategy()

@@ -223,26 +223,21 @@ class Hand:
     def win_rate(self, opponent_range, num_simulations=10000):
         wins = 0
         for _ in range(num_simulations):
-            # 从对家的底牌范围中随机抽取手牌
+            # 底牌范围中随机抽取一手牌
             opponent_cards = opponent_range[np.random.randint(0, len(opponent_range))]
             opponent_hand = [Card.new(opponent_cards[0:2]), Card.new(opponent_cards[2:4])]
+
+            # 跳过重叠的牌
             if (opponent_hand[0] == self.hand[0] or opponent_hand[0] == self.hand[1] or
                     opponent_hand[1] == self.hand[0] or opponent_hand[1] == self.hand[1]):
                 continue
-            # 初始化牌堆
-            # cur_deck = Deck()
+
+            # 洗牌
             self.deck.shuffle()
             # 从牌堆中移除已出现的牌
             used_card = self.hand + opponent_hand + self.board
             for card in used_card:
                 self.deck.cards.remove(card)
-
-            # used_card = self.hand + opponent_hand
-            # remaining_deck = [Card.new(card) for card in deck if card not in used_card]
-            # random.shuffle(remaining_deck)
-            # 洗牌
-            # cur_deck.shuffle()
-            # board = remaining_deck[:5]
 
             board = self.board + self.deck.draw(5 - len(self.board))
             # 计算牌力
@@ -253,16 +248,15 @@ class Hand:
         return wins / num_simulations * 100
 
 
-kk = Hand('Ks', 'Kd')
-# hand.set_board('Ks', 'Kc', 'Qc', 'Qd')
-# rate = kk.win_rate(['Ts5c', 'AsAc'])
-rate = kk.get_score()
-# cards1 = Cards('Ts', 'Qs', '7c', 'Kc', '4d', 'Jh', '2c')
-# val1 = cards1.lookup()
-# print(val1, cards1.to_string(val1))
+if __name__ == '__main__':
+    kk = Hand('Ks', 'Kd')
+    # hand.set_board('Ks', 'Kc', 'Qc', 'Qd')
+    # rate = kk.win_rate(['Ts5c', 'AsAc'])
+    rate = kk.get_score()
+    # cards1 = Cards('Ts', 'Qs', '7c', 'Kc', '4d', 'Jh', '2c')
+    # val1 = cards1.lookup()
+    # print(val1, cards1.to_string(val1))
 
-# kk = Cards(['Ks', 'Kd'])
-# rate = kk.win_rate(['AsKc'])
-print(rate)
-
-
+    # kk = Cards(['Ks', 'Kd'])
+    # rate = kk.win_rate(['AsKc'])
+    print(rate)
