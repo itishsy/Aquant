@@ -117,28 +117,33 @@ class GameEngine:
         self.game_info = ''
 
     def active(self):
-        if not self.is_start:
-            win = get_win()
-            if win and (win.left >= 0 or win.top >= 0):
-                self.win = win
-                img = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
-                self.is_start = is_match_color(img.getpixel(POSITION_READY), COLOR_READY)
-                if self.is_start:
-                    print("start")
-                    return True
+        try:
+            if not self.is_start:
+                win = get_win()
+                if win and (win.left >= 0 or win.top >= 0):
+                    self.win = win
+                    img = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
+                    self.is_start = is_match_color(img.getpixel(POSITION_READY), COLOR_READY)
+                    if self.is_start:
+                        print("start")
+                        return True
+                    else:
+                        print("ready")
                 else:
-                    print("ready")
-            else:
-                print("no window")
-        if not self.win or (self.win.left < 0 and self.win.top < 0):
+                    print("no window")
+            self.is_start = self.win.left > -100 or self.win.top > -100
+        except:
             self.is_start = False
         return self.is_start
 
     def load_game(self, section):
-        if not self.game or self.game.card1 != section.card1 or self.game.card2 != section.card2 or self.game.seat != section.seat:
+        if not self.game:
             self.game = Game(section)
             return True
-        if self.game and self.game.sections and section.equals(self.game.sections[-1]):
+        if self.game.card1 != section.card1 or self.game.card2 != section.card2 or self.game.seat != section.seat:
+            self.game = Game(section)
+            return True
+        if not section.equals(self.game.sections[-1]):
             self.game.append_section(section)
             return True
         return False
@@ -173,7 +178,7 @@ class GameEngine:
     def start(self):
         strategy = Strategy()
         while True:
-            if self.active() and self.win.left > 0:
+            if self.active():
                 image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
                 table = TableImage(image, self.ocr)
                 sec = table.create_section()
@@ -183,9 +188,11 @@ class GameEngine:
                         strategy.predict_action(self.game)
                         sec.action = self.game.action
                         sec.save()
+                    else:
+                        print('no section')
                     if self.game.action and is_match_color(image.getpixel(POSITION_BUTTON_FOLD), COLOR_BUTTON):
                         self.do_action()
-            time.sleep(2)
+            time.sleep(3)
 
 
 def test_workflow(file_name='table_image.jpg'):

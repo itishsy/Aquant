@@ -3,6 +3,7 @@ import numpy as np
 import random
 import copy
 from poker.strategies.sorted_hands import hands_win_rate
+from itertools import combinations
 
 
 # 定义扑克牌的牌面和花色
@@ -36,7 +37,6 @@ class Cards:
     High_Card = 1000
 
     def lookup(self, board, hand):
-        from itertools import combinations
         score = 0
         for combination in combinations(hand + board, 5):
             five_score = self.five_card(list(combination))
@@ -158,6 +158,9 @@ class Hand:
         self.deck = Deck()
         self.board = []
 
+    def add_board(self, card):
+        self.board.append(Card.new(card))
+
     def get_score(self):
         if self.cards[0] == self.cards[2]:
             res = hands_win_rate.get(self.cards[0] + self.cards[0])
@@ -167,16 +170,64 @@ class Hand:
             res = hands_win_rate.get(self.cards[0] + self.cards[2] + 'o')
         return 35.10 if res is None else res
 
-    def eval(self):
-        # 评估手牌
-        score = self.evaluator.evaluate(self.board, self.hand)
-        # 步骤 4: 获取牌型等级
-        hand_class = self.evaluator.get_rank_class(score)
-        # 步骤 5: 获取牌型名称
-        class_name = self.evaluator.class_to_string(hand_class)
-        return score, hand_class, class_name
+    def get_strength(self):
+        """
+        皇家同花顺  1
+        同花顺     2-10
+        四条	      11-166
+        葫芦	      167-322
+        同花	      323-1599
+        顺子	      1600-1609
+        三条	      1610-2467
+        两对	      2468-3325
+        一对	      3326-6185
+        高牌	      6186-7462
+        :return:
+        """
 
-    def win_rate(self, opponent_range, num_simulations=10000):
+        # 计算手牌强度。 定义为0.1-1，1为nuts牌，即100%赢。
+        my_strength = self.evaluator.evaluate(self.hand, self.board)
+        board_strength = self.evaluator.evaluate([], self.board)
+        if board_strength == my_strength:
+            # 手牌没有牌力加强
+            strength = 0.3
+        else:
+            if my_strength < 167:
+                strength = 1
+            elif my_strength < 1600:
+                strength = 0.9
+            elif my_strength < 2300:
+                strength = 0.8
+            elif my_strength < 3326:
+                strength = 0.7
+            elif my_strength < 4000:
+                strength = 0.6
+            elif my_strength < 5000:
+                strength = 0.5
+            elif my_strength < 6000:
+                strength = 0.4
+            else:
+                strength = 0.3
+        return strength
+
+    def stronger_range(self):
+        cur_deck = Deck()
+        known_cards = self.hand + self.board
+        remaining_cards = [card for card in cur_deck.cards if card not in known_cards]
+        my_strength = self.evaluator.evaluate(self.hand, self.board)
+        # 遍历所有可能的手牌组合
+        stronger_hands = set()
+        for opponent_hand in combinations(remaining_cards, 2):
+            sorted_hand = tuple(sorted(opponent_hand, reverse=True))
+            # 计算对手手牌 + 公共牌的牌力
+            opponent_strength = self.evaluator.evaluate(opponent_hand, self.board)
+
+            # 如果对手的牌力更强，记录下来
+            if opponent_strength < my_strength:
+                stronger_hands.add(sorted_hand)
+        return stronger_hands
+
+    def win_rate(self, opponent_range, num_simulations=1000):
         wins = 0
         for _ in range(num_simulations):
             # 底牌范围中随机抽取一手牌
@@ -193,7 +244,8 @@ class Hand:
             # 从牌堆中移除已出现的牌
             used_card = self.hand + opponent_hand + self.board
             for card in used_card:
-                self.deck.cards.remove(card)
+                if self.deck.cards.__contains__(card):
+                    self.deck.cards.remove(card)
 
             board = self.board + self.deck.draw(5 - len(self.board))
             # 计算牌力
@@ -201,18 +253,26 @@ class Hand:
             strength2 = self.evaluator.evaluate(opponent_hand, board)
             if strength1 < strength2:
                 wins += 1
-        return wins / num_simulations * 100
+        return wins / num_simulations
 
 
 if __name__ == '__main__':
-    kk = Hand('Ks', 'Kd')
+    hand = Hand('Ts', 'Kd')
     # hand.set_board('Ks', 'Kc', 'Qc', 'Qd')
     # rate = kk.win_rate(['Ts5c', 'AsAc'])
-    rate = kk.get_score()
+    # rate = kk.get_score()
+    hand.add_board('4c')
+    hand.add_board('Kc')
+    hand.add_board('6d')
+    # print(hand.eval())
+    hand.add_board('2d')
+    # print(hand.eval())
+    hand.add_board('Ac')
+    print(hand.eval())
     # cards1 = Cards('Ts', 'Qs', '7c', 'Kc', '4d', 'Jh', '2c')
     # val1 = cards1.lookup()
     # print(val1, cards1.to_string(val1))
 
     # kk = Cards(['Ks', 'Kd'])
     # rate = kk.win_rate(['AsKc'])
-    print(rate)
+    # print(rate)

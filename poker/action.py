@@ -47,6 +47,13 @@ class Action:
                          duration=0.2)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
         pyautogui.click()
 
+    @staticmethod
+    def rais():
+        pyautogui.moveTo(POSITION_BUTTON_RAISE[0] + random.randint(1, 10),
+                         POSITION_BUTTON_RAISE[1] + random.randint(1, 5),
+                         duration=0.2)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
+        pyautogui.click()
+
     def bet(self):
         if self.val:
             val_range = eval(self.val)
@@ -66,15 +73,9 @@ class Action:
                         raise_bb = eval('random.randint{}'.format(self.val))
                         pyautogui.click(clicks=raise_bb, interval=0.3)
                     time.sleep(1)
-                    pyautogui.moveTo(POSITION_BUTTON_RAISE[0] + random.randint(1, 10),
-                                     POSITION_BUTTON_RAISE[1] + random.randint(1, 5),
-                                     duration=0.2)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
-                    pyautogui.click()
+                    self.rais()
             else:
-                pyautogui.moveTo(POSITION_BUTTON_RAISE[0] + random.randint(1, 10),
-                                 POSITION_BUTTON_RAISE[1] + random.randint(1, 5),
-                                 duration=0.2)  # duration 参数表示鼠标移动的时间，这里设置为 1 秒
-                pyautogui.click()
+                self.rais()
 
     @staticmethod
     def allin():

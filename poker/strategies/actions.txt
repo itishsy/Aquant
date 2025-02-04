@@ -47,11 +47,11 @@ actions
 		hand_score<50
 			fold
 	stage=='Flop'
-		win > 0.5
+		win_rate > 0.5
 			call
-		0.2 < win < 0.5
+		0.2 < win_rate < 0.5
 			check
-		win < 0.2
+		win_rate < 0.2
 			fold
 	stage=='Turn'
 	stage=='River'

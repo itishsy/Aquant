@@ -66,24 +66,48 @@ class Strategy:
     def predict_action(self, game):
         hand = Hand(game.card1, game.card2)
         if game.card3:
-            hand.board = [game.card3, game.card4, game.card5]
+            hand.add_board(game.card3)
+            hand.add_board(game.card4)
+            hand.add_board(game.card5)
             if game.card6:
-                hand.board.append(game.card6)
+                hand.add_board(game.card6)
                 if game.card7:
-                    hand.board.append(game.card7)
+                    hand.add_board(game.card7)
 
-        opponent_range = self.opponent_ranges(game)
-        hand_score = hand.get_score()
-        win_rate = hand.win_rate(opponent_range)
-        print('hand_score==> {} , win_rate ==> {}'.format(hand_score, win_rate))
-        args = {
-            'stage': game.stage,
-            'hand_score': hand_score,
-            'pool': int(game.sections[-1].pool/Decimal(str(BB))),
-            'seat': game.seat,
-            'win_rate': win_rate
-        }
-        act = eval_cond(self.action_cond, args)
+        if game.stage == 'PreFlop':
+            hand_score = hand.get_score()
+            print('hand_score==> {}'.format(hand_score))
+            args = {
+                'stage': 0,
+                'hand_score': hand_score,
+                'pool': int(game.sections[-1].pool/Decimal(str(BB))),
+                'seat': game.seat
+            }
+            act = eval_cond(self.action_cond, args)
+        else:
+            # 评估其他玩家的底牌范围
+            opponent_range = self.opponent_ranges(game)
+            hand_strength = hand.get_strength()
+            call = game.sections[-1].call
+            pot = int(game.sections[-1].pool / Decimal(str(BB)))
+            if hand_strength > 0.5:
+                if call > 0:
+                    ev = pot * hand_strength - (1-hand_strength) * call
+                    act = 'call' if ev > 0 else 'fold'
+                else:
+                    bet = int(pot * hand_strength / Decimal(str(BB)))
+                    max_bet = int(pot / Decimal(str(BB)))
+                    act = 'bet({},{})'.format(bet, max_bet)
+            else:
+                win_rate = hand.win_rate(opponent_range)
+                print('win_rate ==> {}'.format(win_rate))
+                if call > 0:
+                    ev = pot * win_rate - (1 - win_rate) * call
+                    act = 'call' if ev > 0 else 'fold'
+                else:
+                    bet = int(pot * win_rate / Decimal(str(BB)))
+                    max_bet = int(pot / Decimal(str(BB)))
+                    act = 'bet({},{})'.format(bet, max_bet)
         game.action = act
 
     def opponent_ranges(self, game):
@@ -102,6 +126,7 @@ class Strategy:
 
         args = {
             'stage': game.stage,
+            'call': game.sections[-1].call,
             'pool': int(game.sections[-1].pool / Decimal(str(BB))),
         }
         rate_range = eval_cond(self.range_cond, args)
@@ -117,5 +142,4 @@ class Strategy:
                     for suit in suits:
                         opponent_range.append(key[0]+suit+key[1]+suit)
         return opponent_range
-
 
