@@ -74,39 +74,57 @@ class Strategy:
                 if game.card7:
                     hand.add_board(game.card7)
 
+        call = float(game.sections[-1].call)
         if game.stage == 'PreFlop':
+            """
+            (1) hand_score>80，有raise，无call和fold选项。 raise随机选择bet大码
+            (2) 80>hand_score>70，有raise、call, 无fold。 call量为中大码，选择call。 否则随机选择raise中大码
+            (3) 70>hand_score>60，有raise、call、fold。 有call，按ev计算选择call和fold； 无call，随机选择raise中码
+            (4) 60>hand_score>50，有call、fold，有条件raise。 ev计算call及fold，有位置时，min-raise随机bb(2,4)
+            (5) hand_score<50, 有fold，有条件call。 有位置时，min-raise随机bb(2,4)
+            """
             hand_score = hand.get_score()
+            pot = int(game.sections[-1].pool/Decimal(str(BB)))
+
+            if hand_score >= 80:
+                return 'bet({},{})'.format(pot, pot*2)
+            elif 80 > hand_score >= 70:
+                return 'bet({},{})'.format(pot, pot*2)
+
             print('hand_score==> {}'.format(hand_score))
             args = {
-                'stage': 0,
+                'stage': 'PreFlop',
                 'hand_score': hand_score,
-                'pool': int(game.sections[-1].pool/Decimal(str(BB))),
+                'pool': pot,
                 'seat': game.seat
             }
             act = eval_cond(self.action_cond, args)
+            if act == 'fold' and call > 0.0 and game.seat in [1, 2, 6]:
+                ev = pot * hand_score / 100 - (1 - hand_score / 100) * call
+                if ev > 0:
+                    act = 'call'
         else:
             # 评估其他玩家的底牌范围
             opponent_range = self.opponent_ranges(game)
             hand_strength = hand.get_strength()
-            call = game.sections[-1].call
-            pot = int(game.sections[-1].pool / Decimal(str(BB)))
+            pool = game.sections[-1].pool
             if hand_strength > 0.5:
                 if call > 0:
-                    ev = pot * hand_strength - (1-hand_strength) * call
+                    ev = pool * hand_strength - (1-hand_strength) * call
                     act = 'call' if ev > 0 else 'fold'
                 else:
-                    bet = int(pot * hand_strength / Decimal(str(BB)))
-                    max_bet = int(pot / Decimal(str(BB)))
+                    bet = int(Decimal(str(pool * hand_strength)) / Decimal(str(BB)))
+                    max_bet = int(pool / Decimal(str(BB)))
                     act = 'bet({},{})'.format(bet, max_bet)
             else:
                 win_rate = hand.win_rate(opponent_range)
                 print('win_rate ==> {}'.format(win_rate))
                 if call > 0:
-                    ev = pot * win_rate - (1 - win_rate) * call
+                    ev = pool * win_rate - (1 - win_rate) * call
                     act = 'call' if ev > 0 else 'fold'
                 else:
-                    bet = int(pot * win_rate / Decimal(str(BB)))
-                    max_bet = int(pot / Decimal(str(BB)))
+                    bet = int(Decimal(str(pool * win_rate)) / Decimal(str(BB)))
+                    max_bet = int(pool / Decimal(str(BB)))
                     act = 'bet({},{})'.format(bet, max_bet)
         game.action = act
 

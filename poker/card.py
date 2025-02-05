@@ -159,7 +159,8 @@ class Hand:
         self.board = []
 
     def add_board(self, card):
-        self.board.append(Card.new(card))
+        if card:
+            self.board.append(Card.new(card))
 
     def get_score(self):
         if self.cards[0] == self.cards[2]:
@@ -184,10 +185,14 @@ class Hand:
         高牌	      6186-7462
         :return:
         """
+        if not self.board:
+            return 0.2
 
         # 计算手牌强度。 定义为0.1-1，1为nuts牌，即100%赢。
         my_strength = self.evaluator.evaluate(self.hand, self.board)
-        board_strength = self.evaluator.evaluate([], self.board)
+        board_strength = -1
+        if len(self.board) == 5:
+            board_strength = self.evaluator.evaluate([], self.board)
         if board_strength == my_strength:
             # 手牌没有牌力加强
             strength = 0.3
@@ -247,10 +252,10 @@ class Hand:
                 if self.deck.cards.__contains__(card):
                     self.deck.cards.remove(card)
 
-            board = self.board + self.deck.draw(5 - len(self.board))
+            # board = self.board + self.deck.draw(5 - len(self.board))
             # 计算牌力
-            strength1 = self.evaluator.evaluate(self.hand, board)
-            strength2 = self.evaluator.evaluate(opponent_hand, board)
+            strength1 = self.evaluator.evaluate(self.hand, self.board)
+            strength2 = self.evaluator.evaluate(opponent_hand, self.board)
             if strength1 < strength2:
                 wins += 1
         return wins / num_simulations
