@@ -150,7 +150,7 @@ class GameEngine:
 
     def do_action(self):
         self.print()
-        action = Action(self.game.action, self.game.sections[-1].call)
+        action = Action(self.game.action)
         action.do()
         self.game.action = None
 
@@ -185,7 +185,7 @@ class GameEngine:
                 # image.save(table_image)
                 if sec and sec.enabled():
                     if self.load_game(sec):
-                        strategy.predict_action(self.game)
+                        self.game.action = strategy.predict_action(self.game)
                         sec.action = self.game.action
                         sec.save()
                     else:

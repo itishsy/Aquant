@@ -4,6 +4,7 @@ from poker.strategies.sorted_hands import hands_win_rate
 from poker.config import BB
 from decimal import Decimal
 from itertools import combinations
+import random
 
 
 def fetch_by_level(cd, le):
@@ -74,7 +75,8 @@ class Strategy:
                 if game.card7:
                     hand.add_board(game.card7)
 
-        call = float(game.sections[-1].call)
+        call_bb = int(game.sections[-1].call / BB)
+        pot_bb = int(game.sections[-1].pool / BB)
         if game.stage == 'PreFlop':
             """
             (1) hand_score>80，有raise，无call和fold选项。 raise随机选择bet大码
@@ -84,53 +86,74 @@ class Strategy:
             (5) hand_score<50, 有fold，有条件call。 有位置时，min-raise随机bb(2,4)
             """
             hand_score = hand.get_score()
-            pot = int(game.sections[-1].pool/Decimal(str(BB)))
-
-            if hand_score >= 80:
-                return 'bet({},{})'.format(pot, pot*2)
-            elif 80 > hand_score >= 70:
-                return 'bet({},{})'.format(pot, pot*2)
-
+            call_ev = pot_bb * hand_score / 100 - (1 - hand_score / 100) * call_bb
             print('hand_score==> {}'.format(hand_score))
-            args = {
-                'stage': 'PreFlop',
-                'hand_score': hand_score,
-                'pool': pot,
-                'seat': game.seat
-            }
-            act = eval_cond(self.action_cond, args)
-            if act == 'fold' and call > 0.0 and game.seat in [1, 2, 6]:
-                ev = pot * hand_score / 100 - (1 - hand_score / 100) * call
-                if ev > 0:
-                    act = 'call'
+            if hand_score >= 80:
+                return 'bet({},{})'.format(pot_bb, pot_bb*2)
+            elif 80 > hand_score >= 70:
+                if call_bb >= 3:
+                    return 'call'
+                return 'bet({},{})'.format(int(pot_bb/2), pot_bb)
+            elif 70 > hand_score >= 60:
+                if 0 < call_bb < 4:
+                    return 'call'
+                elif call_bb == 0:
+                    return 'raise:{}'.format(random.randint(2, 5))
+                else:
+                    return 'call' if call_ev > 0 else 'fold'
+            elif 60 > hand_score >= 50:
+                if 4 > call_bb > 0:
+                    return 'call'
+                elif call_bb == 0:
+                    return 'raise:{}'.format(random.randint(2, 4))
+                else:
+                    return 'call' if call_ev > 0 else 'fold'
+            elif hand_score < 50:
+                if call_bb > 0.0:
+                    if call_bb > 0 and game.seat in [1, 2, 6]:
+                        return 'call'
+                    else:
+                        return 'fold'
+                else:
+                    return 'check'
+
+            # args = {
+            #     'stage': 'PreFlop',
+            #     'hand_score': hand_score,
+            #     'pool': pot,
+            #     'seat': game.seat
+            # }
+            # act = eval_cond(self.action_cond, args)
         else:
             # 评估其他玩家的底牌范围
             opponent_range = self.opponent_ranges(game)
             hand_strength = hand.get_strength()
-            pool = game.sections[-1].pool
             if hand_strength > 0.5:
-                if call > 0:
-                    ev = pool * hand_strength - (1-hand_strength) * call
-                    act = 'call' if ev > 0 else 'fold'
+                print('hand_strength ==> {}'.format(hand_strength))
+                game.sections[-1].hand_strength = hand_strength
+                if call_bb > 0:
+                    ev = pot_bb * hand_strength - (1-hand_strength) * call_bb
+                    return 'call' if ev > 0 else 'fold'
                 else:
-                    bet = int(Decimal(str(pool * hand_strength)) / Decimal(str(BB)))
-                    max_bet = int(pool / Decimal(str(BB)))
-                    act = 'bet({},{})'.format(bet, max_bet)
+                    if random.randint(1, 10) % 2 == 0:
+                        return 'raise:{}'.format(random.randint(int(pot_bb * hand_strength), pot_bb*2))
+                    return 'call'
             else:
                 win_rate = hand.win_rate(opponent_range)
-                print('win_rate ==> {}'.format(win_rate))
-                if call > 0:
-                    ev = pool * win_rate - (1 - win_rate) * call
-                    act = 'call' if ev > 0 else 'fold'
+                game.sections[-1].hand_strength = win_rate
+                print('hand_strength ==> {}'.format(win_rate))
+                if call_bb > 0:
+                    ev = pot_bb * win_rate - (1 - win_rate) * call_bb
+                    return 'call' if ev > 0 else 'fold'
                 else:
-                    bet = int(Decimal(str(pool * win_rate)) / Decimal(str(BB)))
-                    max_bet = int(pool / Decimal(str(BB)))
-                    act = 'bet({},{})'.format(bet, max_bet)
-        game.action = act
+                    if random.randint(1, 10) % 2 == 0:
+                        return 'raise:{}'.format(random.randint(int(pot_bb * win_rate), pot_bb))
+                    return 'call'
 
-    def opponent_ranges(self, game):
+    @staticmethod
+    def opponent_ranges(game):
         """
-        评估对手的手牌范围
+        手牌范围。评估翻牌前的手牌范围。跟底池大小、玩家行为习惯有关。
         :param game:
         :return:
         """
@@ -142,17 +165,26 @@ class Strategy:
         player_style = '0, 1, 2'  # 历史行为。 紧凶、松凶、被动。紧凶玩家加注时通常有强牌，而松凶玩家可能用更宽的范围加注
         board_style = '单张成顺、单张成花、卡顺、三张花、'   # 牌面结构。 湿润牌面下注，对手可能有更多听牌或成牌
 
-        args = {
-            'stage': game.stage,
-            'call': game.sections[-1].call,
-            'pool': int(game.sections[-1].pool / Decimal(str(BB))),
-        }
-        rate_range = eval_cond(self.range_cond, args)
-        min_rate = float(rate_range.split('-')[0])
-        max_rate = float(rate_range.split('-')[1])
+        # args = {
+        #     'stage': game.stage,
+        #     'call': game.sections[-1].call,
+        #     'pool': int(game.sections[-1].pool / Decimal(str(BB))),
+        # }
+        # opponent_range_rate = eval_cond(self.range_cond, args).split('-')
+        pot = int(game.sections[-1].pool / Decimal(str(BB)))
+        if 1 < pot <= 3:
+            opponent_range_rate = (0.2, 0.6)
+        elif 3 < pot <= 10:
+            opponent_range_rate = (0.4, 0.9)
+        elif 10 < pot <= 50:
+            opponent_range_rate = (0.5, 0.9)
+        else:
+            opponent_range_rate = (0.55, 0.9)
+
+        game.sections[-1].opponent_range_rate = opponent_range_rate
         opponent_range = []
         for key, value in hands_win_rate.items():
-            if min_rate <= value <= max_rate:
+            if opponent_range_rate[0] <= value <= opponent_range_rate[1]:
                 if key[0] == key[1] or key[2] == 'o':
                     for combination in combinations(suits, 2):
                         opponent_range.append(key[0]+combination[0]+key[1]+combination[1])
@@ -161,3 +193,13 @@ class Strategy:
                         opponent_range.append(key[0]+suit+key[1]+suit)
         return opponent_range
 
+    def nuts_rate(self, game):
+        """
+        成牌概率。 一般来讲，成牌大小与下注金额相关。暂未考虑诈唬
+        :param game:
+        :return:
+        """
+        pass
+
+
+print(int(0.79 / BB))

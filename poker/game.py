@@ -1,5 +1,5 @@
 from models.base import BaseModel, db
-from flask_peewee.db import CharField, IntegerField, DateTimeField, AutoField, DecimalField
+from flask_peewee.db import CharField, IntegerField, DateTimeField, AutoField, DecimalField, FloatField
 from datetime import datetime
 from poker.player import Player, PlayerAction
 from poker.config import SB, BB
@@ -167,7 +167,7 @@ class Section(BaseModel):
     """
     id = AutoField()
     game_code = CharField()
-    pool = DecimalField()  # 底池
+    pool = FloatField()  # 底池
     seat = IntegerField()  # 座位
     stage = CharField()  # 阶段
     card1 = CharField()  # 手牌1
@@ -178,26 +178,29 @@ class Section(BaseModel):
     card6 = CharField(null=True)  # 公共牌4
     card7 = CharField(null=True)  # 公共牌5
     action = CharField(null=True)  # 操作
-    call = DecimalField(null=True)  # 跟注金额
+    call = FloatField(null=True)  # 跟注金额
+    hand_score = CharField(null=True)  # 手牌
+    hand_strength = CharField(null=True)  # 手牌强度
+    opponent_range_rate = CharField(null=True)  # 玩家范围
 
     player1_name = CharField(null=True)  # 玩家1
-    player1_amount = DecimalField(null=True)  #
+    player1_amount = FloatField(null=True)  #
     player1_seat = CharField(null=True)  #
     player1_action = CharField(null=True)  #
     player2_name = CharField(null=True)  # 玩家2
-    player2_amount = DecimalField(null=True)  #
+    player2_amount = FloatField(null=True)  #
     player2_seat = CharField(null=True)  #
     player2_action = CharField(null=True)  #
     player3_name = CharField(null=True)  # 玩家3
-    player3_amount = DecimalField(null=True)  #
+    player3_amount = FloatField(null=True)  #
     player3_seat = CharField(null=True)  #
     player3_action = CharField(null=True)  #
     player4_name = CharField(null=True)  # 玩家4
-    player4_amount = DecimalField(null=True)  #
+    player4_amount = FloatField(null=True)  #
     player4_seat = CharField(null=True)  #
     player4_action = CharField(null=True)  #
     player5_name = CharField(null=True)  # 玩家5
-    player5_amount = DecimalField(null=True)  #
+    player5_amount = FloatField(null=True)  #
     player5_seat = CharField(null=True)  #
     player5_action = CharField(null=True)  #
 
