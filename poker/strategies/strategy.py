@@ -88,12 +88,18 @@ class Strategy:
             hand_score = hand.get_score()
             call_ev = pot_bb * hand_score / 100 - (1 - hand_score / 100) * call_bb
             print('hand_score==> {}'.format(hand_score))
+            game.sections[-1].hand_score = hand_score
             if hand_score >= 80:
-                return 'bet({},{})'.format(pot_bb, pot_bb*2)
+                if call_bb < 3 or pot_bb < 4:
+                    return 'raise:2'
+                return 'raise:{}'.format(random.randint(pot_bb, pot_bb*2))
             elif 80 > hand_score >= 70:
-                if call_bb >= 3:
-                    return 'call'
-                return 'bet({},{})'.format(int(pot_bb/2), pot_bb)
+                if call_bb > 0.0:
+                    if call_bb < 3 or pot_bb < 4:
+                        return 'raise:2'
+                    if call_bb >= 3:
+                        return 'call'
+                return 'raise:{}'.format(random.randint(int(pot_bb/2), pot_bb))
             elif 70 > hand_score >= 60:
                 if 0 < call_bb < 4:
                     return 'call'
@@ -107,8 +113,8 @@ class Strategy:
                 elif call_bb == 0:
                     return 'raise:{}'.format(random.randint(2, 4))
                 else:
-                    return 'call' if call_ev > 0 else 'fold'
-            elif hand_score < 50:
+                    return 'raise' if call_ev > 0 else 'fold'
+            elif 40 < hand_score < 50:
                 if call_bb > 0.0:
                     if call_bb > 0 and game.seat in [1, 2, 6]:
                         return 'call'
@@ -116,6 +122,8 @@ class Strategy:
                         return 'fold'
                 else:
                     return 'check'
+            else:
+                return 'fold'
 
             # args = {
             #     'stage': 'PreFlop',
@@ -135,9 +143,12 @@ class Strategy:
                     ev = pot_bb * hand_strength - (1-hand_strength) * call_bb
                     return 'call' if ev > 0 else 'fold'
                 else:
-                    if random.randint(1, 10) % 2 == 0:
-                        return 'raise:{}'.format(random.randint(int(pot_bb * hand_strength), pot_bb*2))
-                    return 'call'
+                    win_rate = hand.win_rate(opponent_range)
+                    if win_rate > 0.5:
+                        return 'raise:{}'.format(random.randint(int(pot_bb * hand_strength), int(pot_bb * 3/2)))
+                    elif random.randint(1, 10) % 2 == 0:
+                        return 'raise:{}'.format(random.randint(int(pot_bb * win_rate), pot_bb))
+                    return 'check'
             else:
                 win_rate = hand.win_rate(opponent_range)
                 game.sections[-1].hand_strength = win_rate
@@ -146,9 +157,13 @@ class Strategy:
                     ev = pot_bb * win_rate - (1 - win_rate) * call_bb
                     return 'call' if ev > 0 else 'fold'
                 else:
-                    if random.randint(1, 10) % 2 == 0:
-                        return 'raise:{}'.format(random.randint(int(pot_bb * win_rate), pot_bb))
-                    return 'call'
+                    win_rate = hand.win_rate(opponent_range)
+                    if win_rate > 0.5:
+                        return 'raise:{}'.format(random.randint(int(pot_bb * win_rate), int(pot_bb / 2)))
+                    elif random.randint(1, 10) % 2 == 0:
+                        return 'raise:{}'.format(random.randint(3, 8))
+                    else:
+                        return 'check'
 
     @staticmethod
     def opponent_ranges(game):
@@ -171,7 +186,7 @@ class Strategy:
         #     'pool': int(game.sections[-1].pool / Decimal(str(BB))),
         # }
         # opponent_range_rate = eval_cond(self.range_cond, args).split('-')
-        pot = int(game.sections[-1].pool / Decimal(str(BB)))
+        pot = int(game.sections[-1].pool / BB)
         if 1 < pot <= 3:
             opponent_range_rate = (0.2, 0.6)
         elif 3 < pot <= 10:
@@ -183,7 +198,8 @@ class Strategy:
 
         game.sections[-1].opponent_range_rate = opponent_range_rate
         opponent_range = []
-        for key, value in hands_win_rate.items():
+        for key, val in hands_win_rate.items():
+            value = val / 100
             if opponent_range_rate[0] <= value <= opponent_range_rate[1]:
                 if key[0] == key[1] or key[2] == 'o':
                     for combination in combinations(suits, 2):
@@ -201,5 +217,3 @@ class Strategy:
         """
         pass
 
-
-print(int(0.79 / BB))

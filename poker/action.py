@@ -27,6 +27,8 @@ class Action:
                 time.sleep(1)
             method = getattr(self, self.act)
             method()
+        else:
+            self.click_fold()
         pyautogui.moveTo(POSITION_BUTTON_FOLD[0] + random.randint(1, 100),
                          POSITION_BUTTON_FOLD[1] + random.randint(100, 500) - 800,
                          duration=0.8)  # duration 参数表示鼠标移动的时间

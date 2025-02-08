@@ -188,8 +188,8 @@ class GameEngine:
                         self.game.action = strategy.predict_action(self.game)
                         sec.action = self.game.action
                         sec.save()
-                    else:
-                        print('no section')
+                    # else:
+                    #     print('no section')
                     if self.game.action and is_match_color(image.getpixel(POSITION_BUTTON_FOLD), COLOR_BUTTON):
                         self.do_action()
             time.sleep(3)

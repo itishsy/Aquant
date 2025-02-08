@@ -94,10 +94,10 @@ def fetch_amount(ocr_txt):
             val = '{}.{}'.format(part1, part2)
         # print('amount:', ocr_txt)
         try:
-            return Decimal(val)
+            return float(val)
         except:
-            return Decimal(0.0)
-    return 0.00
+            return 0.0
+    return 0.0
 
 
 def get_region(name, idx=None):

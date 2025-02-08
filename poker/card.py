@@ -159,7 +159,9 @@ class Hand:
         self.board = []
 
     def add_board(self, card):
-        if card:
+        print('add board：', card)
+        if card in deck:
+            print('board append：', card)
             self.board.append(Card.new(card))
 
     def get_score(self):
@@ -185,16 +187,17 @@ class Hand:
         高牌	      6186-7462
         :return:
         """
-        if not self.board:
+        if not self.board or len(self.board) < 3:
             return 0.2
 
         # 计算手牌强度。 定义为0.1-1，1为nuts牌，即100%赢。
         my_strength = self.evaluator.evaluate(self.hand, self.board)
+        print('牌型名称:', self.print_class_name(my_strength))
         board_strength = -1
         if len(self.board) == 5:
             board_strength = self.evaluator.evaluate([], self.board)
         if board_strength == my_strength:
-            # 手牌没有牌力加强
+            # 手牌没有加强牌力
             strength = 0.3
         else:
             if my_strength < 167:
@@ -233,6 +236,8 @@ class Hand:
         return stronger_hands
 
     def win_rate(self, opponent_range, num_simulations=1000):
+        if len(self.board) < 3:
+            return 0.333
         wins = 0
         for _ in range(num_simulations):
             # 底牌范围中随机抽取一手牌
@@ -260,6 +265,13 @@ class Hand:
                 wins += 1
         return wins / num_simulations
 
+    def print_class_name(self, strength):
+        # 步骤 4: 获取牌型等级
+        hand_class = self.evaluator.get_rank_class(strength)
+        # 步骤 5: 获取牌型名称
+        class_name = self.evaluator.class_to_string(hand_class)
+        return class_name
+
 
 if __name__ == '__main__':
     hand = Hand('Ts', 'Kd')
@@ -270,10 +282,10 @@ if __name__ == '__main__':
     hand.add_board('Kc')
     hand.add_board('6d')
     # print(hand.eval())
-    hand.add_board('2d')
+    # hand.add_board('2d')
     # print(hand.eval())
-    hand.add_board('Ac')
-    print(hand.eval())
+    # hand.add_board('Ac')
+    print(hand.get_strength())
     # cards1 = Cards('Ts', 'Qs', '7c', 'Kc', '4d', 'Jh', '2c')
     # val1 = cards1.lookup()
     # print(val1, cards1.to_string(val1))
