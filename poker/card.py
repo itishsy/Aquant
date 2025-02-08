@@ -159,9 +159,9 @@ class Hand:
         self.board = []
 
     def add_board(self, card):
-        print('add board：', card)
+        # print('add board：', card)
         if card in deck:
-            print('board append：', card)
+            # print('board append：', card)
             self.board.append(Card.new(card))
 
     def get_score(self):
@@ -198,24 +198,26 @@ class Hand:
             board_strength = self.evaluator.evaluate([], self.board)
         if board_strength == my_strength:
             # 手牌没有加强牌力
-            strength = 0.3
+            strength = 0.2
         else:
             if my_strength < 167:
                 strength = 1
-            elif my_strength < 1600:
+            elif my_strength < 1500:
                 strength = 0.9
-            elif my_strength < 2300:
+            elif my_strength < 1610:
                 strength = 0.8
-            elif my_strength < 3326:
+            elif my_strength < 2468:
                 strength = 0.7
-            elif my_strength < 4000:
+            elif my_strength < 3000:
                 strength = 0.6
-            elif my_strength < 5000:
+            elif my_strength < 3500:
                 strength = 0.5
-            elif my_strength < 6000:
+            elif my_strength < 4500:
                 strength = 0.4
-            else:
+            elif my_strength < 5000:
                 strength = 0.3
+            else:
+                strength = 0.2
         return strength
 
     def stronger_range(self):
@@ -270,7 +272,7 @@ class Hand:
         hand_class = self.evaluator.get_rank_class(strength)
         # 步骤 5: 获取牌型名称
         class_name = self.evaluator.class_to_string(hand_class)
-        return class_name
+        return strength, class_name
 
 
 if __name__ == '__main__':

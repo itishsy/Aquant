@@ -51,18 +51,21 @@ class Strategy:
         self.range_cond = None
         self.action_args = {}
         self.range_args = {}
-        with open(self.actions, 'r', encoding='utf-8') as file:
-            line = file.readline()
-            self.action_cond = Cond(line)
-            while line:
+        try:
+            with open(self.actions, 'r', encoding='utf-8') as file:
                 line = file.readline()
-                self.action_cond.append_child(line.replace('\t', ''), line.count('\t'))
-        with open(self.ranges, 'r', encoding='utf-8') as file:
-            line = file.readline()
-            self.range_cond = Cond(line)
-            while line:
+                self.action_cond = Cond(line)
+                while line:
+                    line = file.readline()
+                    self.action_cond.append_child(line.replace('\t', ''), line.count('\t'))
+            with open(self.ranges, 'r', encoding='utf-8') as file:
                 line = file.readline()
-                self.range_cond.append_child(line.replace('\t', ''), line.count('\t'))
+                self.range_cond = Cond(line)
+                while line:
+                    line = file.readline()
+                    self.range_cond.append_child(line.replace('\t', ''), line.count('\t'))
+        except FileNotFoundError:
+            print(f"策略文件不存在,忽略")
 
     def predict_action(self, game):
         hand = Hand(game.card1, game.card2)
@@ -77,6 +80,7 @@ class Strategy:
 
         call_bb = int(game.sections[-1].call / BB)
         pot_bb = int(game.sections[-1].pool / BB)
+        hand_score = hand.get_score()
         if game.stage == 'PreFlop':
             """
             (1) hand_score>80，有raise，无call和fold选项。 raise随机选择bet大码
@@ -85,13 +89,12 @@ class Strategy:
             (4) 60>hand_score>50，有call、fold，有条件raise。 ev计算call及fold，有位置时，min-raise随机bb(2,4)
             (5) hand_score<50, 有fold，有条件call。 有位置时，min-raise随机bb(2,4)
             """
-            hand_score = hand.get_score()
-            call_ev = pot_bb * hand_score / 100 - (1 - hand_score / 100) * call_bb
-            print('hand_score==> {}'.format(hand_score))
+            call_ev = 0 if call_bb == 0 else pot_bb * hand_score / 100 - (1 - hand_score / 100) * call_bb
+            # print('hand_score==> {}'.format(hand_score))
             game.sections[-1].hand_score = hand_score
             if hand_score >= 80:
-                if call_bb < 3 or pot_bb < 4:
-                    return 'raise:2'
+                if call_bb < 3 and pot_bb < 4:
+                    return 'raise:{}'.format(random.randint(2, 3))
                 return 'raise:{}'.format(random.randint(pot_bb, pot_bb*2))
             elif 80 > hand_score >= 70:
                 if call_bb > 0.0:
@@ -137,7 +140,7 @@ class Strategy:
             opponent_range = self.opponent_ranges(game)
             hand_strength = hand.get_strength()
             if hand_strength > 0.5:
-                print('hand_strength ==> {}'.format(hand_strength))
+                # print('hand_strength ==> {}'.format(hand_strength))
                 game.sections[-1].hand_strength = hand_strength
                 if call_bb > 0:
                     ev = pot_bb * hand_strength - (1-hand_strength) * call_bb
@@ -217,3 +220,25 @@ class Strategy:
         """
         pass
 
+
+def test_strategy(code):
+    from poker.game import Game, Section
+    sections = Section.select().where(Section.game_code == code).order_by(Section.id)
+    strategy = Strategy()
+    game = None
+    if len(sections) > 0:
+        idx = 0
+        for sec in sections:
+            if idx == 0:
+                game = Game(sec)
+                print(game.get_info())
+            else:
+                game.append_section(sec)
+            act = strategy.predict_action(game)
+            print("{} : hand score --> {} action --> {}".format(
+                game.stage, game.sections[-1].hand_score if game.stage == 'PreFlop' else game.sections[-1].hand_strength, act))
+            idx = idx + 1
+
+
+if __name__ == '__main__':
+    test_strategy('20250208180018')

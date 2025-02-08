@@ -178,6 +178,7 @@ class Section(BaseModel):
     card6 = CharField(null=True)  # 公共牌4
     card7 = CharField(null=True)  # 公共牌5
     action = CharField(null=True)  # 操作
+    call_txt = CharField(null=True)  # 跟注金额ocr内容
     call = FloatField(null=True)  # 跟注金额
     hand_score = CharField(null=True)  # 手牌
     hand_strength = CharField(null=True)  # 手牌强度

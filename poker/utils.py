@@ -1,7 +1,6 @@
 import pyautogui
 from PIL import Image
 from config import *
-from decimal import Decimal
 
 table_image = "table_image.jpg"
 cropped_image = 'table_cropped_image.jpg'

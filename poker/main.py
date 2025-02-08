@@ -1,6 +1,7 @@
 import time
 import io
 import ddddocr
+import os
 
 from poker.game import Game, Section
 from poker.action import Action
@@ -101,6 +102,7 @@ class TableImage:
         sec.player5_name, sec.player5_amount = self.fetch_player(5)
 
         amount_txt = self.ocr_txt(REGION_CALL_AMOUNT)
+        sec.call_txt = amount_txt
         call_amount = fetch_amount(amount_txt)
         sec.call = call_amount
 
@@ -145,6 +147,13 @@ class GameEngine:
             return True
         if not section.equals(self.game.sections[-1]):
             self.game.append_section(section)
+            # 解决ocr识别call误差问题
+            last_sec = self.game.sections[-1]
+            if last_sec.call > 0:
+                pre_sec = self.game.sections[-2]
+                if pre_sec.pool == last_sec.pool:
+                    # 底池都不变，怎么会有call呢？
+                    self.game.sections[-1].call = 0.0
             return True
         return False
 
@@ -173,26 +182,28 @@ class GameEngine:
                     print("{}: {}, {}".format(player.name, player.seat, player.actions[-1].action))
 
         if self.game.action:
-            print("{} action --> {}".format(self.game.stage, self.game.action))
+            print("{} : hand_score --> {} action --> {}".format(
+                self.game.stage, self.game.sections[-1].hand_score, self.game.action))
 
     def start(self):
         strategy = Strategy()
         while True:
             if self.active():
                 image = pyautogui.screenshot(region=(self.win.left, self.win.top, self.win.width, self.win.height))
-                table = TableImage(image, self.ocr)
-                sec = table.create_section()
-                # image.save(table_image)
-                if sec and sec.enabled():
-                    if self.load_game(sec):
+                if is_match_color(image.getpixel(POSITION_BUTTON_FOLD), COLOR_BUTTON):
+                    table = TableImage(image, self.ocr)
+                    sec = table.create_section()
+                    if sec and sec.enabled() and self.load_game(sec):
                         self.game.action = strategy.predict_action(self.game)
                         sec.action = self.game.action
                         sec.save()
-                    # else:
-                    #     print('no section')
-                    if self.game.action and is_match_color(image.getpixel(POSITION_BUTTON_FOLD), COLOR_BUTTON):
-                        self.do_action()
-            time.sleep(3)
+                        if sec.stage == 'PreFlop' and sec.action == 'fold' and len(self.game.sections) == 1:
+                            pass
+                        else:
+                            os.makedirs('image/{}'.format(self.game.code), exist_ok=True)
+                            image.save('image/{}/{}.jpg'.format(self.game.code, sec.id))
+                    self.do_action()
+            time.sleep(2)
 
 
 def test_workflow(file_name='table_image.jpg'):
