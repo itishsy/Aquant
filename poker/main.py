@@ -196,10 +196,11 @@ class GameEngine:
                     if sec and sec.enabled() and self.load_game(sec):
                         self.game.action = strategy.predict_action(self.game)
                         sec.action = self.game.action
-                        sec.save()
                         if sec.stage == 'PreFlop' and sec.action == 'fold' and len(self.game.sections) == 1:
+                            # PreFlop第一輪就fold掉的，不保存
                             pass
                         else:
+                            sec.save()
                             os.makedirs('image/{}'.format(self.game.code), exist_ok=True)
                             image.save('image/{}/{}.jpg'.format(self.game.code, sec.id))
                     self.do_action()
