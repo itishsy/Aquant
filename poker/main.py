@@ -103,7 +103,10 @@ class TableImage:
 
         amount_txt = self.ocr_txt(REGION_CALL_AMOUNT)
         sec.call_txt = amount_txt
-        call_amount = fetch_amount(amount_txt)
+        if amount_txt.strip().startswith('S') or amount_txt.strip().startswith('s'):
+            call_amount = fetch_amount(amount_txt)
+        else:
+            call_amount = 0.0
         sec.call = call_amount
 
         return sec
@@ -147,13 +150,6 @@ class GameEngine:
             return True
         if not section.equals(self.game.sections[-1]):
             self.game.append_section(section)
-            # 解决ocr识别call误差问题
-            last_sec = self.game.sections[-1]
-            if last_sec.call > 0:
-                pre_sec = self.game.sections[-2]
-                if pre_sec.pool == last_sec.pool:
-                    # 底池都不变，怎么会有call呢？
-                    self.game.sections[-1].call = 0.0
             return True
         return False
 
@@ -216,7 +212,7 @@ def test_workflow(file_name='table_image.jpg'):
 
 
 if __name__ == '__main__':
-    ge = GameEngine()
-    ge.start()
-    # test_workflow()
+    # ge = GameEngine()
+    # ge.start()
+    test_workflow('image/20250209132704/2.jpg')
 

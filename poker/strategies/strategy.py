@@ -81,6 +81,37 @@ class Strategy:
         call_bb = int(game.sections[-1].call / BB)
         pot_bb = int(game.sections[-1].pool / BB)
         hand_score = hand.get_score()
+        game.sections[-1].hand_score = hand_score
+
+        win_rate = hand.win_rate(game.stage, self.predict_ranges(game))
+        cev = 0 if call_bb == 0 else pot_bb * win_rate - (1 - win_rate) * call_bb
+        if cev > 0:
+            # call、raise
+            if hand_score >= 80:
+                """超强牌"""
+                pass
+            elif 80 > hand_score >= 70:
+                """强牌"""
+                pass
+            elif 70 > hand_score >= 60:
+                """中等牌"""
+                pass
+            elif 60 > hand_score >= 50:
+                """机会牌"""
+                pass
+            elif 40 < hand_score < 50:
+                """稍弱牌"""
+                pass
+            else:
+                """弱牌"""
+                pass
+        elif cev == 0:
+            # check、raise
+            pass
+        else:
+            # fold、check、call
+            return 'fold'
+
         if game.stage == 'PreFlop':
             """
             (1) hand_score>80，有raise，无call和fold选项。 raise随机选择bet大码
@@ -91,7 +122,6 @@ class Strategy:
             """
             call_ev = 0 if call_bb == 0 else pot_bb * hand_score / 100 - (1 - hand_score / 100) * call_bb
             # print('hand_score==> {}'.format(hand_score))
-            game.sections[-1].hand_score = hand_score
             if hand_score >= 80:
                 if call_bb < 3 and pot_bb < 4:
                     return 'raise:{}'.format(random.randint(2, 3))
@@ -137,30 +167,28 @@ class Strategy:
             # act = eval_cond(self.action_cond, args)
         else:
             # 评估其他玩家的底牌范围
-            opponent_range = self.opponent_ranges(game)
-            hand_strength = hand.get_strength()
-            if hand_strength > 0.5:
+            strength = hand.get_strength()
+            if strength > 0.5:
                 # print('hand_strength ==> {}'.format(hand_strength))
-                game.sections[-1].hand_strength = hand_strength
+                game.sections[-1].hand_strength = strength
                 if call_bb > 0:
-                    ev = pot_bb * hand_strength - (1-hand_strength) * call_bb
+                    ev = pot_bb * strength - (1-strength) * call_bb
                     return 'call' if ev > 0 else 'fold'
                 else:
-                    win_rate = hand.win_rate(opponent_range)
                     if win_rate > 0.5:
-                        return 'raise:{}'.format(random.randint(int(pot_bb * hand_strength), int(pot_bb * 3/2)))
+                        return 'raise:{}'.format(random.randint(int(pot_bb * strength), int(pot_bb * 3/2)))
                     elif random.randint(1, 10) % 2 == 0:
                         return 'raise:{}'.format(random.randint(int(pot_bb * win_rate), pot_bb))
                     return 'check'
             else:
-                win_rate = hand.win_rate(opponent_range)
+                win_rate = hand.win_rate(game)
                 game.sections[-1].hand_strength = win_rate
                 print('hand_strength ==> {}'.format(win_rate))
                 if call_bb > 0:
                     ev = pot_bb * win_rate - (1 - win_rate) * call_bb
                     return 'call' if ev > 0 else 'fold'
                 else:
-                    win_rate = hand.win_rate(opponent_range)
+                    win_rate = hand.win_rate(game)
                     if win_rate > 0.5:
                         return 'raise:{}'.format(random.randint(int(pot_bb * win_rate), int(pot_bb / 2)))
                     elif random.randint(1, 10) % 2 == 0:
@@ -169,7 +197,7 @@ class Strategy:
                         return 'check'
 
     @staticmethod
-    def opponent_ranges(game):
+    def predict_ranges(game):
         """
         手牌范围。评估翻牌前的手牌范围。跟底池大小、玩家行为习惯有关。
         :param game:
