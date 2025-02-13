@@ -170,6 +170,7 @@ class Section(BaseModel):
     pool = FloatField()  # 底池
     seat = IntegerField()  # 座位
     stage = CharField()  # 阶段
+    balance = FloatField()  # 余额
     card1 = CharField()  # 手牌1
     card2 = CharField()  # 手牌2
     card3 = CharField(null=True)  # 公共牌1
